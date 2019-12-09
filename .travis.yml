@@ -24,12 +24,12 @@ before_install:
 install:
   - pip install stdb
   - pip install -v --no-deps .
-script:
-  - if [[ $DOCS == 1 ]]; then
-      cd docs; make html; touch _build/html/.nojekyll; cd ..;
+# script:
+#   - if [[ $DOCS == 1 ]]; then
+#       cd docs; make html; touch _build/html/.nojekyll; cd ..;
     # else
     #   mkdir empty; cd empty; pytest -v --cov=obstools ../obstools/tests/;
-    fi
+    # fi
 # after_success:
 #   - if [[ $DOCS != 1 ]]; then
 #       bash <(curl -s https://codecov.io/bash);
