@@ -24,5 +24,3 @@ used in command-line scripts.
 .. toctree::
    :maxdepth: 2
    :caption: Modules
-
-

@@ -16,7 +16,7 @@ scripts = ['Scripts/' + i for i in listdir('Scripts/')]
 
 setup(
     name='rfpy',
-    version=find_version('obstools', '__init__.py'),
+    version=find_version('rfpy', '__init__.py'),
     description='Python Module for Teleseismic Receiver Functions',
     author='Pascal Audet',
     maintainer='Pascal Audet',

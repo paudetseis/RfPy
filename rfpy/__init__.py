@@ -104,8 +104,8 @@ Installing from source
 
 """
 
-__version__='0.0.1'
-__author__='Pascal Audet'
+__version__ = '0.0.1'
+__author__ = 'Pascal Audet'
 
 from .classes import RFData
 from . import utils, options
