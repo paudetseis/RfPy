@@ -33,14 +33,11 @@ from three-component seismograms.
 
 # -*- coding: utf-8 -*-
 import numpy as np
-import rfpy
 from obspy.core import Trace
 from obspy.geodetics.base import gps2dist_azimuth as epi
 from obspy.geodetics import kilometer2degrees as k2d
 from obspy.signal.rotate import rotate_ne_rt
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gspec
+from rfpy.calc import utils
 
 class Meta(object):
     """
@@ -312,7 +309,7 @@ class RFData(object):
         print ("*    Startime: " + tstart.strftime("%Y-%m-%d %H:%M:%S"))
         print ("*    Endtime:  " + tend.strftime("%Y-%m-%d %H:%M:%S"))
 
-        err, trN, trE, trZ = rfpy.utils.get_data_NEZ(client=client, \
+        err, trN, trE, trZ = utils.get_data_NEZ(client=client, \
             sta=self.sta, start=tstart, \
             end=tend, stdata=stdata, ndval=ndval, new_sr=new_sr)
 

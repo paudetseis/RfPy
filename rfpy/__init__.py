@@ -107,6 +107,4 @@ Installing from source
 __version__ = '0.0.1'
 __author__ = 'Pascal Audet'
 
-from .classes import RFData
-from . import utils, options
 # import io_utils, tools, dt_proc, rf_bins, rf_harmonics, rf_hk, rf_proc, rf_wiggle
