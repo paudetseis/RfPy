@@ -9,8 +9,8 @@
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 #
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -39,11 +39,12 @@ from obspy.geodetics import kilometer2degrees as k2d
 from obspy.signal.rotate import rotate_ne_rt
 from rfpy.calc import utils
 
+
 class Meta(object):
     """
     A Meta object contains attributes associated with the metadata
     for a single receiver function analysis. 
-    
+
     Attributes
     ----------
     time : :class:`~obspy.core.UTCDateTime`
@@ -94,11 +95,12 @@ class Meta(object):
         self.inc = None
         self.rotate = None
 
+
 class Data(object):
     """
     A Data object contains three-component raw (ZNE) and rotated (ZRT, LQT, PVH) 
     waveforms centered on the arrival time of interest.
-    
+
     Attributes
     ----------
 
@@ -134,6 +136,7 @@ class Data(object):
         self.rfL = Trace()
         self.rfQ = Trace()
         self.rfT = Trace()
+
 
 class RFData(object):
     """
@@ -200,10 +203,12 @@ class RFData(object):
 
         # Problem with mag
         mag = event.magnitudes[0].mag
-        if mag is None: mag = -9.
+        if mag is None:
+            mag = -9.
 
         # Calculate epicentral distance
-        epi_dist, az, baz = epi(lat, lon, self.sta.latitude, self.sta.longitude)
+        epi_dist, az, baz = epi(
+            lat, lon, self.sta.latitude, self.sta.longitude)
         epi_dist /= 1000
         gac = k2d(epi_dist)
 
@@ -305,13 +310,13 @@ class RFData(object):
         tend = self.meta.time + self.meta.ttime + dts
 
         # Get waveforms
-        print ("* Requesting Waveforms: ")
-        print ("*    Startime: " + tstart.strftime("%Y-%m-%d %H:%M:%S"))
-        print ("*    Endtime:  " + tend.strftime("%Y-%m-%d %H:%M:%S"))
+        print("* Requesting Waveforms: ")
+        print("*    Startime: " + tstart.strftime("%Y-%m-%d %H:%M:%S"))
+        print("*    Endtime:  " + tend.strftime("%Y-%m-%d %H:%M:%S"))
 
-        err, trN, trE, trZ = utils.get_data_NEZ(client=client, \
-            sta=self.sta, start=tstart, \
-            end=tend, stdata=stdata, ndval=ndval, new_sr=new_sr)
+        err, trN, trE, trZ = utils.get_data_NEZ(
+            client=client, sta=self.sta, start=tstart, end=tend,
+            stdata=stdata, ndval=ndval, new_sr=new_sr)
 
         # Store as attributes with traces in dictionay
         self.err = err
@@ -331,28 +336,28 @@ class RFData(object):
 
         """
 
-        if self.align=='ZRT':
+        if self.align == 'ZRT':
             self.data.trL = self.data.trZ.copy()
-            self.data.trQ.data, self.data.trT.data = rotate_ne_rt(\
+            self.data.trQ.data, self.data.trT.data = rotate_ne_rt(
                 self.data.trN.data, self.data.trE.data, self.meta.baz)
 
-        elif self.align=='LQT':
+        elif self.align == 'LQT':
             inc = self.meta.inc*np.pi/180.
             baz = self.meta.baz*np.pi/180.
 
-            M = np.zeros((3,3))
-            M[0,0] = np.cos(inc)
-            M[0,1] = -np.sin(inc) * np.sin(baz)
-            M[0,2] = -np.sin(inc) * np.cos(baz)
-            M[1,0] = np.sin(inc)
-            M[1,1] = np.cos(inc) * np.sin(baz)
-            M[1,2] = np.cos(inc) * np.cos(baz)
-            M[2,0] = 0.
-            M[2,1] = -np.cos(baz)
-            M[2,2] = np.sin(baz)
+            M = np.zeros((3, 3))
+            M[0, 0] = np.cos(inc)
+            M[0, 1] = -np.sin(inc) * np.sin(baz)
+            M[0, 2] = -np.sin(inc) * np.cos(baz)
+            M[1, 0] = np.sin(inc)
+            M[1, 1] = np.cos(inc) * np.sin(baz)
+            M[1, 2] = np.cos(inc) * np.cos(baz)
+            M[2, 0] = 0.
+            M[2, 1] = -np.cos(baz)
+            M[2, 2] = np.sin(baz)
 
             # Perform 3-D rotation
-            LQT = np.dot(np.array(M), np.array(\
+            LQT = np.dot(np.array(M), np.array(
                 [self.data.trZ.data, self.data.trE.data, self.data.trN.data]))
 
             # Store into traces and add as new items in attribute dictionary
@@ -360,10 +365,10 @@ class RFData(object):
             self.data.trQ = Trace(data=LQT[1], header=self.data.trN.stats)
             self.data.trT = Trace(data=LQT[2], header=self.data.trE.stats)
 
-        elif self.align=='PVH':
+        elif self.align == 'PVH':
             # First rotate to ZRT
             self.data.trL = self.data.trZ.copy()
-            self.data.trQ.data, self.data.trT.data = rotate_ne_rt(\
+            self.data.trQ.data, self.data.trT.data = rotate_ne_rt(
                 self.data.trN.data, self.data.trE.data, self.meta.baz)
 
             # Copy traces
@@ -372,8 +377,10 @@ class RFData(object):
             trH = self.data.trT.copy()
 
             # Vertical slownesses
-            qp = np.sqrt(1/vp/vp-self.meta.slow*self.meta.slow)          # P vertical slowness
-            qs = np.sqrt(1/vs/vs-self.meta.slow*self.meta.slow)          # S vertical slowness
+            # P vertical slowness
+            qp = np.sqrt(1/vp/vp-self.meta.slow*self.meta.slow)
+            # S vertical slowness
+            qs = np.sqrt(1/vs/vs-self.meta.slow*self.meta.slow)
 
             # Elements of rotation matrix
             m11 = self.meta.slow*vs*vs/vp
@@ -383,23 +390,22 @@ class RFData(object):
 
             # Rotation matrix
             rot = np.array([[-m11, m12], [-m21, m22]])
-            
+
             # Vector of Radial and Vertical
-            r_z = np.array([trR.data,trZ.data])
-                        
+            r_z = np.array([trR.data, trZ.data])
+
             # Rotation
             vec = np.dot(rot, r_z)
-                        
+
             # Extract P and SV, SH components - store as attributes
-            trP.data = vec[0,:]
-            trV.data = vec[1,:]
+            trP.data = vec[0, :]
+            trV.data = vec[1, :]
             trH.data = -trT.data/2.
             self.data.trL = trP
             self.data.trQ = trV
             self.data.trT = trH
 
         self.meta.align = self.align
-
 
     def calc_snrz(self, t1=None, dt=30.):
         """
@@ -427,8 +433,10 @@ class RFData(object):
         trNze = self.data.trL.copy()
 
         # Filter between 0.1 and 1.0 (dominant P wave frequencies)
-        trSig.filter('bandpass',freqmin=0.1,freqmax=1.,corners=2,zerophase=True)
-        trNze.filter('bandpass',freqmin=0.1,freqmax=1.,corners=2,zerophase=True)
+        trSig.filter('bandpass', freqmin=0.1, freqmax=1.,
+                     corners=2, zerophase=True)
+        trNze.filter('bandpass', freqmin=0.1, freqmax=1.,
+                     corners=2, zerophase=True)
 
         # Trim twin seconds around P-wave arrival
         trSig.trim(t1, t1 + dt)
@@ -476,18 +484,24 @@ class RFData(object):
         trQ = self.data.trQ.copy()
         trT = self.data.trT.copy()
         trS = self.data.trL.copy()
-        trNl = self.data.trL.copy() # Noise on L
-        trNq = self.data.trQ.copy() # Noise on Q
+        trNl = self.data.trL.copy()  # Noise on L
+        trNq = self.data.trQ.copy()  # Noise on Q
 
         # trim traces 115 sec in each direction
-        trL.trim(self.meta.time+self.meta.ttime-5., self.meta.time+self.meta.ttime+110.)
-        trQ.trim(self.meta.time+self.meta.ttime-5., self.meta.time+self.meta.ttime+110.)
-        trT.trim(self.meta.time+self.meta.ttime-5., self.meta.time+self.meta.ttime+110.)
-        trS.trim(self.meta.time+self.meta.ttime-5., self.meta.time+self.meta.ttime+110.)
-        trNl.trim(self.meta.time+self.meta.ttime-120., self.meta.time+self.meta.ttime-5.)
-        trNq.trim(self.meta.time+self.meta.ttime-120., self.meta.time+self.meta.ttime-5.)
+        trL.trim(self.meta.time+self.meta.ttime-5.,
+                 self.meta.time+self.meta.ttime+110.)
+        trQ.trim(self.meta.time+self.meta.ttime-5.,
+                 self.meta.time+self.meta.ttime+110.)
+        trT.trim(self.meta.time+self.meta.ttime-5.,
+                 self.meta.time+self.meta.ttime+110.)
+        trS.trim(self.meta.time+self.meta.ttime-5.,
+                 self.meta.time+self.meta.ttime+110.)
+        trNl.trim(self.meta.time+self.meta.ttime-120.,
+                  self.meta.time+self.meta.ttime-5.)
+        trNq.trim(self.meta.time+self.meta.ttime-120.,
+                  self.meta.time+self.meta.ttime-5.)
 
-        # Taper trS 
+        # Taper trS
         window = np.zeros(len(trS.data))
         tap = _taper(int(twin/trS.stats.delta), int(2./trS.stats.delta))
         window[0:int(twin/trS.stats.delta)] = tap
@@ -497,22 +511,23 @@ class RFData(object):
         window = np.zeros(len(trL.data))
         tap = _taper(len(trL.data), int(2./trL.stats.delta))
         window[0:len(trL.data)] = tap
-        
+
         # Some checks
         lwin = len(window)
-        if not (lwin==len(trL.data) and lwin==len(trQ.data) and lwin==len(trT.data)\
-                and lwin==len(trNl.data) and lwin==len(trNq.data)):
+        if not (lwin == len(trL.data) and lwin == len(trQ.data)
+                and lwin == len(trT.data) and lwin == len(trNl.data)
+                and lwin == len(trNq.data)):
             print('problem with lwin')
             self.data.rfL = Trace()
             self.data.rfQ = Trace()
             self.data.rfT = Trace()
 
         # Apply taper
-        trL.data *=window
-        trQ.data *=window
-        trT.data *=window
-        trNl.data *=window
-        trNq.data *=window
+        trL.data *= window
+        trQ.data *= window
+        trT.data *= window
+        trNl.data *= window
+        trNq.data *= window
 
         # Fourier transform
         Fl = np.fft.fft(trL.data)
@@ -521,7 +536,7 @@ class RFData(object):
         Fs = np.fft.fft(trS.data)
         Fnl = np.fft.fft(trNl.data)
         Fnq = np.fft.fft(trNq.data)
-        
+
         # Auto and cross spectra
         Sl = Fl*np.conjugate(Fs)
         Sq = Fq*np.conjugate(Fs)
@@ -533,12 +548,12 @@ class RFData(object):
 
         # Denominator
         Sdenom = 0.25*(Snl+Snq)+0.5*np.abs(Snlq)
-       
+
         # Copy traces
         rfL = trL.copy()
         rfQ = trQ.copy()
         rfT = trT.copy()
-        
+
         # Spectral division and inverse transform
         rfL.data = np.real(np.fft.ifft(Sl/(Ss+Sdenom)))
         rfQ.data = np.real(np.fft.ifft(Sq/(Ss+Sdenom))/np.amax(rfL.data))
@@ -548,7 +563,6 @@ class RFData(object):
         self.data.rfQ = rfQ
         self.data.rfT = rfT
 
-        
     def save(self, file):
         """
         Saves Split object to file
@@ -559,9 +573,8 @@ class RFData(object):
             File name for split object
 
         """
-        
+
         import pickle
         output = open(file, 'wb')
         pickle.dump(self, output)
         output.close()
-
