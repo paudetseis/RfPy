@@ -96,7 +96,8 @@ def parse_localdata_for_comp(comp='Z', stdata=list, sta=None,
                     list(
                         filter(
                             stdata,
-                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.{4:2s}{5:1s}.SAC'.format(
+                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.' +
+                            '{4:2s}{5:1s}.SAC'.format(
                                 styr, stjd, anet.upper(), sta.station.upper(),
                                 sta.channel.upper()[0:2], comp.upper()))))
 
@@ -109,7 +110,8 @@ def parse_localdata_for_comp(comp='Z', stdata=list, sta=None,
                     list(
                         filter(
                             stdata,
-                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*{4:1s}.SAC'.format(
+                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*' +
+                            '{4:1s}.SAC'.format(
                                 styr, stjd, sta.network.upper(),
                                 sta.station.upper(), comp.upper()))))
 
@@ -187,7 +189,8 @@ def parse_localdata_for_comp(comp='Z', stdata=list, sta=None,
                     list(
                         filter(
                             stdata,
-                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.{4:2s}{5:1s}.SAC'.format(
+                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.' +
+                            '{4:2s}{5:1s}.SAC'.format(
                                 styr, stjd, anet.upper(), sta.station.upper(
                                 ), sta.channel.upper()[0:2],
                                 comp.upper()))))
@@ -214,8 +217,10 @@ def parse_localdata_for_comp(comp='Z', stdata=list, sta=None,
         if len(lclfiles2) == 0:
             lclfiles2 = list(
                 filter(stdata,
-                       '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*{4:1s}.SAC'.format(
-                           edyr, edjd, sta.network.upper(), sta.station.upper(),
+                       '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*' +
+                       '{4:1s}.SAC'.format(
+                           edyr, edjd, sta.network.upper(),
+                           sta.station.upper(),
                            comp.upper())))
         # Day 2 Alternate Nets (for CN/PO issues) Format 1
         if len(lclfiles2) == 0:
@@ -225,7 +230,8 @@ def parse_localdata_for_comp(comp='Z', stdata=list, sta=None,
                     list(
                         filter(
                             stdata,
-                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.{4:2s}{5:1s}.SAC'.format(
+                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.' +
+                            '{4:2s}{5:1s}.SAC'.format(
                                 edyr, edjd, anet.upper(), sta.station.upper(),
                                 sta.channel.upper()[0:2], comp.upper()))))
         # Day 2 Alternate Nets (for CN/PO issues) Format 2
