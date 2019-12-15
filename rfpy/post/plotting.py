@@ -9,8 +9,8 @@
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 #
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -38,6 +38,8 @@ from obspy.core import Stream, Trace, AttribDict
 from scipy.interpolate import griddata
 
 # PLot wiggles
+
+
 def wiggle(str1, str2, xmax=30, maxval=1, save=False, title=None):
 
     print()
@@ -51,7 +53,7 @@ def wiggle(str1, str2, xmax=30, maxval=1, save=False, title=None):
 
     # Initialize count
     y = 0
-    
+
     # Clear figure
     plt.clf()
 
@@ -62,22 +64,22 @@ def wiggle(str1, str2, xmax=30, maxval=1, save=False, title=None):
     for tr in str1:
 
         # Update count
-        y +=1
+        y += 1
 
         # Fill positive in red, negative in blue
-        #plt.fill_between(t,y,y+tr.data*maxval,\
+        # plt.fill_between(t,y,y+tr.data*maxval,\
         #        where=tr.data+1e-10<=0.,facecolor='blue',linewidth=0)
-        #plt.fill_between(t,y,y+tr.data*maxval,\
+        # plt.fill_between(t,y,y+tr.data*maxval,\
         #        where=tr.data+1e-10>=0.,facecolor='red',linewidth=0)
-        plt.plot(t,y+tr.data*maxval,c='k')
+        plt.plot(t, y+tr.data*maxval, c='k')
 
-    plt.xlim(0,xmax)
+    plt.xlim(0, xmax)
     plt.ylabel('Radial RF')
     plt.grid()
 
     # Re-initialize count
     y = 0
-    
+
     # Second SH subplot
     plt.subplot(122)
 
@@ -85,29 +87,29 @@ def wiggle(str1, str2, xmax=30, maxval=1, save=False, title=None):
     for tr in str2:
 
         # Update count
-        y +=1
+        y += 1
 
         # Fill positive in red, negative in blue
-        #plt.fill_between(t,y,y+tr.data*maxval,\
+        # plt.fill_between(t,y,y+tr.data*maxval,\
         #        where=tr.data+1e-10<=0.,facecolor='blue',linewidth=0)
-        #plt.fill_between(t,y,y+tr.data*maxval,\
+        # plt.fill_between(t,y,y+tr.data*maxval,\
         #        where=tr.data+1e-10>=0.,facecolor='red',linewidth=0)
-        plt.plot(t,y+tr.data*maxval,c='k')
+        plt.plot(t, y+tr.data*maxval, c='k')
 
-    plt.xlim(0,xmax)
+    plt.xlim(0, xmax)
     plt.ylabel('Transverse RF')
     plt.suptitle('Station '+sta)
     plt.grid()
 
     if save:
-        plt.savefig('RF_PLOTS/'+sta+title+'.png',dpi=300,bbox_inches='tight')
+        plt.savefig('RF_PLOTS/'+sta+title+'.png', dpi=300, bbox_inches='tight')
     else:
         plt.show()
 
 
 # PLot wiggles along line
 def wiggle_line(str1, str2, zmax=30, maxval=1000, ll=[], profile=[],
-        save=False, title=None, suptitle=None):
+                save=False, title=None, suptitle=None):
 
     print()
     print('Plotting Wiggles by distance along line')
@@ -130,13 +132,13 @@ def wiggle_line(str1, str2, zmax=30, maxval=1000, ll=[], profile=[],
     #ax3 = fig.add_axes([0.1, 0.1, 0.425, 0.35])
 
     # First elevation plot
-    ax1.plot(profile[0],profile[1]/1000.,'k')
+    ax1.plot(profile[0], profile[1]/1000., 'k')
     #ax1.set_ylabel('Elevation (km)')
-    ax1.set_ylim(-1,1.)
+    ax1.set_ylim(-1, 1.)
     ax1.set_xticks(())
     ax1.set_yticks((-1, 0, 1))
-    #ax1.set_xlim((-25,300))
-    #ax1.set_xlim((-85,150))
+    # ax1.set_xlim((-25,300))
+    # ax1.set_xlim((-85,150))
 
     # Initialize index
     i = 0
@@ -152,21 +154,27 @@ def wiggle_line(str1, str2, zmax=30, maxval=1000, ll=[], profile=[],
         i += 1
 
         # Fill positive in red, negative in blue
-        ax2.fill_betweenx(t,x,x+tr.data*maxval,\
-                where=tr.data+1e-6<=0.,facecolor='blue',linewidth=0)
-        ax2.fill_betweenx(t,x,x+tr.data*maxval,\
-                where=tr.data+1e-6>=0.,facecolor='red',linewidth=0)
+        ax2.fill_betweenx(
+            t, x, x+tr.data*maxval,
+            where=tr.data+1e-6 <= 0.,
+            facecolor='blue',
+            linewidth=0)
+        ax2.fill_betweenx(
+            t, x, x+tr.data*maxval,
+            where=tr.data+1e-6 >= 0.,
+            facecolor='red',
+            linewidth=0)
 
-    ax2.set_ylim(zmax,0)
+    ax2.set_ylim(zmax, 0)
     ax2.set_ylabel('Time (s)', size=10)
-    #ax2.grid()
+    # ax2.grid()
     ax2.set_xticks(())
-    #ax2.set_xlim((-25,300))
-    #ax2.set_xlim((-85,150))
+    # ax2.set_xlim((-25,300))
+    # ax2.set_xlim((-85,150))
 
     # Re-initialize index
     i = 0
-    
+
     # loop in stream
     for tr in str2:
 
@@ -175,21 +183,27 @@ def wiggle_line(str1, str2, zmax=30, maxval=1000, ll=[], profile=[],
         #print('str2, x= ',x)
 
         # Update count
-        i +=1
+        i += 1
 
         # Fill positive in red, negative in blue
-        ax3.fill_betweenx(t,x,x+tr.data*maxval,\
-                where=tr.data+1e-6<=0.,facecolor='blue',linewidth=0)
-        ax3.fill_betweenx(t,x,x+tr.data*maxval,\
-                where=tr.data+1e-6>=0.,facecolor='red',linewidth=0)
+        ax3.fill_betweenx(
+            t, x, x+tr.data*maxval,
+            where=tr.data+1e-6 <= 0.,
+            facecolor='blue',
+            linewidth=0)
+        ax3.fill_betweenx(
+            t, x, x+tr.data*maxval,
+            where=tr.data+1e-6 >= 0.,
+            facecolor='red',
+            linewidth=0)
 
-    ax3.set_ylim(zmax,0)
+    ax3.set_ylim(zmax, 0)
     ax3.set_ylabel('Time (s)', size=10)
     ax3.set_xlabel('Distanceh (km)', size=10)
     #ax3.set_xlabel('Distance from trench (km)', size=10)
-    #ax3.set_xlim((-25,300))
-    #ax3.set_xlim((-85,150))
-    #ax3.grid()
+    # ax3.set_xlim((-25,300))
+    # ax3.set_xlim((-85,150))
+    # ax3.grid()
 
     ax1.tick_params(axis='both', which='major', labelsize=10)
     ax2.tick_params(axis='both', which='major', labelsize=10)
@@ -199,14 +213,14 @@ def wiggle_line(str1, str2, zmax=30, maxval=1000, ll=[], profile=[],
         plt.suptitle(suptitle)
 
     if save:
-        plt.savefig('PLOTS/'+title+'.png',dpi=300,bbox_inches='tight')
+        plt.savefig('PLOTS/'+title+'.png', dpi=300, bbox_inches='tight')
     else:
         plt.show()
 
 
 # PLot wiggles along line
 def wiggle_cascadia(str1, zmax=30, maxval=1000, ll=[], profile=[],
-        save=False, title=None, suptitle=None):
+                    save=False, title=None, suptitle=None):
 
     print()
     print('Plotting Wiggles by distance along line')
@@ -227,9 +241,9 @@ def wiggle_cascadia(str1, zmax=30, maxval=1000, ll=[], profile=[],
     # First elevation plot
     #ax1.fill_between(profile[0], 0., profile[1]/1000., facecolor='lightblue')
     #ax1.fill_between(profile[0], -2., profile[1]/1000., facecolor='lightgrey')
-    ax1.plot(profile[0],profile[1]/1000.,'k')
+    ax1.plot(profile[0], profile[1]/1000., 'k')
     #ax1.set_ylabel('Elevation (km)')
-    #ax1.set_ylim(-2,0.8)
+    # ax1.set_ylim(-2,0.8)
     ax1.set_xticks(())
     #ax1.set_yticks((-1, 0, 1))
 
@@ -246,18 +260,24 @@ def wiggle_cascadia(str1, zmax=30, maxval=1000, ll=[], profile=[],
         i += 1
 
         # Fill positive in red, negative in blue
-        ax2.fill_betweenx(t,x,x+tr.data*maxval,\
-                where=tr.data+1e-6<=0.,facecolor='blue',linewidth=0)
-        ax2.fill_betweenx(t,x,x+tr.data*maxval,\
-                where=tr.data+1e-6>=0.,facecolor='red',linewidth=0)
+        ax2.fill_betweenx(
+            t, x, x+tr.data*maxval,
+            where=tr.data+1e-6 <= 0.,
+            facecolor='blue',
+            linewidth=0)
+        ax2.fill_betweenx(
+            t, x, x+tr.data*maxval,
+            where=tr.data+1e-6 >= 0.,
+            facecolor='red',
+            linewidth=0)
 
-    ax2.set_ylim(zmax,0)
+    ax2.set_ylim(zmax, 0)
     ax2.set_ylabel('Time (s)', size=10)
     ax2.set_xlabel('Distance along line (km)', size=10)
-    #ax2.grid()
-    #ax2.set_xticks(())
-    #ax2.set_xlim((-25,300))
-    ax2.set_xlim((680,1150))
+    # ax2.grid()
+    # ax2.set_xticks(())
+    # ax2.set_xlim((-25,300))
+    ax2.set_xlim((680, 1150))
 
     ax1.tick_params(axis='both', which='major', labelsize=10)
     ax2.tick_params(axis='both', which='major', labelsize=10)
@@ -266,13 +286,16 @@ def wiggle_cascadia(str1, zmax=30, maxval=1000, ll=[], profile=[],
         plt.suptitle(suptitle)
 
     if save:
-        plt.savefig('PLOTS/'+title+'.eps',dpi=300,bbox_inches='tight', format='eps')
+        plt.savefig('PLOTS/'+title+'.eps', dpi=300,
+                    bbox_inches='tight', format='eps')
     else:
         plt.show()
 
 # PLot wiggles along line
+
+
 def wiggle_line2(str1, zmax=30, maxval=1000, ll=[], profile=[],
-        save=False, title=None, suptitle=None):
+                 save=False, title=None, suptitle=None):
 
     print()
     print('Plotting Wiggles by distance along line')
@@ -292,7 +315,7 @@ def wiggle_line2(str1, zmax=30, maxval=1000, ll=[], profile=[],
     ax2 = fig.add_axes([0.1, 0.1, 0.85, 0.5])
 
     # First elevation plot
-    ax1.plot(profile[0],profile[1]/1000.,'k')
+    ax1.plot(profile[0], profile[1]/1000., 'k')
     ax1.set_xticks(())
     ax1.set_yticks((1, 2))
     ax1.set_ylabel('Elev. (km)', size=10)
@@ -316,19 +339,25 @@ def wiggle_line2(str1, zmax=30, maxval=1000, ll=[], profile=[],
         # Update count
         i += 1
 
-        axs.scatter(x,ss)
+        axs.scatter(x, ss)
 
         # Fill positive in red, negative in blue
-        ax2.fill_betweenx(t,x,x+tr.data*maxval,\
-                where=tr.data+1e-6<=0.,facecolor='blue',linewidth=0)
-        ax2.fill_betweenx(t,x,x+tr.data*maxval,\
-                where=tr.data+1e-6>=0.,facecolor='red',linewidth=0)
+        ax2.fill_betweenx(
+            t, x, x+tr.data*maxval,
+            where=tr.data+1e-6 <= 0.,
+            facecolor='blue',
+            linewidth=0)
+        ax2.fill_betweenx(
+            t, x, x+tr.data*maxval,
+            where=tr.data+1e-6 >= 0.,
+            facecolor='red',
+            linewidth=0)
 
-    ax2.set_ylim(zmax,0)
+    ax2.set_ylim(zmax, 0)
     ax2.set_ylabel('Time (s)', size=10)
     ax2.set_xlabel('Distance along line (km)', size=10)
-    ax2.set_xlim((680,1150))
-    axs.set_xlim((680,1150))
+    ax2.set_xlim((680, 1150))
+    axs.set_xlim((680, 1150))
 
     ax1.tick_params(axis='both', which='major', labelsize=10)
     axs.tick_params(axis='both', which='major', labelsize=10)
@@ -338,34 +367,35 @@ def wiggle_line2(str1, zmax=30, maxval=1000, ll=[], profile=[],
         plt.suptitle(suptitle)
 
     if save:
-        plt.savefig('PLOTS/'+title+'.eps',dpi=300,bbox_inches='tight', format='eps')
+        plt.savefig('PLOTS/'+title+'.eps', dpi=300,
+                    bbox_inches='tight', format='eps')
     else:
         plt.show()
 
 
 # PLot wiggles according to either baz or slowness
-def wiggle_bins(str1, str2, tr1, tr2, sta, btyp='baz', xmax=30, 
-        xtyp='time', scale=None, save=False, title=None, wtype='P'):
+def wiggle_bins(str1, str2, tr1, tr2, sta, btyp='baz', xmax=30,
+                xtyp='time', scale=None, save=False, title=None, wtype='P'):
 
-    if not (btyp=='baz' or btyp=='slow' or btyp=='dist'):
+    if not (btyp == 'baz' or btyp == 'slow' or btyp == 'dist'):
         print('type has to be "baz" or "slow" or "dist"')
         return
-    if not (xtyp=='time' or xtyp=='depth'):
+    if not (xtyp == 'time' or xtyp == 'depth'):
         print('type has to be "time" or "depth"')
         return
-    if btyp=='slow' and xtyp=='depth':
+    if btyp == 'slow' and xtyp == 'depth':
         print('Cannot plot by slowness if data is migrated')
         return
 
     print()
     print('Plotting Wiggles by '+btyp)
-    
+
     # X axis
     nn = str1[0].stats.npts
     sr = str1[0].stats.sampling_rate
-    if wtype=='P':
+    if wtype == 'P':
         x = np.arange(nn)/sr
-    elif wtype=='S' or wtype=='SKS':
+    elif wtype == 'S' or wtype == 'SKS':
         x = np.arange(-nn/2, nn/2)/sr
         tr1.data = np.fft.fftshift(tr1.data)
         tr2.data = np.fft.fftshift(tr2.data)
@@ -381,159 +411,183 @@ def wiggle_bins(str1, str2, tr1, tr2, sta, btyp='baz', xmax=30,
     ax4 = fig.add_axes([0.45, 0.1, 0.3, 0.7])
 
     # Plot stack of all SV traces on top left
-    ax1.fill_between(x,0.,tr1.data,where=tr1.data+1e-6<=0.,\
-            facecolor='blue',linewidth=0)
-    ax1.fill_between(x,0.,tr1.data,where=tr1.data+1e-6>=0.,\
-            facecolor='red',linewidth=0)
-    ax1.set_ylim(-np.max(np.abs(tr1.data)),np.max(np.abs(tr1.data)))
+    ax1.fill_between(
+        x, 0., tr1.data,
+        where=tr1.data+1e-6 <= 0.,
+        facecolor='blue',
+        linewidth=0)
+    ax1.fill_between(
+        x, 0., tr1.data,
+        where=tr1.data+1e-6 >= 0.,
+        facecolor='red',
+        linewidth=0)
+    ax1.set_ylim(-np.max(np.abs(tr1.data)), np.max(np.abs(tr1.data)))
     ax1.set_yticks(())
     ax1.set_xticks(())
     ax1.set_title('Radial')
-    if wtype=='P':
-        ax1.set_xlim(0,xmax)
-    elif wtype=='S' or wtype=='SKS':
-        ax1.set_xlim(-20.,xmax)
+    if wtype == 'P':
+        ax1.set_xlim(0, xmax)
+    elif wtype == 'S' or wtype == 'SKS':
+        ax1.set_xlim(-20., xmax)
 
     # Plot binned SV traces in back-azimuth on bottom left
     for tr in str1:
 
-        if wtype=='S' or wtype=='SKS':
+        if wtype == 'S' or wtype == 'SKS':
             tr.data = np.fft.fftshift(tr.data)
 
         if scale:
             maxval = scale
             # Define y axis
-            if btyp=='baz':
-                y=tr.stats.sac.baz
-            elif btyp=='slow':
-                y=tr.stats.sac.user0
-            elif btyp=='dist':
-                y=tr.stats.sac.user0
+            if btyp == 'baz':
+                y = tr.stats.sac.baz
+            elif btyp == 'slow':
+                y = tr.stats.sac.user0
+            elif btyp == 'dist':
+                y = tr.stats.sac.user0
         else:
             # Define y axis
-            if btyp=='baz':
-                y=tr.stats.sac.baz
+            if btyp == 'baz':
+                y = tr.stats.sac.baz
                 maxval = 100
-            elif btyp=='slow':
-                y=tr.stats.sac.user0
+            elif btyp == 'slow':
+                y = tr.stats.sac.user0
                 maxval = 0.02
-            elif btyp=='dist':
-                y=tr.stats.sac.user0
+            elif btyp == 'dist':
+                y = tr.stats.sac.user0
                 maxval = 20
 
         # Fill positive in red, negative in blue
-        ax2.fill_between(x,y,y+tr.data*maxval,\
-                where=tr.data+1e-6<=0.,facecolor='blue',linewidth=0)
-        ax2.fill_between(x,y,y+tr.data*maxval,\
-                where=tr.data+1e-6>=0.,facecolor='red',linewidth=0)
+        ax2.fill_between(
+            x, y, y+tr.data*maxval,
+            where=tr.data+1e-6 <= 0.,
+            facecolor='blue',
+            linewidth=0)
+        ax2.fill_between(
+            x, y, y+tr.data*maxval,
+            where=tr.data+1e-6 >= 0.,
+            facecolor='red',
+            linewidth=0)
 
-    if wtype=='P':
-        ax2.set_xlim(0,xmax)
-    elif wtype=='S' or wtype=='SKS':
-        ax2.set_xlim(-20.,xmax)
+    if wtype == 'P':
+        ax2.set_xlim(0, xmax)
+    elif wtype == 'S' or wtype == 'SKS':
+        ax2.set_xlim(-20., xmax)
 
-    if btyp=='baz':
+    if btyp == 'baz':
         ax2.set_ylim(-5, 370)
         ax2.set_ylabel('Back-azimuth (deg)')
 
-    elif btyp=='slow':
-        if wtype=='P':
+    elif btyp == 'slow':
+        if wtype == 'P':
             ax2.set_ylim(0.038, 0.082)
-        elif wtype=='S':
+        elif wtype == 'S':
             ax2.set_ylim(0.07, 0.125)
-        elif wtype=='SKS':
+        elif wtype == 'SKS':
             ax2.set_ylim(0.03, 0.06)
         ax2.set_ylabel('Slowness (s/km)')
-    elif btyp=='dist':
-        if wtype=='P':
+    elif btyp == 'dist':
+        if wtype == 'P':
             ax2.set_ylim(28., 92.)
-        elif wtype=='S':
+        elif wtype == 'S':
             ax2.set_ylim(53., 107.)
-        elif wtype=='SKS':
+        elif wtype == 'SKS':
             ax2.set_ylim(83., 117.)
         ax2.set_ylabel('Distance (deg)')
 
-    if xtyp=='time':
+    if xtyp == 'time':
         ax2.set_xlabel('Time (sec)')
-    elif xtyp=='depth':
+    elif xtyp == 'depth':
         ax2.set_xlabel('Depth (km)')
     ax2.grid()
 
     # Plot stack of all SH traces on top right
-    ax3.fill_between(x,0.,tr2.data,where=tr2.data+1e-6<=0.,\
-            facecolor='blue',linewidth=0)
-    ax3.fill_between(x,0.,tr2.data,where=tr2.data+1e-6>=0.,\
-            facecolor='red',linewidth=0)
-    if wtype=='P':
-        ax3.set_xlim(0,xmax)
-    elif wtype=='S' or wtype=='SKS':
-        ax3.set_xlim(-20.,xmax)
-    ax3.set_ylim(-np.max(np.abs(tr1.data)),np.max(np.abs(tr1.data)))
+    ax3.fill_between(
+        x, 0., tr2.data,
+        where=tr2.data+1e-6 <= 0.,
+        facecolor='blue',
+        linewidth=0)
+    ax3.fill_between(
+        x, 0., tr2.data,
+        where=tr2.data+1e-6 >= 0.,
+        facecolor='red',
+        linewidth=0)
+    if wtype == 'P':
+        ax3.set_xlim(0, xmax)
+    elif wtype == 'S' or wtype == 'SKS':
+        ax3.set_xlim(-20., xmax)
+    ax3.set_ylim(-np.max(np.abs(tr1.data)), np.max(np.abs(tr1.data)))
     ax3.set_yticks(())
     ax3.set_xticks(())
     ax3.set_title('Transverse')
     # ax3.set_title('Synthetic')
-    #ax3.set_title('SH')
+    # ax3.set_title('SH')
 
     # Plot binned SH traces in back-azimuth on bottom right
     for tr in str2:
-        
-        if wtype=='S' or wtype=='SKS':
+
+        if wtype == 'S' or wtype == 'SKS':
             tr.data = np.fft.fftshift(tr.data)
 
         if scale:
             maxval = scale
             # Define y axis
-            if btyp=='baz':
-                y=tr.stats.sac.baz
-            elif btyp=='slow':
-                y=tr.stats.sac.user0
-            elif btyp=='dist':
-                y=tr.stats.sac.user0
+            if btyp == 'baz':
+                y = tr.stats.sac.baz
+            elif btyp == 'slow':
+                y = tr.stats.sac.user0
+            elif btyp == 'dist':
+                y = tr.stats.sac.user0
         else:
             # Define y axis
-            if btyp=='baz':
-                y=tr.stats.sac.baz
+            if btyp == 'baz':
+                y = tr.stats.sac.baz
                 maxval = 150
-            elif btyp=='slow':
-                y=tr.stats.sac.user0
+            elif btyp == 'slow':
+                y = tr.stats.sac.user0
                 maxval = 0.02
-            elif btyp=='dist':
-                y=tr.stats.sac.user0
+            elif btyp == 'dist':
+                y = tr.stats.sac.user0
                 maxval = 20
 
         # Fill positive in red, negative in blue
-        ax4.fill_between(x,y,y+tr.data*maxval,\
-                where=tr.data+1e-6<=0.,facecolor='blue',linewidth=0)
-        ax4.fill_between(x,y,y+tr.data*maxval,\
-                where=tr.data+1e-6>=0.,facecolor='red',linewidth=0)
+        ax4.fill_between(
+            x, y, y+tr.data*maxval,
+            where=tr.data+1e-6 <= 0.,
+            facecolor='blue',
+            linewidth=0)
+        ax4.fill_between(
+            x, y, y+tr.data*maxval,
+            where=tr.data+1e-6 >= 0.,
+            facecolor='red',
+            linewidth=0)
 
-    if wtype=='P':
-        ax4.set_xlim(0,xmax)
-    elif wtype=='S' or wtype=='SKS':
-        ax4.set_xlim(-20.,xmax)
+    if wtype == 'P':
+        ax4.set_xlim(0, xmax)
+    elif wtype == 'S' or wtype == 'SKS':
+        ax4.set_xlim(-20., xmax)
 
-    if btyp=='baz':
+    if btyp == 'baz':
         ax4.set_ylim(-5, 370)
 
-    elif btyp=='slow':
-        if wtype=='P':
+    elif btyp == 'slow':
+        if wtype == 'P':
             ax4.set_ylim(0.038, 0.082)
-        elif wtype=='S':
+        elif wtype == 'S':
             ax4.set_ylim(0.074, 0.125)
-        elif wtype=='SKS':
+        elif wtype == 'SKS':
             ax4.set_ylim(0.03, 0.06)
-    elif btyp=='dist':
-        if wtype=='P':
+    elif btyp == 'dist':
+        if wtype == 'P':
             ax4.set_ylim(28., 92.)
-        elif wtype=='S':
+        elif wtype == 'S':
             ax4.set_ylim(53., 107.)
-        elif wtype=='SKS':
+        elif wtype == 'SKS':
             ax4.set_ylim(83., 117.)
 
-    if xtyp=='time':
+    if xtyp == 'time':
         ax4.set_xlabel('Time (sec)')
-    elif xtyp=='depth':
+    elif xtyp == 'depth':
         ax4.set_xlabel('Depth (km)')
     ax4.set_yticklabels([])
     ax4.grid()
@@ -541,14 +595,16 @@ def wiggle_bins(str1, str2, tr1, tr2, sta, btyp='baz', xmax=30,
     #plt.suptitle('Station '+sta)
 
     if save:
-        #plt.savefig('RF_PLOTS/'+sta+title+'.png',dpi=300,bbox_inches='tight')
-        plt.savefig('RF_PLOTS/'+sta+title+'.eps',format='eps')
+        # plt.savefig('RF_PLOTS/'+sta+title+'.png',dpi=300,bbox_inches='tight')
+        plt.savefig('RF_PLOTS/'+sta+title+'.eps', format='eps')
     else:
         plt.show()
 
 # Plot wiggles for harmonic decomposition
-def wiggle_harmonics(stream, xmax=30, \
-        maxval=10, save=False, title=None, nz=50, dep=None, vp=None):
+
+
+def wiggle_harmonics(stream, xmax=30, maxval=10, save=False,
+                     title=None, nz=50, dep=None, vp=None):
 
     # Y axis
     y = np.arange(stream[0].stats.npts)/stream[0].stats.sampling_rate
@@ -558,7 +614,7 @@ def wiggle_harmonics(stream, xmax=30, \
     print(sta)
 
     # Initialize count
-    i=0
+    i = 0
 
     # Initialize figure
     fig = plt.figure()
@@ -567,20 +623,26 @@ def wiggle_harmonics(stream, xmax=30, \
     # Get more control on subplots
     ax1 = fig.add_axes([0.1, 0.1, 0.7, 0.5])
     #ax2 = fig.add_axes([0.85, 0.1, 0.1, 0.5])
-    
+
     #ax1 = fig.add_axes([0.1, 0.825, 0.3, 0.05])
     #ax2 = fig.add_axes([0.1, 0.1, 0.3, 0.7])
     #ax3 = fig.add_axes([0.45, 0.825, 0.3, 0.05])
     #ax4 = fig.add_axes([0.45, 0.1, 0.3, 0.7])
 
     for trace in stream:
-        i+=1
-        ax1.fill_betweenx(y,i,i+trace.data*maxval,\
-                where=trace.data+1e-6<=0.,facecolor='blue',linewidth=0)
-        ax1.fill_betweenx(y,i,i+trace.data*maxval,\
-                where=trace.data+1e-6>=0.,facecolor='red',linewidth=0)
+        i += 1
+        ax1.fill_betweenx(
+            y, i, i+trace.data*maxval,
+            where=trace.data+1e-6 <= 0.,
+            facecolor='blue',
+            linewidth=0)
+        ax1.fill_betweenx(
+            y, i, i+trace.data*maxval,
+            where=trace.data+1e-6 >= 0.,
+            facecolor='red',
+            linewidth=0)
 
-    ax1.set_ylim(xmax,0)
+    ax1.set_ylim(xmax, 0)
     ax1.set_ylabel('Depth (km)')
     #ax1.set_xlabel('Harmonic component')
     # ax1.set_title('Station '+sta)
@@ -598,8 +660,8 @@ def wiggle_harmonics(stream, xmax=30, \
     ax1.set_xticklabels(labels)
     off = ax1.xaxis.get_offset_text()
     #tcex = ax1.xaxis.get_ticklabel_extents()
-    ax1.tick_params(axis=u'x',pad=10)
-    #ax1.xaxis.set_label_position('top')
+    ax1.tick_params(axis=u'x', pad=10)
+    # ax1.xaxis.set_label_position('top')
     #ax1.set_xticks(['A', 'Bper', 'Bpar', 'Cpar', 'Cpar'])
     ax1.grid()
 
@@ -611,21 +673,26 @@ def wiggle_harmonics(stream, xmax=30, \
     #idep = np.linspace(dep.min(), dep.max(), nz)
     #ivp = sp.interpolate.interp1d(dep, vp, kind='slinear')(idep)
     #ax2.plot(ivp, idep, 'purple',linewidth=1.5)
-    #ax2.set_ylim(xmax,0)
-    #ax2.set_xlim(4,8.5)
-    #ax2.yaxis.tick_right()
+    # ax2.set_ylim(xmax,0)
+    # ax2.set_xlim(4,8.5)
+    # ax2.yaxis.tick_right()
     #xt = [4, 5, 6, 7, 8]
-    #ax2.set_xticks(xt)
+    # ax2.set_xticks(xt)
     #ax2.set_xlabel('Vp (km/s)')
 
     if save:
-        plt.savefig('RF_PLOTS/'+sta+title+'.eps',dpi=300,bbox_inches='tight',format='eps')
+        plt.savefig('RF_PLOTS/'+sta+title+'.eps', dpi=300,
+                    bbox_inches='tight', format='eps')
     else:
         plt.show()
-    
+
 # Plot wiggles for harmonic decomposition
-def wiggle_harmonics_comp(stream1, stream2, xmax=30, \
-        maxval=10, save=False, title=None, nz=50, dep=None, vp=None):
+
+
+def wiggle_harmonics_comp(
+        stream1, stream2, xmax=30, maxval=10, save=False,
+        title=None, nz=50, dep=None, vp=None):
+
     print('wiggle harmonics comp')
 
     # Y axis
@@ -635,7 +702,7 @@ def wiggle_harmonics_comp(stream1, stream2, xmax=30, \
     sta = stream1[0].stats.station
 
     # Initialize count
-    i=0
+    i = 0
 
     # Initialize figure
     fig = plt.figure()
@@ -645,16 +712,16 @@ def wiggle_harmonics_comp(stream1, stream2, xmax=30, \
     ax1 = fig.add_axes([0.1, 0.1, 0.7, 0.5])
 
     for trace in stream1:
-        i+=1
+        i += 1
         ax1.plot(i+trace.data*maxval, y, c='r')
-    
-    i=0
-    
+
+    i = 0
+
     for trace in stream2:
-        i+=1
+        i += 1
         ax1.plot(i+trace.data*maxval, y, c='k')
 
-    ax1.set_ylim(xmax,0)
+    ax1.set_ylim(xmax, 0)
     ax1.set_ylabel('Depth (km)')
     #ax1.set_xlabel('Harmonic component')
     ax1.set_title('Station '+sta)
@@ -667,8 +734,8 @@ def wiggle_harmonics_comp(stream1, stream2, xmax=30, \
     ax1.set_xticklabels(labels)
     off = ax1.xaxis.get_offset_text()
     #tcex = ax1.xaxis.get_ticklabel_extents()
-    ax1.tick_params(axis=u'x',pad=10)
-    #ax1.xaxis.set_label_position('top')
+    ax1.tick_params(axis=u'x', pad=10)
+    # ax1.xaxis.set_label_position('top')
     #ax1.set_xticks(['A', 'Bper', 'Bpar', 'Cpar', 'Cpar'])
     ax1.grid()
 
@@ -677,14 +744,15 @@ def wiggle_harmonics_comp(stream1, stream2, xmax=30, \
         vp = np.array([4.0, 5.9, 6.2, 6.3, 6.8, 7.2, 8.0, 8.1])
 
     if save:
-        plt.savefig('RF_PLOTS/'+sta+title+'.eps',dpi=300,bbox_inches='tight',format='eps')
+        plt.savefig('RF_PLOTS/'+sta+title+'.eps', dpi=300,
+                    bbox_inches='tight', format='eps')
     else:
         plt.show()
 
 
 # Plot wiggles for harmonic decomposition
 def wiggle_tohoku(stream1, stream2, xmax=30, maxval=10, save=False,
-        title=None):
+                  title=None):
 
     # Y axis
     y = np.arange(stream1[0].stats.npts)/stream1[0].stats.sampling_rate
@@ -699,15 +767,15 @@ def wiggle_tohoku(stream1, stream2, xmax=30, maxval=10, save=False,
     plt.clf()
 
     for trace in stream1:
-        i+=1
-        plt.plot(i+trace.data*maxval,y,'b-',label='Pre Tohoku')
+        i += 1
+        plt.plot(i+trace.data*maxval, y, 'b-', label='Pre Tohoku')
 
     i = 0
     for trace in stream2:
-        i+=1
-        plt.plot(i+trace.data*maxval,y,'r--',label='Post Tohoku')
+        i += 1
+        plt.plot(i+trace.data*maxval, y, 'r--', label='Post Tohoku')
 
-    plt.ylim(xmax,0)
+    plt.ylim(xmax, 0)
     plt.ylabel('Depth (km)')
     plt.xlabel('Harmonic component')
     plt.title('Station '+sta)
@@ -716,11 +784,13 @@ def wiggle_tohoku(stream1, stream2, xmax=30, maxval=10, save=False,
     plt.legend()
 
     if save:
-        plt.savefig('RF_PLOTS/'+sta+title+'.png',dpi=300,bbox_inches='tight')
+        plt.savefig('RF_PLOTS/'+sta+title+'.png', dpi=300, bbox_inches='tight')
     else:
         plt.show()
 
 # PLot dt wiggles
+
+
 def wiggle_dt(str1, str2, xmax=30, maxval=1, save=False, title=None):
 
     print()
@@ -741,16 +811,22 @@ def wiggle_dt(str1, str2, xmax=30, maxval=1, save=False, title=None):
     # loop in stream
     for tr in str1:
 
-        # Timestamp 
+        # Timestamp
         y = (tr.stats.starttime - str1[0].stats.starttime)/3600./24./30.
 
         # Fill positive in red, negative in blue
-        plt.fill_between(t,y,y+tr.data*maxval,\
-                where=tr.data+1e-6<=0.,facecolor='blue',linewidth=0)
-        plt.fill_between(t,y,y+tr.data*maxval,\
-                where=tr.data+1e-6>=0.,facecolor='red',linewidth=0)
+        plt.fill_between(
+            t, y, y+tr.data*maxval,
+            where=tr.data+1e-6 <= 0.,
+            facecolor='blue',
+            linewidth=0)
+        plt.fill_between(
+            t, y, y+tr.data*maxval,
+            where=tr.data+1e-6 >= 0.,
+            facecolor='red',
+            linewidth=0)
 
-    plt.xlim(0,xmax)
+    plt.xlim(0, xmax)
     #plt.ylabel('Radial RF')
     plt.grid()
 
@@ -760,29 +836,35 @@ def wiggle_dt(str1, str2, xmax=30, maxval=1, save=False, title=None):
     # loop in stream
     for tr in str2:
 
-        # Timestamp 
+        # Timestamp
         y = (tr.stats.starttime - str1[0].stats.starttime)/3600./24./30.
 
         # Fill positive in red, negative in blue
-        plt.fill_between(t,y,y+tr.data*maxval,\
-                where=tr.data+1e-6<=0.,facecolor='blue',linewidth=0)
-        plt.fill_between(t,y,y+tr.data*maxval,\
-                where=tr.data+1e-6>=0.,facecolor='red',linewidth=0)
+        plt.fill_between(
+            t, y, y+tr.data*maxval,
+            where=tr.data+1e-6 <= 0.,
+            facecolor='blue',
+            linewidth=0)
+        plt.fill_between(
+            t, y, y+tr.data*maxval,
+            where=tr.data+1e-6 >= 0.,
+            facecolor='red',
+            linewidth=0)
 
-    plt.xlim(0,xmax)
+    plt.xlim(0, xmax)
     #plt.ylabel('Transverse RF')
     plt.suptitle('Station '+sta)
     plt.grid()
 
     if save:
-        plt.savefig('RF_PLOTS/'+sta+title+'.png',dpi=300,bbox_inches='tight')
+        plt.savefig('RF_PLOTS/'+sta+title+'.png', dpi=300, bbox_inches='tight')
     else:
         plt.show()
 
 
 # PLot interpolated image along line
 def interp_line(str1, str2, zmax=30, maxval=1000, ll=[], profile=[],
-        save=False, title=None):
+                save=False, title=None):
 
     print()
     print('Plotting interpolated image by distance along line')
@@ -805,13 +887,13 @@ def interp_line(str1, str2, zmax=30, maxval=1000, ll=[], profile=[],
     #ax3 = fig.add_axes([0.1, 0.1, 0.425, 0.35])
 
     # First elevation plot
-    ax1.plot(profile[0],profile[1]/1000.,'k')
+    ax1.plot(profile[0], profile[1]/1000., 'k')
     #ax1.set_ylabel('Elevation (km)')
-    ax1.set_ylim(-1,1.)
+    ax1.set_ylim(-1, 1.)
     ax1.set_xticks(())
     ax1.set_yticks((-1, 0, 1))
-    #ax1.set_xlim((-25,300))
-    ax1.set_xlim((-100,175))
+    # ax1.set_xlim((-25,300))
+    ax1.set_xlim((-100, 175))
 
     # Initialize index
     i = 0
@@ -829,58 +911,69 @@ def interp_line(str1, str2, zmax=30, maxval=1000, ll=[], profile=[],
 
         # Get distance from list
         x = ll[i]
-        print('str1, x= ',x)
+        print('str1, x= ', x)
 
         # Update count
         i += 1
 
         # Fill positive in red, negative in blue
-        ax2.fill_betweenx(t,x,x+tr.data*maxval,\
-                where=tr.data+1e-6<=0.,facecolor='blue',linewidth=0)
-        ax2.fill_betweenx(t,x,x+tr.data*maxval,\
-                where=tr.data+1e-6>=0.,facecolor='red',linewidth=0)
+        ax2.fill_betweenx(
+            t, x, x+tr.data*maxval,
+            where=tr.data+1e-6 <= 0.,
+            facecolor='blue',
+            linewidth=0)
+        ax2.fill_betweenx(
+            t, x, x+tr.data*maxval,
+            where=tr.data+1e-6 >= 0.,
+            facecolor='red',
+            linewidth=0)
 
-    ax2.set_ylim(zmax,0)
+    ax2.set_ylim(zmax, 0)
     ax2.set_ylabel('Time (s)', size=10)
     ax2.grid()
     ax2.set_xticks(())
-    #ax2.set_xlim((-25,300))
-    ax2.set_xlim((-100,175))
+    # ax2.set_xlim((-25,300))
+    ax2.set_xlim((-100, 175))
     ax2.grid()
 
     # Re-initialize index
     i = 0
-    
+
     # loop in stream
     for tr in str2:
 
         # Get distance from list
         x = ll[i]
-        print('str2, x= ',x)
+        print('str2, x= ', x)
 
         # Update count
-        i +=1
+        i += 1
 
         # Fill positive in red, negative in blue
-        ax3.fill_betweenx(t,x,x+tr.data*maxval,\
-                where=tr.data+1e-6<=0.,facecolor='blue',linewidth=0)
-        ax3.fill_betweenx(t,x,x+tr.data*maxval,\
-                where=tr.data+1e-6>=0.,facecolor='red',linewidth=0)
+        ax3.fill_betweenx(
+            t, x, x+tr.data*maxval,
+            where=tr.data+1e-6 <= 0.,
+            facecolor='blue',
+            linewidth=0)
+        ax3.fill_betweenx(
+            t, x, x+tr.data*maxval,
+            where=tr.data+1e-6 >= 0.,
+            facecolor='red',
+            linewidth=0)
 
-    ax3.set_ylim(zmax,0)
+    ax3.set_ylim(zmax, 0)
     ax3.set_ylabel('Time (s)', size=10)
     ax3.set_xlabel('Distance (km)', size=10)
-    #ax3.set_xlim((-25,300))
-    ax3.set_xlim((-100,175))
-    #ax3.grid()
+    # ax3.set_xlim((-25,300))
+    ax3.set_xlim((-100, 175))
+    # ax3.grid()
     ax1.tick_params(axis='both', which='major', labelsize=10)
     ax2.tick_params(axis='both', which='major', labelsize=10)
     ax3.tick_params(axis='both', which='major', labelsize=10)
 
     if save:
-        plt.savefig('PLOTS/'+title+'.eps',dpi=300,bbox_inches='tight',format='eps')
+        plt.savefig('PLOTS/'+title+'.eps', dpi=300,
+                    bbox_inches='tight', format='eps')
         plt.savefig('PLOTS/'+title+'.png')
     else:
         plt.show()
-
-

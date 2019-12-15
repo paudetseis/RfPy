@@ -9,8 +9,8 @@
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 #
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -31,6 +31,8 @@ import scipy as sp
 from scipy.signal import hilbert
 
 # Calculate horizontal distance for interval dz and velocity vs
+
+
 def ppoint_distance(tr, dz, vs):
 
     # Get horizontal slowness
@@ -42,11 +44,13 @@ def ppoint_distance(tr, dz, vs):
     return dx
 
 # Determine geographic location of piercing point
+
+
 def ppoint(tr, dist):
 
     # Conversion factors
-    lat2km=111.
-    lon2km=90.
+    lat2km = 111.
+    lon2km = 90.
 
     # Get lat and lon of station location
     slat = tr.stats.sac.stla
@@ -62,28 +66,32 @@ def ppoint(tr, dist):
     return plon, plat
 
 # Calculate travel time for interval dz and velocities vp and vs
+
+
 def ttime(tr, dz, vp, vs, phase='Ps'):
 
     # Get horizontal slowness
     slow = tr.stats.sac.user0
 
     # Calculate travel time for phase
-    if phase=='Ps':
-        tt = dz*(np.sqrt((1./vs)**2 - slow**2) - \
-                np.sqrt((1./vp)**2 - slow**2))
-    elif phase=='Pps':
-        tt = dz*(np.sqrt((1./vs)**2 - slow**2) + \
-                np.sqrt((1./vp)**2 - slow**2))
-    elif phase=='Pss':
+    if phase == 'Ps':
+        tt = dz*(np.sqrt((1./vs)**2 - slow**2) -
+                 np.sqrt((1./vp)**2 - slow**2))
+    elif phase == 'Pps':
+        tt = dz*(np.sqrt((1./vs)**2 - slow**2) +
+                 np.sqrt((1./vp)**2 - slow**2))
+    elif phase == 'Pss':
         tt = 2.*dz*(np.sqrt((1./vs)**2 - slow**2))
     else:
-        print('Error - unrecognized phase, ',phase)
+        print('Error - unrecognized phase, ', phase)
         print('Returning tt = 0')
         tt = 0.
 
     return tt
 
 # Shift a trace by a travel time tt and take amplitude at zero
+
+
 def timeshift(tr, tt):
 
     # Define frequencies
@@ -96,13 +104,13 @@ def timeshift(tr, tt):
     hilb_tt = hilb[int(hilb_index)]
     hilb_tt_phase = np.arctan2(hilb_tt.imag, hilb_tt.real)
 
-
     # Fourier transform
     ftr = np.fft.fft(tr.data)
 
     # Shift using Fourier transform
     for i in range(len(freq)):
-        ftr[i] = ftr[i]*np.exp(2.*np.pi*1j*freq[i]*tt) #Fourier timeshift theorem
+        # Fourier timeshift theorem
+        ftr[i] = ftr[i]*np.exp(2.*np.pi*1j*freq[i]*tt)
 
     # Back to time domain (inverse Fourier transform)
     rtr = np.fft.ifft(ftr)
@@ -111,6 +119,7 @@ def timeshift(tr, tt):
     amp = np.real(rtr[0])
 
     return amp, hilb_tt_phase
+
 
 def raypath(tr, nz=50, dep=None, vp=None, vs=None):
 
@@ -145,7 +154,7 @@ def raypath(tr, nz=50, dep=None, vp=None, vs=None):
         dtpps = 0.
         dtpss = 0.
         dx = 0.
-        
+
         # Sum over depths from 0 to iz
         for i in range(iz):
             dtps = dtps + ttime(tr, dz, ivp[i], ivs[i], 'Ps')
@@ -164,6 +173,3 @@ def raypath(tr, nz=50, dep=None, vp=None, vs=None):
         plat[iz] = pla
 
     return ttps, ttpps, ttpss, plon, plat, idep
-
-
-        

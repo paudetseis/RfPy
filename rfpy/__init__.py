@@ -105,6 +105,6 @@ Installing from source
 """
 
 __version__ = '0.0.1'
+
 __author__ = 'Pascal Audet'
 
-# import io_utils, tools, dt_proc, rf_bins, rf_harmonics, rf_hk, rf_proc, rf_wiggle

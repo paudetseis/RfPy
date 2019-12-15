@@ -9,8 +9,8 @@
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 #
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -36,6 +36,7 @@ from scipy import stats
 from cfg import conf as cf
 
 vp = 6.8
+
 
 def stack(rfV1, rfV2, bkey):
     """
@@ -65,7 +66,7 @@ def stack(rfV1, rfV2, bkey):
     for ih in range(len(H)):
 
         print()
-        print('Thickness(ih)', H[ih], ', ih = ',ih,'/',len(H)-1)
+        print('Thickness(ih)', H[ih], ', ih = ', ih, '/', len(H)-1)
 
         for ik in range(len(k)):
 
@@ -73,7 +74,7 @@ def stack(rfV1, rfV2, bkey):
 
                 for i in range(len(rfV1)):
 
-                    if phase[ip]=='ps':
+                    if phase[ip] == 'ps':
                         rfV = rfV1[i].copy()
                     else:
                         rfV = rfV2[i].copy()
@@ -88,10 +89,11 @@ def stack(rfV1, rfV2, bkey):
                     amp[i] = trace[0]
 
                 weight = abs(weight/np.float(len(rfV1)))**4
-                sig[ih,ik,ip] = np.var(amp)*np.real(weight)
-                pws[ih,ik,ip] = np.median(amp)*np.real(weight)
+                sig[ih, ik, ip] = np.var(amp)*np.real(weight)
+                pws[ih, ik, ip] = np.median(amp)*np.real(weight)
 
     return pws, sig
+
 
 def stack_dip(rfV1, rfV2, bkey, strike=0., dip=0.):
     """
@@ -120,7 +122,7 @@ def stack_dip(rfV1, rfV2, bkey, strike=0., dip=0.):
     for ih in range(len(H)):
 
         print()
-        print('Thickness(ih)', H[ih], ', ih = ',ih,'/',len(H)-1)
+        print('Thickness(ih)', H[ih], ', ih = ', ih, '/', len(H)-1)
 
         for ik in range(len(k)):
 
@@ -128,14 +130,15 @@ def stack_dip(rfV1, rfV2, bkey, strike=0., dip=0.):
 
                 for i in range(len(rfV1)):
 
-                    if phase[ip]=='ps':
+                    if phase[ip] == 'ps':
                         rfV = rfV1[i].copy()
                     else:
                         rfV = rfV2[i].copy()
 
                     # Calculate move out for each phase and get median value,
                     # weighted by phase (pws)
-                    tt = _dtime_dip_(rfV, H[ih], k[ik], vp, phase[ip], strike, dip)
+                    tt = _dtime_dip_(rfV, H[ih], k[ik],
+                                     vp, phase[ip], strike, dip)
                     trace = _timeshift_(rfV, tt)
                     thilb = hilbert(trace)
                     tphase = np.arctan2(thilb.imag, thilb.real)
@@ -143,10 +146,11 @@ def stack_dip(rfV1, rfV2, bkey, strike=0., dip=0.):
                     amp[i] = trace[0]
 
                 weight = abs(weight/np.float(len(rfV1)))**4
-                sig[ih,ik,ip] = np.var(amp)*np.real(weight)
-                pws[ih,ik,ip] = np.median(amp)*np.real(weight)
+                sig[ih, ik, ip] = np.var(amp)*np.real(weight)
+                pws[ih, ik, ip] = np.median(amp)*np.real(weight)
 
     return pws, sig
+
 
 def average(pws, sig, bkey, typ='sum'):
     """
@@ -166,29 +170,30 @@ def average(pws, sig, bkey, typ='sum'):
     k = np.arange(kbound[0], kbound[1]+dk, dk)
 
     # Multiply pws by weights
-    ps = pws[:,:,0]*weights[0]
-    pps = pws[:,:,1]*weights[1]
-    pss = pws[:,:,2]*weights[2]
+    ps = pws[:, :, 0]*weights[0]
+    pps = pws[:, :, 1]*weights[1]
+    pss = pws[:, :, 2]*weights[2]
 
     # Get stacks
-    if typ=='sum':
+    if typ == 'sum':
         stack = (ps + pps + pss)
-    elif typ=='mult':
+    elif typ == 'mult':
         # Zero out negative values
-        ps[ps<0] = 0.
-        pps[pps<0] = 0.
-        pss[pss<0] = 0.
+        ps[ps < 0] = 0.
+        pps[pps < 0] = 0.
+        pss[pss < 0] = 0.
         #stack = ps*pps*pss
         #stack = ps*pps
         stack = pps*ps
 
-    ## Zero out negative values
+    # Zero out negative values
     #stack[stack<0] = 0.
 
     # Find maximum within stacks
-    ind = np.where(stack==stack.max())
+    ind = np.where(stack == stack.max())
 
-    return H[ind[0]][0], k[ind[1]][0], stack#, stack.max()
+    return H[ind[0]][0], k[ind[1]][0], stack  # , stack.max()
+
 
 def error(res, q, stack, bkey, method='amp'):
     """
@@ -196,7 +201,7 @@ def error(res, q, stack, bkey, method='amp'):
     function.
 
     From Walsh, JGR, 2013
-    
+
     """
 
     # Get bounds from global dictionary
@@ -215,25 +220,25 @@ def error(res, q, stack, bkey, method='amp'):
     n_par = 2
 
     msf = stack/stack.max()
-    
+
     # Method 1 - based on stats
-    if method=='stats':
+    if method == 'stats':
 
         msf = 1. - msf
 
         # Error contour
         vmin = msf.min()
         vmax = msf.max()
-        #err_contour = vmin*(1. + n_par/(dof - n_par)*
-        err_contour = (n_par/(dof - n_par)*
-                stats.f.ppf(1.-q, n_par, dof-n_par))
-        err = np.where(msf<err_contour)
+        # err_contour = vmin*(1. + n_par/(dof - n_par)*
+        err_contour = (n_par/(dof - n_par) *
+                       stats.f.ppf(1.-q, n_par, dof-n_par))
+        err = np.where(msf < err_contour)
 
     # Method 2 - based on amplitude
-    elif method=='amp':
+    elif method == 'amp':
 
         err_contour = 0.5
-        err = np.where(msf>err_contour)
+        err = np.where(msf > err_contour)
 
     # Estimate uncertainty (q confidence interval)
     err_k = 0.25*(k[max(err[1])] - k[min(err[1])])
@@ -256,7 +261,8 @@ def dof(st):
 
         ft = np.fft.fft(tr.data)[0:len(tr.data)/2+1]
         ai = np.ones(len(ft))
-        ai[0] = 0.5; ai[-1] = 0.5
+        ai[0] = 0.5
+        ai[-1] = 0.5
 
         E2 = np.sum(np.dot(ai, np.abs(ft)**2))
         E4 = np.sum(np.dot(ai, np.abs(ft)**4))
@@ -288,6 +294,8 @@ def _dtime_(trace, z, r, vp, ph):
     return tt
 
 # Function to calculate travel time for different scattered phases
+
+
 def _dtime_dip_(trace, z, r, vp, ph, strike, dip):
 
     n = np.zeros(3)
@@ -336,12 +344,14 @@ def _dtime_dip_(trace, z, r, vp, ph, strike, dip):
         c6 = 1./(br*br) - ndotpr**2
         a = vp*vp
         tt = z*(2.*c1*np.sqrt(r*r/a - c6))
-       
+
     return tt
 
 # Function to shift traces in time given travel time
+
+
 def _timeshift_(trace, tt):
-    
+
     # Define frequencies
     nt = trace.stats.npts
     dt = trace.stats.delta
@@ -359,12 +369,13 @@ def _timeshift_(trace, tt):
 
     return rtrace
 
-def plot_hk(pws, stack, bkey, err_c=None, h0=None, k0=None, sta=None, 
+
+def plot_hk(pws, stack, bkey, err_c=None, h0=None, k0=None, sta=None,
             typ='sum', save=False, title=None, method='amp'):
     """
     Function to plot H-K stacks
     """
-    
+
     # Get bounds from global dictionary
     bnd = cf.rf_bounds[bkey]
     kbound = bnd[0]
@@ -378,83 +389,85 @@ def plot_hk(pws, stack, bkey, err_c=None, h0=None, k0=None, sta=None,
     k = np.arange(kbound[0], kbound[1]+dk, dk)
 
     # Extent of plots
-    extent = (H.min(),H.max(),k.min(),k.max())
+    extent = (H.min(), H.max(), k.min(), k.max())
 
     # Give weights to individual H-K moveout curves
-    ps = pws[:,:,0]*weights[0]
-    pps = pws[:,:,1]*weights[1]
-    pss = pws[:,:,2]*weights[2]
+    ps = pws[:, :, 0]*weights[0]
+    pps = pws[:, :, 1]*weights[1]
+    pss = pws[:, :, 2]*weights[2]
 
-    if typ=='mult':
+    if typ == 'mult':
         # Zero out negative values
-        ps[ps<0] = 0.
-        pps[pps<0] = 0.
-        pss[pss<0] = 0.
+        ps[ps < 0] = 0.
+        pps[pps < 0] = 0.
+        pss[pss < 0] = 0.
 
     # Set up figure
-    #plt.clf()
-    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex=True, sharey=True)
+    # plt.clf()
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(
+        2, 2, sharex=True, sharey=True)
 
-    cmap='RdBu_r'
+    cmap = 'RdBu_r'
 
     # First subplot: Ps
     #vmin = -np.abs(pws[:,:,0].max())
-    #vmin=0.
+    # vmin=0.
     vmax = np.abs(max(ps.max(), ps.min(), key=abs))
     im = ax1.imshow(np.rot90(ps), cmap=cmap,
-                   extent=extent, vmin=-vmax, vmax=vmax, aspect='auto')
+                    extent=extent, vmin=-vmax, vmax=vmax, aspect='auto')
     ax1.set_ylabel('Vp/Vs')
     ax1.set_title('Ps')
 
     # Second subplot: Pps
     #vmin = -np.abs(pws[:,:,1].max())
-    #vmin=0.
+    # vmin=0.
     #vmax = np.abs(pps.max())
     vmax = np.abs(max(pps.max(), pps.min(), key=abs))
     im = ax2.imshow(np.rot90(pps), cmap=cmap,
-                   extent=extent, vmin=-vmax, vmax=vmax, aspect='auto')
+                    extent=extent, vmin=-vmax, vmax=vmax, aspect='auto')
     ax2.set_title('Pps')
 
     # Third subplot: Pss
     #vmin = -np.abs(pws[:,:,2].max())
-    #vmin=0.
+    # vmin=0.
     #vmax = np.abs(pss.max())
     vmax = np.abs(max(pss.max(), pss.min(), key=abs))
     im = ax3.imshow(np.rot90(pss), cmap=cmap,
-                   extent=extent, vmin=-vmax, vmax=vmax, aspect='auto') 
+                    extent=extent, vmin=-vmax, vmax=vmax, aspect='auto')
     ax3.set_title('Pss')
     ax3.set_ylabel('Vp/Vs')
     ax3.set_xlabel('Thickness (km)')
 
     # Fourth subplot: Average
-    #vmin=0.
+    # vmin=0.
     #vmax = np.abs(stack.max())
     vmax = np.abs(max(stack.max(), stack.min(), key=abs))
     im = ax4.imshow(np.rot90(stack), cmap=cmap,
-                   #extent=extent, aspect='auto') 
-                   extent=extent, vmin=-vmax, vmax=vmax, aspect='auto') 
+                    # extent=extent, aspect='auto')
+                    extent=extent, vmin=-vmax, vmax=vmax, aspect='auto')
     ax4.set_title('Stack')
     ax4.set_xlabel('Thickness (km)')
-    
+
     #cbar = fig.colorbar(im, ticks=[-vmax, 0, vmax])
     #cbar.ax.set_yticklabels(['min', '0', 'max'])
-    
+
     # Get confidence intervals
     if err_c:
-        #ax.contour(np.rot90(vmax-msf), (vmax-err_cont,),
-        if method=='stats':
-            ax4.contour(np.rot90(1.-stack/stack.max()), (err_c,),
-                    hold='on', colors='yellow', linewidths=1, origin='upper', 
-                    extent=extent)
-        elif method=='amp':
-            ax4.contour(np.rot90(stack/stack.max()), (err_c,),
-                    hold='on', colors='yellow', linewidths=1, origin='upper', 
-                    extent=extent)
-
+        # ax.contour(np.rot90(vmax-msf), (vmax-err_cont,),
+        if method == 'stats':
+            ax4.contour(
+                np.rot90(1.-stack/stack.max()), (err_c,),
+                hold='on', colors='yellow', linewidths=1, origin='upper',
+                extent=extent)
+        elif method == 'amp':
+            ax4.contour(
+                np.rot90(stack/stack.max()), (err_c,),
+                hold='on', colors='yellow', linewidths=1, origin='upper',
+                extent=extent)
 
     # Add star showing best fit
     if (h0 is not None) and (k0 is not None):
-        ax4.scatter(h0,k0,60,marker='*',color='white')
+        ax4.scatter(h0, k0, 60, marker='*', color='white')
 
     plt.suptitle('H-k stacks, station: '+sta)
 
@@ -463,4 +476,3 @@ def plot_hk(pws, stack, bkey, err_c=None, h0=None, k0=None, sta=None,
         plt.close()
     else:
         plt.show()
-
