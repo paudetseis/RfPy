@@ -1,6 +1,6 @@
 
-RfPy documentation
-======================
+Documentation
+=============
 
 RfPy is a package containing Python tools for calculating teleseismic
 receiver functions. Methods are available to plot and post-process 
