@@ -108,3 +108,5 @@ __version__ = '0.0.1'
 
 __author__ = 'Pascal Audet'
 
+from .calc.classes import RFData
+

@@ -26,8 +26,8 @@
 - :class:`~rfpy.calc.classes.RFData`
 
 The class :class:`~rfpy.calc.classes.RFData` contains attributes
-and methods for the analysis of teleseismic receiver functions 
-from three-component seismograms. 
+and methods for the analysis of teleseismic receiver functions
+from three-component seismograms.
 
 """
 
@@ -37,13 +37,13 @@ from obspy.core import Trace
 from obspy.geodetics.base import gps2dist_azimuth as epi
 from obspy.geodetics import kilometer2degrees as k2d
 from obspy.signal.rotate import rotate_ne_rt
-from rfpy.calc import utils
+from rfpy.calc import options
 
 
 class Meta(object):
     """
     A Meta object contains attributes associated with the metadata
-    for a single receiver function analysis. 
+    for a single receiver function analysis.
 
     Parameters
     ----------
@@ -74,11 +74,13 @@ class Meta(object):
     inc : float
         Incidence angle of phase at surface (initially set to None)
     align : str
-        Alignment of coordinate system ('ZRT', 'LQT', or 'PVH') (initially set to None)
+        Alignment of coordinate system ('ZRT', 'LQT', or 'PVH')
+        (initially set to None)
 
     """
 
-    def __init__(self, time, dep, lon, lat, mag, gac, epi_dist, baz, az,
+    def __init__(self, time=None, dep=None, lon=None, lat=None, mag=None,
+                 gac=None, epi_dist=None, baz=None, az=None,
                  ttime=None, ph=None, slow=None, inc=None, align=None):
 
         # Attributes from parameters
@@ -102,8 +104,8 @@ class Meta(object):
 
 class Data(object):
     """
-    A Data object contains three-component raw (ZNE) and rotated (ZRT, LQT, PVH) 
-    waveforms centered on the arrival time of interest.
+    A Data object contains three-component raw (ZNE) and rotated
+    (ZRT, LQT, PVH) waveforms centered on the arrival time of interest.
 
     Parameters
     ----------
@@ -111,37 +113,48 @@ class Data(object):
         Trace of North component of motion
     trE : :class:`~obspy.core.Trace`
         Trace of East component of motion
-    trZ : :class:`~obspy.core.Trace` 
+    trZ : :class:`~obspy.core.Trace`
         Trace of Vertical component of motion
     trL : :class:`~obspy.core.Trace`
-        Trace of longitudinal/vertical component of motion (initially empty)
+        Trace of longitudinal/vertical component of motion
+        (initially empty)
     trQ : :class:`~obspy.core.Trace`
-        Trace of radial/SV component of motion (initially empty)
+        Trace of radial/SV component of motion
+        (initially empty)
     trT : :class:`~obspy.core.Trace`
-        Trace of tangential/transverse/SH component of motion (initially empty)
+        Trace of tangential/transverse/SH component of motion
+        (initially empty)
     rfL : :class:`~obspy.core.Trace`
-        Trace of longitudinal/vertical component of receiver functions (initially empty)
+        Trace of longitudinal/vertical component of receiver functions
+        (initially empty)
     rfQ : :class:`~obspy.core.Trace`
-        Trace of radial/SV component of receiver functions (initially empty)
+        Trace of radial/SV component of receiver functions
+        (initially empty)
     rfT : :class:`~obspy.core.Trace`
-        Trace of tangential/transverse/SH component of receiver functions (initially empty)
+        Trace of tangential/transverse/SH component of receiver functions
+        (initially empty)
 
     """
 
-    def __init__(self, tr1, tr2, tr3):
+    def __init__(self, tr1=None, tr2=None, tr3=None):
 
-        for tr in [tr1, tr2, tr3]
-        if tr.stats.channel[-1] == 'E':
-            self.trE = tr
-        elif tr.stats.channel[-1] == 'N':
-            self.trN = tr
-        elif tr.stats.channel[-1] == 'Z':
-            self.trZ = tr
+        if not tr1 or not tr2 or not tr3:
+            self.trE = Trace()
+            self.trN = Trace()
+            self.trZ = Trace()
         else:
-            raise(
-                Exception(
-                    "Error: traces do not contain N, E, and Z components - " +
-                    "aborting"))
+            for tr in [tr1, tr2, tr3]:
+                if tr.stats.channel[-1] == 'E':
+                    self.trE = tr
+                elif tr.stats.channel[-1] == 'N':
+                    self.trN = tr
+                elif tr.stats.channel[-1] == 'Z':
+                    self.trZ = tr
+                else:
+                    raise(
+                        Exception(
+                            "Error: traces do not contain N, E, " +
+                            "and Z components - aborting"))
 
         self.trL = Trace()
         self.trQ = Trace()
@@ -178,9 +191,28 @@ class RFData(object):
     data : :class:`~rfpy.calc.classes.Data`
         Object containing trace data in :class:`~obspy.core.Trace` format (initially set to None)
 
+    Examples
+    --------
+
+    Get demo noise data as RFData object
+
+    >>> from rfpy import RFData
+    >>> rfdata = RFData('demo')
+    Uploading demo data - station NY.MMPY
+
     """
 
     def __init__(self, sta, vp=6.0, vs=3.6, align='ZRT'):
+
+        # Load example data if initializing empty object
+        if sta == 'demo' or sta == 'Demo':
+            print("Uploading demo data - station NY.MMPY")
+            import os
+            import pickle
+            sta = pickle.load(
+                open(os.path.join(
+                    os.path.dirname(__file__),
+                    "../examples/data", "MMPY.pkl"), 'rb'))['NY.MMPY']
 
         # Attributes from parameters
         self.sta = sta
@@ -189,8 +221,8 @@ class RFData(object):
         self.align = align
 
         # None attributes at initialization
-        self.meta = None
-        self.data = None
+        self.meta = Meta()
+        self.data = Data()
 
     def add_event(self, event):
         """
@@ -206,7 +238,31 @@ class RFData(object):
         meta : :class:`~rfpy.calc.classes.Meta`
             Object containing metadata information
 
+        Examples
+        --------
+
+        Get demo event info
+
+        >>> from rfpy import RFData
+        >>> rfdata = RFData('demo')
+        Uploading demo data - station NY.MMPY
+        >>> rfdata.add_event('demo')
+        2015-02-02T08:25:51.300000Z |  -1.583, +145.315 | 6.0 MW
+
         """
+
+        if event == 'demo' or event == 'Demo':
+
+            from obspy.clients.fdsn import Client
+            from obspy.core import UTCDateTime
+            client = Client()
+            # Get catalogue using deployment start and end
+            event = client.get_events(
+                starttime=UTCDateTime('2015-02-02T08:00:00'),
+                endtime=UTCDateTime('2015-02-02T09:00:00'),
+                minmagnitude=6.0,
+                maxmagnitude=7.0)[0]
+            print(event.short_str())
 
         if self.meta is not None:
             raise(
@@ -253,6 +309,17 @@ class RFData(object):
         meta.inc : float
             Incidence angle of phase at surface
 
+        Examples
+        --------
+
+        Add phase to object
+
+        >>> from rfpy import RFData
+        >>> rfdata = RFData('demo')
+        Uploading demo data - station NY.MMPY
+        >>> rfdata.add_event('demo')
+        2015-02-02T08:25:51.300000Z |  -1.583, +145.315 | 6.0 MW
+
         """
 
         if self.meta is None:
@@ -281,16 +348,38 @@ class RFData(object):
         data : :class:`~rfpy.calc.classes.Data`
             Object containing :class:`obspy.core.Trace` objects
 
+        Examples
+        --------
+
+        Get demo data
+
+        >>> from rfpy import RFData
+        >>> rfdata = RFData('demo')
+        Uploading demo data - station NY.MMPY
+        >>> rfdata.add_NEZ('demo')
+        3 Trace(s) in Stream:
+        NY.MMPY..HHN | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
+        NY.MMPY..HHE | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
+        NY.MMPY..HHZ | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
+
         """
 
+        # Load demo data
+        if stream == 'demo' or stream == 'Demo':
+            import os
+            from obspy.core import read
+            stream = read(os.path.join(os.path.dirname(__file__),
+                                       "../examples/data", "2015*.mseed"))
+            print(stream)
+
         try:
-            trE = stream.select(component='E')
-            trN = stream.select(component='N')
-            trZ = stream.select(component='Z')
+            trE = stream.select(component='E')[0]
+            trN = stream.select(component='N')[0]
+            trZ = stream.select(component='Z')[0]
         except:
             raise(Exception("Error: Not all channels are avaialble"))
 
-        self.data = Data(trE, trN, trZ)
+        self.data = Data(trE=trE, trN=trN, trZ=trZ)
 
     def add_LQT(self, stream):
         """
@@ -314,9 +403,9 @@ class RFData(object):
                     "Warning: Data object has been initialized already"))
 
         try:
-            trL = stream.select(component='L')
-            trQ = stream.select(component='Q')
-            trT = stream.select(component='T')
+            trL = stream.select(component='L')[0]
+            trQ = stream.select(component='Q')[0]
+            trT = stream.select(component='T')[0]
         except:
             raise(Exception("Error: Not all channels are avaialble"))
 
@@ -519,7 +608,7 @@ class RFData(object):
             print(
                 "Warning: Data have not been rotated yet - rotating now")
             self.rotate()
-            
+
         if self.data.rfL.data:
             print(
                 "Warning: Data have been deconvolved already")
