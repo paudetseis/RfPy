@@ -23,9 +23,9 @@
 
 :mod:`~rfpy` defines the following base classes:
 
-- :class:`~rfpy.classes.RFData`
+- :class:`~rfpy.calc.classes.RFData`
 
-The class :class:`~rfpy.classes.RFData` contains attributes
+The class :class:`~rfpy.calc.classes.RFData` contains attributes
 and methods for the analysis of teleseismic receiver functions 
 from three-component seismograms. 
 
@@ -45,7 +45,7 @@ class Meta(object):
     A Meta object contains attributes associated with the metadata
     for a single receiver function analysis. 
 
-    Attributes
+    Parameters
     ----------
     time : :class:`~obspy.core.UTCDateTime`
         Origin time of earthquake
@@ -66,20 +66,22 @@ class Meta(object):
     az : float
         Azimuth - pointing to station from earthquake (degrees)
     ttime : float
-        Predicted arrival time (sec)
+        Predicted arrival time (sec) (initially set to None)
     ph : str
-        Phase name
+        Phase name (initially set to None)
     slow : float
-        Horizontal slowness of phase
+        Horizontal slowness of phase (initially set to None)
     inc : float
-        Incidence angle of phase at surface
+        Incidence angle of phase at surface (initially set to None)
     align : str
-        Alignment of coordinate system ('ZRT', 'LQT', or 'PVH')
+        Alignment of coordinate system ('ZRT', 'LQT', or 'PVH') (initially set to None)
 
     """
 
-    def __init__(self, time, dep, lon, lat, mag, gac, epi_dist, baz, az):
+    def __init__(self, time, dep, lon, lat, mag, gac, epi_dist, baz, az,
+                 ttime=None, ph=None, slow=None, inc=None, align=None):
 
+        # Attributes from parameters
         self.time = time
         self.dep = dep
         self.lon = lon
@@ -89,11 +91,13 @@ class Meta(object):
         self.epi_dist = epi_dist
         self.baz = baz
         self.az = az
-        self.ttime = None
-        self.ph = None
-        self.slow = None
-        self.inc = None
-        self.rotate = None
+
+        # None attributes at initialization
+        self.ttime = ttime
+        self.ph = ph
+        self.slow = slow
+        self.inc = inc
+        self.align = align
 
 
 class Data(object):
@@ -101,9 +105,8 @@ class Data(object):
     A Data object contains three-component raw (ZNE) and rotated (ZRT, LQT, PVH) 
     waveforms centered on the arrival time of interest.
 
-    Attributes
+    Parameters
     ----------
-
     trN : :class:`~obspy.core.Trace`
         Trace of North component of motion
     trE : :class:`~obspy.core.Trace`
@@ -111,25 +114,35 @@ class Data(object):
     trZ : :class:`~obspy.core.Trace` 
         Trace of Vertical component of motion
     trL : :class:`~obspy.core.Trace`
-        Trace of longitudinal/vertical component of motion
+        Trace of longitudinal/vertical component of motion (initially empty)
     trQ : :class:`~obspy.core.Trace`
-        Trace of radial/SV component of motion
+        Trace of radial/SV component of motion (initially empty)
     trT : :class:`~obspy.core.Trace`
-        Trace of tangential/transverse/SH component of motion
+        Trace of tangential/transverse/SH component of motion (initially empty)
     rfL : :class:`~obspy.core.Trace`
-        Trace of longitudinal/vertical component of receiver functions
+        Trace of longitudinal/vertical component of receiver functions (initially empty)
     rfQ : :class:`~obspy.core.Trace`
-        Trace of radial/SV component of receiver functions
+        Trace of radial/SV component of receiver functions (initially empty)
     rfT : :class:`~obspy.core.Trace`
-        Trace of tangential/transverse/SH component of receiver functions
+        Trace of tangential/transverse/SH component of receiver functions (initially empty)
 
     """
 
-    def __init__(self, trE, trN, trZ):
+    def __init__(self, tr1, tr2, tr3):
 
-        self.trE = trE
-        self.trN = trN
-        self.trZ = trZ
+        for tr in [tr1, tr2, tr3]
+        if tr.stats.channel[-1] == 'E':
+            self.trE = tr
+        elif tr.stats.channel[-1] == 'N':
+            self.trN = tr
+        elif tr.stats.channel[-1] == 'Z':
+            self.trZ = tr
+        else:
+            raise(
+                Exception(
+                    "Error: traces do not contain N, E, and Z components - " +
+                    "aborting"))
+
         self.trL = Trace()
         self.trQ = Trace()
         self.trT = Trace()
@@ -150,35 +163,34 @@ class RFData(object):
     The object is initialized with the ``sta`` field only, and
     other attributes are added to the object as the analysis proceeds.
 
-    Attributes
+    Parameters
     ----------
     sta : object
         Object containing station information - from :mod:`~stdb` database.
-    meta : :class:`~splitpy.classes.Meta`
-        Object of metadata information for single event.
-    data : :class:`~splitpy.classes.Data`
-        Object containing trace data in :class:`~obspy.core.Trace` format
-    err : bool
-        Whether or not the `get_data_NEZ` successfully retrieved waveforms
-    snrq : float
-        Signal-to-noise ratio for radial (Q) component
-    snrt : float
-        Signal-to-noise ratio for tangential (T) component
-    maxdt : float
-        Max delay time between slow and fast axes in search
-    ddt : float
-        Sampling distance (in sec) for delay time search
-    dphi : float
-        Sampling distance (in degrees) for azimuth search 
+    vp : float
+        P-wave velocity at surface (km/s)
+    vs : float
+        S-wave velocity at surface (km/s)
+    align : str
+        Alignment of coordinate system ('ZRT', 'LQT', or 'PVH')
+    meta : :class:`~rfpy.calc.classes.Meta`
+        Object of metadata information for single event (initially set to None)
+    data : :class:`~rfpy.calc.classes.Data`
+        Object containing trace data in :class:`~obspy.core.Trace` format (initially set to None)
 
     """
 
     def __init__(self, sta, vp=6.0, vs=3.6, align='ZRT'):
 
+        # Attributes from parameters
         self.sta = sta
         self.vp = vp
         self.vs = vs
         self.align = align
+
+        # None attributes at initialization
+        self.meta = None
+        self.data = None
 
     def add_event(self, event):
         """
@@ -191,10 +203,15 @@ class RFData(object):
 
         Attributes
         ----------
-        meta :
+        meta : :class:`~rfpy.calc.classes.Meta`
             Object containing metadata information
 
         """
+
+        if self.meta is not None:
+            raise(
+                Exception(
+                    "Warning: meta object has already been initialized"))
 
         time = event.origins[0].time
         dep = event.origins[0].depth
@@ -213,7 +230,8 @@ class RFData(object):
         gac = k2d(epi_dist)
 
         # Store as object attributes
-        self.meta = Meta(time, dep, lon, lat, mag, gac, epi_dist, baz, az)
+        self.meta = Meta(
+            time, dep, lon, lat, mag, gac, epi_dist, baz, az, align=self.align)
 
     def add_phase(self, t):
         """
@@ -229,13 +247,19 @@ class RFData(object):
         meta.ttime : float
             Travel time between earthquake and station (sec)
         meta.ph : str
-            Phase name ('SKS')
+            Phase name (e.g., 'P')
         meta.slow : float
             Horizontal slowness of phase
         meta.inc : float
             Incidence angle of phase at surface
 
         """
+
+        if self.meta is None:
+            raise(
+                Exception(
+                    "Error: meta object has not been initialized yet - " +
+                    "aborting"))
 
         # Store as attributes
         self.meta.ttime = t.time
@@ -254,12 +278,19 @@ class RFData(object):
 
         Attributes
         ----------
-        data : :class:`~rfpy.classes.Data`
+        data : :class:`~rfpy.calc.classes.Data`
             Object containing :class:`obspy.core.Trace` objects
 
         """
 
-        self.data = Data(stream[0], stream[1], stream[2])
+        try:
+            trE = stream.select(component='E')
+            trN = stream.select(component='N')
+            trZ = stream.select(component='Z')
+        except:
+            raise(Exception("Error: Not all channels are avaialble"))
+
+        self.data = Data(trE, trN, trZ)
 
     def add_LQT(self, stream):
         """
@@ -268,18 +299,30 @@ class RFData(object):
         Parameters
         ----------
         stream : :class:`~obspy.core.Stream`
-            Stream container for NEZ seismograms
+            Stream container for LQT seismograms
 
         Attributes
         ----------
-        data : :class:`~rfpy.classes.Data`
+        data : :class:`~rfpy.calc.classes.Data`
             Object containing :class:`~obspy.core.Trace` objects
 
         """
 
-        self.data.trL = stream[0]
-        self.data.trQ = stream[1]
-        self.data.trT = stream[2]
+        if self.data is not None:
+            raise(
+                Exception(
+                    "Warning: Data object has been initialized already"))
+
+        try:
+            trL = stream.select(component='L')
+            trQ = stream.select(component='Q')
+            trT = stream.select(component='T')
+        except:
+            raise(Exception("Error: Not all channels are avaialble"))
+
+        self.data.trL = trL
+        self.data.trQ = trQ
+        self.data.trT = trT
 
     def get_data_NEZ(self, client, dts, stdata, ndval, new_sr):
         """
@@ -314,7 +357,7 @@ class RFData(object):
         print("*    Startime: " + tstart.strftime("%Y-%m-%d %H:%M:%S"))
         print("*    Endtime:  " + tend.strftime("%Y-%m-%d %H:%M:%S"))
 
-        err, trN, trE, trZ = utils.get_data_NEZ(
+        err, trN, trE, trZ = options.get_data_NEZ(
             client=client, sta=self.sta, start=tstart, end=tend,
             stdata=stdata, ndval=ndval, new_sr=new_sr)
 
@@ -331,10 +374,20 @@ class RFData(object):
         Attributes
         ----------
 
-        data : :class:`~splitpy.classes.Data`
+        data : :class:`~rfpy.calc.classes.Data`
             Object containing :class:`~obspy.core.Trace` objects
 
         """
+
+        if not self.align:
+            raise(
+                Exception(
+                    "Error: component alignment is not specified - " +
+                    "aborting"))
+
+        if self.data.trL.data:
+            print(
+                "Warning: Components have been rotated already")
 
         if self.align == 'ZRT':
             self.data.trL = self.data.trZ.copy()
@@ -407,6 +460,11 @@ class RFData(object):
 
         self.meta.align = self.align
 
+        # update stats
+        self.data.trL.stats.channel = self.sta.cha+'L'
+        self.data.trQ.stats.channel = self.sta.cha+'Q'
+        self.data.trT.stats.channel = self.sta.cha+'T'
+
     def calc_snrz(self, t1=None, dt=30.):
         """
         Calculates signal-to-noise ration on vertical (L) component
@@ -451,26 +509,20 @@ class RFData(object):
 
     def deconvolve(self, twin=30.):
         """
-        Calculates the shear-wave splitting parameters based 
-        on two alternative method: the Rotation-Correlation (RC)
-        method and the Silver-Chan (SC) method. Each set of results
-        is stored in a Dictionary as attributes of the split object.
 
         Parameters
         ----------
-        t1 : :class:`~obspy.core.utcdatetime.UTCDateTime`
-            Start time of picking window
-        t2 : :class:`~obspy.core.utcdatetime.UTCDateTime`
-            End time of picking window
-
-        Attributes
-        ----------
-        RC_res : :class:`~splitpy.classes.Result`
-            Object containing results of Rotation-Correlation method
-        SC_res : :class:`~splitpy.classes.Result`
-            Object containing results of Silver-Chan method
 
         """
+
+        if not self.data.trL:
+            print(
+                "Warning: Data have not been rotated yet - rotating now")
+            self.rotate()
+            
+        if self.data.rfL.data:
+            print(
+                "Warning: Data have been deconvolved already")
 
         def _taper(nt, ns):
 
