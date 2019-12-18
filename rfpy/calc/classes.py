@@ -63,16 +63,23 @@ class Meta(object):
     az : float
         Azimuth - pointing to station from earthquake (degrees)
     ttime : float
-        Predicted arrival time (sec) (initially set to None)
+        Predicted arrival time (sec) 
     ph : str
-        Phase name (initially set to None)
+        Phase name 
     slow : float
-        Horizontal slowness of phase (initially set to None)
+        Horizontal slowness of phase 
     inc : float
-        Incidence angle of phase at surface (initially set to None)
+        Incidence angle of phase at surface 
+    vp : float
+        P-wave velocity at surface (km/s)
+    vs : float
+        S-wave velocity at surface (km/s)
     align : str
-        Alignment of coordinate system ('ZRT', 'LQT', or 'PVH')
-        (initially set to None)
+        Alignment of coordinate system for rotation
+        ('ZRT', 'LQT', or 'PVH')
+    rotated : bool
+        Whether or not data have been rotated to ``align``
+        coordinate system
 
     """
 
@@ -103,20 +110,26 @@ class Meta(object):
         tpmodel = TauPyModel()
 
         # Get Travel times (Careful: here dep is in meters)
-        arrivals = tpmodel.get_travel_times(
-            distance_in_degree=self.gac,
-            source_depth_in_km=self.dep/1000.,
-            phase_list=["P"])
-        if len(arrivals) > 1:
-            print("arrival has many entries:"+arrivals)
-        arrival = arrivals[0]
+        try:
+            arrivals = tpmodel.get_travel_times(
+                distance_in_degree=self.gac,
+                source_depth_in_km=self.dep/1000.,
+                phase_list=["P"])
+            if len(arrivals) > 1:
+                print("arrival has many entries:"+arrivals)
+            arrival = arrivals[0]
 
-        # Attributes from parameters
-        self.ttime = arrival.time
-        self.ph = arrival.name
-        self.slow, = arrival.ray_param_sec_degree/111.,
-        self.inc, = np.arcsin(
-            vp*arrival.ray_param_sec_degree/111.)*180./np.pi,
+            # Attributes from parameters
+            self.ttime = arrival.time
+            self.ph = arrival.name
+            self.slow = arrival.ray_param_sec_degree/111.
+            self.inc = arrival.incident_angle
+        except:
+            self.ttime = None
+            self.ph = None
+            self.slow = None
+            self.inc = None
+
         self.vp = vp
         self.vs = vs
         self.align = align
@@ -154,6 +167,25 @@ class RFData(object):
     >>> rfdata = RFData('demo')
     Uploading demo station data - station NY.MMPY
 
+    Check out its attributes (initialization only stores the ``sta`` attribute)
+
+    >>> rfdata.__dict__
+    {'sta': {'station': 'MMPY',
+      'network': 'NY',
+      'altnet': [],
+      'channel': 'HH',
+      'location': ['--'],
+      'latitude': 62.618919,
+      'longitude': -131.262466,
+      'elevation': 0.0,
+      'startdate': 2013-07-01T00:00:00.000000Z,
+      'enddate': 2599-12-31T23:59:59.000000Z,
+      'polarity': 1.0,
+      'azcorr': 0.0,
+      'status': 'open'},
+     'meta': None,
+     'data': None}
+
     """
 
     def __init__(self, sta):
@@ -178,18 +210,19 @@ class RFData(object):
     def add_event(self, event):
         """
         Adds event metadata to RFData object, including travel time info 
-        of P wave
+        of P wave. 
 
         Parameters
         ----------
         event : :class:`~obspy.core.event`
-            Event metadata
-        vp : float
-            P-wave velocity at surface
-        model : str
-            Taup model to use. See 
-            `obspy.taup <https://docs.obspy.org/packages/obspy.taup.html>`_
-            for options.
+            Event XML object
+
+        Returns
+        -------
+        accept : bool
+            Whether or not the event is accepted for analysis. 
+            This variable is used to check whether or not the analysis should 
+            continue.
 
         Examples
         --------
@@ -201,6 +234,7 @@ class RFData(object):
         Uploading demo data - station NY.MMPY
         >>> rfdata.add_event('demo')
         2015-02-02T08:25:51.300000Z |  -1.583, +145.315 | 6.0 MW
+        True
 
         Print content of object meta data
 
@@ -255,6 +289,12 @@ class RFData(object):
 
         # Store as object attributes
         self.meta = Meta(sta=self.sta, event=event)
+        if self.meta.ttime is None:
+            self.meta.accept = False
+            return False
+        else:
+            self.meta.accept = True
+            return True
 
 
     def add_NEZ(self, stream):
@@ -274,7 +314,7 @@ class RFData(object):
         Examples
         --------
 
-        Get demo data
+        Get demo Stream data
 
         >>> from rfpy import RFData
         >>> rfdata = RFData('demo')
@@ -295,6 +335,9 @@ class RFData(object):
                                        "../examples/data", "2015*.mseed"))
             print(stream)
 
+        if not self.meta.accept:
+            return
+
         if not isinstance(stream, Stream):
             raise(Exception("Event has incorrect type"))
 
@@ -302,12 +345,12 @@ class RFData(object):
             trE = stream.select(component='E')[0]
             trN = stream.select(component='N')[0]
             trZ = stream.select(component='Z')[0]
+            self.data = stream
         except:
             raise(Exception("Error: Not all channels are available"))
 
-        self.data = stream
 
-    def get_data_NEZ(self, client, dts, stdata, ndval, new_sr):
+    def download_NEZ(self, client, ndval=np.nan, new_sr=5., dts=120.):
         """
         Downloads seismograms based on event origin time and
         P phase arrival.
@@ -316,24 +359,26 @@ class RFData(object):
         ----------
         client : :class:`~obspy.client.fdsn.Client`
             Client object
-        dts : float
-            Time duration (?)
-        stdata : :class:`stdb.classes.StDbElement`
-            Station metadata
         ndval : float
             Fill in value for missing data
+        new_sr : float
+            New sampling rate (Hz)
+        dts : float
+            Time duration (sec)
 
         Attributes
         ----------
 
-        data : :class:`~rfpy.classes.Data`
-            Object containing :class:`~obspy.core.Trace` objects
+        data : :class:`~obspy.core.Stream`
+            Stream containing :class:`~obspy.core.Trace` objects
 
         """
 
-        if (any([value is None for value in self.meta.__dict__.values()]) or
-                self.meta is None):
+        if self.meta is None:
             raise(Exception("Requires event data as attribute - aborting"))
+
+        if not self.meta.accept:
+            return
 
         # Define start and end times for requests
         tstart = self.meta.time + self.meta.ttime - dts
@@ -344,9 +389,9 @@ class RFData(object):
         print("*    Startime: " + tstart.strftime("%Y-%m-%d %H:%M:%S"))
         print("*    Endtime:  " + tend.strftime("%Y-%m-%d %H:%M:%S"))
 
-        err, trN, trE, trZ = options.get_data_NEZ(
+        err, trN, trE, trZ = options.download_data(
             client=client, sta=self.sta, start=tstart, end=tend,
-            stdata=stdata, ndval=ndval, new_sr=new_sr)
+            stdata=self.sta.station, ndval=ndval, new_sr=new_sr)
 
         # Store as attributes with traces in dictionay
         self.err = err
@@ -361,6 +406,17 @@ class RFData(object):
         is used for the rotation ``'ZNE->ZRT'`` and ``'ZNE->LQT'``.
         Rotation ``'ZNE->PVH'`` is implemented separately here 
         due to different conventions.
+
+        Parameters
+        ----------
+        vp : float
+            P-wave velocity at surface (km/s)
+        vs : float
+            S-wave velocity at surface (km/s)
+        align : str
+            Alignment of coordinate system for rotation
+            ('ZRT', 'LQT', or 'PVH')
+
 
         Examples
         --------
@@ -399,11 +455,13 @@ class RFData(object):
         >>> rfdata.meta.align
         'PVH'
 
-
         """
 
-        if not self.meta:
-            raise(Exception("Requires event data as attribute - aborting"))
+        if not self.meta.accept:
+            return
+        if self.err:
+            return
+
         if self.meta.rotated:
             raise(Exception("Data are already rotated - aborting"))
 
@@ -517,8 +575,10 @@ class RFData(object):
 
         """
 
-        if any([value is None for value in self.meta.__dict__.values()]):
-            raise(Exception("Requires event data as attribute - aborting"))
+        if not self.meta.accept:
+            return
+        if self.err:
+            return
 
         if not self.data:
             raise(Exception("ZNE data are not available - aborting"))
@@ -556,18 +616,24 @@ class RFData(object):
 
         """
 
-        if not self.meta.rotated:
-            print("Warning: Data have not been rotated yet - rotating now")
-            self.rotate(align=self.meta.align)
-
-        if hasattr(self, 'rf'):
-            print("Warning: Data have been deconvolved already")
+        if not self.meta.accept:
+            return
+        if self.err:
+            return
 
         def _taper(nt, ns):
             tap = np.ones(nt)
             win = np.hanning(2*ns)
             tap[0:ns] = win[0:ns]
             tap[nt-ns:nt] = win[ns:2*ns]
+            return tap
+
+        if not self.meta.rotated:
+            print("Warning: Data have not been rotated yet - rotating now")
+            self.rotate(align=self.meta.align)
+
+        if hasattr(self, 'rf'):
+            print("Warning: Data have been deconvolved already")
 
         cL = self.meta.align[0]
         cQ = self.meta.align[1]
@@ -652,11 +718,82 @@ class RFData(object):
         rfT.data = np.real(np.fft.ifft(St/(Ss+Sdenom))/np.amax(rfL.data))
 
         # Update stats of streams
-        rfL.stats.channel = trP.stats.channel[:-1] + self.meta.align[0]
-        rfQ.stats.channel = trV.stats.channel[:-1] + self.meta.align[1]
-        rfT.stats.channel = trH.stats.channel[:-1] + self.meta.align[2]
+        rfL.stats.channel = 'RF' + self.meta.align[0]
+        rfQ.stats.channel = 'RF' + self.meta.align[1]
+        rfT.stats.channel = 'RF' + self.meta.align[2]
 
         self.rf = Stream(traces=[rfL, rfQ, rfT])
+
+    def to_stream(self):
+        """
+        Method to move back from RFData object to Stream object.
+        This allows easier manipulation of the stream object
+        for post-processing.
+
+        Example
+        -------
+        Complete demo example and convert object to stream
+
+        >>> from rfpy import RFData 
+        >>> rfdata = RFData('demo')
+        Uploading demo data - station NY.MMPY
+        >>> rfdata.add_event('demo')
+        2015-02-02T08:25:51.300000Z |  -1.583, +145.315 | 6.0 MW
+        >>> rfdata.add_NEZ('demo')
+        3 Trace(s) in Stream:
+        NY.MMPY..HHN | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
+        NY.MMPY..HHE | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
+        NY.MMPY..HHZ | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
+
+        Process the data for receiver functions using default options.
+        Note the new channel names in the final ``stream`` object
+
+        >>> rfdata.deconvolve()
+        Warning: Data have not been rotated yet - rotating now
+        >>> rfstream = rfdata.to_stream()
+        Warning: snr has not been calculated - calculating now
+        >>> rfstream
+        3 Trace(s) in Stream:
+        NY.MMPY..RFZ | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
+        NY.MMPY..RFR | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
+        NY.MMPY..RFT | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
+
+        Check out new stats in traces
+
+        >>> rfstream[0].stats.snr
+        XXXX
+        >>> rfstream[0].stats.slow
+        YYYY
+        >>> rfstream[0].stats.baz
+        ZZZZ
+        >>> rfstream[0].stats.is_rf
+        True
+
+        """
+
+        if not self.meta.accept:
+            return 
+        if self.err:
+            return 
+
+        def _add_rfstats(trace):
+            trace.stats.snr = self.meta.snr
+            trace.stats.slow = self.meta.slow
+            trace.stats.baz = self.meta.baz
+            trace.stats.is_rf = True
+            return trace
+
+        if not hasattr(self, 'rf'):
+            raise(Exception("Warning: Receiver functions are not available"))
+        if not hasattr(self.meta, 'snr'):
+            print("Warning: snr has not been calculated - calculating now")
+            self.calc_snr()
+
+        stream = self.rf
+        for tr in stream:
+            tr = _add_rfstats(tr)
+
+        return stream
 
     def save(self, file):
         """

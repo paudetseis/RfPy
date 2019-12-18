@@ -643,7 +643,7 @@ def parse_localdata_for_comp(comp='Z', stdata=list, sta=None,
     return erd, None
 
 
-def get_data_NEZ(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
+def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
                  stdata=list, ndval=nan, new_sr=0.):
     """
     Function to build a stream object for a seismogram in a given time window either

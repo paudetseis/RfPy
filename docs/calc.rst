@@ -10,6 +10,3 @@ Base classes
 .. autoclass:: rfpy.calc.classes.Meta
    :members:
 
-.. autoclass:: rfpy.calc.classes.Data
-   :members:
-

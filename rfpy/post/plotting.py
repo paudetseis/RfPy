@@ -40,69 +40,67 @@ from scipy.interpolate import griddata
 # PLot wiggles
 
 
-def wiggle(str1, str2, xmax=30, maxval=1, save=False, title=None):
+def wiggle(str1, str2=None, tmax=30, normalize=True, save=False, title=None):
 
     print()
     print('Plotting Wiggles by trace number')
-
-    # Station name
-    sta = str1[0].stats.station
+    print()
 
     # Time axis
     t = np.arange(str1[0].stats.npts)/str1[0].stats.sampling_rate
 
-    # Initialize count
-    y = 0
+    # Normalize?
+    if normalize:
+        ntr = len(str1)
+        maxamp = np.max([np.max(np.abs(tr.data[t<tmax])) for tr in str1])
+
+    f = plt.figure()
 
     # Clear figure
     plt.clf()
 
-    # First SV subplot
-    plt.subplot(121)
+    if str2 is not None:
+        ax1 = f.add_subplot(121)
+    else:
+        ax1 = f.add_subplot(111)
 
     # loop in stream
-    for tr in str1:
-
-        # Update count
-        y += 1
+    for itr, tr in enumerate(str1):
 
         # Fill positive in red, negative in blue
-        # plt.fill_between(t,y,y+tr.data*maxval,\
-        #        where=tr.data+1e-10<=0.,facecolor='blue',linewidth=0)
-        # plt.fill_between(t,y,y+tr.data*maxval,\
-        #        where=tr.data+1e-10>=0.,facecolor='red',linewidth=0)
-        plt.plot(t, y+tr.data*maxval, c='k')
+        ax1.fill_between(t,itr+1,itr+1+tr.data/maxamp/2.,\
+               where=tr.data+1e-10<=0.,facecolor='blue',linewidth=0)
+        ax1.fill_between(t,itr+1,itr+1+tr.data/maxamp/2.,\
+               where=tr.data+1e-10>=0.,facecolor='red',linewidth=0)
+        # plt.plot(t, y+tr.data*maxamp, c='k')
 
-    plt.xlim(0, xmax)
-    plt.ylabel('Radial RF')
-    plt.grid()
+    ax1.set_xlim(0, tmax)
+    ax1.set_ylabel('Radial RF')
+    ax1.grid()
 
-    # Re-initialize count
-    y = 0
+    if str2 is not None:
+        ax2 = f.add_subplot(122)
 
-    # Second SH subplot
-    plt.subplot(122)
 
-    # loop in stream
-    for tr in str2:
+        # loop in stream
+        for itr, tr in enumerate(str2):
 
-        # Update count
-        y += 1
+            # Fill positive in red, negative in blue
+            ax2.fill_between(t,itr+1,itr+1+tr.data/maxamp/2.,\
+                   where=tr.data+1e-10<=0.,facecolor='blue',linewidth=0)
+            ax2.fill_between(t,itr+1,itr+1+tr.data/maxamp/2.,\
+                   where=tr.data+1e-10>=0.,facecolor='red',linewidth=0)
+            # plt.plot(t, y+tr.data*maxamp, c='k')
 
-        # Fill positive in red, negative in blue
-        # plt.fill_between(t,y,y+tr.data*maxval,\
-        #        where=tr.data+1e-10<=0.,facecolor='blue',linewidth=0)
-        # plt.fill_between(t,y,y+tr.data*maxval,\
-        #        where=tr.data+1e-10>=0.,facecolor='red',linewidth=0)
-        plt.plot(t, y+tr.data*maxval, c='k')
+        ax2.set_xlim(0, tmax)
+        ax2.set_ylabel('Transverse RF')
+        ax2.grid()
 
-    plt.xlim(0, xmax)
-    plt.ylabel('Transverse RF')
-    plt.suptitle('Station '+sta)
-    plt.grid()
+    plt.suptitle('Station '+str1[0].stats.station)
 
     if save:
-        plt.savefig('RF_PLOTS/'+sta+title+'.png', dpi=300, bbox_inches='tight')
+        plt.savefig('RF_PLOTS/'+str1[0].stats.station+title+'.png', 
+            dpi=300, bbox_inches='tight')
     else:
         plt.show()
 
@@ -440,18 +438,18 @@ def wiggle_bins(str1, str2, tr1, tr2, sta, btyp='baz', xmax=30,
             maxval = scale
             # Define y axis
             if btyp == 'baz':
-                y = tr.stats.sac.baz
+                y = tr.stats.baz
             elif btyp == 'slow':
-                y = tr.stats.sac.user0
+                y = tr.stats.slow
             elif btyp == 'dist':
                 y = tr.stats.sac.user0
         else:
             # Define y axis
             if btyp == 'baz':
-                y = tr.stats.sac.baz
+                y = tr.stats.baz
                 maxval = 100
             elif btyp == 'slow':
-                y = tr.stats.sac.user0
+                y = tr.stats.user0
                 maxval = 0.02
             elif btyp == 'dist':
                 y = tr.stats.sac.user0
@@ -533,18 +531,18 @@ def wiggle_bins(str1, str2, tr1, tr2, sta, btyp='baz', xmax=30,
             maxval = scale
             # Define y axis
             if btyp == 'baz':
-                y = tr.stats.sac.baz
+                y = tr.stats.baz
             elif btyp == 'slow':
-                y = tr.stats.sac.user0
+                y = tr.stats.slow
             elif btyp == 'dist':
                 y = tr.stats.sac.user0
         else:
             # Define y axis
             if btyp == 'baz':
-                y = tr.stats.sac.baz
+                y = tr.stats.baz
                 maxval = 150
             elif btyp == 'slow':
-                y = tr.stats.sac.user0
+                y = tr.stats.slow
                 maxval = 0.02
             elif btyp == 'dist':
                 y = tr.stats.sac.user0
