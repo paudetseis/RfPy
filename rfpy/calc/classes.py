@@ -161,7 +161,7 @@ class RFData(object):
         Object of metadata information for single event (initially set to None)
     data : :class:`~obspy.core.Stream`
         Stream object containing the three-component seismograms (either
-        un-rotated or rotated by the method `~rfpy.calc.calc.classes.rotate`)
+        un-rotated or rotated by the method :func:`~rfpy.calc.classes.rotate`)
 
     Examples
     --------
@@ -261,9 +261,11 @@ class RFData(object):
          'rotated': False,
          'snr': None}
 
-        Once the meta data is loaded, it's possible to edit attributes,
-        although we recommend only editing `vp`, `vs` or `align`, and
-        avoid editing any of the station-event attributes
+        Note
+        ----
+        Once the event object is loaded, it's possible to edit attributes
+        of ``meta``, although we recommend only editing ``vp``, ``vs`` or 
+        ``align``, and avoid editing any of the station-event attributes
 
         >>> rfdata.meta.vp = 5.5
         >>> rfdata.meta.vs = 3.3
@@ -305,8 +307,8 @@ class RFData(object):
         stream : :class:`~obspy.core.Stream`
             Stream container for NEZ seismograms
 
-        Attribute
-        ---------
+        Attributes
+        ----------
         zne_data : :class:`~obspy.core.Stream`
             Stream container for NEZ seismograms
 
@@ -331,6 +333,12 @@ class RFData(object):
         NY.MMPY..HHE | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
         NY.MMPY..HHZ | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
         True
+
+        Warning
+        -------
+        **Do not** simply add a Stream object as an attribute ``data`` to the ``RFData``
+        object (e.g., ``rfdata.data = stream``). Instead use this method, as it checks 
+        whether or not the event meta data will produce a usable receiver function.
 
         """
 
@@ -439,38 +447,18 @@ class RFData(object):
 
         Examples
         --------
-        Continuing with the demo
+        Continuing with the demo (follow example in :func:`~rfpy.calc.classes.add_NEZ`)
 
-        >>> from rfpy import RFData
-        >>> rfdata = RFData('demo')
-        Uploading demo data - station NY.MMPY
-        >>> rfdata.add_event('demo')
-        2015-02-02T08:25:51.300000Z |  -1.583, +145.315 | 6.0 MW
-        >>> rfdata.add_NEZ('demo')
-        3 Trace(s) in Stream:
-        NY.MMPY..HHN | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
-        NY.MMPY..HHE | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
-        NY.MMPY..HHZ | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
         >>> rfdata.rotate()        
         >>> rfdata.meta.rotated
         True
         >>> rfdata.rotate(align='PVH')
         ...
-        Exception: Data are already rotated - aborting
+        Exception: Data have been rotated already - aborting
 
         Re-do previous example with different alignment
+        (re-run steps in :func:`~rfpy.calc.classes.add_NEZ`)
 
-        >>> from rfpy import RFData
-        >>> rfdata = RFData('demo')
-        Uploading demo data - station NY.MMPY
-        >>> rfdata.add_event('demo')
-        2015-02-02T08:25:51.300000Z |  -1.583, +145.315 | 6.0 MW
-        True
-        >>> rfdata.add_NEZ('demo')
-        3 Trace(s) in Stream:
-        NY.MMPY..HHN | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
-        NY.MMPY..HHE | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
-        NY.MMPY..HHZ | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
         >>> rfdata.rotate(align='PVH')
         >>> rfdata.meta.align
         'PVH'
@@ -582,20 +570,8 @@ class RFData(object):
 
         Examples
         --------
-        Continuing with the demo
+        Continuing with the demo (follow example in :func:`~rfpy.calc.classes.add_NEZ`)
 
-        >>> from rfpy import RFData
-        >>> rfdata = RFData('demo')
-        Uploading demo data - station NY.MMPY
-        >>> rfdata.add_event('demo')
-        2015-02-02T08:25:51.300000Z |  -1.583, +145.315 | 6.0 MW
-        True
-        >>> rfdata.add_NEZ('demo')
-        3 Trace(s) in Stream:
-        NY.MMPY..HHN | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
-        NY.MMPY..HHE | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
-        NY.MMPY..HHZ | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
-        True
         >>> rfdata.calc_snr()
         >>> rfdata.meta.snr
         XXXX
@@ -661,21 +637,7 @@ class RFData(object):
         --------
 
         Full example through deconvolution using defaults
-
-        >>> from rfpy import RFData
-        >>> rfdata = RFData('demo')
-        Uploading demo data - station NY.MMPY
-        >>> rfdata.add_event('demo')
-        2015-02-02T08:25:51.300000Z |  -1.583, +145.315 | 6.0 MW
-        True
-        >>> rfdata.add_NEZ('demo')
-        3 Trace(s) in Stream:
-        NY.MMPY..HHN | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
-        NY.MMPY..HHE | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
-        NY.MMPY..HHZ | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
-        True
-
-        Deconvolve using default values
+        (follow steps in :func:`~rfpy.calc.classes.add_NEZ`)
 
         >>> rfdata.deconvolve()
         Warning: Data have not been rotated yet - rotating now
@@ -686,7 +648,8 @@ class RFData(object):
         NY.MMPY..RFR | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
         NY.MMPY..RFT | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
 
-        Try the same with the argument ``align='PVH'`` (re-start python window)
+        Try the same with the argument ``align='PVH'`` 
+        (re-run steps in :func:`~rfpy.calc.classes.add_NEZ`)
 
         >>> rfdata.deconvolve(align='PVH')
         Warning: Data have not been rotated yet - rotating now
@@ -819,7 +782,7 @@ class RFData(object):
 
         Example
         -------
-        Complete demo example and convert object to stream
+        Complete demo example using defaults and convert object to stream
 
         >>> from rfpy import RFData 
         >>> rfdata = RFData('demo')
@@ -833,10 +796,6 @@ class RFData(object):
         NY.MMPY..HHE | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
         NY.MMPY..HHZ | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
         True
-
-        Process the data for receiver functions using default options.
-        Note the new channel names in the final ``stream`` object
-
         >>> rfdata.deconvolve()
         Warning: Data have not been rotated yet - rotating now
         Warning: snr has not been calculated - calculating now
@@ -867,6 +826,7 @@ class RFData(object):
             trace.stats.snr = self.meta.snr
             trace.stats.slow = self.meta.slow
             trace.stats.baz = self.meta.baz
+            trace.stats.is_rf = True
             return trace
 
         if not hasattr(self, 'rf'):
