@@ -608,7 +608,7 @@ class RFData(object):
         # Calculate signal/noise ratio in dB
         self.meta.snr = 10*np.log10(srms*srms/nrms/nrms)
 
-    def deconvolve(self, twin=30.):
+    def deconvolve(self, twin=30., align=None):
         """
 
         Parameters
@@ -630,7 +630,11 @@ class RFData(object):
 
         if not self.meta.rotated:
             print("Warning: Data have not been rotated yet - rotating now")
-            self.rotate(align=self.meta.align)
+            self.rotate(align=align)
+
+        if not hasattr(self.meta, 'snr'):
+            print("Warning: snr has not been calculated - calculating now")
+            self.calc_snr()         
 
         if hasattr(self, 'rf'):
             print("Warning: Data have been deconvolved already")
