@@ -83,7 +83,7 @@ class Meta(object):
 
     """
 
-    def __init__(self, sta, event, vp=6.0, vs=3.6, align='ZRT', rotated=False):
+    def __init__(self, sta, event, vp=6.0, vs=3.6, align='ZRT'):
 
         from obspy.geodetics.base import gps2dist_azimuth as epi
         from obspy.geodetics import kilometer2degrees as k2d
@@ -124,16 +124,24 @@ class Meta(object):
             self.ph = arrival.name
             self.slow = arrival.ray_param_sec_degree/111.
             self.inc = arrival.incident_angle
+            self.accept = True
         except:
             self.ttime = None
             self.ph = None
             self.slow = None
             self.inc = None
+            self.accept = False
 
+        # Defaults for non - station-event geometry attributes
         self.vp = vp
         self.vs = vs
         self.align = align
-        self.rotated = rotated
+
+        # Attributes that get updated as analysis progresses
+        self.rotated = False
+        self.err = False
+        self.snr = None
+        self.accept = True
 
 
 class RFData(object):
@@ -289,12 +297,8 @@ class RFData(object):
 
         # Store as object attributes
         self.meta = Meta(sta=self.sta, event=event)
-        if self.meta.ttime is None:
-            self.meta.accept = False
-            return False
-        else:
-            self.meta.accept = True
-            return True
+
+        return self.meta.accept
 
 
     def add_NEZ(self, stream):
@@ -336,7 +340,8 @@ class RFData(object):
             print(stream)
 
         if not self.meta.accept:
-            return
+            self.meta.err = True
+            return 
 
         if not isinstance(stream, Stream):
             raise(Exception("Event has incorrect type"))
@@ -345,9 +350,13 @@ class RFData(object):
             trE = stream.select(component='E')[0]
             trN = stream.select(component='N')[0]
             trZ = stream.select(component='Z')[0]
+            self.meta.err = False
             self.data = stream
         except:
-            raise(Exception("Error: Not all channels are available"))
+            print("Error: Not all channels are available")
+            self.meta.err = True
+
+        return self.meta.err
 
 
     def download_NEZ(self, client, ndval=np.nan, new_sr=5., dts=120.):
@@ -378,6 +387,7 @@ class RFData(object):
             raise(Exception("Requires event data as attribute - aborting"))
 
         if not self.meta.accept:
+            self.meta.err = True
             return
 
         # Define start and end times for requests
@@ -389,13 +399,18 @@ class RFData(object):
         print("*    Startime: " + tstart.strftime("%Y-%m-%d %H:%M:%S"))
         print("*    Endtime:  " + tend.strftime("%Y-%m-%d %H:%M:%S"))
 
-        err, trN, trE, trZ = options.download_data(
+        self.meta.err, trN, trE, trZ = options.download_data(
             client=client, sta=self.sta, start=tstart, end=tend,
             stdata=self.sta.station, ndval=ndval, new_sr=new_sr)
 
-        # Store as attributes with traces in dictionay
-        self.err = err
-        self.data = Stream(traces=[trZ, trN, trE])
+        # Store as attributes with traces in dictionay        
+        try:
+            self.data = Stream(traces=[trZ, trN, trE])
+        except:
+            pass
+
+        return self.meta.err
+
 
     def rotate(self, vp=None, vs=None, align=None):
         """
@@ -416,7 +431,6 @@ class RFData(object):
         align : str
             Alignment of coordinate system for rotation
             ('ZRT', 'LQT', or 'PVH')
-
 
         Examples
         --------
@@ -459,7 +473,8 @@ class RFData(object):
 
         if not self.meta.accept:
             return
-        if self.err:
+
+        if self.meta.err:
             return
 
         if self.meta.rotated:
@@ -577,11 +592,9 @@ class RFData(object):
 
         if not self.meta.accept:
             return
-        if self.err:
-            return
 
-        if not self.data:
-            raise(Exception("ZNE data are not available - aborting"))
+        if self.meta.err:
+            return
 
         t1 = self.meta.time + self.meta.ttime - 5.
 
@@ -597,7 +610,7 @@ class RFData(object):
         trNze.filter('bandpass', freqmin=fmin, freqmax=fmax,
                      corners=2, zerophase=True)
 
-        # Trim twin seconds around P-wave arrival
+        # Trim 'twin' seconds around P-wave arrival
         trSig.trim(t1, t1 + dt)
         trNze.trim(t1 - dt, t1)
 
@@ -610,15 +623,31 @@ class RFData(object):
 
     def deconvolve(self, twin=30., align=None):
         """
+        Deconvolves three-compoent data using one component as the source wavelet.
+        The source component is always taken as the dominant compressional 
+        component, which can be either 'Z', 'L', or 'P'. 
 
         Parameters
         ----------
+        dt : float
+            Duration (sec)
+
+        Attributes
+        ----------
+        snr : float
+            Signal-to-noise ratio  (dB)
+
+        Examples
+        --------
+        Continuing with the demo
+
 
         """
 
         if not self.meta.accept:
             return
-        if self.err:
+
+        if self.meta.err:
             return
 
         def _taper(nt, ns):
