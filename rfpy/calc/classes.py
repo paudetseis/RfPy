@@ -674,14 +674,28 @@ class RFData(object):
         NY.MMPY..HHE | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
         NY.MMPY..HHZ | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
         True
+
+        Deconvolve using default values
+
         >>> rfdata.deconvolve()
         Warning: Data have not been rotated yet - rotating now
-        Warning: snr has not been calculated - calculating now
+        Warning: SNR has not been calculated - calculating now
         >>> rfdata.rf
         3 Trace(s) in Stream:
         NY.MMPY..RFZ | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
         NY.MMPY..RFR | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
         NY.MMPY..RFT | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
+
+        Try the same with the argument ``align='PVH'`` (re-start python window)
+
+        >>> rfdata.deconvolve(align='PVH')
+        Warning: Data have not been rotated yet - rotating now
+        Warning: snr has not been calculated - calculating now using default
+        >>> rfdata.rf
+        3 Trace(s) in Stream:
+        NY.MMPY..RFP | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
+        NY.MMPY..RFV | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
+        NY.MMPY..RFH | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
 
         """
 
@@ -700,7 +714,7 @@ class RFData(object):
             self.rotate(vp=vp, vs=vs, align=align)
 
         if not self.meta.snr:
-            print("Warning: snr has not been calculated - " +
+            print("Warning: SNR has not been calculated - " +
                   "calculating now using default")
             self.calc_snr()
 
