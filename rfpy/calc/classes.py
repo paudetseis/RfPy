@@ -21,13 +21,12 @@
 # SOFTWARE.
 """
 
-:mod:`~rfpy` defines the following base classes:
+:mod:`~rfpy` defines the following base class:
 
 - :class:`~rfpy.calc.classes.RFData`
 
-The class :class:`~rfpy.calc.classes.RFData` contains attributes
-and methods for the analysis of teleseismic receiver functions
-from three-component seismograms.
+This class contains attributes and methods for the calculation of teleseismic 
+P-wave receiver functions from three-component seismograms.
 
 """
 
@@ -116,7 +115,7 @@ class Meta(object):
                 source_depth_in_km=self.dep/1000.,
                 phase_list=["P"])
             if len(arrivals) > 1:
-                print("arrival has many entries:"+arrivals)
+                print("arrival has many entries:" + len(arrivals))
             arrival = arrivals[0]
 
             # Attributes from parameters
@@ -140,7 +139,6 @@ class Meta(object):
         # Attributes that get updated as analysis progresses
         self.rotated = False
         self.snr = None
-        self.accept = True
 
 
 class RFData(object):
@@ -324,6 +322,9 @@ class RFData(object):
         >>> from rfpy import RFData
         >>> rfdata = RFData('demo')
         Uploading demo data - station NY.MMPY
+        >>> rfdata.add_event('demo')
+        2015-02-02T08:25:51.300000Z |  -1.583, +145.315 | 6.0 MW
+        True
         >>> rfdata.add_NEZ('demo')
         3 Trace(s) in Stream:
         NY.MMPY..HHN | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
@@ -333,6 +334,12 @@ class RFData(object):
 
         """
 
+        if not self.meta:
+            raise(Exception("No meta data available - aborting"))
+            
+        if not self.meta.accept:
+            return
+
         # Load demo data
         if stream == 'demo' or stream == 'Demo':
             import os
@@ -340,9 +347,6 @@ class RFData(object):
             stream = read(os.path.join(os.path.dirname(__file__),
                                        "../examples/data", "2015*.mseed"))
             print(stream)
-
-        if not self.meta.accept:
-            return
 
         if not isinstance(stream, Stream):
             raise(Exception("Event has incorrect type"))
@@ -828,7 +832,7 @@ class RFData(object):
         NY.MMPY..RFZ | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
         NY.MMPY..RFR | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
         NY.MMPY..RFT | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
-        
+
         Check out new stats in traces
 
         >>> rfstream[0].stats.snr
