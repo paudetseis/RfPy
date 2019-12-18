@@ -83,7 +83,7 @@ class Meta(object):
 
     """
 
-    def __init__(self, sta, event, vp=6.0, vs=3.6, align='ZRT'):
+    def __init__(self, sta, event):
 
         from obspy.geodetics.base import gps2dist_azimuth as epi
         from obspy.geodetics import kilometer2degrees as k2d
@@ -133,13 +133,12 @@ class Meta(object):
             self.accept = False
 
         # Defaults for non - station-event geometry attributes
-        self.vp = vp
-        self.vs = vs
-        self.align = align
+        self.vp = 6.0
+        self.vs = 3.6
+        self.align = 'ZRT'
 
         # Attributes that get updated as analysis progresses
         self.rotated = False
-        self.err = False
         self.snr = None
         self.accept = True
 
@@ -228,13 +227,10 @@ class RFData(object):
         Returns
         -------
         accept : bool
-            Whether or not the event is accepted for analysis. 
-            This variable is used to check whether or not the analysis should 
-            continue.
+            Whether or not the object is accepted for further analysis
 
         Examples
         --------
-
         Get demo event info
 
         >>> from rfpy import RFData
@@ -259,11 +255,13 @@ class RFData(object):
          'ttime': 768.19792906912335,
          'ph': 'P',
          'slow': 0.042684575337198057,
-         'inc': 14.839216790091562,
+         'inc': 14.30813192210563,
+         'accept': True,
          'vp': 6.0,
          'vs': 3.6,
          'align': 'ZRT',
-         'rotated': False}
+         'rotated': False,
+         'snr': None}
 
         Once the meta data is loaded, it's possible to edit attributes,
         although we recommend only editing `vp`, `vs` or `align`, and
@@ -300,7 +298,6 @@ class RFData(object):
 
         return self.meta.accept
 
-
     def add_NEZ(self, stream):
         """
         Adds stream as object attribute
@@ -315,9 +312,13 @@ class RFData(object):
         zne_data : :class:`~obspy.core.Stream`
             Stream container for NEZ seismograms
 
+        Returns
+        -------
+        accept : bool
+            Whether or not the object is accepted for further analysis
+
         Examples
         --------
-
         Get demo Stream data
 
         >>> from rfpy import RFData
@@ -328,6 +329,7 @@ class RFData(object):
         NY.MMPY..HHN | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
         NY.MMPY..HHE | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
         NY.MMPY..HHZ | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
+        True
 
         """
 
@@ -340,8 +342,7 @@ class RFData(object):
             print(stream)
 
         if not self.meta.accept:
-            self.meta.err = True
-            return 
+            return
 
         if not isinstance(stream, Stream):
             raise(Exception("Event has incorrect type"))
@@ -350,14 +351,12 @@ class RFData(object):
             trE = stream.select(component='E')[0]
             trN = stream.select(component='N')[0]
             trZ = stream.select(component='Z')[0]
-            self.meta.err = False
             self.data = stream
         except:
             print("Error: Not all channels are available")
-            self.meta.err = True
+            self.meta.accept = False
 
-        return self.meta.err
-
+        return self.meta.accept
 
     def download_NEZ(self, client, ndval=np.nan, new_sr=5., dts=120.):
         """
@@ -375,9 +374,13 @@ class RFData(object):
         dts : float
             Time duration (sec)
 
+        Returns
+        -------
+        accept : bool
+            Whether or not the object is accepted for further analysis
+
         Attributes
         ----------
-
         data : :class:`~obspy.core.Stream`
             Stream containing :class:`~obspy.core.Trace` objects
 
@@ -387,7 +390,6 @@ class RFData(object):
             raise(Exception("Requires event data as attribute - aborting"))
 
         if not self.meta.accept:
-            self.meta.err = True
             return
 
         # Define start and end times for requests
@@ -399,18 +401,17 @@ class RFData(object):
         print("*    Startime: " + tstart.strftime("%Y-%m-%d %H:%M:%S"))
         print("*    Endtime:  " + tend.strftime("%Y-%m-%d %H:%M:%S"))
 
-        self.meta.err, trN, trE, trZ = options.download_data(
+        err, trN, trE, trZ = options.download_data(
             client=client, sta=self.sta, start=tstart, end=tend,
             stdata=self.sta.station, ndval=ndval, new_sr=new_sr)
 
-        # Store as attributes with traces in dictionay        
+        # Store as attributes with traces in dictionay
         try:
             self.data = Stream(traces=[trZ, trN, trE])
         except:
-            pass
+            self.meta.accept = False
 
-        return self.meta.err
-
+        return self.meta.accept
 
     def rotate(self, vp=None, vs=None, align=None):
         """
@@ -460,6 +461,7 @@ class RFData(object):
         Uploading demo data - station NY.MMPY
         >>> rfdata.add_event('demo')
         2015-02-02T08:25:51.300000Z |  -1.583, +145.315 | 6.0 MW
+        True
         >>> rfdata.add_NEZ('demo')
         3 Trace(s) in Stream:
         NY.MMPY..HHN | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
@@ -474,28 +476,28 @@ class RFData(object):
         if not self.meta.accept:
             return
 
-        if self.meta.err:
+        if self.meta.rotated:
+            print("Data have been rotated already - continuing")
             return
 
-        if self.meta.rotated:
-            raise(Exception("Data are already rotated - aborting"))
-
+        # Use default values from meta data if arguments are not specified
         if not align:
             align = self.meta.align
-
-        if not self.data:
-            raise(Exception("ZNE data are not available - aborting"))
+        if not vp:
+            vp = self.meta.vp
+        if not vs:
+            vs = self.meta.vs
 
         if align == 'ZRT':
-            self.data.rotate('NE->RT', 
-                back_azimuth=self.meta.baz)
+            self.data.rotate('NE->RT',
+                             back_azimuth=self.meta.baz)
             self.meta.align = align
             self.meta.rotated = True
 
         elif align == 'LQT':
-            self.data.rotate('ZNE->LQT', 
-                back_azimuth=self.meta.baz,
-                inclination=self.meta.inc)
+            self.data.rotate('ZNE->LQT',
+                             back_azimuth=self.meta.baz,
+                             inclination=self.meta.inc)
             for tr in self.data:
                 if tr.stats.channel.endswith('Q'):
                     tr.data = -tr.data
@@ -564,6 +566,10 @@ class RFData(object):
         ----------
         dt : float
             Duration (sec)
+        fmin : float
+            Minimum frequency corner for SNR filter (Hz)
+        fmax : float
+            Maximum frequency corner for SNR filter (Hz)
 
         Attributes
         ----------
@@ -579,11 +585,13 @@ class RFData(object):
         Uploading demo data - station NY.MMPY
         >>> rfdata.add_event('demo')
         2015-02-02T08:25:51.300000Z |  -1.583, +145.315 | 6.0 MW
+        True
         >>> rfdata.add_NEZ('demo')
         3 Trace(s) in Stream:
         NY.MMPY..HHN | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
         NY.MMPY..HHE | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
         NY.MMPY..HHZ | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
+        True
         >>> rfdata.calc_snr()
         >>> rfdata.meta.snr
         XXXX
@@ -593,7 +601,8 @@ class RFData(object):
         if not self.meta.accept:
             return
 
-        if self.meta.err:
+        if self.meta.snr:
+            print("SNR already calculated - continuing")
             return
 
         t1 = self.meta.time + self.meta.ttime - 5.
@@ -621,7 +630,7 @@ class RFData(object):
         # Calculate signal/noise ratio in dB
         self.meta.snr = 10*np.log10(srms*srms/nrms/nrms)
 
-    def deconvolve(self, twin=30., align=None):
+    def deconvolve(self, twin=30., vp=None, vs=None, align=None):
         """
         Deconvolves three-compoent data using one component as the source wavelet.
         The source component is always taken as the dominant compressional 
@@ -629,25 +638,50 @@ class RFData(object):
 
         Parameters
         ----------
-        dt : float
-            Duration (sec)
+        twin : float
+            Estimated duration of source wavelet (sec).
+        vp : float
+            P-wave velocity at surface (km/s)
+        vs : float
+            S-wave velocity at surface (km/s)
+        align : str
+            Alignment of coordinate system for rotation
+            ('ZRT', 'LQT', or 'PVH')
 
         Attributes
         ----------
-        snr : float
-            Signal-to-noise ratio  (dB)
+        rf : :class:`~obspy.core.Stream`
+            Stream containing the receiver function traces
 
         Examples
         --------
-        Continuing with the demo
 
+        Full example through deconvolution using defaults
+
+        >>> from rfpy import RFData
+        >>> rfdata = RFData('demo')
+        Uploading demo data - station NY.MMPY
+        >>> rfdata.add_event('demo')
+        2015-02-02T08:25:51.300000Z |  -1.583, +145.315 | 6.0 MW
+        True
+        >>> rfdata.add_NEZ('demo')
+        3 Trace(s) in Stream:
+        NY.MMPY..HHN | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
+        NY.MMPY..HHE | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
+        NY.MMPY..HHZ | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
+        True
+        >>> rfdata.deconvolve()
+        Warning: Data have not been rotated yet - rotating now
+        Warning: snr has not been calculated - calculating now
+        >>> rfdata.rf
+        3 Trace(s) in Stream:
+        NY.MMPY..RFZ | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
+        NY.MMPY..RFR | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
+        NY.MMPY..RFT | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
 
         """
 
         if not self.meta.accept:
-            return
-
-        if self.meta.err:
             return
 
         def _taper(nt, ns):
@@ -659,14 +693,16 @@ class RFData(object):
 
         if not self.meta.rotated:
             print("Warning: Data have not been rotated yet - rotating now")
-            self.rotate(align=align)
+            self.rotate(vp=vp, vs=vs, align=align)
 
-        if not hasattr(self.meta, 'snr'):
-            print("Warning: snr has not been calculated - calculating now")
-            self.calc_snr()         
+        if not self.meta.snr:
+            print("Warning: snr has not been calculated - " +
+                  "calculating now using default")
+            self.calc_snr()
 
         if hasattr(self, 'rf'):
-            print("Warning: Data have been deconvolved already")
+            print("Warning: Data have been deconvolved already - passing")
+            return
 
         cL = self.meta.align[0]
         cQ = self.meta.align[1]
@@ -759,8 +795,8 @@ class RFData(object):
 
     def to_stream(self):
         """
-        Method to move back from RFData object to Stream object.
-        This allows easier manipulation of the stream object
+        Method to switch from RFData object to Stream object.
+        This allows easier manipulation of the receiver functions
         for post-processing.
 
         Example
@@ -772,25 +808,27 @@ class RFData(object):
         Uploading demo data - station NY.MMPY
         >>> rfdata.add_event('demo')
         2015-02-02T08:25:51.300000Z |  -1.583, +145.315 | 6.0 MW
+        True
         >>> rfdata.add_NEZ('demo')
         3 Trace(s) in Stream:
         NY.MMPY..HHN | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
         NY.MMPY..HHE | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
         NY.MMPY..HHZ | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
+        True
 
         Process the data for receiver functions using default options.
         Note the new channel names in the final ``stream`` object
 
         >>> rfdata.deconvolve()
         Warning: Data have not been rotated yet - rotating now
-        >>> rfstream = rfdata.to_stream()
         Warning: snr has not been calculated - calculating now
+        >>> rfstream = rfdata.to_stream()
         >>> rfstream
         3 Trace(s) in Stream:
         NY.MMPY..RFZ | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
         NY.MMPY..RFR | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
         NY.MMPY..RFT | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
-
+        
         Check out new stats in traces
 
         >>> rfstream[0].stats.snr
@@ -805,22 +843,16 @@ class RFData(object):
         """
 
         if not self.meta.accept:
-            return 
-        if self.err:
-            return 
+            return
 
         def _add_rfstats(trace):
             trace.stats.snr = self.meta.snr
             trace.stats.slow = self.meta.slow
             trace.stats.baz = self.meta.baz
-            trace.stats.is_rf = True
             return trace
 
         if not hasattr(self, 'rf'):
             raise(Exception("Warning: Receiver functions are not available"))
-        if not hasattr(self.meta, 'snr'):
-            print("Warning: snr has not been calculated - calculating now")
-            self.calc_snr()
 
         stream = self.rf
         for tr in stream:
@@ -830,12 +862,12 @@ class RFData(object):
 
     def save(self, file):
         """
-        Saves Split object to file
+        Saves RFData object to file
 
         Parameters
         ----------
         file : str
-            File name for split object
+            File name for RFData object
 
         """
 
