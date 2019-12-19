@@ -50,11 +50,18 @@ class HkStack(object):
         self.strike = strike
         self.dip = dip
 
-    def stack(self):
+    def stack(self, vp=None):
         """
         Method to calculate HK stacks from radial receiver functions.
 
         """
+
+        # P-wave velocity
+        if not vp:
+            try:
+                vp = self.rfV1[0].stats.vp
+            except:
+                vp = 6.0
 
         sta = self.rfV1[0].stats.station
 
@@ -79,15 +86,15 @@ class HkStack(object):
 
                     for i in range(len(self.rfV1)):
 
-                        if self.rfV2 and (self.phases[ip] == 'pps' or
-                                          self.phases[ip] == 'pss'):
+                        if self.rfV2 and (self.phases[ip]=='pps' or
+                                          self.phases[ip]=='pss'):
                             rfV = self.rfV2[i].copy()
                         else:
                             rfV = self.rfV1[i].copy()
 
                         # Calculate move out for each phase and get
-                        # median value, weighted by phase (pws)
-                        tt = _dtime_(rfV, H[ih], k[ik], self.phases[ip])
+                        # median value, weighted by instantaneous phase (pws)
+                        tt = _dtime_(rfV, H[ih], k[ik], vp, self.phases[ip])
                         trace = _timeshift_(rfV, tt)
                         thilb = hilbert(trace)
                         tphase = np.arctan2(thilb.imag, thilb.real)
@@ -101,10 +108,18 @@ class HkStack(object):
         self.pws = pws
         self.sig = sig
 
-    def stack_dip(self):
+    def stack_dip(self, vp=None):
         """
         Function to calculate HK stacks from radial receiver functions
         """
+
+        # P-wave velocity
+        if not vp:
+            try:
+                vp = self.rfV1[0].stats.vp
+            except:
+                vp = 6.0
+
         sta = self.rfV1[0].stats.station
 
         # Initialize arrays based on bounds
@@ -128,16 +143,16 @@ class HkStack(object):
 
                     for i in range(len(self.rfV1)):
 
-                        if self.rfV2 and (self.phases[ip] == 'pps' or
-                                          self.phases[ip] == 'pss'):
+                        if self.rfV2 and (self.phases[ip]=='pps' or
+                                          self.phases[ip]=='pss'):
                             rfV = self.rfV2[i].copy()
                         else:
                             rfV = self.rfV1[i].copy()
 
                         # Calculate move out for each phase and get
-                        # median value, weighted by phase (pws)
+                        # median value, weighted by instantaneous phase (pws)
                         tt = _dtime_dip_(
-                            rfV, H[ih], k[ik],
+                            rfV, H[ih], k[ik], vp, 
                             self.phases[ip], self.strike, self.dip)
                         trace = _timeshift_(rfV, tt)
                         thilb = hilbert(trace)
@@ -388,10 +403,7 @@ def _dof(st):
 
 
 # Function to calculate travel time for different scattered phases
-def _dtime_(trace, z, r, ph):
-
-    # P-wave velocity
-    vp = trace.stats.vp
+def _dtime_(trace, z, r, vp, ph):
 
     # Horizontal slowness
     slow = trace.stats.slow

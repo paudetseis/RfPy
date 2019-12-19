@@ -30,7 +30,7 @@ from obspy.core import Stream, Trace
 from matplotlib import pyplot as plt
 
 
-class Harmonic(object):
+class Harmonics(object):
 
     def __init__(self, strV, strH, azim=0, xmin=0., xmax=40.):
         self.strV = strV
@@ -41,8 +41,27 @@ class Harmonic(object):
 
     def dcomp_find_azim(self, xmin=None, xmax=None):
         """
-        Function to decompose receiver function streams into back-azimuth harmonics
-        and determine the main orientation alpha, obtained fro the surface to mdep.
+        Method to decompose radial and transverse receiver function 
+        streams into back-azimuth harmonics and determine the main 
+        orientation ``azim``, obtained by minimizing the B1 component
+        between ``xmin`` and ``xmax`` (i.e., time or depth).
+
+        Parameters
+        ----------
+        xmin : float
+            Minimum x axis value over which to calculate ``azim``
+        xmax : float
+            Maximum x axis value over which to calculate ``azim``
+
+        Attributes
+        ----------
+        hstream : :class:`~obspy.core.Stream`
+            Stream containing the 5 harmonics, oriented in direction ``azim``
+        azim : float
+            Direction (azimuth) along which the B1 component of the stream
+            is minimized (between ``xmin`` and ``xmax``)
+        var : :class:`~numpy.ndarray`
+            Variance of the 5 harmonics between ``xmin`` and ``xmax``
 
         """
 
@@ -150,13 +169,26 @@ class Harmonic(object):
 
     def dcomp_fix_azim(self, azim=None):
         """
-        Function to decompose receiver function streams into back-azimuth harmonics
-        at orientation given by azim
+        Method to decompose radial and transverse receiver function 
+        streams into back-azimuth harmonics along direction ``azim``.
+
+        Parameters
+        ----------
+        azim : float
+            Direction (azimuth) along which the B1 component of the stream
+            is minimized (between ``xmin`` and ``xmax``)
+
+        Attributes
+        ----------
+        hstream : :class:`~obspy.core.Stream`
+            Stream containing the 5 harmonics, oriented in direction ``azim``
 
         """
 
         if azim is None:
             azim = self.azim
+        else:
+            self.azim = azim
 
         print('Decomposing receiver functions into baz harmonics for az = ',
               azim)
@@ -231,6 +263,28 @@ class Harmonic(object):
 
     def forward(self, baz_list=None):
         """
+        Method to forward calculate radial and transverse component
+        receiver functions given the 5 harmonics and a list of back-azimuth
+        values. The receiver function signal parameters (length, sampling
+        rate, etc.) will be identical to those in the stream of
+        harmonic components.
+
+        Parameters
+        ----------
+        baz_list : list
+            List of back-azimuth directions over which to calculate
+            the receiver functions. If no list is specified, the method
+            will use the same back-azimuths as those in the original
+            receiver function streams
+
+        Attributes
+        ----------
+        forwardV : :class:`~obspy.core.Stream`
+            Stream containing the radial receiver functions
+        forwardH : :class:`~obspy.core.Stream`
+            Stream containing the transverse receiver functions
+
+
         """
 
         if not hasattr(self, 'hstream'):
