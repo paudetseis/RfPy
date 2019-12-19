@@ -22,7 +22,7 @@ used in command-line scripts.
    rfpy
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Modules
+   :maxdepth: 1
+   :caption: API Documentation
 
-   calc
+   classes

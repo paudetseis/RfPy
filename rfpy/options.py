@@ -754,7 +754,7 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
     if st is None:
         print("* Error retrieving waveforms")
         print("****************************************************")
-        return True, None, None, None
+        return True, None
     elif (not st.select(component='Z')[0] or not st.select(component='E'[0])
           or not st.select(component='N')[0]):
         print("* Error retrieving waveforms")
@@ -765,7 +765,7 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
         if not st.select(component='N')[0]:
             print("*   --N Missing")
         print("****************************************************")
-        return True, None, None, None
+        return True, None
 
     # Three components successfully retrieved
     print("* Waveforms Retrieved...")
@@ -777,7 +777,7 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
     if not (ll0 == ll1 and ll0 == ll2):
         print(("* Error:  Trace lengths (Z,E,N): ", ll0, ll1, ll2))
         print("****************************************************")
-        return True, None, None, None
+        return True, None
 
     # Detrend data
     st.detrend('demean')
@@ -787,10 +787,5 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
     st.filter('lowpass', freq=0.5*new_sr, corners=2, zerophase=True)
     st.resample(new_sr)
 
-    # Extract traces
-    trE = st.select(component='E')[0]
-    trN = st.select(component='N')[0]
-    trZ = st.select(component='Z')[0]
-
     # Return Flag and Data
-    return False, trN, trE, trZ
+    return False, st

@@ -23,7 +23,7 @@
 
 :mod:`~rfpy` defines the following base class:
 
-- :class:`~rfpy.calc.classes.RFData`
+- :class:`~rfpy.rfdata.RFData`
 
 This class contains attributes and methods for the calculation of teleseismic 
 P-wave receiver functions from three-component seismograms.
@@ -33,7 +33,7 @@ P-wave receiver functions from three-component seismograms.
 # -*- coding: utf-8 -*-
 import numpy as np
 from obspy.core import Trace, Stream
-from rfpy.calc import options
+from rfpy import options
 
 
 class Meta(object):
@@ -105,11 +105,12 @@ class Meta(object):
         self.epi_dist /= 1000
         self.gac = k2d(self.epi_dist)
 
-        # Get travel time info
-        tpmodel = TauPyModel()
+        if self.gac > 30. and self.gac < 90.:
 
-        # Get Travel times (Careful: here dep is in meters)
-        try:
+            # Get travel time info
+            tpmodel = TauPyModel()
+
+            # Get Travel times (Careful: here dep is in meters)
             arrivals = tpmodel.get_travel_times(
                 distance_in_degree=self.gac,
                 source_depth_in_km=self.dep/1000.,
@@ -124,7 +125,7 @@ class Meta(object):
             self.slow = arrival.ray_param_sec_degree/111.
             self.inc = arrival.incident_angle
             self.accept = True
-        except:
+        else:
             self.ttime = None
             self.ph = None
             self.slow = None
@@ -157,11 +158,11 @@ class RFData(object):
     ----------
     sta : object
         Object containing station information - from :mod:`~stdb` database.
-    meta : :class:`~rfpy.calc.classes.Meta`
+    meta : :class:`~rfpy.rfdata.Meta`
         Object of metadata information for single event (initially set to None)
     data : :class:`~obspy.core.Stream`
         Stream object containing the three-component seismograms (either
-        un-rotated or rotated by the method :func:`~rfpy.calc.classes.rotate`)
+        un-rotated or rotated by the method :func:`~rfpy.rfdata.rotate`)
 
     Examples
     --------
@@ -413,12 +414,15 @@ class RFData(object):
         print("*    Startime: " + tstart.strftime("%Y-%m-%d %H:%M:%S"))
         print("*    Endtime:  " + tend.strftime("%Y-%m-%d %H:%M:%S"))
 
-        err, trN, trE, trZ = options.download_data(
+        err, stream = options.download_data(
             client=client, sta=self.sta, start=tstart, end=tend,
             stdata=self.sta.station, ndval=ndval, new_sr=new_sr)
 
         # Store as attributes with traces in dictionay
         try:
+            trE = stream.select(component='E')[0]
+            trN = stream.select(component='N')[0]
+            trZ = stream.select(component='Z')[0]
             self.data = Stream(traces=[trZ, trN, trE])
         except:
             self.meta.accept = False
@@ -447,7 +451,7 @@ class RFData(object):
 
         Examples
         --------
-        Continuing with the demo (follow example in :func:`~rfpy.calc.classes.add_NEZ`)
+        Continuing with the demo (follow example in :func:`~rfpy.rfdata.add_NEZ`)
 
         >>> rfdata.rotate()        
         >>> rfdata.meta.rotated
@@ -457,7 +461,7 @@ class RFData(object):
         Exception: Data have been rotated already - aborting
 
         Re-do previous example with different alignment
-        (re-run steps in :func:`~rfpy.calc.classes.add_NEZ`)
+        (re-run steps in :func:`~rfpy.rfdata.add_NEZ`)
 
         >>> rfdata.rotate(align='PVH')
         >>> rfdata.meta.align
@@ -570,7 +574,7 @@ class RFData(object):
 
         Examples
         --------
-        Continuing with the demo (follow example in :func:`~rfpy.calc.classes.add_NEZ`)
+        Continuing with the demo (follow example in :func:`~rfpy.rfdata.add_NEZ`)
 
         >>> rfdata.calc_snr()
         >>> rfdata.meta.snr
@@ -637,7 +641,7 @@ class RFData(object):
         --------
 
         Full example through deconvolution using defaults
-        (follow steps in :func:`~rfpy.calc.classes.add_NEZ`)
+        (follow steps in :func:`~rfpy.rfdata.add_NEZ`)
 
         >>> rfdata.deconvolve()
         Warning: Data have not been rotated yet - rotating now
@@ -649,7 +653,7 @@ class RFData(object):
         NY.MMPY..RFT | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
 
         Try the same with the argument ``align='PVH'`` 
-        (re-run steps in :func:`~rfpy.calc.classes.add_NEZ`)
+        (re-run steps in :func:`~rfpy.rfdata.add_NEZ`)
 
         >>> rfdata.deconvolve(align='PVH')
         Warning: Data have not been rotated yet - rotating now
@@ -755,7 +759,7 @@ class RFData(object):
         Snlq = Fnq*np.conjugate(Fnl)
 
         # Denominator
-        Sdenom = 0.25*(Snl+Snq)+0.5*np.abs(Snlq)
+        Sdenom = 0.25*(Snl+Snq)+0.5*Snlq
 
         # Copy traces
         rfL = trL.copy()
@@ -826,6 +830,10 @@ class RFData(object):
             trace.stats.snr = self.meta.snr
             trace.stats.slow = self.meta.slow
             trace.stats.baz = self.meta.baz
+            trace.stats.stlo = self.sta.longitude
+            trace.stats.stla = self.sta.latitude
+            trace.stats.vp = self.meta.vp
+            trace.stats.vs = self.meta.vs
             trace.stats.is_rf = True
             return trace
 
