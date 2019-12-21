@@ -120,15 +120,14 @@ class HkStack(object):
         If two streams are available as attributes, the method will assume
         that the second stream should be used for stacking along the Pps
         and Pss move out curves (e.g., if the second stream contains
-        lower frequency signals). 
+        lower frequency signals). Furthermore, If the ``vp`` argument is 
+        not specified, the method will use the 
+        value set during initialization (``vp=6.0`` km/s)
 
         Parameters
         ----------
         vp : float
-            Mean crust P-wave velocity. If this parameter is not specified,
-            the method will search the available stream for this attribute. 
-            If not found, it will use the value set during initialization
-            (default of 6.0 km/s)
+            Mean crust P-wave velocity (km/s). 
 
         Attributes
         ----------
@@ -190,10 +189,48 @@ class HkStack(object):
         self.pws = pws
         self.sig = sig
 
-    def stack_dip(self, vp=None):
+    def stack_dip(self, vp=None, strike=None, dip=None):
         """
-        Function to calculate HK stacks from radial receiver functions
+        Method to calculate Hk stacks from radial receiver functions
+        using known stike and dip angles of the Moho.
+        The stacks are calculated using phase-weighted stacking for
+        individual phases and take the median of the weighted stack 
+        to avoid bias by outliers.
+        
+        Note
+        ----
+        If two streams are available as attributes, the method will assume
+        that the second stream should be used for stacking along the Pps
+        and Pss move out curves (e.g., if the second stream contains
+        lower frequency signals). Furthermore, 
+        If the arguments are not specified, the method will use the 
+        values set during initialization (``vp=6.0`` km/s, 
+        ``strike=0.``, ``dip=0.``)
+
+        Parameters
+        ----------
+        vp : float
+            Mean crust P-wave velocity (km/s). 
+        strike : float
+            Strike angle of dipping Moho (has to be known or estimated a priori)
+        dip : float
+            Dip angle of Moho (has to be known or estimated a priori)
+
+        Attributes
+        ----------
+        pws : :class:`~numpy.ndarray`
+            Array of phase stacks, where the outer dimension corresponds
+            to the phase index (shape ``nH, nk, nph``)
+        sig : :class:`~numpy.ndarray`
+            Variance of phase stacks, where the outer dimension corresponds
+            to the phase index (shape ``nH, nk, nph``)
+
+        Example
+        -------
+        
         """
+
+        if not strike or not dip:
 
         # P-wave velocity
         if not vp:
@@ -241,9 +278,25 @@ class HkStack(object):
         self.pws = pws
         self.sig = sig
 
-    def average(self, typ='sum'):
+    def average(self, typ='sum', q=0.05, err_method='amp'):
         """
-        # Function to average stacks from weights
+        Function to combine the phase-weighted stacks to produce a final
+        stack, from which to estimate the H and k parameters and their 
+        associated errors.
+
+        Parameters
+        ----------
+        typ : str
+            How the phase-weigthed stacks should be combined to produce
+            a final stack. Available options are: weighted sum (``typ=sum``) 
+            or product (``typ=prod``).
+        q : float
+            Confidence level for the error estimate
+        err_method : str
+            How errors should be estimated. Options are ``err_method='amp'``
+            to estimate errors from amplitude, or ``err_method='stats'`` to 
+            use a statistical F test from the residuals.
+
         """
 
         # Initialize arrays based on bounds
@@ -264,7 +317,7 @@ class HkStack(object):
         # Get stacks
         if typ == 'sum':
             stack = (ps + pps + pss)
-        elif typ == 'mult':
+        elif typ == 'prod':
             # Zero out negative values
             ps[ps < 0] = 0.
             try:
@@ -277,7 +330,7 @@ class HkStack(object):
                 pss = 1.
             stack = ps*pps*pss
         else:
-            raise(Exception("'typ' must be either 'sum' or 'mult'"))
+            raise(Exception("'typ' must be either 'sum' or 'prod'"))
 
         self.typ = typ
 
@@ -288,13 +341,23 @@ class HkStack(object):
         self.k0 = k[ind[1]][0]
         self.stack = stack
 
+        self.error()
 
-    def error(self, q=0.05, method='amp'):
+
+    def error(self, q=0.05, err_method='amp'):
         """
-        Function to determine the q(%) confidence interval of the misfit
-        function.
+        Function to determine the error on H and k estimates.
 
         From Walsh, JGR, 2013
+
+        Parameters
+        ----------
+        q : float
+            Confidence level for the error estimate
+        err_method : str
+            How errors should be estimated. Options are ``err_method='amp'``
+            to estimate errors from amplitude, or ``err_method='stats'`` to 
+            use a statistical F test from the residuals.
 
         """
 
@@ -305,7 +368,7 @@ class HkStack(object):
         msf = self.stack/self.stack.max()
 
         # Method 1 - based on stats
-        if method == 'stats':
+        if err_method == 'stats':
 
             # Get degrees of freedom
             dof = _dof(self._residuals())
@@ -330,11 +393,13 @@ class HkStack(object):
             err = np.where(msf < self.err_contour)
 
         # Method 2 - based on amplitude
-        elif method == 'amp':
+        elif err_method == 'amp':
 
             self.err_contour = 0.5
             err = np.where(msf > self.err_contour)
 
+        else:
+            raise(Exception("'err_method' must be either 'stats' or 'amp'"))
         self.method = method
 
         # Estimate uncertainty (q confidence interval)
@@ -344,7 +409,17 @@ class HkStack(object):
 
     def plot(self, save=False, title=None):
         """
-        Function to plot H-K stacks
+        Function to plot H-K stacks. By default all 4 panels
+        are plotted: The ``ps``, ``pps`` and ``pss`` stacks, and the
+        final (averaged) stack. Error contours are also plotted,
+        as well as the position of the maximum stack values.
+
+        Parameters
+        ----------
+        save : bool
+            Whether or not to save the Figure
+        title : str
+            Title of plot
         """
 
         # Initialize arrays based on bounds
@@ -378,15 +453,12 @@ class HkStack(object):
                 pass
 
         # Set up figure
-        # plt.clf()
         fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(
             2, 2, sharex=True, sharey=True)
 
         cmap = 'RdBu_r'
 
         # First subplot: Ps
-        #vmin = -np.abs(pws[:,:,0].max())
-        # vmin=0.
         vmax = np.abs(max(ps.max(), ps.min(), key=abs))
         im = ax1.imshow(np.rot90(ps), cmap=cmap,
                         extent=extent, vmin=-vmax, vmax=vmax, aspect='auto')
@@ -394,18 +466,12 @@ class HkStack(object):
         ax1.set_title('Ps')
 
         # Second subplot: Pps
-        #vmin = -np.abs(pws[:,:,1].max())
-        # vmin=0.
-        #vmax = np.abs(pps.max())
         vmax = np.abs(max(pps.max(), pps.min(), key=abs))
         im = ax2.imshow(np.rot90(pps), cmap=cmap,
                         extent=extent, vmin=-vmax, vmax=vmax, aspect='auto')
         ax2.set_title('Pps')
 
         # Third subplot: Pss
-        #vmin = -np.abs(pws[:,:,2].max())
-        # vmin=0.
-        #vmax = np.abs(pss.max())
         vmax = np.abs(max(pss.max(), pss.min(), key=abs))
         im = ax3.imshow(np.rot90(pss), cmap=cmap,
                         extent=extent, vmin=-vmax, vmax=vmax, aspect='auto')
@@ -414,11 +480,8 @@ class HkStack(object):
         ax3.set_xlabel('Thickness (km)')
 
         # Fourth subplot: Average
-        # vmin=0.
-        #vmax = np.abs(stack.max())
         vmax = np.abs(max(self.stack.max(), self.stack.min(), key=abs))
         im = ax4.imshow(np.rot90(self.stack), cmap=cmap,
-                        # extent=extent, aspect='auto')
                         extent=extent, vmin=-vmax, vmax=vmax, aspect='auto')
         ax4.set_title('Stack')
         ax4.set_xlabel('Thickness (km)')
@@ -460,7 +523,7 @@ class HkStack(object):
     def _residuals(self):
         """ 
         Internal method to obtain residuals between observed and predicted
-        receiver functions given the Moho depth and Vp/Vs obtainedw from
+        receiver functions given the Moho depth and Vp/Vs obtained from
         the Hk stack.
         """
         from telewavesim import utils
@@ -523,8 +586,11 @@ def _dof(st):
     return dof_max
 
 
-# Function to calculate travel time for different scattered phases
 def _dtime_(trace, z, r, vp, ph):
+    """
+    Function to calculate travel time for different scattered phases
+    
+    """
 
     # Horizontal slowness
     slow = trace.stats.slow
@@ -542,17 +608,21 @@ def _dtime_(trace, z, r, vp, ph):
 
     return tt
 
-# Function to calculate travel time for different scattered phases
 
+def _dtime_dip_(trace, z, r, vp, ph, strike, dip):
+    """
+    Function to calculate travel time for different scattered phases
+    using strike and dip angles
+    
+    """
 
-def _dtime_dip_(trace, z, r, ph, strike, dip):
-
-    vp = trace.stats.vp
+    # Initialize some parameters
     n = np.zeros(3)
     pinc = np.zeros(3)
     ai = 8.1
     br = vp/r
 
+    # Get vector normal to dipping interface
     dip = dip*np.pi/180.
     strike = strike*np.pi/180.
     n[0] = np.sin(strike)*np.sin(dip)
@@ -561,16 +631,19 @@ def _dtime_dip_(trace, z, r, ph, strike, dip):
 
     # Horizontal slowness
     slow = trace.stats.slow
+    # Back-azimuth
     baz = trace.stats.baz
 
-    # Assemble constants
+    # Assemble constants of incident wave
     c1 = n[2]
     theta = baz*np.pi/180.+np.pi
     pinc[0] = slow*np.cos(theta)
     pinc[1] = slow*np.sin(theta)
     pinc[2] = -np.sqrt(1./(ai*ai) - slow*slow)
 
+    # Calculate scalar product n * pinc
     ndotpi = n[0]*pinc[0] + n[1]*pinc[1] + n[2]*pinc[2]
+    # Incident normal slowness
     c2 = 1./(ai*ai) - ndotpi**2
 
     if ph == 'ps':
@@ -597,10 +670,12 @@ def _dtime_dip_(trace, z, r, ph, strike, dip):
 
     return tt
 
-# Function to shift traces in time given travel time
-
 
 def _timeshift_(trace, tt):
+    """
+    Function to shift traces in time given travel time
+
+    """
 
     # Define frequencies
     nt = trace.stats.npts
@@ -621,6 +696,11 @@ def _timeshift_(trace, tt):
 
 
 def _progressbar(it, prefix="", size=60, file=sys.stdout):
+    """
+    Show progress bar while looping in for loop
+
+    """
+
     count = len(it)
 
     def show(j):
