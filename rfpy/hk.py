@@ -230,7 +230,14 @@ class HkStack(object):
         
         """
 
-        if not strike or not dip:
+        if not strike:
+            strike = self.strike
+        else:
+            self.strike = strike
+        if not dip:
+            dip = self.dip
+        else:
+            self.dip = dip
 
         # P-wave velocity
         if not vp:
