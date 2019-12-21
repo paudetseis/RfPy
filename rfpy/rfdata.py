@@ -299,7 +299,7 @@ class RFData(object):
 
         return self.meta.accept
 
-    def add_NEZ(self, stream):
+    def add_data(self, stream):
         """
         Adds stream as object attribute
 
@@ -328,7 +328,7 @@ class RFData(object):
         >>> rfdata.add_event('demo')
         2015-02-02T08:25:51.300000Z |  -1.583, +145.315 | 6.0 MW
         True
-        >>> rfdata.add_NEZ('demo')
+        >>> rfdata.add_data('demo')
         3 Trace(s) in Stream:
         NY.MMPY..HHN | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
         NY.MMPY..HHE | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
@@ -345,7 +345,7 @@ class RFData(object):
 
         if not self.meta:
             raise(Exception("No meta data available - aborting"))
-            
+
         if not self.meta.accept:
             return
 
@@ -371,7 +371,7 @@ class RFData(object):
 
         return self.meta.accept
 
-    def download_NEZ(self, client, ndval=np.nan, new_sr=5., dts=120.):
+    def download_data(self, client, ndval=np.nan, new_sr=5., dts=120.):
         """
         Downloads seismograms based on event origin time and
         P phase arrival.
@@ -451,7 +451,7 @@ class RFData(object):
 
         Examples
         --------
-        Continuing with the demo (follow example in :func:`~rfpy.rfdata.add_NEZ`)
+        Continuing with the demo (follow example in :func:`~rfpy.rfdata.add_data`)
 
         >>> rfdata.rotate()        
         >>> rfdata.meta.rotated
@@ -461,7 +461,7 @@ class RFData(object):
         Exception: Data have been rotated already - aborting
 
         Re-do previous example with different alignment
-        (re-run steps in :func:`~rfpy.rfdata.add_NEZ`)
+        (re-run steps in :func:`~rfpy.rfdata.add_data`)
 
         >>> rfdata.rotate(align='PVH')
         >>> rfdata.meta.align
@@ -479,10 +479,6 @@ class RFData(object):
         # Use default values from meta data if arguments are not specified
         if not align:
             align = self.meta.align
-        if not vp:
-            vp = self.meta.vp
-        if not vs:
-            vs = self.meta.vs
 
         if align == 'ZRT':
             self.data.rotate('NE->RT',
@@ -502,36 +498,38 @@ class RFData(object):
 
         elif align == 'PVH':
 
-            # Use default values
-            if not vp or not vs:
-                vp = self.meta.vp
-                vs = self.meta.vs
-
             # First rotate to ZRT
-            self.data.rotate('NE->RT', back_azimuth=self.meta.baz)
+            self.data.rotate('NE->RT',
+                             back_azimuth=self.meta.baz)
 
             # Copy traces
             trP = self.data.select(component='Z')[0].copy()
             trV = self.data.select(component='R')[0].copy()
             trH = self.data.select(component='T')[0].copy()
 
+            slow = self.meta.slow
+            if not vp:
+                vp = self.meta.vp
+            if not vs:
+                vs = self.meta.vs
+
             # Vertical slownesses
             # P vertical slowness
-            qp = np.sqrt(1./vp/vp-self.meta.slow*self.meta.slow)
+            qp = np.sqrt(1./vp/vp-slow*slow)
             # S vertical slowness
-            qs = np.sqrt(1./vs/vs-self.meta.slow*self.meta.slow)
+            qs = np.sqrt(1./vs/vs-slow*slow)
 
             # Elements of rotation matrix
-            m11 = self.meta.slow*vs*vs/vp
-            m12 = -(1.-2.*vs*vs*self.meta.slow*self.meta.slow)/(2.*vp*qp)
-            m21 = (1.-2.*vs*vs*self.meta.slow*self.meta.slow)/(2.*vs*qs)
-            m22 = self.meta.slow*vs
+            m11 = slow*vs*vs/vp
+            m12 = -(1.-2.*vs*vs*slow*slow)/(2.*vp*qp)
+            m21 = (1.-2.*vs*vs*slow*slow)/(2.*vs*qs)
+            m22 = slow*vs
 
             # Rotation matrix
             rot = np.array([[-m11, m12], [-m21, m22]])
 
             # Vector of Radial and Vertical
-            r_z = np.array([trV.data, trH.data])
+            r_z = np.array([trV.data, trP.data])
 
             # Rotation
             vec = np.dot(rot, r_z)
@@ -574,7 +572,7 @@ class RFData(object):
 
         Examples
         --------
-        Continuing with the demo (follow example in :func:`~rfpy.rfdata.add_NEZ`)
+        Continuing with the demo (follow example in :func:`~rfpy.rfdata.add_data`)
 
         >>> rfdata.calc_snr()
         >>> rfdata.meta.snr
@@ -641,7 +639,7 @@ class RFData(object):
         --------
 
         Full example through deconvolution using defaults
-        (follow steps in :func:`~rfpy.rfdata.add_NEZ`)
+        (follow steps in :func:`~rfpy.rfdata.add_data`)
 
         >>> rfdata.deconvolve()
         Warning: Data have not been rotated yet - rotating now
@@ -653,7 +651,7 @@ class RFData(object):
         NY.MMPY..RFT | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
 
         Try the same with the argument ``align='PVH'`` 
-        (re-run steps in :func:`~rfpy.rfdata.add_NEZ`)
+        (re-run steps in :func:`~rfpy.rfdata.add_data`)
 
         >>> rfdata.deconvolve(align='PVH')
         Warning: Data have not been rotated yet - rotating now
@@ -794,7 +792,7 @@ class RFData(object):
         >>> rfdata.add_event('demo')
         2015-02-02T08:25:51.300000Z |  -1.583, +145.315 | 6.0 MW
         True
-        >>> rfdata.add_NEZ('demo')
+        >>> rfdata.add_data('demo')
         3 Trace(s) in Stream:
         NY.MMPY..HHN | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
         NY.MMPY..HHE | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples

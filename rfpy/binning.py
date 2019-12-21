@@ -28,15 +28,37 @@ bins, or both, or for all data, regardless of the x axis (time or depth).
 
 # Import modules and functions
 import numpy as np
-import scipy as sp
-from scipy.interpolate import interp1d
-from obspy.core import read, Stream, Trace, AttribDict
-from matplotlib import pyplot as plt
+from obspy.core import Stream, Trace
 from scipy.signal import hilbert
 
 
-# Function to stack receiver functions into (baz or slow) bins
 def bin(stream1, stream2=None, typ='baz', dd=36+1, pws=True):
+    """ 
+    Function to stack receiver functions into (baz or slow) bins
+    This can be done using a linear stack (i.e., simple
+    mean), or using phase-weighted stacking.
+
+    Parameters
+    ----------
+    stream1 : :class:`~obspy.core.Stream`
+        Stream of equal-length seismograms to be stacked into
+        a single trace.
+    stream2 : :class:`~obspy.core.Stream`
+        Optionally stack a second stream in the same operation.
+    dbaz : int
+        Number of bazk-azimuth samples in bins
+    dslow : int
+        Number of slowness samples in bins
+    pws : bool
+        Whether or not to perform phase-weighted stacking
+
+    Returns
+    -------
+    stack : :class:`~obspy.core.Stream`
+        Stream containing one or two stacked traces,
+        depending on the number of input streams
+
+    """
 
     if not typ in ['baz', 'slow', 'dist']:
         raise(Exception("ype has to be 'baz' or 'slow' or 'dist'"))
@@ -121,8 +143,34 @@ def bin(stream1, stream2=None, typ='baz', dd=36+1, pws=True):
     return final_stream
 
 
-# Function to stack receiver functions into back-azimuth and slowness bins
+# 
 def bin_baz_slow(stream1, stream2=None, dbaz=36+1, dslow=20+1, pws=True):
+    """ 
+    Function to stack receiver functions into back-azimuth and slowness bins.
+    This can be done using a linear stack (i.e., simple
+    mean), or using phase-weighted stacking.
+
+    Parameters
+    ----------
+    stream1 : :class:`~obspy.core.Stream`
+        Stream of equal-length seismograms to be stacked into
+        a single trace.
+    stream2 : :class:`~obspy.core.Stream`
+        Optionally stack a second stream in the same operation.
+    dbaz : int
+        Number of bazk-azimuth samples in bins
+    dslow : int
+        Number of slowness samples in bins
+    pws : bool
+        Whether or not to perform phase-weighted stacking
+
+    Returns
+    -------
+    stack : :class:`~obspy.core.Stream`
+        Stream containing one or two stacked traces,
+        depending on the number of input streams
+
+    """
 
     # Define back-azimuth and slowness bins
     baz_bins = np.linspace(0, 360, dbaz)
@@ -187,7 +235,7 @@ def bin_baz_slow(stream1, stream2=None, dbaz=36+1, dslow=20+1, pws=True):
 
     return final_stream
 
-def bin_all(rfstream1, rfstream2=None, pws=True):
+def bin_all(stream1, stream2=None, pws=True):
     """ 
     Function to bin all streams into a single trace.
     This can be done using a linear stack (i.e., simple
@@ -195,10 +243,10 @@ def bin_all(rfstream1, rfstream2=None, pws=True):
 
     Parameters
     ----------
-    rfstream1 : :class:`~obspy.core.Stream`
+    stream1 : :class:`~obspy.core.Stream`
         Stream of equal-length seismograms to be stacked into
         a single trace.
-    rfstream2 : :class:`~obspy.core.Stream`
+    stream2 : :class:`~obspy.core.Stream`
         Optionally stack a second stream in the same operation.
     pws : bool
         Whether or not to perform phase-weighted stacking
@@ -213,7 +261,7 @@ def bin_all(rfstream1, rfstream2=None, pws=True):
 
     # Initialize empty stack stream
     stack = Stream()
-    for stream in [rfstream1, rfstream2]:
+    for stream in [stream1, stream2]:
         try:
             # Copy stats from stream1
             stats = stream[0].stats

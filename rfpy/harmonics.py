@@ -348,8 +348,24 @@ class Harmonics(object):
         self.forwardV = forwardV
         self.forwardH = forwardH
 
-    def plot(self, xmax=30, maxval=10, save=False,
-             title=None, nz=50, dep=None, vp=None):
+    def plot(self, ymax=30., maxval=10., save=False, title=None):
+        """
+        Method to plot the 5 harmonic components.
+
+        Parameters
+        ----------
+        ymax : float
+            Maximum y axis value (time or depth) over which to 
+            plot the harmonic components
+        maxval : float
+            Scaling factor for the amplitudes (typically > 1)
+        save : bool
+            Whether or not to save the plot
+        title : str
+            Title of plot, to be used in the Figure and the 
+            file name (if ``save==True``)
+
+        """
 
         # Y axis
         y = np.arange(self.hstream[0].stats.npts) /\
@@ -382,7 +398,7 @@ class Harmonics(object):
                 facecolor='red',
                 linewidth=0)
 
-        ax1.set_ylim(xmax, 0)
+        ax1.set_ylim(ymax, 0)
         ax1.set_ylabel('Depth (km)')
         ax1.set_xlabel('Harmonic components')
         if title:
@@ -399,7 +415,7 @@ class Harmonics(object):
         ax1.grid()
 
         if save:
-            plt.savefig('RF_PLOTS/'+sta+title+'.eps', dpi=300,
+            plt.savefig('RF_PLOTS/'+sta+'.'+title+'.eps', dpi=300,
                         bbox_inches='tight', format='eps')
         else:
             plt.show()

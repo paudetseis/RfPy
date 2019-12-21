@@ -110,4 +110,4 @@ __author__ = 'Pascal Audet'
 
 from .rfdata import RFData
 from .hk import HkStack
-from .harmonics import Harmonic
+from .harmonics import Harmonics

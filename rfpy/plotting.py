@@ -37,11 +37,36 @@ import scipy as sp
 from obspy.core import Stream, Trace, AttribDict
 from scipy.interpolate import griddata
 
-# PLot wiggles
-
 
 def wiggle(stream1, stream2=None, sort=None, tmax=30, normalize=True,
            save=False, title=None):
+    """
+    Function to plot receiver function traces by index in stream. By default, 
+    only one stream is required, which produces a Figure with a single panel.
+    Optionally, if a second stream is present, the Figure will contain two panels.
+    The stream(s) can be sorted by stats attribute ``sort``, normalized, and
+    the Figure can be saved as .eps.
+
+    Parameters
+    ----------
+    stream1 : :class:`~obspy.core.Stream`
+        Stream of receiver function traces
+    stream2 : :class:`~obspy.core.Stream`
+        Stream of receiver function traces, for a two-panel Figure
+    sort : str
+        Name of attribute in the ``stats`` attribute of indivudial traces, used
+        to sort the traces in the Stream(s).
+    xmax : float
+        Maximum x-axis value displayed in the Figure.
+    normalize : bool
+        Whether or not to normalize the traces according to the max amplitude 
+        in ``stream1``
+    save : bool
+        Whether or not to save the Figure 
+    title : str
+        Title of plot
+
+    """
 
     if sort:
         try:
@@ -101,16 +126,16 @@ def wiggle(stream1, stream2=None, sort=None, tmax=30, normalize=True,
             ax2.fill_between(
                 t, itr+1, itr+1+tr.data/maxamp/2.,
                 where=tr.data+1e-10 >= 0., facecolor='red', linewidth=0)
-            # plt.plot(t, y+tr.data*maxamp, c='k')
 
         ax2.set_xlim(0, tmax)
         ax2.set_ylabel('Transverse RF')
         ax2.grid()
 
-    plt.suptitle('Station '+stream1[0].stats.station)
+    plt.suptitle('Station ' + stream1[0].stats.station)
 
     if save:
-        plt.savefig('RF_PLOTS/'+stream1[0].stats.station+title+'.png',
+        plt.savefig('RF_PLOTS/' + stream1[0].stats.station +
+                    '.' + title + '.png',
                     dpi=300, bbox_inches='tight')
     else:
         plt.show()
@@ -120,6 +145,37 @@ def wiggle(stream1, stream2=None, sort=None, tmax=30, normalize=True,
 def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
                 btyp='baz', xmax=30, xtyp='time', scale=None,
                 save=False, title=None):
+    """
+    Function to plot receiver function according to either baz or
+    slowness bins. By default, 
+    only one stream is required, which produces a Figure with a single panel.
+    Optionally, if a second stream is present, the Figure will contain two panels.
+    If the single trace arguments are present, they will be plotted at the top.
+
+    Parameters
+    ----------
+    stream1 : :class:`~obspy.core.Stream`
+        Stream of receiver function traces
+    stream2 : :class:`~obspy.core.Stream`
+        Stream of receiver function traces, for a two-panel Figure
+    tr1 : :class:`~obspy.core.Trace`
+        Trace to plot at the top of ``stream1``
+    tr2 : :class:`~obspy.core.Trace`
+        Trace to plot at the top of ``stream2``
+    btyp : str
+        Type of plot to produce (either 'baz', 'slow', or 'dist')
+    xmax : float
+        Maximum x-axis value displayed in the Figure.
+    xtyp : str
+        Type of x-axis label (either 'time' or 'depth')
+    scale : float
+        Scale factor applied to trace amplitudes for plotting
+    save : bool
+        Whether or not to save the Figure 
+    title : str
+        Title of plot
+
+    """
 
     if not (btyp == 'baz' or btyp == 'slow' or btyp == 'dist'):
         raise(Exception("Type has to be 'baz' or 'slow' or 'dist'"))
@@ -309,5 +365,3 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
                     '.' + title + '.eps', format='eps')
     else:
         plt.show()
-
-

@@ -30,34 +30,50 @@ import numpy as np
 import scipy as sp
 from scipy.signal import hilbert
 
-# Calculate horizontal distance for interval dz and velocity vs
-
 
 def ppoint_distance(tr, dz, vs):
+    """
+    Calculate horizontal distance for interval dz and velocity vs
 
-    # Get horizontal slowness
-    slow = tr.stats.sac.user0
+    Parameters
+    ----------
+    tr : :class:`~obspy.core.Trace`
+        Single trace object to migrate to depth
+    dz : float
+        Vertical sampling distance
+    vs : float
+        S-wave velocity (km/s)
+
+    """
 
     # Calculate distance
     dx = dz*np.tan(np.arcsin(slow*vs))
 
     return dx
 
-# Determine geographic location of piercing point
-
-
 def ppoint(tr, dist):
+    """
+    Determine geographic location of piercing point
+
+    Parameters
+    ----------
+    tr : :class:`~obspy.core.Trace`
+        Single trace object to migrate to depth
+    dist : float
+        Horizontal istance from the station (km)
+
+    """
 
     # Conversion factors
     lat2km = 111.
     lon2km = 90.
 
     # Get lat and lon of station location
-    slat = tr.stats.sac.stla
-    slon = tr.stats.sac.stlo
+    slat = tr.stats.stla
+    slon = tr.stats.stlo
 
     # Back-azimuth of event
-    baz = tr.stats.sac.baz*np.pi/180.
+    baz = tr.stats.baz*np.pi/180.
 
     # location of piercing point on geographical grid
     plat = dist*np.sin(-baz+np.pi/2.)/lat2km + slat
@@ -65,13 +81,27 @@ def ppoint(tr, dist):
 
     return plon, plat
 
-# Calculate travel time for interval dz and velocities vp and vs
 
+def ttime(tr, dz, vp, vs, phase=None):
+    """
+    Calculate travel time for interval dz and velocities vp and vs
 
-def ttime(tr, dz, vp, vs, phase='Ps'):
+    Parameters
+    ----------
+    tr : :class:`~obspy.core.Trace`
+        Single trace object to migrate to depth
+    dz : float
+        Vertical sampling distance (km)
+    vp : float
+        P-wave velocity
+    vs : float
+        S-wave velocity
+    phase : str
+        Phase of interest
+    """
 
     # Get horizontal slowness
-    slow = tr.stats.sac.user0
+    slow = tr.stats.slow
 
     # Calculate travel time for phase
     if phase == 'Ps':
@@ -89,16 +119,26 @@ def ttime(tr, dz, vp, vs, phase='Ps'):
 
     return tt
 
-# Shift a trace by a travel time tt and take amplitude at zero
-
 
 def timeshift(tr, tt):
+    """
+    Shift a trace by a travel time tt and take amplitude at zero
+
+    Parameters
+    ----------
+    tr : :class:`~obspy.core.Trace`
+        Single trace object to migrate to depth
+    tt : float
+        Travel time (sec)
+
+    """
 
     # Define frequencies
     nt = int(tr.stats.npts)
     dt = tr.stats.delta
     freq = np.fft.fftfreq(int(nt), d=dt)
-    trace = tr.data
+
+    # Hilbert transform and instantaneous phase
     hilb = hilbert(tr.data)
     hilb_index = np.rint(tt/dt)
     hilb_tt = hilb[int(hilb_index)]
@@ -122,6 +162,23 @@ def timeshift(tr, tt):
 
 
 def raypath(tr, nz=50, dep=None, vp=None, vs=None):
+    """
+    Calculate travel times through velocity model for all phases of interest
+
+    Parameters
+    ----------
+    tr : :class:`~obspy.core.Trace`
+        Single trace object to migrate to depth
+    nz : int
+        Number of layers in interpolation
+    dep : :class:`~numpy.ndarray`
+        Depth array for velocity model
+    vp : :class:`~numpy.ndarray`
+        P-wave velocity array for velocity model
+    vs : :class:`~numpy.ndarray`
+        S-wave velocity array for velocity model
+
+    """
 
     # Define arrays with zeros
     plat = np.zeros(nz)
@@ -144,7 +201,7 @@ def raypath(tr, nz=50, dep=None, vp=None, vs=None):
     ivs = sp.interpolate.interp1d(dep, vs, kind='linear')(idep)
 
     # Get exact depth interval
-    dz = idep[1]-idep[0]
+    dz = idep[1] - idep[0]
 
     # Now loop through all depths
     for iz in range(nz):
@@ -157,10 +214,10 @@ def raypath(tr, nz=50, dep=None, vp=None, vs=None):
 
         # Sum over depths from 0 to iz
         for i in range(iz):
-            dtps = dtps + ttime(tr, dz, ivp[i], ivs[i], 'Ps')
-            dtpps = dtpps + ttime(tr, dz, ivp[i], ivs[i], 'Pps')
-            dtpss = dtpss + ttime(tr, dz, ivp[i], ivs[i], 'Pss')
-            dx = dx + ppoint_distance(tr, dz, ivs[i])
+            dtps += ttime(tr, dz, ivp[i], ivs[i], 'Ps')
+            dtpps += ttime(tr, dz, ivp[i], ivs[i], 'Pps')
+            dtpss += ttime(tr, dz, ivp[i], ivs[i], 'Pss')
+            dx += ppoint_distance(tr, dz, ivs[i])
 
         # Get piercing point from distance
         plo, pla = ppoint(tr, dx)

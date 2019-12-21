@@ -25,4 +25,4 @@ used in command-line scripts.
    :maxdepth: 1
    :caption: API Documentation
 
-   classes
+   api

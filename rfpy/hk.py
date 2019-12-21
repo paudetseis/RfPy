@@ -33,36 +33,125 @@ from obspy.core import Stream, Trace, AttribDict
 from matplotlib import pyplot as plt
 from scipy.signal import hilbert
 from scipy import stats
+import sys
 
 
 class HkStack(object):
+    """
+    A HkStack object contains attributes and methods to stack radial
+    receiver functions along moveout curves for point measurements 
+    of the depth to Moho (H) and P-to-S velocity ratio (k) beneath
+    a seismic stations. The object is initialized with at least one
+    :class:`~obspy.core.Stream` containing observed (or synthetised)
+    radial receiver functions. The methods available can produce linear
+    weighted stacks or product stacks, and can be used in the presence
+    of flat or dipping Moho (with known strike and dip). 
 
-    def __init__(self, rfV1, rfV2=None, strike=None, dip=None):
+    Note
+    ----
+    The object is initialized with the ``rfV1`` field only, and
+    other attributes are added to the object as the analysis proceeds.
+    A second ``rfV2`` can be included, which is typically a copy of ``rfV1``
+    filtered at different corner frequencies and is used to stack along the
+    Pps and Pss moveout curves.
+
+    Parameters
+    ----------
+    rfV1 : :class:`~obspy.core.Stream`
+        Stream object containing the radial-component receiver function
+        seismograms 
+    rfV2 : :class:`~obspy.core.Stream`
+        Stream object containing the radial-component receiver function
+        seismograms (typically filtered at lower frequencies)
+    strike : float
+        Strike angle of dipping Moho (has to be known or estimated a priori)
+    dip : float
+        Dip angle of Moho (has to be known or estimated a priori)
+    vp : float
+        Mean P-wave velocity of the crust (km/s)
+
+    Default Parameters
+    ------------------
+    kbound : list
+        List of 2 floats that determine the range of Vp/Vs values to search
+    dk : float
+        Spacing between adjacent Vp/Vs search values
+    hbound : list
+        List of 2 floats that determine the range of Moho depth values to search
+    dh : float
+        Spacing between adjacent Moho depth search values
+    weights : list
+        List of 3 floats that determine the relative weights of the individual
+        phase stacks to be used in the final stack. The third weight is negative
+        since Pss amplitudes are opposite to those of the Ps and Pps phases.
+    phases : list
+        List of 3 strings ('ps', 'pps', 'pss') corresponding to the thre phases
+        of interest (`do not modify this attribute`)
+
+    Examples
+    --------
+
+
+    """
+
+    def __init__(self, rfV1, rfV2=None, strike=None, dip=None, vp=6.0):
 
         self.rfV1 = rfV1
         self.rfV2 = rfV2
-        self.kbound = [1.56, 2.1]
-        self.dk = 0.01
-        self.hbound = [20., 50.]
-        self.dh = 0.25
-        self.weights = [0.5, 2., -1.]
-        self.phases = ['ps', 'pps', 'pss']
         self.strike = strike
         self.dip = dip
+        self.vp = vp
+        self.kbound = [1.56, 2.1]
+        self.dk = 0.02
+        self.hbound = [20., 50.]
+        self.dh = 0.5
+        self.weights = [0.5, 2., -1.]
+        self.phases = ['ps', 'pps', 'pss']
 
     def stack(self, vp=None):
         """
-        Method to calculate HK stacks from radial receiver functions.
+        Method to calculate Hk stacks from radial receiver functions.
+        The stacks are calculated using phase-weighted stacking for
+        individual phases and take the median of the weighted stack 
+        to avoid bias by outliers.
+        
+        Note
+        ----
+        If two streams are available as attributes, the method will assume
+        that the second stream should be used for stacking along the Pps
+        and Pss move out curves (e.g., if the second stream contains
+        lower frequency signals). 
 
+        Parameters
+        ----------
+        vp : float
+            Mean crust P-wave velocity. If this parameter is not specified,
+            the method will search the available stream for this attribute. 
+            If not found, it will use the value set during initialization
+            (default of 6.0 km/s)
+
+        Attributes
+        ----------
+        pws : :class:`~numpy.ndarray`
+            Array of phase stacks, where the outer dimension corresponds
+            to the phase index (shape ``nH, nk, nph``)
+        sig : :class:`~numpy.ndarray`
+            Variance of phase stacks, where the outer dimension corresponds
+            to the phase index (shape ``nH, nk, nph``)
+
+        Example
+        -------
+        
         """
 
-        # P-wave velocity
+        # Mean crustal P-wave velocity
         if not vp:
             try:
                 vp = self.rfV1[0].stats.vp
             except:
-                vp = 6.0
+                vp = self.vp
 
+        # Station name
         sta = self.rfV1[0].stats.station
 
         # Initialize arrays based on bounds
@@ -75,26 +164,19 @@ class HkStack(object):
         sig = np.zeros((len(H), len(k), len(self.phases)))
         pws = np.zeros((len(H), len(k), len(self.phases)))
 
-        for ih in range(len(H)):
-
-            print()
-            print('Thickness(ih)', H[ih], ', ih = ', ih, '/', len(H)-1)
-
-            for ik in range(len(k)):
-
-                for ip in range(len(self.phases)):
-
+        for ih in _progressbar(range(len(H)), 'Computing: ', 15):
+            for ik, kk in enumerate(k):
+                for ip, ph in enumerate(self.phases):
                     for i in range(len(self.rfV1)):
 
-                        if self.rfV2 and (self.phases[ip]=='pps' or
-                                          self.phases[ip]=='pss'):
+                        if self.rfV2 and (ph=='pps' or ph=='pss'):
                             rfV = self.rfV2[i].copy()
                         else:
                             rfV = self.rfV1[i].copy()
 
                         # Calculate move out for each phase and get
                         # median value, weighted by instantaneous phase (pws)
-                        tt = _dtime_(rfV, H[ih], k[ik], vp, self.phases[ip])
+                        tt = _dtime_(rfV, H[ih], kk, vp, ph)
                         trace = _timeshift_(rfV, tt)
                         thilb = hilbert(trace)
                         tphase = np.arctan2(thilb.imag, thilb.real)
@@ -132,19 +214,12 @@ class HkStack(object):
         sig = np.zeros((len(H), len(k), len(self.phases)))
         pws = np.zeros((len(H), len(k), len(self.phases)))
 
-        for ih in range(len(H)):
-
-            print()
-            print('Thickness(ih)', H[ih], ', ih = ', ih, '/', len(H)-1)
-
-            for ik in range(len(k)):
-
-                for ip in range(len(self.phases)):
-
+        for ih in _progressbar(range(len(H)), 'Computing: ', 15):
+            for ik, kk in enumerate(k):
+                for ip, ph in enumerate(self.phases):
                     for i in range(len(self.rfV1)):
 
-                        if self.rfV2 and (self.phases[ip]=='pps' or
-                                          self.phases[ip]=='pss'):
+                        if self.rfV2 and (ph=='pps' or ph=='pss'):
                             rfV = self.rfV2[i].copy()
                         else:
                             rfV = self.rfV1[i].copy()
@@ -152,8 +227,7 @@ class HkStack(object):
                         # Calculate move out for each phase and get
                         # median value, weighted by instantaneous phase (pws)
                         tt = _dtime_dip_(
-                            rfV, H[ih], k[ik], vp, 
-                            self.phases[ip], self.strike, self.dip)
+                            rfV, H[ih], kk, vp, ph, self.strike, self.dip)
                         trace = _timeshift_(rfV, tt)
                         thilb = hilbert(trace)
                         tphase = np.arctan2(thilb.imag, thilb.real)
@@ -213,9 +287,9 @@ class HkStack(object):
         self.h0 = H[ind[0]][0]
         self.k0 = k[ind[1]][0]
         self.stack = stack
-        # return H[ind[0]][0], k[ind[1]][0], stack  # , stack.max()
 
-    def error(res, q, method='amp'):
+
+    def error(self, q=0.05, method='amp'):
         """
         Function to determine the q(%) confidence interval of the misfit
         function.
@@ -228,40 +302,47 @@ class HkStack(object):
         H = np.arange(self.hbound[0], self.hbound[1] + self.dh, self.dh)
         k = np.arange(self.kbound[0], self.kbound[1] + self.dk, self.dk)
 
-        # Get degrees of freedom
-        dof = _dof(res)
-        n_par = 2
-
         msf = self.stack/self.stack.max()
 
         # Method 1 - based on stats
         if method == 'stats':
 
+            # Get degrees of freedom
+            dof = _dof(self._residuals())
+            print(dof)
+            if dof < 3:
+                dof = 3
+                print(
+                    "Degrees of freedom < 3. Fixing to DOF = 3, which may " +
+                    "result in accurate errors")
+
+            n_par = 2
             msf = 1. - msf
 
             # Error contour
             vmin = msf.min()
             vmax = msf.max()
-            # err_contour = vmin*(1. + n_par/(dof - n_par)*
-            err_contour = (n_par/(dof - n_par) *
-                           stats.f.ppf(1.-q, n_par, dof-n_par))
-            err = np.where(msf < err_contour)
+            self.err_contour = vmin*(1. + n_par/(dof - n_par)*
+                           stats.f.ppf(1. - q, n_par, dof - n_par))
+            print(vmin*(1. + n_par/(dof - n_par)*
+                           stats.f.ppf(1. - q, n_par, dof - n_par)))
+            # self.err_contour = (n_par/(dof - n_par) *
+            err = np.where(msf < self.err_contour)
 
         # Method 2 - based on amplitude
         elif method == 'amp':
 
-            err_contour = 0.5
-            err = np.where(msf > err_contour)
+            self.err_contour = 0.5
+            err = np.where(msf > self.err_contour)
 
         self.method = method
 
         # Estimate uncertainty (q confidence interval)
-        err_k = 0.25*(k[max(err[1])] - k[min(err[1])])
-        err_H = 0.25*(H[max(err[0])] - H[min(err[0])])
+        self.err_k = max(0.25*(k[max(err[1])] - k[min(err[1])]), self.dk)
+        self.err_H = max(0.25*(H[max(err[0])] - H[min(err[0])]), self.dh)
 
-        return err_k, err_H, err_contour
 
-    def plot(self, err_c=None, save=False, title=None):
+    def plot(self, save=False, title=None):
         """
         Function to plot H-K stacks
         """
@@ -346,16 +427,18 @@ class HkStack(object):
         #cbar.ax.set_yticklabels(['min', '0', 'max'])
 
         # Get confidence intervals
-        if err_c:
+        if hasattr(self, 'err_contour'):
             # ax.contour(np.rot90(vmax-msf), (vmax-err_cont,),
             if self.method == 'stats':
                 ax4.contour(
-                    np.rot90(1.-self.stack/self.stack.max()), (err_c,),
+                    np.rot90(1.-self.stack/self.stack.max()), 
+                    (self.err_contour,),
                     hold='on', colors='yellow', linewidths=1, origin='upper',
                     extent=extent)
             elif self.method == 'amp':
                 ax4.contour(
-                    np.rot90(self.stack/self.stack.max()), (err_c,),
+                    np.rot90(self.stack/self.stack.max()), 
+                    (self.err_contour,),
                     hold='on', colors='yellow', linewidths=1, origin='upper',
                     extent=extent)
 
@@ -374,6 +457,44 @@ class HkStack(object):
         else:
             plt.show()
 
+    def _residuals(self):
+        """ 
+        Internal method to obtain residuals between observed and predicted
+        receiver functions given the Moho depth and Vp/Vs obtainedw from
+        the Hk stack.
+        """
+        from telewavesim import utils
+
+        # Simple 1-layer model over half-space
+        model = utils.Model(
+            [self.h0, 0.], 
+            [2800., 3300.], 
+            [self.vp, 8.0],
+            [self.vp/self.k0, 4.5],
+            ['iso', 'iso'])
+
+        # Parameters for run
+        slow = [tr.stats.slow for tr in self.rfV1]
+        npts = self.rfV1[0].stats.npts
+        dt = self.rfV1[0].stats.delta
+
+        trR = Stream()
+
+        for sl in slow:
+            trxyz = utils.run_plane(model, sl, npts, dt)
+            tfs = utils.tf_from_xyz(trxyz, pvh=True, vp=self.vp, vs=self.vp/self.k0)
+            tfs[0].data = np.fft.fftshift(tfs[0].data)
+            trR.append(tfs[0])
+
+        trR.filter('bandpass', freqmin=0.05, freqmax=0.5, corners=2,
+            zerophase=True)
+
+        # Get stream of residuals
+        res = trR.copy()
+        for i in range(len(res)):
+            res[i].data = self.rfV1[i].data - trR[i].data
+        return res
+
 
 def _dof(st):
     """
@@ -387,17 +508,17 @@ def _dof(st):
     dof = []
     for tr in st:
 
-        ft = np.fft.fft(tr.data)[0:len(tr.data)/2+1]
-        ai = np.ones(len(ft))
-        ai[0] = 0.5
-        ai[-1] = 0.5
+        F = np.abs(np.fft.fft(tr.data)[0:int(len(tr.data)/2)+1])
 
-        E2 = np.sum(np.dot(ai, np.abs(ft)**2))
-        E4 = np.sum(np.dot(ai, np.abs(ft)**4))
+        E2 = np.sum(F**2)
+        E2 -= (F[0]**2 + F[-1]**2)/2.
+        E4 = (1./3.)*(F[0]**4 + F[-1]**4)
+        for i in range(1, len(F) - 1):
+            E4 += (4./3.)*F[i]**4
 
-        dof.append(2.*(2.*E2**2/E4 - 1.))
+        dof.append(int(4.*E2**2/E4 - 2.))
 
-    dof_max = max(dof)
+    dof_max = min(dof)
 
     return dof_max
 
@@ -497,3 +618,19 @@ def _timeshift_(trace, tt):
     rtrace = np.real(np.fft.ifft(ftrace))
 
     return rtrace
+
+
+def _progressbar(it, prefix="", size=60, file=sys.stdout):
+    count = len(it)
+
+    def show(j):
+        x = int(size*j/count)
+        file.write("%s[%s%s] %i/%i\r" %
+                   (prefix, "#"*x, "."*(size-x), j, count))
+        file.flush()
+    show(0)
+    for i, item in enumerate(it):
+        yield item
+        show(i+1)
+    file.write("\n")
+    file.flush()
