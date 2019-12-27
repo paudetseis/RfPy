@@ -39,12 +39,12 @@ def get_prep_options():
 
     """
 
-    from optparse import OptionParser, OptionGroup
+    from argparse import ArgumentParser, OptionGroup
     from os.path import exists as exist
     from obspy import UTCDateTime
     from numpy import nan
 
-    parser = OptionParser(
+    parser = argparse.ArgumentParser(
         usage="Usage: %prog [options] <station database>",
         description="Script used to download and pre-process " +
         "three-component (E, N and Z), seismograms for individual " +
@@ -55,7 +55,7 @@ def get_prep_options():
         "by one and the data are stored to disk.")
 
     # General Settings
-    parser.add_option(
+    parser.add_argument(
         "--keys",
         action="store",
         type="string",
@@ -67,13 +67,13 @@ def get_prep_options():
         "be used to match against those in the dictionary. For " +
         "instance, providing IU will match with all stations in " +
         "the IU network [Default processes all stations in the database]")
-    parser.add_option(
+    parser.add_argument(
         "-v", "-V", "--verbose",
         action="store_true",
         dest="verb",
         default=False,
         help="Specify to increase verbosity.")
-    parser.add_option(
+    parser.add_argument(
         "-O", "--overwrite",
         action="store_true",
         dest="ovr",
@@ -82,11 +82,11 @@ def get_prep_options():
         "[Default False]")
 
     # Server Settings
-    ServerGroup = OptionGroup(
-        parser, title="Server Settings",
+    ServerGroup = parser.add_argument_group(
+        title="Server Settings",
         description="Settings associated with which "
         "datacenter to log into.")
-    ServerGroup.add_option(
+    ServerGroup.add_argument(
         "-S", "--Server",
         action="store",
         type=str,
@@ -96,7 +96,7 @@ def get_prep_options():
         "BGR, ETH, GEONET, GFZ, INGV, IPGP, IRIS, KOERI, " +
         "LMU, NCEDC, NEIP, NERIES, ODC, ORFEUS, RESIF, SCEDC, USGS, USP. " +
         "[Default IRIS]")
-    ServerGroup.add_option(
+    ServerGroup.add_argument(
         "-U", "--User-Auth",
         action="store",
         type=str,
@@ -108,13 +108,12 @@ def get_prep_options():
         "[Default no user and password]")
 
     # Database Settings
-    DataGroup = OptionGroup(
-        parser,
+    DataGroup = parser.add_argument_group(
         title="Local Data Settings",
         description="Settings associated with defining " +
         "and using a local data base of pre-downloaded " +
         "day-long SAC files.")
-    DataGroup.add_option(
+    DataGroup.add_argument(
         "--local-data",
         action="store",
         type="string",
@@ -125,7 +124,7 @@ def get_prep_options():
         "If data exists for a seismogram is already present on disk, " +
         "it is selected preferentially over downloading " +
         "the data using the Client interface")
-    DataGroup.add_option(
+    DataGroup.add_argument(
         "--no-data-zero",
         action="store_true",
         dest="ndval",
@@ -134,18 +133,17 @@ def get_prep_options():
         "than default behaviour which sets to nan.")
 
     # Constants Settings
-    ConstGroup = OptionGroup(
-        parser,
+    ConstGroup = parser.add_argument_group(
         title='Parameter Settings',
         description="Miscellaneous default values and settings")
-    ConstGroup.add_option(
+    ConstGroup.add_argument(
         "--sampling-rate",
         action="store",
         type="float",
         dest="new_sampling_rate",
         default=5.,
         help="Specify new sampling rate in Hz. [Default 5.]")
-    ConstGroup.add_option(
+    ConstGroup.add_argument(
         "--rotate",
         action="store",
         type="string",
@@ -153,21 +151,21 @@ def get_prep_options():
         default=None,
         help="Specify component rotation key. Can be either " +
         "ZRT, LQT, or PVH. [Default ZRT]")
-    ConstGroup.add_option(
+    ConstGroup.add_argument(
         "--vp",
         action="store",
         type="float",
         dest="vp",
         default=6.0,
         help="Specify near-surface Vp (km/s). [Default 6.0]")
-    ConstGroup.add_option(
+    ConstGroup.add_argument(
         "--vs",
         action="store",
         type="float",
         dest="vs",
         default=3.6,
         help="Specify near-surface Vs (km/s). [Default 3.6]")
-    ConstGroup.add_option(
+    ConstGroup.add_argument(
         "--dt_snr",
         action="store",
         type="float",
@@ -182,7 +180,7 @@ def get_prep_options():
         title="Event Settings",
         description="Settings associated with refining " +
         "the events to include in matching station pairs")
-    EventGroup.add_option(
+    EventGroup.add_argument(
         "--start-time",
         action="store",
         type="string",
@@ -191,7 +189,7 @@ def get_prep_options():
         help="Specify a UTCDateTime compatible string representing " +
         "the start time for the event search. This will override any " +
         "station start times. [Default start date of station]")
-    EventGroup.add_option(
+    EventGroup.add_argument(
         "--end-time",
         action="store",
         type="string",
@@ -200,7 +198,7 @@ def get_prep_options():
         help="Specify a UTCDateTime compatible string representing " +
         "the end time for the event search. This will override any " +
         "station end times [Default end date of station]")
-    EventGroup.add_option(
+    EventGroup.add_argument(
         "--reverse-order", "-R",
         action="store_true",
         dest="reverse",
@@ -209,7 +207,7 @@ def get_prep_options():
         "oldest event and works towards most recent. Specify reverse " +
         "order and instead the program will start with the most recent " +
         "events and work towards older")
-    EventGroup.add_option(
+    EventGroup.add_argument(
         "--min-mag",
         action="store",
         type="float",
@@ -217,7 +215,7 @@ def get_prep_options():
         default=6.0,
         help="Specify the minimum magnitude of event for which to search. " +
         "[Default 6.0]")
-    EventGroup.add_option(
+    EventGroup.add_argument(
         "--max-mag",
         action="store",
         type="float",
@@ -225,7 +223,7 @@ def get_prep_options():
         default=None,
         help="Specify the maximum magnitude of event for which to search. " +
         "[Default None, i.e. no limit]")
-    EventGroup.add_option(
+    EventGroup.add_argument(
         "--dts",
         action="store",
         type="float",
@@ -240,7 +238,7 @@ def get_prep_options():
         title="Geometry Settings",
         description="Settings associatd with the "
         "event-station geometries")
-    GeomGroup.add_option(
+    GeomGroup.add_argument(
         "--min-dist",
         action="store",
         type="float",
@@ -248,7 +246,7 @@ def get_prep_options():
         default=30.,
         help="Specify the minimum great circle distance (degrees) between " +
         "the station and event. [Default 30.]")
-    GeomGroup.add_option(
+    GeomGroup.add_argument(
         "--max-dist",
         action="store",
         type="float",
@@ -257,11 +255,11 @@ def get_prep_options():
         help="Specify the maximum great circle distance (degrees) between " +
         "the station and event. [Default 120.]")
 
-    parser.add_option_group(ServerGroup)
-    parser.add_option_group(DataGroup)
-    parser.add_option_group(EventGroup)
-    parser.add_option_group(GeomGroup)
-    parser.add_option_group(ConstGroup)
+    parser.add_argument_group(ServerGroup)
+    parser.add_argument_group(DataGroup)
+    parser.add_argument_group(EventGroup)
+    parser.add_argument_group(GeomGroup)
+    parser.add_argument_group(ConstGroup)
     (opts, args) = parser.parse_args()
 
     # Check inputs

@@ -345,8 +345,8 @@ class Harmonics(object):
                 trV.data[iz] = B[0]
                 trH.data[iz] = -B[1]
 
-        self.forwardV = forwardV
-        self.forwardH = forwardH
+        self.forwardR = forwardR
+        self.forwardT = forwardT
 
     def plot(self, ymax=30., maxval=10., save=False, title=None):
         """

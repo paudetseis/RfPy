@@ -70,8 +70,8 @@ class HkStack(object):
     vp : float
         Mean P-wave velocity of the crust (km/s)
 
-    Default Parameters
-    ------------------
+    Other Parameters
+    ----------------
     kbound : list
         List of 2 floats that determine the range of Vp/Vs values to search
     dk : float
@@ -87,10 +87,6 @@ class HkStack(object):
     phases : list
         List of 3 strings ('ps', 'pps', 'pss') corresponding to the thre phases
         of interest (`do not modify this attribute`)
-
-    Examples
-    --------
-
 
     """
 
@@ -138,9 +134,6 @@ class HkStack(object):
             Variance of phase stacks, where the outer dimension corresponds
             to the phase index (shape ``nH, nk, nph``)
 
-        Example
-        -------
-        
         """
 
         # Mean crustal P-wave velocity
@@ -225,9 +218,6 @@ class HkStack(object):
             Variance of phase stacks, where the outer dimension corresponds
             to the phase index (shape ``nH, nk, nph``)
 
-        Example
-        -------
-        
         """
 
         if not strike:
