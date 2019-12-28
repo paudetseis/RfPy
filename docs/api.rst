@@ -1,3 +1,7 @@
+
+.. figure:: ../rfpy/examples/picture/RfPy_logo.png
+   :align: center
+
 Classes
 =======
 
@@ -10,8 +14,23 @@ Classes
 RFData
 ------
 
-This class contains attributes and methods for the calculation of teleseismic 
-`P`-wave receiver functions from three-component seismograms. 
+This class contains attributes and methods for the calculation of single-station, teleseismic 
+`P`-wave receiver functions from three-component seismograms. An :class:`~rfpy.rfdata.RFData``
+object contains three main attributes: a :class:`~stdb.StDb` object with station information,
+a :class:`~rfpy.rfdata.Meta` object containing event meta data, and a :class:`~obspy.core.Stream`
+object containing the unrotated 3-component seismograms. Additional processing attributes 
+are added as the analysis proceeds. The sequence of initialization and addition of attributes 
+is important, as described in the documentation below. 
+
+Note that, at the end of the process, the :class:`~rfpy.rfdata.RFData` object will further contain
+a :class:`~obspy.core.Stream` object with the receiver function data.
+
+.. note::
+
+    A :class:`~rfpy.rfdata.RFData` object is meant to facilitate processing of single-station 
+    and single-event P-wave receiver functions. For processing multiple event-station pairs, 
+    an equal number of :class:`~rfpy.rfdata.RFData` objects need to be 
+    created. See the accompanying Scripts and Jupyter Notebooks for details.
 
 Basic usage
 +++++++++++
@@ -28,7 +47,7 @@ object ``sta``:
     >>> rfdata = RFData(sta)
 
 
-Once the object is initialized, the first step is to add a :class:`~obspy.core.event.Event` 
+Once the object is initialized, the first step is to add an :class:`~obspy.core.event.Event` 
 object. For example, given such an object ``ev``:
 
 .. sourcecode:: python
@@ -43,6 +62,7 @@ available as a new meta data attribute:
 .. sourcecode:: python
 
     >>> rfdata.meta.accept
+    True
 
 .. note::
 
@@ -76,6 +96,11 @@ the three-component data from an FDSN Client:
 .. sourcecode:: python
 
     >>> rfdata.download_data(client)
+
+The ``accept`` attribute will be updated with the availability of the ``data``
+attribute, i.e. if no data is available, the ``accept`` attribute will be set
+to ``False``. The methods to add data can also be used with the argument 
+``returned=True`` to report whether or not the data are available. 
 
 Receiver function processing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -268,8 +293,10 @@ HkStack
 This class contains attributes and methods to calculate thickness (`H`) 
 and Vp/Vs ratio (`k`) of the crust (in reality, `H` refers to Moho depth,
 and `k` is Vp/Vs of the medium from the surface to `H`) based on moveout 
-times of direct `Ps` and reverberated `Pps` and `Pss` phases. The stacks are 
-obtained from the median weighted by the phase of individual signals.
+times of direct `Ps` and reverberated `Pps` and `Pss` phases. The individual 
+phase stacks are obtained from the median weighted by the phase of individual 
+signals. Methods are available to combine the phase stacks into a weighted sum
+or a product. 
 
 Basic usage
 +++++++++++
@@ -311,17 +338,15 @@ For example:
         >>> rfstream2.filter('bandpass', freqmin=0.05, freqmax=0.35, corners=2, zerophase=True)
         >>> hkstack = HkStack(rfstream, rfstream2)
 
-.. note::
+To speed things up during processing (and to avoid redundant stacking), one can
+use one of the :func:`~rfpy.binning` functions, alghouth *not* the 
+:func:`~rfpy.binning.bin_all` function
 
-    To speed things up during processing (and to avoid redundant stacking), one can
-    use one of the :func:`~rfpy.binning` functions, alghouth not the 
-    :func:`rfpy.binning.bin_all` function
+.. sourcecode:: python
 
-    .. sourcecode:: python
-
-        >>> from rfpy.binning import bin
-        >>> rfstream_binned = rfstream.bin(typ='slow', dd=0.005)
-        >>> hkstack = HkStack(rfstream_binned)
+    >>> from rfpy.binning import bin
+    >>> rfstream_binned = rfstream.bin(typ='slow', dd=0.005)
+    >>> hkstack = HkStack(rfstream_binned)
 
 H-k processing
 ~~~~~~~~~~~~~~
@@ -344,7 +369,7 @@ To change the search bounds for the phase stacks, we can edit the attributes of 
     >>> hkstack.dh = 1.5
     >>> hkstack.kbound = [1.6, 2.0]
     >>> hkstack.dk = 0.01
-    >>> hkstack.stack()
+    >>> hkstack.stack(vp=5.5)
 
 .. warning::
 
@@ -396,12 +421,84 @@ The individual and final stacks can be plotted by calling the method
 Demo example
 ++++++++++++
 
+Initialize object with demo data for station `MMPY`:
 
+.. sourcecode:: python
 
+    >>> from rfpy import HkStack
+    >>> hkstack = HkStack('demo')
+    Uploading demo data - station NY.MMPY
+
+    >>> # Check content of object
+    >>> hkstack.__dict__
+    {'rfV1': 66 Trace(s) in Stream:
+
+    NY.MMPY..RFV | 2016-05-31T10:11:49.520000Z - 2016-05-31T10:13:44.520000Z | 5.0 Hz, 576 samples
+    ...
+    (64 other traces)
+    ...
+    NY.MMPY..RFV | 2015-06-08T06:10:13.330000Z - 2015-06-08T06:12:08.330000Z | 5.0 Hz, 576 samples
+
+    [Use "print(Stream.__str__(extended=True))" to print all Traces],
+     'rfV2': None,
+     'strike': None,
+     'dip': None,
+     'vp': 6.0,
+     'kbound': [1.56, 2.1],
+     'dk': 0.02,
+     'hbound': [20.0, 50.0],
+     'dh': 0.5,
+     'weights': [0.5, 2.0, -1.0],
+     'phases': ['ps', 'pps', 'pss']}
+
+These receiver functions have been obtained by adding :class:`~rfpy.rfdata.RFData` objects
+as streams to an :class:`~obspy.core.Stream` object, without other processing. Note that they
+are aligned in the ``PVH`` coordinate system, as specified in the channel name (i.e., ``RFV`` for
+the radial component). To prepare them for stacking, we can bin the receiver functions into
+back-azimuth and slowness bins (in the presence of a dipping interface), or simply slowness bins 
+(for horizontal interfaces):
+
+.. sourcecode:: python
+
+    >>> from rfpy import binning
+    >>> rfV_binned = binning.bin(hkstack.rfV1, typ='slow', dd=20)[0]
+    >>> hkstack.rfV1 = rfV_binned[0]
+
+it is straightforward to directly
+filter the :class:`~obspy.core.Stream` object, and perhaps also add a copy of the stream
+with a different frequency corner as another attribute ``rfV2``, as suggested above:
+
+.. sourcecode:: python
+
+    >>> hkstack.rfV2 =  hkstack.rfV1.copy()
+    >>> hkstack.rfV1.filter('bandpass', freqmin=0.05, freqmax=0.5, corners=2, zerophase=True)
+    >>> hkstack.rfV2.filter('bandpass', freqmin=0.05, freqmax=0.35, corners=2, zerophase=True)
+
+Now simply process the hkstack object using the default values to obtain `H` and `k` estimates
+
+.. sourcecode:: python
+
+    >>> hkstack.stack()
+    Computing: [###############] 61/61
+
+    >>> hkstack.average()
+    >>> hkstack.plot()
+
+The final estimates are available as attributes
+
+.. sourcecode:: python
+
+    >>> hkstack.h0
+    32.0
+    >>> hkstack.err_h0
+    1.875
+    >>> hkstack.k0
+    1.78
+    >>> hkstack.err_k0
+    0.115
 
 .. autoclass:: rfpy.hk.HkStack
    :members:
-
 
 Harmonics
 ---------
@@ -504,7 +601,73 @@ as attributes of type :class:`~obspy.core.Stream` (``harmonics.forwardR`` and ``
 Demo example
 ++++++++++++
 
+Initialize object with demo data for station `MMPY`:
 
+.. sourcecode:: python
+
+    >>> from rfpy import Harmonics
+    >>> harmonics = Harmonics('demo')
+    Uploading demo data - station NY.MMPY
+
+    >>> # Check content of object
+    >>> harmonics.__dict__
+    {'strV': 66 Trace(s) in Stream:
+
+    NY.MMPY..RFV | 2016-05-31T10:11:49.520000Z - 2016-05-31T10:13:44.520000Z | 5.0 Hz, 576 samples
+    ...
+    (64 other traces)
+    ...
+    NY.MMPY..RFV | 2015-06-08T06:10:13.330000Z - 2015-06-08T06:12:08.330000Z | 5.0 Hz, 576 samples
+
+    [Use "print(Stream.__str__(extended=True))" to print all Traces],
+     'strH': 66 Trace(s) in Stream:
+
+    NY.MMPY..RFH | 2016-05-31T10:11:49.520000Z - 2016-05-31T10:13:44.520000Z | 5.0 Hz, 576 samples
+    ...
+    (64 other traces)
+    ...
+    NY.MMPY..RFH | 2015-06-08T06:10:13.330000Z - 2015-06-08T06:12:08.330000Z | 5.0 Hz, 576 samples
+
+    [Use "print(Stream.__str__(extended=True))" to print all Traces],
+     'azim': 0,
+     'xmin': 0.0,
+     'xmax': 40.0}
+
+As with the :class:`~rfpy.hk.HkStack` object, these receiver functions have been obtained 
+by adding :class:`~rfpy.rfdata.RFData` objects
+as streams to an :class:`~obspy.core.Stream` object, without other processing. Note that they
+are aligned in the ``PVH`` coordinate system, as specified in the channel name (i.e., ``RFV`` 
+and ``RFH``). To prepare them for harmonic decomposition, we can bin the receiver functions into
+back-azimuth and slowness bins :
+
+.. sourcecode:: python
+
+    >>> from rfpy import binning
+    >>> str_binned = binning.bin_baz_slow(harmonics.strV, harmonics.strH)
+    >>> harmonics.strV = str_binned[0]
+    >>> harmonics.strH = str_binned[1]
+
+It is straightforward to directly
+filter the :class:`~obspy.core.Stream` object, and perhaps also add a copy of the stream
+with a different frequency corner as another attribute ``rfV2``, as suggested above:
+
+.. sourcecode:: python
+
+    >>> harmonics.strV.filter('bandpass', freqmin=0.05, freqmax=0.5, corners=2, zerophase=True)
+    >>> harmonics.strH.filter('bandpass', freqmin=0.05, freqmax=0.5, corners=2, zerophase=True)
+
+Now simply perform harmonic decomposition
+
+.. sourcecode:: python
+
+    >>> harmonics.dcomp_fix_azim()
+    Decomposing receiver functions into baz harmonics for azimuth =  0
+
+Plot them
+
+.. sourcecode:: python
+
+    >>> harmonics.plot()
 
 
 .. autoclass:: rfpy.harmonics.Harmonics

@@ -33,7 +33,7 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon']
 
 autodoc_member_order = 'bysource'
 
-# html_logo = '../obstools/examples/picture/obstools_logo.png'
+html_logo = '../rfpy/examples/picture/RfPy_logo_small.png'
 
 # Add any paths that contain templates here, relative to this directory.
 # templates_path = ['_templates']

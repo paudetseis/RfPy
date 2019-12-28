@@ -32,7 +32,23 @@ from matplotlib import pyplot as plt
 
 class Harmonics(object):
 
-    def __init__(self, strV, strH, azim=0, xmin=0., xmax=40.):
+    def __init__(self, strV, strH=None, azim=0, xmin=0., xmax=40.):
+
+        # Load example data if initializing empty object
+        if strV == 'demo' or strV == 'Demo':
+            print("Uploading demo data - station NY.MMPY")
+            import os
+            import pickle
+            file = open(os.path.join(
+                    os.path.dirname(__file__),
+                    "examples/data", "demo_streams.pkl"), 'rb')
+            strV = pickle.load(file)
+            strH = pickle.load(file)
+            file.close()
+
+        if not strH:
+            raise TypeError("__init__() missing 1 required positional argument: 'strH'")
+
         self.strV = strV
         self.strH = strH
         self.azim = azim
@@ -190,7 +206,7 @@ class Harmonics(object):
         else:
             self.azim = azim
 
-        print('Decomposing receiver functions into baz harmonics for az = ',
+        print('Decomposing receiver functions into baz harmonics for azimuth = ',
               azim)
 
         # Some integers
@@ -374,8 +390,8 @@ class Harmonics(object):
         # Station name
         sta = self.hstream[0].stats.station
 
-        # Initialize count
-        i = 0
+        # # Initialize count
+        # i = 0
 
         # Initialize figure
         fig = plt.figure()
@@ -386,23 +402,26 @@ class Harmonics(object):
         ax1 = fig.add_subplot(111)
 
         for i, trace in enumerate(self.hstream):
-            i += 1
+            # i += 1
             ax1.fill_betweenx(
-                y, i, i+trace.data*maxval,
+                y, i+1, i+1+trace.data*maxval,
                 where=trace.data+1e-6 <= 0.,
                 facecolor='blue',
                 linewidth=0)
             ax1.fill_betweenx(
-                y, i, i+trace.data*maxval,
+                y, i+1, i+1+trace.data*maxval,
                 where=trace.data+1e-6 >= 0.,
                 facecolor='red',
                 linewidth=0)
 
         ax1.set_ylim(ymax, 0)
-        ax1.set_ylabel('Depth (km)')
+        # ax1.set_ylabel('Depth (km)')
         ax1.set_xlabel('Harmonic components')
         if title:
-            ax1.set_title('Station '+sta)
+            ax1.set_title(title)
+        else:
+            ax1.set_title('H-k stacks, station: ' + self.rfV1[0].stats.station)
+
         labels = [item.get_text() for item in ax1.get_xticklabels()]
         labels[1] = '$A$'
         labels[2] = '$B_1$'

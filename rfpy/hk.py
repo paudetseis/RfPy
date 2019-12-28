@@ -92,6 +92,17 @@ class HkStack(object):
 
     def __init__(self, rfV1, rfV2=None, strike=None, dip=None, vp=6.0):
 
+        # Load example data if initializing empty object
+        if rfV1 == 'demo' or rfV1 == 'Demo':
+            print("Uploading demo data - station NY.MMPY")
+            import os
+            import pickle
+            file = open(os.path.join(
+                    os.path.dirname(__file__),
+                    "examples/data", "demo_streams.pkl"), 'rb')
+            rfV1 = pickle.load(file)
+            file.close()
+
         self.rfV1 = rfV1
         self.rfV2 = rfV2
         self.strike = strike
@@ -397,11 +408,11 @@ class HkStack(object):
 
         else:
             raise(Exception("'err_method' must be either 'stats' or 'amp'"))
-        self.method = method
+        self.err_method = err_method
 
         # Estimate uncertainty (q confidence interval)
-        self.err_k = max(0.25*(k[max(err[1])] - k[min(err[1])]), self.dk)
-        self.err_H = max(0.25*(H[max(err[0])] - H[min(err[0])]), self.dh)
+        self.err_k0 = max(0.25*(k[max(err[1])] - k[min(err[1])]), self.dk)
+        self.err_h0 = max(0.25*(H[max(err[0])] - H[min(err[0])]), self.dh)
 
 
     def plot(self, save=False, title=None):
@@ -489,13 +500,13 @@ class HkStack(object):
         # Get confidence intervals
         if hasattr(self, 'err_contour'):
             # ax.contour(np.rot90(vmax-msf), (vmax-err_cont,),
-            if self.method == 'stats':
+            if self.err_method == 'stats':
                 ax4.contour(
                     np.rot90(1.-self.stack/self.stack.max()), 
                     (self.err_contour,),
                     hold='on', colors='yellow', linewidths=1, origin='upper',
                     extent=extent)
-            elif self.method == 'amp':
+            elif self.err_method == 'amp':
                 ax4.contour(
                     np.rot90(self.stack/self.stack.max()), 
                     (self.err_contour,),
@@ -508,7 +519,10 @@ class HkStack(object):
         except:
             print("'h0' and 'k0' are not available")
 
-        plt.suptitle('H-k stacks, station: ' + self.rfV1[0].stats.station)
+        if title:
+            plt.suptitle(title)
+        else:
+            plt.suptitle('H-k stacks, station: ' + self.rfV1[0].stats.station)
 
         if save:
             plt.savefig('RF_PLOTS/' + self.rfV1[0].stats.station +

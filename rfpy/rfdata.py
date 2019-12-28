@@ -166,7 +166,7 @@ class RFData(object):
             sta = pickle.load(
                 open(os.path.join(
                     os.path.dirname(__file__),
-                    "../examples/data", "MMPY.pkl"), 'rb'))['NY.MMPY']
+                    "examples/data", "MMPY.pkl"), 'rb'))['NY.MMPY']
 
         # Attributes from parameters
         self.sta = sta

@@ -1,8 +1,11 @@
 
+.. figure:: ../rfpy/examples/picture/RfPy_logo.png
+   :align: center
+
 Documentation
 =============
 
-RfPy is a package containing Python tools for calculating teleseismic
+``RfPy`` is a package containing Python tools for calculating teleseismic
 receiver functions. Methods are available to plot and post-process 
 receiver function data. Post processing includes: H-k method,
 Harmonic decomposition and CCP stacking. The code uses 

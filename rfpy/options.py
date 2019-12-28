@@ -31,7 +31,7 @@ from obspy import UTCDateTime
 from numpy import nan, isnan
 
 
-def get_prep_options():
+def get_calc_options():
     """
     Get Options from :class:`~optparse.OptionParser` objects.
 
@@ -39,26 +39,26 @@ def get_prep_options():
 
     """
 
-    from argparse import ArgumentParser, OptionGroup
+    from optparse import OptionParser, OptionGroup
     from os.path import exists as exist
     from obspy import UTCDateTime
     from numpy import nan
 
-    parser = argparse.ArgumentParser(
+    parser = OptionParser(
         usage="Usage: %prog [options] <station database>",
         description="Script used to download and pre-process " +
-        "three-component (E, N and Z), seismograms for individual " +
-        "events on which to apply the de-noising algorithms. " +
+        "three-component (Z, N, and E), seismograms for individual " +
+        "events and calculate teleseismic P-wave receiver functions" +
         "This version requests data on the fly for a given date " +
         "range. Data are requested from the internet using the " +
         "client services framework. The stations are processed one " +
         "by one and the data are stored to disk.")
 
     # General Settings
-    parser.add_argument(
+    parser.add_option(
         "--keys",
         action="store",
-        type="string",
+        type=str,
         dest="stkeys",
         default="",
         help="Specify a comma separated list of station keys for " +
@@ -67,13 +67,13 @@ def get_prep_options():
         "be used to match against those in the dictionary. For " +
         "instance, providing IU will match with all stations in " +
         "the IU network [Default processes all stations in the database]")
-    parser.add_argument(
+    parser.add_option(
         "-v", "-V", "--verbose",
         action="store_true",
         dest="verb",
         default=False,
         help="Specify to increase verbosity.")
-    parser.add_argument(
+    parser.add_option(
         "-O", "--overwrite",
         action="store_true",
         dest="ovr",
@@ -82,11 +82,12 @@ def get_prep_options():
         "[Default False]")
 
     # Server Settings
-    ServerGroup = parser.add_argument_group(
+    ServerGroup = OptionGroup(
+        parser,
         title="Server Settings",
         description="Settings associated with which "
         "datacenter to log into.")
-    ServerGroup.add_argument(
+    ServerGroup.add_option(
         "-S", "--Server",
         action="store",
         type=str,
@@ -96,7 +97,7 @@ def get_prep_options():
         "BGR, ETH, GEONET, GFZ, INGV, IPGP, IRIS, KOERI, " +
         "LMU, NCEDC, NEIP, NERIES, ODC, ORFEUS, RESIF, SCEDC, USGS, USP. " +
         "[Default IRIS]")
-    ServerGroup.add_argument(
+    ServerGroup.add_option(
         "-U", "--User-Auth",
         action="store",
         type=str,
@@ -108,15 +109,16 @@ def get_prep_options():
         "[Default no user and password]")
 
     # Database Settings
-    DataGroup = parser.add_argument_group(
+    DataGroup = OptionGroup(
+        parser,
         title="Local Data Settings",
         description="Settings associated with defining " +
         "and using a local data base of pre-downloaded " +
         "day-long SAC files.")
-    DataGroup.add_argument(
+    DataGroup.add_option(
         "--local-data",
         action="store",
-        type="string",
+        type=str,
         dest="localdata",
         default=None,
         help="Specify a comma separated list of paths containing " +
@@ -124,7 +126,7 @@ def get_prep_options():
         "If data exists for a seismogram is already present on disk, " +
         "it is selected preferentially over downloading " +
         "the data using the Client interface")
-    DataGroup.add_argument(
+    DataGroup.add_option(
         "--no-data-zero",
         action="store_true",
         dest="ndval",
@@ -132,74 +134,32 @@ def get_prep_options():
         help="Specify to force missing data to be set as zero, rather " +
         "than default behaviour which sets to nan.")
 
-    # Constants Settings
-    ConstGroup = parser.add_argument_group(
-        title='Parameter Settings',
-        description="Miscellaneous default values and settings")
-    ConstGroup.add_argument(
-        "--sampling-rate",
-        action="store",
-        type="float",
-        dest="new_sampling_rate",
-        default=5.,
-        help="Specify new sampling rate in Hz. [Default 5.]")
-    ConstGroup.add_argument(
-        "--rotate",
-        action="store",
-        type="string",
-        dest="align",
-        default=None,
-        help="Specify component rotation key. Can be either " +
-        "ZRT, LQT, or PVH. [Default ZRT]")
-    ConstGroup.add_argument(
-        "--vp",
-        action="store",
-        type="float",
-        dest="vp",
-        default=6.0,
-        help="Specify near-surface Vp (km/s). [Default 6.0]")
-    ConstGroup.add_argument(
-        "--vs",
-        action="store",
-        type="float",
-        dest="vs",
-        default=3.6,
-        help="Specify near-surface Vs (km/s). [Default 3.6]")
-    ConstGroup.add_argument(
-        "--dt_snr",
-        action="store",
-        type="float",
-        dest="dt_snr",
-        default=30.,
-        help="Specify the window length over which to calculate " +
-        "the SNR in sec. [Default 30.]")
-
     # Event Selection Criteria
     EventGroup = OptionGroup(
         parser,
         title="Event Settings",
         description="Settings associated with refining " +
         "the events to include in matching station pairs")
-    EventGroup.add_argument(
-        "--start-time",
+    EventGroup.add_option(
+        "--start",
         action="store",
-        type="string",
+        type=str,
         dest="startT",
         default="",
         help="Specify a UTCDateTime compatible string representing " +
         "the start time for the event search. This will override any " +
         "station start times. [Default start date of station]")
-    EventGroup.add_argument(
-        "--end-time",
+    EventGroup.add_option(
+        "--end",
         action="store",
-        type="string",
+        type=str,
         dest="endT",
         default="",
         help="Specify a UTCDateTime compatible string representing " +
         "the end time for the event search. This will override any " +
         "station end times [Default end date of station]")
-    EventGroup.add_argument(
-        "--reverse-order", "-R",
+    EventGroup.add_option(
+        "--reverse", "-R",
         action="store_true",
         dest="reverse",
         default=False,
@@ -207,26 +167,26 @@ def get_prep_options():
         "oldest event and works towards most recent. Specify reverse " +
         "order and instead the program will start with the most recent " +
         "events and work towards older")
-    EventGroup.add_argument(
-        "--min-mag",
+    EventGroup.add_option(
+        "--minmag",
         action="store",
-        type="float",
+        type=float,
         dest="minmag",
         default=6.0,
         help="Specify the minimum magnitude of event for which to search. " +
         "[Default 6.0]")
-    EventGroup.add_argument(
-        "--max-mag",
+    EventGroup.add_option(
+        "--maxmag",
         action="store",
-        type="float",
+        type=float,
         dest="maxmag",
         default=None,
         help="Specify the maximum magnitude of event for which to search. " +
         "[Default None, i.e. no limit]")
-    EventGroup.add_argument(
+    EventGroup.add_option(
         "--dts",
         action="store",
-        type="float",
+        type=float,
         dest="dts",
         default=120.,
         help="Specify the window length in sec (symmetric about arrival " +
@@ -238,28 +198,96 @@ def get_prep_options():
         title="Geometry Settings",
         description="Settings associatd with the "
         "event-station geometries")
-    GeomGroup.add_argument(
-        "--min-dist",
+    GeomGroup.add_option(
+        "--mindist",
         action="store",
-        type="float",
+        type=float,
         dest="mindist",
         default=30.,
         help="Specify the minimum great circle distance (degrees) between " +
         "the station and event. [Default 30.]")
-    GeomGroup.add_argument(
-        "--max-dist",
+    GeomGroup.add_option(
+        "--maxdist",
         action="store",
-        type="float",
+        type=float,
         dest="maxdist",
         default=90.,
         help="Specify the maximum great circle distance (degrees) between " +
         "the station and event. [Default 120.]")
 
-    parser.add_argument_group(ServerGroup)
-    parser.add_argument_group(DataGroup)
-    parser.add_argument_group(EventGroup)
-    parser.add_argument_group(GeomGroup)
-    parser.add_argument_group(ConstGroup)
+    # Constants Settings
+    ConstGroup = OptionGroup(
+        parser,
+        title='Parameter Settings',
+        description="Miscellaneous default values and settings")
+    ConstGroup.add_option(
+        "--sampling-rate",
+        action="store",
+        type=float,
+        dest="new_sampling_rate",
+        default=5.,
+        help="Specify new sampling rate in Hz. [Default 5.]")
+    ConstGroup.add_option(
+        "--align",
+        action="store",
+        type=str,
+        dest="align",
+        default=None,
+        help="Specify component alignment key. Can be either " +
+        "ZRT, LQT, or PVH. [Default ZRT]")
+    ConstGroup.add_option(
+        "--vp",
+        action="store",
+        type=float,
+        dest="vp",
+        default=6.0,
+        help="Specify near-surface Vp (km/s). [Default 6.0]")
+    ConstGroup.add_option(
+        "--vs",
+        action="store",
+        type=float,
+        dest="vs",
+        default=3.6,
+        help="Specify near-surface Vs (km/s). [Default 3.6]")
+    ConstGroup.add_option(
+        "--dt_snr",
+        action="store",
+        type=float,
+        dest="dt_snr",
+        default=30.,
+        help="Specify the window length over which to calculate " +
+        "the SNR in sec. [Default 30.]")
+    ConstGroup.add_option(
+        "--fmin",
+        action="store",
+        type=float,
+        dest="fmin",
+        default=0.1,
+        help="Specify the minimum frequency corner for SNR " +
+        "filter (Hz). [Default 0.1]")
+    ConstGroup.add_option(
+        "--fmax",
+        action="store",
+        type=float,
+        dest="fmax",
+        default=1.0,
+        help="Specify the maximum frequency corner for SNR " +
+        "filter (Hz). [Default 1.0]")
+    ConstGroup.add_option(
+        "--twin",
+        action="store",
+        type=float,
+        dest="twin",
+        default=30.,
+        help="Specify the source time duration for deconvolution "+
+        "(sec). [Default 30.]")
+
+    parser.add_option_group(ServerGroup)
+    parser.add_option_group(DataGroup)
+    parser.add_option_group(EventGroup)
+    parser.add_option_group(GeomGroup)
+    parser.add_option_group(ConstGroup)
+
     (opts, args) = parser.parse_args()
 
     # Check inputs
@@ -323,7 +351,7 @@ def get_prep_options():
         opts.align = 'ZRT'
     elif opts.align not in ['ZRT', 'LQT', 'PVH']:
         parser.error(
-            "Error: Incorrect rotation specifier. Should be " +
+            "Error: Incorrect alignment specifier. Should be " +
             "either 'ZRT', 'LQT', or 'PVH'.")
 
     if opts.dt_snr > opts.dts:
@@ -332,7 +360,6 @@ def get_prep_options():
               "window minus 10 sec.")
 
     return (opts, indb)
-
 
 
 def parse_localdata_for_comp(comp='Z', stdata=list, sta=None,
@@ -642,7 +669,7 @@ def parse_localdata_for_comp(comp='Z', stdata=list, sta=None,
 
 
 def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
-                 stdata=list, ndval=nan, new_sr=0.):
+                  stdata=list, ndval=nan, new_sr=0.):
     """
     Function to build a stream object for a seismogram in a given time window either
     by downloading data from the client object or alternatively first checking if the
