@@ -1,3 +1,6 @@
+
+![](./rfpy/examples/picture/RfPy_logo.png)
+
 ## Teleseismic receiver function calculation and post-processing 
 
 Installation, Usage, API documentation and tutorials are described at 
