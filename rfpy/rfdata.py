@@ -72,7 +72,7 @@ class Meta(object):
 
     """
 
-    def __init__(self, sta, event):
+    def __init__(self, sta, event, gacmin=30., gacmax=90.):
 
         from obspy.geodetics.base import gps2dist_azimuth as epi
         from obspy.geodetics import kilometer2degrees as k2d
@@ -175,7 +175,7 @@ class RFData(object):
         self.meta = None
         self.data = None
 
-    def add_event(self, event, returned=False):
+    def add_event(self, event, gacmin=gacmin, gacmax=gacmax, returned=False):
         """
         Adds event metadata to RFData object, including travel time info 
         of P wave. 
@@ -214,7 +214,8 @@ class RFData(object):
             raise(Exception("Event has incorrect type"))
 
         # Store as object attributes
-        self.meta = Meta(sta=self.sta, event=event)
+        self.meta = Meta(sta=self.sta, event=event,
+                         gacmin=gacmin, gacmax=gacmax)
 
         if returned:
             return self.meta.accept
@@ -332,7 +333,6 @@ class RFData(object):
 
         if returned:
             return self.meta.accept
-
 
     def rotate(self, vp=None, vs=None, align=None):
         """

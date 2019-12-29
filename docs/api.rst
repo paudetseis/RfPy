@@ -38,7 +38,7 @@ Basic usage
 Initialization
 ~~~~~~~~~~~~~~
 
-A ``RFData`` object is initialized with an ``StDb`` object, e.g. consider such an 
+A ``RFData`` object is initialized with an :class:`~stdb.StDb` object, e.g. consider such an 
 object ``sta``:
 
 .. sourcecode:: python
@@ -54,7 +54,7 @@ object. For example, given such an object ``ev``:
 
     >>> rfdata.add_event(ev)
 
-Now that the event has been added, the ``RFData`` object has determined
+Now that the event has been added, the :class:`~rfpy.rfdata.RFData` object has determined
 whether or not it is suitable for receiver function analysis (i.e., 
 if the event is within a suitable epicentral distance range), which is
 available as a new meta data attribute:
@@ -66,7 +66,8 @@ available as a new meta data attribute:
 
 .. note::
 
-    Alternatively, the ``add_event`` (or ``add_data``) mnethod can be used
+    Alternatively, the :func:`~rfpy.rfdata.RFData.add_event` 
+    (or :func:`~rfpy.rfdata.RFData.add_data`) method can be used
     with the argument ``returned=True`` to return the ``accept`` attribute
     directly.
 
@@ -77,8 +78,8 @@ available as a new meta data attribute:
 
 If the ``accept`` attribute is ``True``, continue with the analysis by
 adding raw three-component data. There are two methods to perform this step.
-If the data are available in memory (e.g., in a ``Stream`` object ``stream``), 
-one can use the ``add_data`` method directly:
+If the data are available in memory (e.g., in a :class:`~obspy.core.Stream` object ``stream``), 
+one can use the :func:`~rfpy.rfdata.RFData.add_data` method directly:
 
 .. sourcecode:: python
 
@@ -86,11 +87,12 @@ one can use the ``add_data`` method directly:
 
 .. warning::
 
-    **Do not** simply add a Stream object as an attribute ``data`` to the ``RFData``
+    **Do not** simply add a :class:`~obspy.core.Stream` object as an 
+    attribute ``data`` to the :class:`~rfpy.rfdata.RFData`
     object (e.g., ``rfdata.data = stream``). Instead use this method, as it checks 
     whether or not the event meta data will produce a usable receiver function.
 
-Otherwise, one can use the method ``download_data`` to obtain 
+Otherwise, one can use the method :func:`~rfpy.rfdata.RFData.download_data` to obtain 
 the three-component data from an FDSN Client: 
 
 .. sourcecode:: python
@@ -135,17 +137,20 @@ carried out following the ``rotate`` method:
     >>> type(rfdata.meta.snr)
     float
 
-Finally, the last step is to perform the deconvolution using the method ``deconvolve``,
+Finally, the last step is to perform the deconvolution using the method 
+:func:`~rfpy.rfdata.RFData.deconvolve`,
 which stores the receiver function data as a new attribute ``rf``, which is a 
-three-component ``Stream`` object:
+three-component :class:`~obspy.core.Stream` object:
 
 .. sourcecode:: python
 
     >>> rfdata.deconvolve()
 
 Notice the new channel names of the deconvolved, receiver function data. Although no
-plotting method is provided for the ``RFData`` object, the ``rf`` attribute is a :class:`~obspy.core.Stream`
-object that can be plotted using the ``plot`` method (e.g., ``rfdata.rf.plot()``).
+plotting method is provided for the :class:`~rfpy.rfdata.RFData` object, the 
+``rf`` attribute is a :class:`~obspy.core.Stream`
+object that can be plotted using the :func:`~rfpy.rfdata.RFData.plot` method 
+(e.g., ``rfdata.rf.plot()``).
 
 Following receiver function deconvolution, all the information is stored in the attributes 
 of the object. Ultimately, a method is available to convert the ``RFData`` object to a
@@ -327,7 +332,8 @@ For example:
 .. note::
 
     It is also possible to use two ``rfstream`` objects during initialization
-    of the ``HkStack`` object - one for the direct converion (i.e., ``'ps'`` phase), 
+    of the :class:`~rfpy.hk.HkStack` object - one for the direct converion 
+    (i.e., ``'ps'`` phase), 
     and the second one for the reverberated phases (i.e., ``'pps'``, ``'pss'``).
     The second ``rfstream`` should therefore be a copy of the first one, but perhaps
     filtered uding different frequency corners:
@@ -338,20 +344,20 @@ For example:
         >>> rfstream2.filter('bandpass', freqmin=0.05, freqmax=0.35, corners=2, zerophase=True)
         >>> hkstack = HkStack(rfstream, rfstream2)
 
-To speed things up during processing (and to avoid redundant stacking), one can
+To speed things up during processing (and to avoid redundant stacking), it is possible to
 use one of the :func:`~rfpy.binning` functions, alghouth *not* the 
-:func:`~rfpy.binning.bin_all` function
+:func:`~rfpy.binning.bin_all` function, e.g.,
 
 .. sourcecode:: python
 
     >>> from rfpy.binning import bin
-    >>> rfstream_binned = rfstream.bin(typ='slow', dd=0.005)
+    >>> rfstream_binned = rfstream.bin(typ='slow', nbin=21)
     >>> hkstack = HkStack(rfstream_binned)
 
 H-k processing
 ~~~~~~~~~~~~~~
 
-Once the ``HkStack`` object is initialized with the ``rfstream``, a findividual phase
+Once the :class:`~rfpy.hk.HkStack` object is initialized with the ``rfstream``, a findividual phase
 stacks can be calculated automatically using the default settings:
 
 .. sourcecode:: python
@@ -361,7 +367,7 @@ stacks can be calculated automatically using the default settings:
 The only parameter to set is the `P`-wave velocity of the crust - if not set,
 the default value of 6.0 km/s is used (available as the attribute ``hkstack.vp``).
 To change the search bounds for the phase stacks, we can edit the attributes of the
-``HkStack`` object prior to calling the method :func:`~rfpy.hk.HkStack.stack`:
+:class:`~rfpy.hk.HkStack` object prior to calling the method :func:`~rfpy.hk.HkStack.stack`:
 
 .. sourcecode:: python
 
@@ -380,13 +386,13 @@ To change the search bounds for the phase stacks, we can edit the attributes of 
 In the presence of a dipping Moho interface, it is possible to use the method
 :func:`~rfpy.hk.HkStack.stack_dip`, with the additional ``strike`` and ``dip`` arguments.
 If not specified, the code will use the default values stored as attributes of the
-``HkStack`` object:
+:class:`~rfpy.hk.HkStack` object:
 
 .. sourcecode:: python
 
     >>> hkstack.stack_dip(strike=215., dip=25., vp=5.5)
 
-Once the phase stacks are calculated and stored as attributes of the ``hkstack`` object,
+Once the phase stacks are calculated and stored as attributes of the object,
 we can call the method :func:`~rfpy.hk.HkStack.average` to combine the phase stacks
 into a single, final stack. By default the final stack is a simple weighted sum 
 of the individual phase stacks, using weights defined as object attributes:
@@ -453,7 +459,7 @@ Initialize object with demo data for station `MMPY`:
 
 These receiver functions have been obtained by adding :class:`~rfpy.rfdata.RFData` objects
 as streams to an :class:`~obspy.core.Stream` object, without other processing. Note that they
-are aligned in the ``PVH`` coordinate system, as specified in the channel name (i.e., ``RFV`` for
+are aligned in the ``PVH`` coordinate system, as specified in the channel name (i.e., ``'RFV'`` for
 the radial component). To prepare them for stacking, we can bin the receiver functions into
 back-azimuth and slowness bins (in the presence of a dipping interface), or simply slowness bins 
 (for horizontal interfaces):
@@ -553,7 +559,7 @@ method.
 Harmonic decomposition
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Once the ``Harmonics`` object is initialized, processing is as simple as typing
+Once the :class:`~rfpy.harmonics.Harmonics` object is initialized, processing is as simple as typing
 
 .. sourcecode:: python
 
@@ -636,8 +642,8 @@ Initialize object with demo data for station `MMPY`:
 As with the :class:`~rfpy.hk.HkStack` object, these receiver functions have been obtained 
 by adding :class:`~rfpy.rfdata.RFData` objects
 as streams to an :class:`~obspy.core.Stream` object, without other processing. Note that they
-are aligned in the ``PVH`` coordinate system, as specified in the channel name (i.e., ``RFV`` 
-and ``RFH``). To prepare them for harmonic decomposition, we can bin the receiver functions into
+are aligned in the ``'PVH'`` coordinate system, as specified in the channel name (i.e., ``'RFV'`` 
+and ``'RFH'``). To prepare them for harmonic decomposition, we can bin the receiver functions into
 back-azimuth and slowness bins :
 
 .. sourcecode:: python

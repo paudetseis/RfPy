@@ -32,7 +32,7 @@ from obspy.core import Stream, Trace
 from scipy.signal import hilbert
 
 
-def bin(stream1, stream2=None, typ='baz', dd=36+1, pws=True):
+def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=True):
     """ 
     Function to stack receiver functions into (baz or slow) bins
     This can be done using a linear stack (i.e., simple
@@ -80,7 +80,7 @@ def bin(stream1, stream2=None, typ='baz', dd=36+1, pws=True):
             raise(Exception("No 'dist' attribute in stats"))
 
     # Define bins
-    bins = np.linspace(bmin, bmax, dd)
+    bins = np.linspace(bmin, bmax, nbin)
 
     # Digitize stat
     ind = np.digitize(stat, bins)
@@ -93,9 +93,9 @@ def bin(stream1, stream2=None, typ='baz', dd=36+1, pws=True):
             binned_stream = Stream()
 
             # Loop through bins
-            for i in range(len(bins)):
+            for i in range(nbin):
 
-                nbin = 0
+                nb = 0
                 array = np.zeros(len(stream[0].data))
                 weight = np.zeros(len(stream[0].data), dtype=complex)
 
@@ -105,21 +105,21 @@ def bin(stream1, stream2=None, typ='baz', dd=36+1, pws=True):
                     # If index of bins is equal to ind
                     if i == ind[j]:
 
-                        nbin += 1
+                        nb += 1
                         array += tr.data
                         hilb = hilbert(tr.data)
                         phase = np.arctan2(hilb.imag, hilb.real)
                         weight += np.exp(1j*phase)
                         break
 
-                if nbin > 0:
+                if nb > 0:
 
                     # Average and update stats
-                    array /= nbin
-                    weight = np.real(abs(weight/np.float(nbin)))
+                    array /= nb
+                    weight = np.real(abs(weight/np.float(nb)))
 
                     trace = Trace(header=stream[0].stats)
-                    trace.stats.nbin = nbin
+                    trace.stats.nbin = nb
                     if typ == 'baz':
                         trace.stats.baz = bins[i]
                         trace.stats.slow = None
@@ -144,7 +144,7 @@ def bin(stream1, stream2=None, typ='baz', dd=36+1, pws=True):
 
 
 # 
-def bin_baz_slow(stream1, stream2=None, dbaz=36+1, dslow=20+1, pws=True):
+def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=True):
     """ 
     Function to stack receiver functions into back-azimuth and slowness bins.
     This can be done using a linear stack (i.e., simple
@@ -173,8 +173,8 @@ def bin_baz_slow(stream1, stream2=None, dbaz=36+1, dslow=20+1, pws=True):
     """
 
     # Define back-azimuth and slowness bins
-    baz_bins = np.linspace(0, 360, dbaz)
-    slow_bins = np.linspace(0.04, 0.08, dslow)
+    baz_bins = np.linspace(0, 360, nbaz)
+    slow_bins = np.linspace(0.04, 0.08, nslow)
 
     # Extract baz and slowness
     baz = [stream1[i].stats.baz for i in range(len(stream1))]
@@ -192,8 +192,8 @@ def bin_baz_slow(stream1, stream2=None, dbaz=36+1, dslow=20+1, pws=True):
             binned_stream = Stream()
 
             # Loop through baz_bins
-            for i in range(len(baz_bins)):
-                for j in range(len(slow_bins)):
+            for i in range(nbaz):
+                for j in range(nslow):
 
                     nbin = 0
                     array = np.zeros(len(stream[0].data))

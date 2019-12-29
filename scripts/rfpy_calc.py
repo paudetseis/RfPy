@@ -23,16 +23,12 @@
 # SOFTWARE.
 
 
-"""
-"""
-
 # Import modules and functions
 import numpy as np
 import os.path
 import pickle
 import glob
 import stdb
-from obspy.taup import TauPyModel
 from obspy.clients.fdsn import Client
 from rfpy import options
 from rfpy import RFData
@@ -61,9 +57,6 @@ def main():
         stkeys = db.keys()
         sorted(stkeys)
 
-    # Initialize Taup Model
-    tpmodel = TauPyModel(model='iasp91')
-
     # Loop over station keys
     for stkey in list(stkeys):
 
@@ -83,8 +76,8 @@ def main():
         if len(opts.UserAuth) == 0:
             client = Client(opts.Server)
         else:
-            client = Client(
-                opts.Server, user=opts.UserAuth[0], password=opts.UserAuth[1])
+            client = Client(opts.Server, user=opts.UserAuth[0],
+                            password=opts.UserAuth[1])
 
         # Get catalogue search start time
         if opts.startT is None:
@@ -208,7 +201,7 @@ def main():
                 else:
                     inum = nevtT - iev + 1
                 print(" ")
-                print("****************************************************")
+                print("**************************************************")
                 print("* #{0:d} ({1:d}/{2:d}):  {3:13s}".format(
                     nevK, inum, nevtT, rfdata.meta.time.strftime(
                         "%Y%m%d_%H%M%S")))
