@@ -19,13 +19,19 @@ used in command-line scripts.
    links
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Getting Started
 
    rfpy
 
 .. toctree::
-   :maxdepth: 1
-   :caption: API Doc & Usage
+   :maxdepth: 2
+   :caption: API Documentation
 
    api
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Scripts & Tutorials
+
+   scripts

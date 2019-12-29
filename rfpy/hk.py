@@ -288,7 +288,7 @@ class HkStack(object):
 
     def average(self, typ='sum', q=0.05, err_method='amp'):
         """
-        Function to combine the phase-weighted stacks to produce a final
+        Method to combine the phase-weighted stacks to produce a final
         stack, from which to estimate the H and k parameters and their 
         associated errors.
 
@@ -354,7 +354,7 @@ class HkStack(object):
 
     def error(self, q=0.05, err_method='amp'):
         """
-        Function to determine the error on H and k estimates.
+        Method to determine the error on H and k estimates.
 
         From Walsh, JGR, 2013
 
@@ -417,7 +417,7 @@ class HkStack(object):
 
     def plot(self, save=False, title=None):
         """
-        Function to plot H-K stacks. By default all 4 panels
+        Method to plot H-K stacks. By default all 4 panels
         are plotted: The ``ps``, ``pps`` and ``pss`` stacks, and the
         final (averaged) stack. Error contours are also plotted,
         as well as the position of the maximum stack values.
@@ -572,7 +572,7 @@ class HkStack(object):
 
 def _dof(st):
     """
-    Function to determine the degrees of freedom to calculate
+    Method to determine the degrees of freedom to calculate
     the confidence region of the misfit function.
 
     From Walsh, JGR, 2013
@@ -599,7 +599,7 @@ def _dof(st):
 
 def _dtime_(trace, z, r, vp, ph):
     """
-    Function to calculate travel time for different scattered phases
+    Method to calculate travel time for different scattered phases
     
     """
 
@@ -622,7 +622,7 @@ def _dtime_(trace, z, r, vp, ph):
 
 def _dtime_dip_(trace, z, r, vp, ph, strike, dip):
     """
-    Function to calculate travel time for different scattered phases
+    Method to calculate travel time for different scattered phases
     using strike and dip angles
     
     """
