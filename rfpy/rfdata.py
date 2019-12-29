@@ -175,7 +175,7 @@ class RFData(object):
         self.meta = None
         self.data = None
 
-    def add_event(self, event, gacmin=gacmin, gacmax=gacmax, returned=False):
+    def add_event(self, event, gacmin=30., gacmax=90., returned=False):
         """
         Adds event metadata to RFData object, including travel time info 
         of P wave. 

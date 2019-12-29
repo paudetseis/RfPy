@@ -26,6 +26,6 @@ used in command-line scripts.
 
 .. toctree::
    :maxdepth: 1
-   :caption: API Documentation
+   :caption: API Doc & Usage
 
    api

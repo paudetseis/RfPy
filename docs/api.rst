@@ -110,7 +110,7 @@ Receiver function processing
 Now that we have complete meta data and raw seismogram data, we can
 use methods to rotate and/or calculate the signal-to-noise ratio. 
 The rotation flag is set in the ``rfdata.meta.align`` attribute, which by
-default is ``'ZRT'``. This means that ``'ZNE'`` data will be rotated to ``ZRT`` 
+default is ``'ZRT'``. This means that ``'ZNE'`` data will be rotated to ``'ZRT'`` 
 before deconvolution, automatically. However, we can set a different alignment
 (e.g., ``'LQT'`` or ``'PVH'``) and perform the rotation prior to deconvolution.
 Once rotation is performed, however, the initial ``'ZNE'`` data is no longer 
