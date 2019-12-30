@@ -23,16 +23,12 @@
 # SOFTWARE.
 
 
-"""
-"""
-
 # Import modules and functions
 import numpy as np
 import os.path
 import pickle
 import glob
 import stdb
-from obspy.taup import TauPyModel
 from obspy.clients.fdsn import Client
 from rfpy import options
 from rfpy import RFData
@@ -43,7 +39,7 @@ from rfpy import RFData
 def main():
 
     # Run Input Parser
-    (opts, indb) = options.get_prep_options()
+    (opts, indb) = options.get_hk_options()
 
     # Load Database
     db = stdb.io.load_db(fname=indb)
@@ -60,9 +56,6 @@ def main():
     else:
         stkeys = db.keys()
         sorted(stkeys)
-
-    # Initialize Taup Model
-    tpmodel = TauPyModel(model='iasp91')
 
     # Loop over station keys
     for stkey in list(stkeys):
@@ -83,10 +76,8 @@ def main():
         if len(opts.UserAuth) == 0:
             client = Client(opts.Server)
         else:
-            client = Client(
-                opts.Server,
-                user=opts.UserAuth[0],
-                password=opts.UserAuth[1])
+            client = Client(opts.Server, user=opts.UserAuth[0],
+                            password=opts.UserAuth[1])
 
         # Get catalogue search start time
         if opts.startT is None:
@@ -120,14 +111,12 @@ def main():
             sta.station))
         print("|===============================================|")
         print("|===============================================|")
-        print("|  Station: {0:>2s}.{1:5s}                      " +
-              "      |".format(
-                  sta.network, sta.station))
+        print("|  Station: {0:>2s}.{1:5s}                            |".format(
+            sta.network, sta.station))
         print("|      Channel: {0:2s}; Locations: {1:15s}  |".format(
             sta.channel, ",".join(tlocs)))
-        print("|      Lon: {0:7.2f}; Lat: {1:6.2f}              " +
-              "  |".format(
-                  sta.longitude, sta.latitude))
+        print("|      Lon: {0:7.2f}; Lat: {1:6.2f}                |".format(
+            sta.longitude, sta.latitude))
         print("|      Start time: {0:19s}          |".format(
             sta.startdate.strftime("%Y-%m-%d %H:%M:%S")))
         print("|      End time:   {0:19s}          |".format(
@@ -139,13 +128,13 @@ def main():
         print("|   End:   {0:19s}                  |".format(
             tend.strftime("%Y-%m-%d %H:%M:%S")))
         if opts.maxmag is None:
-            print("|   Mag:   >{0:3.1f}                         " +
-                  "        |".format(
+            print("|   Mag:   >{0:3.1f}                        " +
+                  "         |".format(
                       opts.minmag))
         else:
             print(
-                "|   Mag:   {0:3.1f} - {1:3.1f}                 " +
-                "           |".format(opts.minmag, opts.maxmag))
+                "|   Mag:   {0:3.1f} - {1:3.1f}                " +
+                "            |".format(opts.minmag, opts.maxmag))
         print("| ...                                           |")
 
         # Get catalogue using deployment start and end
@@ -168,13 +157,13 @@ def main():
                 stalcllist = rfdata.io.list_local_data_stn(
                     lcldrs=opts.localdata, sta=sta.station,
                     net=sta.network, altnet=sta.altnet)
-                print("|   {0:>2s}.{1:5s}: {2:6d} files         " +
-                      "             |".format(
+                print("|   {0:>2s}.{1:5s}: {2:6d} files        " +
+                      "              |".format(
                           sta.network, sta.station, len(stalcllist)))
             else:
                 stalcllist = rfdata.io.list_local_data_stn(
                     lcldrs=opts.localdata, sta=sta.station)
-                print("|   {0:5s}: {1:6d} files                 " +
+                print("|   {0:5s}: {1:6d} files                " +
                       "        |".format(
                           sta.station, len(stalcllist)))
         else:
@@ -194,7 +183,8 @@ def main():
             ev = cat[iev]
 
             # Add event to Split object
-            rfdata.add_event(ev)
+            accept = rfdata.add_event(
+                ev, gacmin=opts.mindist, gacmax=opts.maxdist, returned=True)
 
             # Define time stamp
             yr = str(rfdata.meta.time.year).zfill(4)
@@ -202,8 +192,7 @@ def main():
             hr = str(rfdata.meta.time.hour).zfill(2)
 
             # If distance between mindist and maxdist deg:
-            if (rfdata.meta.gac > opts.mindist and
-                    rfdata.meta.gac < opts.maxdist):
+            if accept:
 
                 # Display Event Info
                 nevK = nevK + 1
@@ -212,10 +201,10 @@ def main():
                 else:
                     inum = nevtT - iev + 1
                 print(" ")
-                print("****************************************************")
+                print("**************************************************")
                 print("* #{0:d} ({1:d}/{2:d}):  {3:13s}".format(
-                    nevK, inum, nevtT,
-                    rfdata.meta.time.strftime("%Y%m%d_%H%M%S")))
+                    nevK, inum, nevtT, rfdata.meta.time.strftime(
+                        "%Y%m%d_%H%M%S")))
                 print("*   Origin Time: " +
                       rfdata.meta.time.strftime("%Y-%m-%d %H:%M:%S"))
                 print(
@@ -229,43 +218,13 @@ def main():
                           rfdata.sta.station, rfdata.meta.epi_dist,
                           rfdata.meta.gac, rfdata.meta.baz, rfdata.meta.az))
 
-                # Get Travel times (Careful: here dep is in meters)
-                tt = tpmodel.get_travel_times(
-                    distance_in_degree=rfdata.meta.gac,
-                    source_depth_in_km=rfdata.meta.dep/1000.)
-
-                # Loop over all times in tt
-                for t in tt:
-
-                    # Extract P arrival
-                    if t.name == 'P':
-
-                        # Add P phase to Split
-                        rfdata.add_phase(t)
-
-                        # Break out of loop
-                        break
-
                 # Get data
-                rfdata.get_data_NEZ(
+                has_data = rfdata.download_data(
                     client=client, dts=opts.dts, stdata=stalcllist,
-                    ndval=opts.ndval, new_sr=opts.new_sampling_rate)
+                    ndval=opts.ndval, new_sr=opts.new_sampling_rate,
+                    returned=True)
 
-                if rfdata.err:
-                    continue
-
-                # Rotate from ZEN to LQT (Longitudinal, Radial, Transverse)
-                rfdata.rotate()
-
-                # Calculate snr over dt_snr seconds
-                rfdata.calc_snrz(dt=opts.dt_snr)
-
-                # Make sure no processing happens for NaNs
-                if np.isnan(rfdata.snrz):
-                    print(
-                        "* SNR NaN...Skipping")
-                    print(
-                        "****************************************************")
+                if not has_data:
                     continue
 
                 # Create Event Folder
@@ -276,8 +235,36 @@ def main():
                 if not os.path.isdir(evtdir):
                     os.makedirs(evtdir)
 
-                # Event Data
-                pickle.dump(rfdata.meta, open(evtdir + "/Meta_Data.pkl", "wb"))
+                # Save raw Trace files
+                pickle.dump(rfdata.data,
+                            open(evtdir + "/ZNE_Data.pkl", "wb"))
+                rfdata.data.select(component='Z').write(os.path.join(
+                    evtdir, trpref + ".Z.mseed"), format='MSEED')
+                rfdata.data.select(component='N').write(os.path.join(
+                    evtdir, trpref + ".N.mseed"), format='MSEED')
+                rfdata.data.select(component='E').write(os.path.join(
+                    evtdir, trpref + ".E.mseed"), format='MSEED')
+
+                # Rotate from ZEN to LQT (Longitudinal, Radial, Transverse)
+                rfdata.rotate(vp=opts.vp, vs=opts.vs, align=opts.align)
+
+                # Calculate snr over dt_snr seconds
+                rfdata.calc_snrz(
+                    dt=opts.dt_snr, fmin=opts.fmin, fmax=opts.fmax)
+
+                # Make sure no processing happens for NaNs
+                if np.isnan(rfdata.snrz):
+                    print("* SNR NaN...Skipping")
+                    print("**************************************************")
+                    continue
+
+                # Deconvolve data
+                rfdata.deconvolve(
+                    twin=opts.twin, vp=opts.vp, vs=opts.vs, align=opts.align)
+
+                # Save event meta data
+                pickle.dump(
+                    rfdata.meta, open(evtdir + "/Meta_Data.pkl", "wb"))
 
                 # Station Data
                 pickle.dump(rfdata.sta, open(
@@ -287,32 +274,24 @@ def main():
                 trpref = rfdata.meta.time.strftime(
                     "%Y%m%d_%H%M%S") + "_" + sta.network + "." + sta.station
 
-                # Raw Trace files
-                pickle.dump(
-                    [rfdata.data.trN, rfdata.data.trE, rfdata.data.trZ],
-                    open(evtdir + "/NEZ_Data.pkl", "wb"))
-                rfdata.data.trN.write(os.path.join(
-                    evtdir, trpref + ".N.mseed"), format='MSEED')
-                rfdata.data.trE.write(os.path.join(
-                    evtdir, trpref + ".E.mseed"), format='MSEED')
-                rfdata.data.trZ.write(os.path.join(
-                    evtdir, trpref + ".Z.mseed"), format='MSEED')
+                cL = rfdata.meta.align[0]
+                cQ = rfdata.meta.align[1]
+                cT = rfdata.meta.align[2]
 
-                # LQT Traces
-                pickle.dump(
-                    [rfdata.data.trL, rfdata.data.trQ, rfdata.data.trT],
-                    open(evtdir + "/LQT_Data.pkl", "wb"))
-                rfdata.data.trL.write(os.path.join(
-                    evtdir, trpref + ".L.mseed"), format='MSEED')
-                rfdata.data.trQ.write(os.path.join(
-                    evtdir, trpref + ".Q.mseed"), format='MSEED')
-                rfdata.data.trT.write(os.path.join(
-                    evtdir, trpref + ".T.mseed"), format='MSEED')
+                # RF Traces
+                pickle.dump(rfdata.rf,
+                            open(evtdir + "/RF_Data.pkl", "wb"))
+                rfdata.data.select(component=cL).write(os.path.join(
+                    evtdir, trpref + "."+cL+".mseed"), format='MSEED')
+                rfdata.data.select(component=cQ).write(os.path.join(
+                    evtdir, trpref + "."+cQ+".mseed"), format='MSEED')
+                rfdata.data.select(component=cT).write(os.path.join(
+                    evtdir, trpref + "."+cT+".mseed"), format='MSEED')
 
                 # Update
                 print("* Wrote Output Files to: ")
                 print("*     "+evtdir)
-                print("****************************************************")
+                print("**************************************************")
 
 
 if __name__ == "__main__":
