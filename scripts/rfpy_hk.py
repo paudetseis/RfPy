@@ -30,8 +30,9 @@ import pickle
 import glob
 import stdb
 from obspy.clients.fdsn import Client
-from rfpy import options
-from rfpy import RFData
+from obspy.core import Stream, UTCDateTime
+from rfpy import options, binning, plotting
+from rfpy import HkStack
 
 # Main function
 
@@ -63,33 +64,23 @@ def main():
         # Extract station information from dictionary
         sta = db[stkey]
 
-        # Initialize RF object with station info
-        rfdata = RFData(sta, opts.vp, opts.vs, opts.align)
-
         # Define path to see if it exists
         datapath = 'DATA/' + stkey
         if not os.path.isdir(datapath):
-            print('Path to '+datapath+' doesn`t exist - creating it')
-            os.makedirs(datapath)
+            raise(Exception('Path to '+datapath+' doesn`t exist - aborting'))
 
-        # Establish client
-        if len(opts.UserAuth) == 0:
-            client = Client(opts.Server)
-        else:
-            client = Client(opts.Server, user=opts.UserAuth[0],
-                            password=opts.UserAuth[1])
-
-        # Get catalogue search start time
+        # Get search start time
         if opts.startT is None:
             tstart = sta.startdate
         else:
             tstart = opts.startT
 
-        # Get catalogue search end time
+        # Get search end time
         if opts.endT is None:
             tend = sta.enddate
         else:
             tend = opts.endT
+
         if tstart > sta.enddate or tend < sta.startdate:
             continue
 
@@ -122,177 +113,76 @@ def main():
         print("|      End time:   {0:19s}          |".format(
             sta.enddate.strftime("%Y-%m-%d %H:%M:%S")))
         print("|-----------------------------------------------|")
-        print("| Searching Possible events:                    |")
-        print("|   Start: {0:19s}                  |".format(
-            tstart.strftime("%Y-%m-%d %H:%M:%S")))
-        print("|   End:   {0:19s}                  |".format(
-            tend.strftime("%Y-%m-%d %H:%M:%S")))
-        if opts.maxmag is None:
-            print("|   Mag:   >{0:3.1f}                        " +
-                  "         |".format(
-                      opts.minmag))
-        else:
-            print(
-                "|   Mag:   {0:3.1f} - {1:3.1f}                " +
-                "            |".format(opts.minmag, opts.maxmag))
-        print("| ...                                           |")
 
-        # Get catalogue using deployment start and end
-        cat = client.get_events(
-            starttime=tstart, endtime=tend,
-            minmagnitude=opts.minmag, maxmagnitude=opts.maxmag)
+        rfRstream = Stream()
 
-        # Total number of events in Catalogue
-        nevK = 0
-        nevtT = len(cat)
-        print(
-            "|  Found {0:5d} possible events                  |".format(nevtT))
-        ievs = range(0, nevtT)
+        for folder in os.listdir(datapath):
 
-        # Get Local Data Availabilty
-        if len(opts.localdata) > 0:
-            print("|-----------------------------------------------|")
-            print("| Cataloging Local Data...                      |")
-            if opts.useNet:
-                stalcllist = rfdata.io.list_local_data_stn(
-                    lcldrs=opts.localdata, sta=sta.station,
-                    net=sta.network, altnet=sta.altnet)
-                print("|   {0:>2s}.{1:5s}: {2:6d} files        " +
-                      "              |".format(
-                          sta.network, sta.station, len(stalcllist)))
+            date = folder.split('_')[0]
+            year = date[0:4]
+            month = date[4:6]
+            day = date[6:8]
+            dateUTC = UTCDateTime(year+'-'+month+'-'+day)
+
+            if dateUTC > tstart and dateUTC < tend:
+
+                file = open(datapath+"/"+folder+"/RF_Data.pkl", "rb")
+                rfdata = pickle.load(file)
+                rfRstream.append(rfdata)
+
             else:
-                stalcllist = rfdata.io.list_local_data_stn(
-                    lcldrs=opts.localdata, sta=sta.station)
-                print("|   {0:5s}: {1:6d} files                " +
-                      "        |".format(
-                          sta.station, len(stalcllist)))
+                continue
+
+        # plotting.wiggle(rfRstream, sort='baz')
+
+        # Try binning if specified
+        if opts.nbin is not None:
+            rf_tmp = binning.bin(rfRstream, typ='slow', nbin=opts.nbin)
+            rfRstream = rf_tmp
+
+        # Get a copy of the radial component and filter
+        if opts.copy:
+            rfRstream_copy = rfRstream.copy()
+            rfRstream_copy.filter('bandpass', freqmin=opts.freqs_copy[0],
+                                  freqmax=opts.freqs_copy[1], corners=2,
+                                  zerophase=True)
+
+        # Filter original stream
+        rfRstream.filter('bandpass', freqmin=opts.freqs[0],
+                         freqmax=opts.freqs[1], corners=2,
+                         zerophase=True)
+
+        # Initialize the HkStack object
+        try:
+            hkstack = HkStack(rfRstream, rfV2=rfRstream_copy,
+                              strike=opts.strike, dip=opts.dip, vp=opts.vp)
+        except:
+            hkstack = HkStack(rfRstream,
+                              strike=opts.strike, dip=opts.dip, vp=opts.vp)
+
+        # Update attributes
+        hkstack.hbound = opts.hbound
+        hkstack.kbound = opts.kbound
+        hkstack.dh = opts.dh
+        hkstack.dk = opts.dk
+        hkstack.weights = opts.weights
+
+        # Stack with or without dip 
+        if opts.calc_dip:
+            hkstack.stack_dip()
         else:
-            stalcllist = []
-        print("|===============================================|")
+            hkstack.stack()
 
-        # Select order of processing
-        if opts.reverse:
-            ievs = range(0, nevtT)
-        else:
-            ievs = range(nevtT-1, -1, -1)
+        # Average stacks
+        hkstack.average(typ=opts.typ)
 
-        # Read through catalogue
-        for iev in ievs:
+        hkstack.plot()
 
-            # Extract event
-            ev = cat[iev]
-
-            # Add event to Split object
-            accept = rfdata.add_event(
-                ev, gacmin=opts.mindist, gacmax=opts.maxdist, returned=True)
-
-            # Define time stamp
-            yr = str(rfdata.meta.time.year).zfill(4)
-            jd = str(rfdata.meta.time.julday).zfill(3)
-            hr = str(rfdata.meta.time.hour).zfill(2)
-
-            # If distance between mindist and maxdist deg:
-            if accept:
-
-                # Display Event Info
-                nevK = nevK + 1
-                if opts.reverse:
-                    inum = iev + 1
-                else:
-                    inum = nevtT - iev + 1
-                print(" ")
-                print("**************************************************")
-                print("* #{0:d} ({1:d}/{2:d}):  {3:13s}".format(
-                    nevK, inum, nevtT, rfdata.meta.time.strftime(
-                        "%Y%m%d_%H%M%S")))
-                print("*   Origin Time: " +
-                      rfdata.meta.time.strftime("%Y-%m-%d %H:%M:%S"))
-                print(
-                    "*   Lat: {0:6.2f}; Lon: {1:7.2f}".format(
-                        rfdata.meta.lat, rfdata.meta.lon))
-                print(
-                    "*   Dep: {0:6.2f}; Mag: {1:3.1f}".format(
-                        rfdata.meta.dep/1000., rfdata.meta.mag))
-                print("*     {0:5s} -> Ev: {1:7.2f} km; {2:7.2f} deg; " +
-                      "{3:6.2f}; {4:6.2f}".format(
-                          rfdata.sta.station, rfdata.meta.epi_dist,
-                          rfdata.meta.gac, rfdata.meta.baz, rfdata.meta.az))
-
-                # Get data
-                has_data = rfdata.download_data(
-                    client=client, dts=opts.dts, stdata=stalcllist,
-                    ndval=opts.ndval, new_sr=opts.new_sampling_rate,
-                    returned=True)
-
-                if not has_data:
-                    continue
-
-                # Create Event Folder
-                evtdir = datapath + "/" + \
-                    rfdata.meta.time.strftime("%Y%m%d_%H%M%S")
-
-                # Create Folder
-                if not os.path.isdir(evtdir):
-                    os.makedirs(evtdir)
-
-                # Save raw Trace files
-                pickle.dump(rfdata.data,
-                            open(evtdir + "/ZNE_Data.pkl", "wb"))
-                rfdata.data.select(component='Z').write(os.path.join(
-                    evtdir, trpref + ".Z.mseed"), format='MSEED')
-                rfdata.data.select(component='N').write(os.path.join(
-                    evtdir, trpref + ".N.mseed"), format='MSEED')
-                rfdata.data.select(component='E').write(os.path.join(
-                    evtdir, trpref + ".E.mseed"), format='MSEED')
-
-                # Rotate from ZEN to LQT (Longitudinal, Radial, Transverse)
-                rfdata.rotate(vp=opts.vp, vs=opts.vs, align=opts.align)
-
-                # Calculate snr over dt_snr seconds
-                rfdata.calc_snrz(
-                    dt=opts.dt_snr, fmin=opts.fmin, fmax=opts.fmax)
-
-                # Make sure no processing happens for NaNs
-                if np.isnan(rfdata.snrz):
-                    print("* SNR NaN...Skipping")
-                    print("**************************************************")
-                    continue
-
-                # Deconvolve data
-                rfdata.deconvolve(
-                    twin=opts.twin, vp=opts.vp, vs=opts.vs, align=opts.align)
-
-                # Save event meta data
-                pickle.dump(
-                    rfdata.meta, open(evtdir + "/Meta_Data.pkl", "wb"))
-
-                # Station Data
-                pickle.dump(rfdata.sta, open(
-                    evtdir + "/Station_Data.pkl", "wb"))
-
-                # Trace Filenames
-                trpref = rfdata.meta.time.strftime(
-                    "%Y%m%d_%H%M%S") + "_" + sta.network + "." + sta.station
-
-                cL = rfdata.meta.align[0]
-                cQ = rfdata.meta.align[1]
-                cT = rfdata.meta.align[2]
-
-                # RF Traces
-                pickle.dump(rfdata.rf,
-                            open(evtdir + "/RF_Data.pkl", "wb"))
-                rfdata.data.select(component=cL).write(os.path.join(
-                    evtdir, trpref + "."+cL+".mseed"), format='MSEED')
-                rfdata.data.select(component=cQ).write(os.path.join(
-                    evtdir, trpref + "."+cQ+".mseed"), format='MSEED')
-                rfdata.data.select(component=cT).write(os.path.join(
-                    evtdir, trpref + "."+cT+".mseed"), format='MSEED')
-
-                # Update
-                print("* Wrote Output Files to: ")
-                print("*     "+evtdir)
-                print("**************************************************")
-
+        # Save the hkstack object to file.
+        # Add check at beginning to see if file is present.
+        # If it is (and overwrite is specified), load it
+        # and add the option to simply try another stacking method, weights,
+        # and/or plotting
 
 if __name__ == "__main__":
 

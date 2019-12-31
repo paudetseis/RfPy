@@ -380,7 +380,7 @@ class HkStack(object):
 
             # Get degrees of freedom
             dof = _dof(self._residuals())
-            print(dof)
+            # print(dof)
             if dof < 3:
                 dof = 3
                 print(
@@ -395,8 +395,8 @@ class HkStack(object):
             vmax = msf.max()
             self.err_contour = vmin*(1. + n_par/(dof - n_par)*
                            stats.f.ppf(1. - q, n_par, dof - n_par))
-            print(vmin*(1. + n_par/(dof - n_par)*
-                           stats.f.ppf(1. - q, n_par, dof - n_par)))
+            # print(vmin*(1. + n_par/(dof - n_par)*
+            #                stats.f.ppf(1. - q, n_par, dof - n_par)))
             # self.err_contour = (n_par/(dof - n_par) *
             err = np.where(msf < self.err_contour)
 

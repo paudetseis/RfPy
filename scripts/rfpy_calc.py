@@ -63,9 +63,6 @@ def main():
         # Extract station information from dictionary
         sta = db[stkey]
 
-        # Initialize RF object with station info
-        rfdata = RFData(sta, opts.vp, opts.vs, opts.align)
-
         # Define path to see if it exists
         datapath = 'DATA/' + stkey
         if not os.path.isdir(datapath):
@@ -128,13 +125,13 @@ def main():
         print("|   End:   {0:19s}                  |".format(
             tend.strftime("%Y-%m-%d %H:%M:%S")))
         if opts.maxmag is None:
-            print("|   Mag:   >{0:3.1f}                        " +
-                  "         |".format(
-                      opts.minmag))
+            print("|   Mag:   >{0:3.1f}                                 |".format(
+                opts.minmag))
         else:
-            print(
-                "|   Mag:   {0:3.1f} - {1:3.1f}                " +
-                "            |".format(opts.minmag, opts.maxmag))
+            msg = "|   Mag:   {0:3.1f} - {1:3.1f}                            |".format(
+                opts.minmag, opts.maxmag)
+            print(msg)
+
         print("| ...                                           |")
 
         # Get catalogue using deployment start and end
@@ -182,6 +179,9 @@ def main():
             # Extract event
             ev = cat[iev]
 
+            # Initialize RF object with station info
+            rfdata = RFData(sta)
+
             # Add event to Split object
             accept = rfdata.add_event(
                 ev, gacmin=opts.mindist, gacmax=opts.maxdist, returned=True)
@@ -213,14 +213,13 @@ def main():
                 print(
                     "*   Dep: {0:6.2f}; Mag: {1:3.1f}".format(
                         rfdata.meta.dep/1000., rfdata.meta.mag))
-                print("*     {0:5s} -> Ev: {1:7.2f} km; {2:7.2f} deg; " +
-                      "{3:6.2f}; {4:6.2f}".format(
+                print("*     {0:5s} -> Ev: {1:7.2f} km; {2:7.2f} deg; {3:6.2f}; {4:6.2f}".format(
                           rfdata.sta.station, rfdata.meta.epi_dist,
                           rfdata.meta.gac, rfdata.meta.baz, rfdata.meta.az))
 
                 # Get data
                 has_data = rfdata.download_data(
-                    client=client, dts=opts.dts, stdata=stalcllist,
+                    client=client, dts=opts.dts,
                     ndval=opts.ndval, new_sr=opts.new_sampling_rate,
                     returned=True)
 
@@ -228,32 +227,28 @@ def main():
                     continue
 
                 # Create Event Folder
-                evtdir = datapath + "/" + \
-                    rfdata.meta.time.strftime("%Y%m%d_%H%M%S")
+                timekey = rfdata.meta.time.strftime("%Y%m%d_%H%M%S")
+                evtdir = datapath + "/" + timekey
 
                 # Create Folder
                 if not os.path.isdir(evtdir):
                     os.makedirs(evtdir)
 
                 # Save raw Trace files
-                pickle.dump(rfdata.data,
-                            open(evtdir + "/ZNE_Data.pkl", "wb"))
-                rfdata.data.select(component='Z').write(os.path.join(
-                    evtdir, trpref + ".Z.mseed"), format='MSEED')
-                rfdata.data.select(component='N').write(os.path.join(
-                    evtdir, trpref + ".N.mseed"), format='MSEED')
-                rfdata.data.select(component='E').write(os.path.join(
-                    evtdir, trpref + ".E.mseed"), format='MSEED')
+                outZNE = open(evtdir + "/ZNE_Data.pkl", "wb")
+                pickle.dump(rfdata.meta, outZNE)
+                pickle.dump(rfdata.data, outZNE)
+                outZNE.close()
 
-                # Rotate from ZEN to LQT (Longitudinal, Radial, Transverse)
+                # Rotate from ZNE to 'align' ('ZRT', 'LQT', or 'PVH')
                 rfdata.rotate(vp=opts.vp, vs=opts.vs, align=opts.align)
 
                 # Calculate snr over dt_snr seconds
-                rfdata.calc_snrz(
+                rfdata.calc_snr(
                     dt=opts.dt_snr, fmin=opts.fmin, fmax=opts.fmax)
 
                 # Make sure no processing happens for NaNs
-                if np.isnan(rfdata.snrz):
+                if np.isnan(rfdata.meta.snr):
                     print("* SNR NaN...Skipping")
                     print("**************************************************")
                     continue
@@ -261,6 +256,12 @@ def main():
                 # Deconvolve data
                 rfdata.deconvolve(
                     twin=opts.twin, vp=opts.vp, vs=opts.vs, align=opts.align)
+
+                # Convert to Stream
+                rfRstream = rfdata.to_stream().select(
+                    component=opts.align[1])[0]
+                rfTstream = rfdata.to_stream().select(
+                    component=opts.align[2])[0]
 
                 # Save event meta data
                 pickle.dump(
@@ -270,23 +271,22 @@ def main():
                 pickle.dump(rfdata.sta, open(
                     evtdir + "/Station_Data.pkl", "wb"))
 
-                # Trace Filenames
-                trpref = rfdata.meta.time.strftime(
-                    "%Y%m%d_%H%M%S") + "_" + sta.network + "." + sta.station
-
                 cL = rfdata.meta.align[0]
                 cQ = rfdata.meta.align[1]
                 cT = rfdata.meta.align[2]
 
-                # RF Traces
-                pickle.dump(rfdata.rf,
-                            open(evtdir + "/RF_Data.pkl", "wb"))
-                rfdata.data.select(component=cL).write(os.path.join(
-                    evtdir, trpref + "."+cL+".mseed"), format='MSEED')
-                rfdata.data.select(component=cQ).write(os.path.join(
-                    evtdir, trpref + "."+cQ+".mseed"), format='MSEED')
-                rfdata.data.select(component=cT).write(os.path.join(
-                    evtdir, trpref + "."+cT+".mseed"), format='MSEED')
+                # Save RF Traces
+                outRF = open(evtdir + "/RF_Data.pkl", "wb")
+                pickle.dump(rfRstream, outRF)
+                pickle.dump(rfTstream, outRF)
+                outRF.close()
+
+                # rfdata.data.select(component=cL).write(os.path.join(
+                #     evtdir, trpref + "."+cL+".mseed"), format='MSEED')
+                # rfdata.data.select(component=cQ).write(os.path.join(
+                #     evtdir, trpref + "."+cQ+".mseed"), format='MSEED')
+                # rfdata.data.select(component=cT).write(os.path.join(
+                #     evtdir, trpref + "."+cT+".mseed"), format='MSEED')
 
                 # Update
                 print("* Wrote Output Files to: ")
