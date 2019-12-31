@@ -5,9 +5,7 @@ There are several Python scripts that accompany :mod:`~rfpy`. These can be used
 in bash scripts to automate data processing. These include scripts to download 
 three-component seismogram data and calculate receiver functions, and perform 
 post-processing for `H-k` stacking and harmonic decomposition. All of them use 
-a station database provided as a :class:`~stdb.StDb` dictionary. These scripts are:
-
-- rfpy_calc.py
+a station database provided as a :class:`~stdb.StDb` dictionary. 
 
 
 ``rfpy_calc.py``
@@ -123,3 +121,159 @@ Usage
         --twin=TWIN         Specify the source time duration for deconvolution
                             (sec). [Default 30.]
 
+
+``rfpy_hk.py``
+++++++++++++++
+
+Description
+-----------
+
+Loads radial-component receiver function data available on disk
+and calculates Moho depth (H) and Vp/Vs (k) of the assumed 1D
+crustal structure. Station selection is specified by a network and 
+station code. The database is provided as a :class:`~stdb.StDb` dictionary.
+
+Usage
+-----
+
+.. code-block::
+
+    $ rfpy_hk.py -h
+    Usage: rfpy_hk.py [options] <station database>
+
+    Script used to process receiver function data for H-k stacking.
+
+    Options:
+      -h, --help            show this help message and exit
+      --keys=STKEYS         Specify a comma separated list of station keys for
+                            which to perform the analysis. These must be contained
+                            within the station database. Partial keys will be used
+                            to match against those in the dictionary. For
+                            instance, providing IU will match with all stations in
+                            the IU network [Default processes all stations in the
+                            database]
+      -v, -V, --verbose     Specify to increase verbosity.
+      -O, --overwrite       Force the overwriting of pre-existing data. [Default
+                            False]
+
+      Time Settings:
+        Settings associated with refining the times to include in searching
+        for receiver function data
+
+        --start=STARTT      Specify a UTCDateTime compatible string representing
+                            the start time for the search. This will override any
+                            station start times. [Default start date of station]
+        --end=ENDT          Specify a UTCDateTime compatible string representing
+                            the end time for the search. This will override any
+                            station end times [Default end date of station]
+
+      Pre-processing Settings:
+        Options for pre-processing of receiver function data prior to H-k
+        stacking
+
+        --freqs=FREQS       Specify a list of two floats with the minimum and
+                            maximum frequency corner for the bandpass filter (Hz).
+                            [Default [0.05, 0.5]]
+        --bin=NBIN          Specify integer number of slowness bins to consider.
+                            Use realistic bin number around 20 to start. [Default
+                            does not bin data]
+        --copy              Set this option to use a copy of the radial component
+                            filtered at different corners for the Pps and Pss
+                            phases. [Default False]
+        --freqs_copy=FREQS_COPY
+                            Specify a list of two floats with minimum and
+                            maximumfrequency for the copies stream (Hz). [Default
+                            [0.05, 0.35]]
+
+      Settings for H-k Stacking:
+        Specify parameters of H-k search, includingbounds on search, weights,
+        type of stacking, etc.
+
+        --hbound=HBOUND     Specify a list of two floats with minimum and
+                            maximumbounds on Moho depth (H; km). [Default [20.,
+                            50.]]
+        --dh=DH             Specify interval in H for search (km). [Default 0.5]
+        --kbound=KBOUND     Specify a list of two floats with minimum and
+                            maximumbounds on Moho depth (H; km). [Default [1.56,
+                            2.1]]
+        --dk=DK             Specify interval in k for search. [Default 0.02]
+        --weights=WEIGHTS   Specify a list of three floats with for Ps, Pps and
+                            Pass weights in final stack. [Default [0.5, 2., -1.]]
+        --type=TYP          Specify type of final stacking. Options are: 'sum' for
+                            a weighted average (using weights), or 'prod' for the
+                            product of positive values in stacks. [Default 'sum']
+
+      Model Settings:
+        Miscellaneous default values and settings
+
+        --vp=VP             Specify mean crustal Vp (km/s). [Default 6.0]
+        --strike=STRIKE     Specify the strike of dipping Moho. [Default None]
+        --dip=DIP           Specify the dip of dipping Moho. [Default None]
+
+
+``rfpy_harmonics.py``
++++++++++++++++++++++
+
+Description
+-----------
+
+Loads radial and transverse component receiver function data available on disk
+and decomposes them into back-azimuth harmonics. Station selection is specified 
+by a network and station code. The database is provided as a :class:`~stdb.StDb` 
+dictionary.
+
+Usage
+-----
+
+.. code-block::
+
+    $ rfpy_harmonics.py -h
+    Usage: rfpy_harmonics.py [options] <station database>
+
+    Script used to process receiver function data for harmonic decomposition.
+
+    Options:
+      -h, --help         show this help message and exit
+      --keys=STKEYS      Specify a comma separated list of station keys for which
+                         to perform the analysis. These must be contained within
+                         the station database. Partial keys will be used to match
+                         against those in the dictionary. For instance, providing
+                         IU will match with all stations in the IU network
+                         [Default processes all stations in the database]
+      -v, -V, --verbose  Specify to increase verbosity.
+      -O, --overwrite    Force the overwriting of pre-existing data. [Default
+                         False]
+
+      Time Settings:
+        Settings associated with refining the times to include in searching
+        for receiver function data
+
+        --start=STARTT   Specify a UTCDateTime compatible string representing the
+                         start time for the search. This will override any station
+                         start times. [Default start date of station]
+        --end=ENDT       Specify a UTCDateTime compatible string representing the
+                         end time for the search. This will override any station
+                         end times [Default end date of station]
+
+      Pre-processing Settings:
+        Options for pre-processing of receiver function data prior to harmonic
+        decomposition
+
+        --freqs=FREQS    Specify a list of two floats with the minimum and maximum
+                         frequency corner for the bandpass filter (Hz). [Default
+                         [0.05, 0.5]]
+        --bin=NBIN       Specify integer number of back-azimuth bins to consider
+                         (typically 36 or 72). [Default does not bin data]
+
+      Settings for harmonic decomposition:
+        Specify parameters for the decomposition, e.g. a fixed azimuth, depth
+        range for finding the optimal azimuth, etc.
+
+        --azim=AZIM      Specify the azimuth angle along with to perform the
+                         decomposition. [Default 0.]
+        --find-azim      Set this option to calculate the optimal azimuth.
+                         [Default uses the '--azim' value]
+        --trange=TRANGE  Specify a list of two floats with minimum and
+                         maximumbounds on time range for finding the optimal
+                         azimuth (sec). [Default [0., 10.] when '--find-azim' is
+                         set]
