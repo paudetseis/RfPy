@@ -435,7 +435,7 @@ def get_hk_options():
     PreGroup = OptionGroup(
         parser,
         title='Pre-processing Settings',
-        description="Options for pre-processing of receiver function "+
+        description="Options for pre-processing of receiver function " +
         "data prior to H-k stacking")
     PreGroup.add_option(
         "--freqs",
@@ -443,7 +443,7 @@ def get_hk_options():
         type=str,
         dest="freqs",
         default=None,
-        help="Specify a list of two floats with the minimum and maximum "+
+        help="Specify a list of two floats with the minimum and maximum " +
         "frequency corner for the bandpass filter (Hz). [Default [0.05, 0.5]]")
     PreGroup.add_option(
         "--bin",
@@ -451,15 +451,16 @@ def get_hk_options():
         dest="nbin",
         type=int,
         default=None,
-        help="Specify integer number of slowness bins to consider. Use realistic "+
-        "bin number around 20 to start. [Default does not bin data]")
+        help="Specify integer number of slowness bins to consider. " +
+        "Use realistic bin number around 20 to start. " +
+        "[Default does not bin data]")
     PreGroup.add_option(
         "--copy",
         action="store_true",
         dest="copy",
         default=False,
-        help="Set this option to use a copy of the radial component "+
-        "filtered at different corners for the Pps and Pss phases. "+
+        help="Set this option to use a copy of the radial component " +
+        "filtered at different corners for the Pps and Pss phases. " +
         "[Default False]")
     PreGroup.add_option(
         "--freqs_copy",
@@ -473,7 +474,7 @@ def get_hk_options():
     HKGroup = OptionGroup(
         parser,
         title='Settings for H-k Stacking',
-        description="Specify parameters of H-k search, including"+
+        description="Specify parameters of H-k search, including" +
         "bounds on search, weights, type of stacking, etc.")
     HKGroup.add_option(
         "--hbound",
@@ -511,7 +512,7 @@ def get_hk_options():
         type=str,
         dest="weights",
         default=None,
-        help="Specify a list of three floats with for Ps, Pps and Pass "+
+        help="Specify a list of three floats with for Ps, Pps and Pass " +
         "weights in final stack. [Default [0.5, 2., -1.]]")
     HKGroup.add_option(
         "--type",
@@ -519,8 +520,8 @@ def get_hk_options():
         type=str,
         dest="typ",
         default="sum",
-        help="Specify type of final stacking. Options are: 'sum' for "+
-        "a weighted average (using weights), or 'prod' for the product "+
+        help="Specify type of final stacking. Options are: 'sum' for " +
+        "a weighted average (using weights), or 'prod' for the product " +
         "of positive values in stacks. [Default 'sum']")
 
     # Constants Settings
@@ -549,7 +550,6 @@ def get_hk_options():
         dest="dip",
         default=None,
         help="Specify the dip of dipping Moho. [Default None]")
-
 
     parser.add_option_group(TimeGroup)
     parser.add_option_group(PreGroup)
@@ -594,15 +594,15 @@ def get_hk_options():
     if opts.strike is None and opts.dip is None:
         opts.calc_dip = False
     elif opts.strike is None or opts.dip is None:
-        parser.error("Specify both strike and dip for this type "+
-            "of analysis")
+        parser.error("Specify both strike and dip for this type " +
+                     "of analysis")
     else:
         opts.calc_dip = True
 
     if opts.freqs is None:
         opts.freqs = [0.05, 0.5]
     else:
-        opts.freqs = [float(opts.freqs.split(','))]
+        opts.freqs = [float(val) for val in opts.freqs.split(',')]
         opts.freqs = sorted(opts.freqs)
         if (len(opts.freqs)) != 2:
             parser.error(
@@ -613,7 +613,7 @@ def get_hk_options():
         if opts.freqs_copy is None:
             opts.freqs_copy = [0.05, 0.35]
         else:
-            opts.freqs_copy = [float(opts.freqs_copy.split(','))]
+            opts.freqs_copy = [float(val) for val in opts.freqs_copy.split(',')]
             opts.freqs_copy = sorted(opts.freqs_copy)
             if (len(opts.freqs_copy)) != 2:
                 parser.error(
@@ -623,7 +623,7 @@ def get_hk_options():
     if opts.hbound is None:
         opts.hbound = [20., 50.]
     else:
-        opts.hbound = [float(opts.hbound.split(','))]
+        opts.hbound = [float(val) for val in opts.hbound.split(',')]
         opts.hbound = sorted(opts.hbound)
         if (len(opts.hbound)) != 2:
             parser.error(
@@ -633,7 +633,7 @@ def get_hk_options():
     if opts.kbound is None:
         opts.kbound = [1.56, 2.1]
     else:
-        opts.kbound = [float(opts.kbound.split(','))]
+        opts.kbound = [float(val) for val in opts.kbound.split(',')]
         opts.kbound = sorted(opts.kbound)
         if (len(opts.kbound)) != 2:
             parser.error(
@@ -643,13 +643,204 @@ def get_hk_options():
     if opts.weights is None:
         opts.weights = [0.5, 2.0, -1.0]
     else:
-        opts.weights = [float(opts.weights.split(','))]
+        opts.weights = [float(val) for val in opts.weights.split(',')]
         opts.weights = sorted(opts.weights)
         if (len(opts.weights)) != 3:
             parser.error(
                 "Error: --weights should contain 3 " +
                 "comma-separated floats")
 
+    return (opts, indb)
+
+
+def get_harmonics_options():
+    """
+    Get Options from :class:`~optparse.OptionParser` objects.
+
+    This function is used for data processing on-the-fly (requires web connection)
+
+    """
+
+    from optparse import OptionParser, OptionGroup
+    from os.path import exists as exist
+    from obspy import UTCDateTime
+    from numpy import nan
+
+    parser = OptionParser(
+        usage="Usage: %prog [options] <station database>",
+        description="Script used to process receiver function data " +
+        "for harmonic decomposition.")
+
+    # General Settings
+    parser.add_option(
+        "--keys",
+        action="store",
+        type=str,
+        dest="stkeys",
+        default="",
+        help="Specify a comma separated list of station keys for " +
+        "which to perform the analysis. These must be " +
+        "contained within the station database. Partial keys will " +
+        "be used to match against those in the dictionary. For " +
+        "instance, providing IU will match with all stations in " +
+        "the IU network [Default processes all stations in the database]")
+    parser.add_option(
+        "-v", "-V", "--verbose",
+        action="store_true",
+        dest="verb",
+        default=False,
+        help="Specify to increase verbosity.")
+    parser.add_option(
+        "-O", "--overwrite",
+        action="store_true",
+        dest="ovr",
+        default=False,
+        help="Force the overwriting of pre-existing data. " +
+        "[Default False]")
+
+    # Event Selection Criteria
+    TimeGroup = OptionGroup(
+        parser,
+        title="Time Settings",
+        description="Settings associated with refining " +
+        "the times to include in searching for receiver function data")
+    TimeGroup.add_option(
+        "--start",
+        action="store",
+        type=str,
+        dest="startT",
+        default="",
+        help="Specify a UTCDateTime compatible string representing " +
+        "the start time for the search. This will override any " +
+        "station start times. [Default start date of station]")
+    TimeGroup.add_option(
+        "--end",
+        action="store",
+        type=str,
+        dest="endT",
+        default="",
+        help="Specify a UTCDateTime compatible string representing " +
+        "the end time for the search. This will override any " +
+        "station end times [Default end date of station]")
+
+    PreGroup = OptionGroup(
+        parser,
+        title='Pre-processing Settings',
+        description="Options for pre-processing of receiver function " +
+        "data prior to harmonic decomposition")
+    PreGroup.add_option(
+        "--freqs",
+        action="store",
+        type=str,
+        dest="freqs",
+        default=None,
+        help="Specify a list of two floats with the minimum and maximum " +
+        "frequency corner for the bandpass filter (Hz). [Default [0.05, 0.5]]")
+    PreGroup.add_option(
+        "--bin",
+        action="store",
+        dest="nbin",
+        type=int,
+        default=None,
+        help="Specify integer number of back-azimuth bins to consider " +
+        "(typically 36 or 72). [Default does not bin data]")
+
+    HarmonicGroup = OptionGroup(
+        parser,
+        title='Settings for harmonic decomposition',
+        description="Specify parameters for the decomposition, e.g. " +
+        "a fixed azimuth, depth range for finding the optimal azimuth, etc.")
+    HarmonicGroup.add_option(
+        "--azim",
+        action="store",
+        type=float,
+        dest="azim",
+        default=None,
+        help="Specify the azimuth angle along with to perform the " +
+        "decomposition. [Default 0.]")
+    HarmonicGroup.add_option(
+        "--find-azim",
+        action="store_true",
+        dest="find_azim",
+        default=False,
+        help="Set this option to calculate the optimal azimuth. [Default " +
+        "uses the '--azim' value]")
+    HarmonicGroup.add_option(
+        "--trange",
+        action="store",
+        type=str,
+        dest="trange",
+        default=None,
+        help="Specify a list of two floats with minimum and maximum" +
+        "bounds on time range for finding the optimal azimuth (sec). " +
+        "[Default [0., 10.] when '--find-azim' is set]")
+
+    parser.add_option_group(TimeGroup)
+    parser.add_option_group(PreGroup)
+    parser.add_option_group(HarmonicGroup)
+
+    (opts, args) = parser.parse_args()
+
+    # Check inputs
+    if len(args) != 1:
+        parser.error("Need station database file")
+    indb = args[0]
+    if not exist(indb):
+        parser.error("Input file " + indb + " does not exist")
+
+    # create station key list
+    if len(opts.stkeys) > 0:
+        opts.stkeys = opts.stkeys.split(',')
+
+    # construct start time
+    if len(opts.startT) > 0:
+        try:
+            opts.startT = UTCDateTime(opts.startT)
+        except:
+            parser.error(
+                "Cannot construct UTCDateTime from start time: " +
+                opts.startT)
+    else:
+        opts.startT = None
+
+    # construct end time
+    if len(opts.endT) > 0:
+        try:
+            opts.endT = UTCDateTime(opts.endT)
+        except:
+            parser.error(
+                "Cannot construct UTCDateTime from end time: " +
+                opts.endT)
+    else:
+        opts.endT = None
+
+    if opts.freqs is None:
+        opts.freqs = [0.05, 0.5]
+    else:
+        opts.freqs = [float(val) for val in opts.freqs.split(',')]
+        opts.freqs = sorted(opts.freqs)
+        if (len(opts.freqs)) != 2:
+            parser.error(
+                "Error: --freqs should contain 2 " +
+                "comma-separated floats")
+
+    if opts.azim is not None and opts.find_azim:
+        print("Warning: Setting both '--azim' and '--find-azim' is " +
+              "conflictual. Ignoring '--find-azim'")
+        opts.find_azim = False
+    elif opts.azim is None and not opts.find_azim:
+        opts.azim = 0.
+    if opts.find_azim:
+        if opts.trange is None:
+            opts.trange = [0., 10.]
+        else:
+            print(opts.trange.split(','))
+            opts.trange = [float(val) for val in opts.trange.split(',')]
+            opts.trange = sorted(opts.trange)
+            if (len(opts.trange)) != 2:
+                parser.error(
+                    "Error: --trange should contain 2 " +
+                    "comma-separated floats")
 
     return (opts, indb)
 

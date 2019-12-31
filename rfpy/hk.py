@@ -525,7 +525,7 @@ class HkStack(object):
             plt.suptitle('H-k stacks, station: ' + self.rfV1[0].stats.station)
 
         if save:
-            plt.savefig('RF_PLOTS/' + self.rfV1[0].stats.station +
+            plt.savefig('FIGURES/' + self.rfV1[0].stats.station +
                         '.' + title+'.eps', format='eps')
             plt.close()
         else:

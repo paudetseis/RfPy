@@ -32,7 +32,7 @@ from matplotlib import pyplot as plt
 
 class Harmonics(object):
 
-    def __init__(self, strV, strH=None, azim=0, xmin=0., xmax=40.):
+    def __init__(self, strV, strH=None, azim=0, xmin=0., xmax=10.):
 
         # Load example data if initializing empty object
         if strV == 'demo' or strV == 'Demo':
@@ -420,7 +420,7 @@ class Harmonics(object):
         if title:
             ax1.set_title(title)
         else:
-            ax1.set_title('H-k stacks, station: ' + self.rfV1[0].stats.station)
+            ax1.set_title('Station: ' + sta)
 
         labels = [item.get_text() for item in ax1.get_xticklabels()]
         labels[1] = '$A$'
@@ -434,7 +434,7 @@ class Harmonics(object):
         ax1.grid()
 
         if save:
-            plt.savefig('RF_PLOTS/'+sta+'.'+title+'.eps', dpi=300,
+            plt.savefig('FIGURES/'+sta+'.'+title+'.eps', dpi=300,
                         bbox_inches='tight', format='eps')
         else:
             plt.show()

@@ -32,7 +32,7 @@ import stdb
 from obspy.clients.fdsn import Client
 from obspy.core import Stream, UTCDateTime
 from rfpy import options, binning, plotting
-from rfpy import HkStack
+from rfpy import Harmonics
 
 # Main function
 
@@ -40,7 +40,7 @@ from rfpy import HkStack
 def main():
 
     # Run Input Parser
-    (opts, indb) = options.get_hk_options()
+    (opts, indb) = options.get_harmonics_options()
 
     # Load Database
     db = stdb.io.load_db(fname=indb)
@@ -115,6 +115,7 @@ def main():
         print("|-----------------------------------------------|")
 
         rfRstream = Stream()
+        rfTstream = Stream()
 
         for folder in os.listdir(datapath):
 
@@ -129,6 +130,7 @@ def main():
                 file = open(datapath+"/"+folder+"/RF_Data.pkl", "rb")
                 rfdata = pickle.load(file)
                 rfRstream.append(rfdata)
+                rfTstream.append(rfdata)
                 file.close()
 
             else:
@@ -138,52 +140,39 @@ def main():
 
         # Try binning if specified
         if opts.nbin is not None:
-            rf_tmp = binning.bin(rfRstream, typ='slow', nbin=opts.nbin+1)
+            rf_tmp = binning.bin(rfRstream, rfTstream,
+                                 typ='baz', nbin=opts.nbin+1)
             rfRstream = rf_tmp[0]
+            rfTstream = rf_tmp[1]
 
-        # Get a copy of the radial component and filter
-        if opts.copy:
-            rfRstream_copy = rfRstream.copy()
-            rfRstream_copy.filter('bandpass', freqmin=opts.freqs_copy[0],
-                                  freqmax=opts.freqs_copy[1], corners=2,
-                                  zerophase=True)
-
-        # Filter original stream
+        # Filter original streams
         rfRstream.filter('bandpass', freqmin=opts.freqs[0],
+                         freqmax=opts.freqs[1], corners=2,
+                         zerophase=True)
+        rfTstream.filter('bandpass', freqmin=opts.freqs[0],
                          freqmax=opts.freqs[1], corners=2,
                          zerophase=True)
 
         # Initialize the HkStack object
-        try:
-            hkstack = HkStack(rfRstream, rfV2=rfRstream_copy,
-                              strike=opts.strike, dip=opts.dip, vp=opts.vp)
-        except:
-            hkstack = HkStack(rfRstream,
-                              strike=opts.strike, dip=opts.dip, vp=opts.vp)
+        harmonics = Harmonics(rfRstream, rfTstream)
 
-        # Update attributes
-        hkstack.hbound = opts.hbound
-        hkstack.kbound = opts.kbound
-        hkstack.dh = opts.dh
-        hkstack.dk = opts.dk
-        hkstack.weights = opts.weights
-
-        # Stack with or without dip 
-        if opts.calc_dip:
-            hkstack.stack_dip()
+        # Stack with or without dip
+        if opts.find_azim:
+            harmonics.dcomp_find_azim(xmin=opts.trange[0], xmax=opts.trange[1])
+            print("Optimal azimuth for trange between "+\
+                str(opts.trange[0])+" and "+str(opts.trange[1])+\
+                    "is: "+str(harmonics.azim))
         else:
-            hkstack.stack()
+            harmonics.dcomp_fix_azim(azim=opts.azim)
 
-        # Average stacks
-        hkstack.average(typ=opts.typ)
-
-        hkstack.plot()
+        harmonics.plot()
 
         # Save the hkstack object to file.
         # Add check at beginning to see if file is present.
         # If it is (and overwrite is specified), load it
         # and add the option to simply try another stacking method, weights,
         # and/or plotting
+
 
 if __name__ == "__main__":
 
