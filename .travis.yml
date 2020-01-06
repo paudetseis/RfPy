@@ -38,6 +38,9 @@ after_success:
     fi
 notifications:
     email: false
+defore_deploy:
+  - rvm $(travis_internal_ruby) --fuzzy do ruby -S bundle install
+  # - gem install 'faraday:<0.16'
 deploy:
   provider: pages:git
   edge: true # opt in to dpl v2
