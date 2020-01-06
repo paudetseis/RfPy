@@ -27,30 +27,76 @@ Harmonic decomposition module.
 # Import modules and functions
 import numpy as np
 from obspy.core import Stream, Trace
-from matplotlib import pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 
 class Harmonics(object):
+    """
+    A Harmonics object contains attributes and methods to decompose
+    radial and transverse component receiver functions into
+    back-azimuth harmonics. The object is initialized with two
+    :class:`~obspy.core.Stream` objects containing observed (or synthetised)
+    radial and transverse receiver functions. The methods available 
+    can decompose the receiver functions along a fixed azimuth, or
+    search for the optimal azimuth within a time range by minimizing
+    one component. 
 
-    def __init__(self, strV, strH=None, azim=0, xmin=0., xmax=10.):
+    Note
+    ----
+    The object is initialized with the ``rfV1`` field only, and
+    other attributes are added to the object as the analysis proceeds.
+    A second ``rfV2`` can be included, which is typically a copy of ``rfV1``
+    filtered at different corner frequencies and is used to stack along the
+    Pps and Pss moveout curves.
+
+    Parameters
+    ----------
+    radialRF : :class:`~obspy.core.Stream`
+        Stream object containing the radial-component receiver function
+        seismograms 
+    transvRF : :class:`~obspy.core.Stream`
+        Stream object containing the transverse-component receiver function
+        seismograms 
+    azim : float
+        Direction (azimuth) along which the B1 component of the stream
+        is minimized (between ``xmin`` and ``xmax``)
+    xmin : float
+        Minimum x axis value over which to calculate ``azim``
+    xmax : float
+        Maximum x axis value over which to calculate ``azim``
+
+    Other Parameters
+    ----------------
+    hstream : :class:`~obspy.core.Stream`
+        Stream containing the 5 harmonics, oriented in direction ``azim``
+    radial_forward : :class:`~obspy.core.Stream`, optional
+        Stream containing the radial receiver functions
+    transv_forward : :class:`~obspy.core.Stream`, optional
+        Stream containing the transverse receiver functions
+
+    """
+
+    def __init__(self, radialRF, transvRF=None, azim=0, xmin=0., xmax=10.):
 
         # Load example data if initializing empty object
-        if strV == 'demo' or strV == 'Demo':
+        if radialRF == 'demo' or radialRF == 'Demo':
             print("Uploading demo data - station NY.MMPY")
             import os
             import pickle
             file = open(os.path.join(
                     os.path.dirname(__file__),
                     "examples/data", "demo_streams.pkl"), 'rb')
-            strV = pickle.load(file)
-            strH = pickle.load(file)
+            radialRF = pickle.load(file)
+            transvRF = pickle.load(file)
             file.close()
 
-        if not strH:
-            raise TypeError("__init__() missing 1 required positional argument: 'strH'")
+        if not transvRF:
+            raise TypeError("__init__() missing 1 required positional argument: 'transvRF'")
 
-        self.strV = strV
-        self.strH = strH
+        self.radialRF = radialRF
+        self.transvRF = transvRF
         self.azim = azim
         self.xmin = xmin
         self.xmax = xmax
@@ -90,18 +136,18 @@ class Harmonics(object):
         print('Decomposing receiver functions into baz harmonics')
 
         # Some integers
-        nbin = len(self.strV)
-        nz = len(self.strV[0].data)
+        nbin = len(self.radialRF)
+        nz = len(self.radialRF[0].data)
         naz = 180
         daz = np.float(360/naz)
         deg2rad = np.pi/180.
 
         # Define depth range over which to calculate azimuth
-        indmin = int(xmin/self.strV[0].stats.delta)
-        indmax = int(xmax/self.strV[0].stats.delta)
+        indmin = int(xmin/self.radialRF[0].stats.delta)
+        indmax = int(xmax/self.radialRF[0].stats.delta)
 
         # Copy stream stats
-        str_stats = self.strV[0].stats
+        str_stats = self.radialRF[0].stats
 
         # Initialize work arrays
         C0 = np.zeros((nz, naz))
@@ -123,7 +169,7 @@ class Harmonics(object):
                 azim = iaz*daz
 
                 # Radial component
-                for irow, trace in enumerate(self.strV):
+                for irow, trace in enumerate(self.radialRF):
 
                     baz = trace.stats.baz
                     OBS[irow] = trace.data[iz]
@@ -136,7 +182,7 @@ class Harmonics(object):
                 shift = 90.
 
                 # Transverse component
-                for irow, trace in enumerate(self.strH):
+                for irow, trace in enumerate(self.transvRF):
 
                     baz = trace.stats.baz
                     OBS[irow+nbin] = trace.data[iz]
@@ -210,12 +256,12 @@ class Harmonics(object):
               azim)
 
         # Some integers
-        nbin = len(self.strV)
-        nz = len(self.strV[0].data)
+        nbin = len(self.radialRF)
+        nz = len(self.radialRF[0].data)
         deg2rad = np.pi/180.
 
         # Copy stream stats
-        str_stats = self.strV[0].stats
+        str_stats = self.radialRF[0].stats
 
         # Initialize work arrays
         C0 = np.zeros(nz)
@@ -232,7 +278,7 @@ class Harmonics(object):
             H = np.zeros((2*nbin, 5))
 
             # Radial component
-            for irow, trace in enumerate(self.strV):
+            for irow, trace in enumerate(self.radialRF):
 
                 baz = trace.stats.baz
                 OBS[irow] = trace.data[iz]
@@ -245,7 +291,7 @@ class Harmonics(object):
             shift = 90.
 
             # Transverse component
-            for irow, trace in enumerate(self.strH):
+            for irow, trace in enumerate(self.transvRF):
 
                 baz = trace.stats.baz
                 OBS[irow+nbin] = trace.data[iz]
@@ -280,10 +326,10 @@ class Harmonics(object):
     def forward(self, baz_list=None):
         """
         Method to forward calculate radial and transverse component
-        receiver functions given the 5 harmonics and a list of back-azimuth
-        values. The receiver function signal parameters (length, sampling
-        rate, etc.) will be identical to those in the stream of
-        harmonic components.
+        receiver functions given the 5 pre-determined harmonics and 
+        a list of back-azimuth values. The receiver function signal 
+        parameters (length, sampling rate, etc.) will be identical 
+        to those in the stream of harmonic components.
 
         Parameters
         ----------
@@ -295,9 +341,9 @@ class Harmonics(object):
 
         Attributes
         ----------
-        forwardV : :class:`~obspy.core.Stream`
+        radial_forward : :class:`~obspy.core.Stream`
             Stream containing the radial receiver functions
-        forwardH : :class:`~obspy.core.Stream`
+        transv_forward : :class:`~obspy.core.Stream`
             Stream containing the transverse receiver functions
 
 
@@ -309,7 +355,7 @@ class Harmonics(object):
         if not baz_list:
             print("Warning: no BAZ specified - using all baz from " +
                   "stored streams")
-            baz_list = [tr.stats.baz for tr in self.strV]
+            baz_list = [tr.stats.baz for tr in self.radialRF]
         if not isinstance(baz_list, list):
             baz_list = [baz_list]
 
@@ -318,12 +364,12 @@ class Harmonics(object):
         deg2rad = np.pi/180.
 
         # Copy traces
-        forwardV = Stream()
-        forwardH = Stream()
+        self.radial_forward = Stream()
+        self.transv_forward = Stream()
 
         for baz in baz_list:
-            trV = Trace(header=self.hstream[0].stats)
-            trH = Trace(header=self.hstream[0].stats)
+            trR = Trace(header=self.hstream[0].stats)
+            trT = Trace(header=self.hstream[0].stats)
 
             # Loop over each time/depth step
             for iz in range(nz):
@@ -358,11 +404,12 @@ class Harmonics(object):
                 B = np.dot(H, X)
 
                 # Extract receiver functions
-                trV.data[iz] = B[0]
-                trH.data[iz] = -B[1]
+                trR.data[iz] = B[0]
+                trT.data[iz] = -B[1]
 
-        self.forwardR = forwardR
-        self.forwardT = forwardT
+            self.radial_forward.append(trR)
+            self.transv_forward.append(trT)
+
 
     def plot(self, ymax=30., maxval=10., save=False, title=None):
         """
@@ -389,9 +436,6 @@ class Harmonics(object):
 
         # Station name
         sta = self.hstream[0].stats.station
-
-        # # Initialize count
-        # i = 0
 
         # Initialize figure
         fig = plt.figure()
@@ -439,4 +483,3 @@ class Harmonics(object):
         else:
             plt.show()
 
-    # Plot wiggles for harmonic decomposition

@@ -31,11 +31,13 @@ time/depth or slowness vs time.
 # Import modules and functions
 import os
 import fnmatch
-import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
 from obspy.core import Stream, Trace, AttribDict
 from scipy.interpolate import griddata
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 
 def wiggle(stream1, stream2=None, sort=None, tmax=30, normalize=True,

@@ -30,10 +30,12 @@ The stacks are obtained from the median weighted by the phase of individual sign
 
 import numpy as np
 from obspy.core import Stream, Trace, AttribDict
-from matplotlib import pyplot as plt
 from scipy.signal import hilbert
 from scipy import stats
 import sys
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
 
 
 class HkStack(object):
