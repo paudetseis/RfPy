@@ -41,8 +41,6 @@ notifications:
 deploy:
   provider: pages:git
   # edge: true # opt in to dpl v2
-  edge: 
-    branch: octokit-release
   deploy_key: .travis/github_deploy_key
   local_dir: docs/_build/html
   on:
