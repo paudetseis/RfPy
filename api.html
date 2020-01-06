@@ -1,0 +1,1107 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Classes &mdash; Home 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Scripts" href="scripts.html" />
+    <link rel="prev" title="Licence" href="rfpy.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Home
+          
+
+          
+            
+            <img src="_static/RfPy_logo_small.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Quick Links</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="links.html">GitHub Repositories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="links.html#references">References</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="rfpy.html">Licence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rfpy.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rfpy.html#basic-usage">Basic Usage</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Classes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#rfdata">RFData</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#class-meta">Class Meta</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#hkstack">HkStack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#harmonics">Harmonics</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#modules">Modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-rfpy.binning">binning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-rfpy.ccp">ccp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-rfpy.plotting">plotting</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Scripts &amp; Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="scripts.html">Scripts</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Home</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Classes</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="figure align-center">
+<img alt="_images/RfPy_logo.png" src="_images/RfPy_logo.png" />
+</div>
+<div class="section" id="classes">
+<h1>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h1>
+<p><code class="xref py py-mod docutils literal notranslate"><span class="pre">rfpy</span></code> defines the following base classes:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#rfpy.rfdata.RFData" title="rfpy.rfdata.RFData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RFData</span></code></a></p></li>
+<li><p><a class="reference internal" href="#rfpy.hk.HkStack" title="rfpy.hk.HkStack"><code class="xref py py-class docutils literal notranslate"><span class="pre">HkStack</span></code></a></p></li>
+<li><p><a class="reference internal" href="#rfpy.harmonics.Harmonics" title="rfpy.harmonics.Harmonics"><code class="xref py py-class docutils literal notranslate"><span class="pre">Harmonics</span></code></a></p></li>
+</ul>
+<div class="section" id="rfdata">
+<h2>RFData<a class="headerlink" href="#rfdata" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rfpy.rfdata.RFData">
+<em class="property">class </em><code class="sig-prename descclassname">rfpy.rfdata.</code><code class="sig-name descname">RFData</code><span class="sig-paren">(</span><em class="sig-param">sta</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData" title="Permalink to this definition">¶</a></dt>
+<dd><p>A RFData object contains Class attributes that associate
+station information with a single event (i.e., earthquake)
+metadata, corresponding raw and rotated seismograms and
+receiver functions.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The object is initialized with the <code class="docutils literal notranslate"><span class="pre">sta</span></code> field only, and
+other attributes are added to the object as the analysis proceeds.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sta</strong> (<em>object</em>) – Object containing station information - from <code class="xref py py-mod docutils literal notranslate"><span class="pre">stdb</span></code> database.</p></li>
+<li><p><strong>meta</strong> (<a class="reference internal" href="#rfpy.rfdata.Meta" title="rfpy.rfdata.Meta"><code class="xref py py-class docutils literal notranslate"><span class="pre">Meta</span></code></a>) – Object of metadata information for single event (initially set to None)</p></li>
+<li><p><strong>data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream object containing the three-component seismograms (either
+un-rotated or rotated by the method <code class="xref py py-func docutils literal notranslate"><span class="pre">rotate()</span></code>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="rfpy.rfdata.RFData.add_event">
+<code class="sig-name descname">add_event</code><span class="sig-paren">(</span><em class="sig-param">event</em>, <em class="sig-param">gacmin=30.0</em>, <em class="sig-param">gacmax=90.0</em>, <em class="sig-param">returned=False</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.add_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds event metadata to RFData object, including travel time info
+of P wave.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>event</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">event</span></code>) – Event XML object</p></li>
+<li><p><strong>returned</strong> (<em>bool</em>) – Whether or not to return the <code class="docutils literal notranslate"><span class="pre">accept</span></code> attribute</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>accept</strong> – Whether or not the object is accepted for further analysis</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="rfpy.rfdata.RFData.add_data">
+<code class="sig-name descname">add_data</code><span class="sig-paren">(</span><em class="sig-param">stream</em>, <em class="sig-param">returned=False</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.add_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds stream as object attribute</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stream</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream container for NEZ seismograms</p></li>
+<li><p><strong>returned</strong> (<em>bool</em>) – Whether or not to return the <code class="docutils literal notranslate"><span class="pre">accept</span></code> attribute</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="rfpy.rfdata.RFData.zne_data">
+<code class="sig-name descname">zne_data</code><a class="headerlink" href="#rfpy.rfdata.RFData.zne_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stream container for NEZ seismograms</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>accept</strong> – Whether or not the object is accepted for further analysis</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="rfpy.rfdata.RFData.download_data">
+<code class="sig-name descname">download_data</code><span class="sig-paren">(</span><em class="sig-param">client</em>, <em class="sig-param">ndval=nan</em>, <em class="sig-param">new_sr=5.0</em>, <em class="sig-param">dts=120.0</em>, <em class="sig-param">returned=False</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.download_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Downloads seismograms based on event origin time and
+P phase arrival.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>client</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Client</span></code>) – Client object</p></li>
+<li><p><strong>ndval</strong> (<em>float</em>) – Fill in value for missing data</p></li>
+<li><p><strong>new_sr</strong> (<em>float</em>) – New sampling rate (Hz)</p></li>
+<li><p><strong>dts</strong> (<em>float</em>) – Time duration (sec)</p></li>
+<li><p><strong>returned</strong> (<em>bool</em>) – Whether or not to return the <code class="docutils literal notranslate"><span class="pre">accept</span></code> attribute</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>accept</strong> – Whether or not the object is accepted for further analysis</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="rfpy.rfdata.RFData.data">
+<code class="sig-name descname">data</code><a class="headerlink" href="#rfpy.rfdata.RFData.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stream containing <code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code> objects</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="method">
+<dt id="rfpy.rfdata.RFData.rotate">
+<code class="sig-name descname">rotate</code><span class="sig-paren">(</span><em class="sig-param">vp=None</em>, <em class="sig-param">vs=None</em>, <em class="sig-param">align=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.rotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotates 3-component seismograms from vertical (Z),
+east (E) and north (N) to longitudinal (L),
+radial (Q) and tangential (T) components of motion.
+Note that the method ‘rotate’ from <code class="docutils literal notranslate"><span class="pre">obspy.core.stream.Stream</span></code>
+is used for the rotation <code class="docutils literal notranslate"><span class="pre">'ZNE-&gt;ZRT'</span></code> and <code class="docutils literal notranslate"><span class="pre">'ZNE-&gt;LQT'</span></code>.
+Rotation <code class="docutils literal notranslate"><span class="pre">'ZNE-&gt;PVH'</span></code> is implemented separately here
+due to different conventions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vp</strong> (<em>float</em>) – P-wave velocity at surface (km/s)</p></li>
+<li><p><strong>vs</strong> (<em>float</em>) – S-wave velocity at surface (km/s)</p></li>
+<li><p><strong>align</strong> (<em>str</em>) – Alignment of coordinate system for rotation
+(‘ZRT’, ‘LQT’, or ‘PVH’)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>rotated</strong> – Whether or not the object has been rotated</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="rfpy.rfdata.RFData.calc_snr">
+<code class="sig-name descname">calc_snr</code><span class="sig-paren">(</span><em class="sig-param">dt=30.0</em>, <em class="sig-param">fmin=0.1</em>, <em class="sig-param">fmax=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.calc_snr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates signal-to-noise ratio on either Z, L or P component</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dt</strong> (<em>float</em>) – Duration (sec)</p></li>
+<li><p><strong>fmin</strong> (<em>float</em>) – Minimum frequency corner for SNR filter (Hz)</p></li>
+<li><p><strong>fmax</strong> (<em>float</em>) – Maximum frequency corner for SNR filter (Hz)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="rfpy.rfdata.RFData.snr">
+<code class="sig-name descname">snr</code><a class="headerlink" href="#rfpy.rfdata.RFData.snr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Signal-to-noise ratio  (dB)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="method">
+<dt id="rfpy.rfdata.RFData.deconvolve">
+<code class="sig-name descname">deconvolve</code><span class="sig-paren">(</span><em class="sig-param">twin=30.0</em>, <em class="sig-param">vp=None</em>, <em class="sig-param">vs=None</em>, <em class="sig-param">align=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.deconvolve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deconvolves three-compoent data using one component as the source wavelet.
+The source component is always taken as the dominant compressional
+component, which can be either ‘Z’, ‘L’, or ‘P’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>twin</strong> (<em>float</em>) – Estimated duration of source wavelet (sec).</p></li>
+<li><p><strong>vp</strong> (<em>float</em>) – P-wave velocity at surface (km/s)</p></li>
+<li><p><strong>vs</strong> (<em>float</em>) – S-wave velocity at surface (km/s)</p></li>
+<li><p><strong>align</strong> (<em>str</em>) – Alignment of coordinate system for rotation
+(‘ZRT’, ‘LQT’, or ‘PVH’)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="rfpy.rfdata.RFData.rf">
+<code class="sig-name descname">rf</code><a class="headerlink" href="#rfpy.rfdata.RFData.rf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stream containing the receiver function traces</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="method">
+<dt id="rfpy.rfdata.RFData.to_stream">
+<code class="sig-name descname">to_stream</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.to_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to switch from RFData object to Stream object.
+This allows easier manipulation of the receiver functions
+for post-processing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rfpy.rfdata.RFData.save">
+<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param">file</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves RFData object to file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file</strong> (<em>str</em>) – File name for RFData object</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<div class="section" id="class-meta">
+<h3>Class Meta<a class="headerlink" href="#class-meta" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="rfpy.rfdata.Meta">
+<em class="property">class </em><code class="sig-prename descclassname">rfpy.rfdata.</code><code class="sig-name descname">Meta</code><span class="sig-paren">(</span><em class="sig-param">sta</em>, <em class="sig-param">event</em>, <em class="sig-param">gacmin=30.0</em>, <em class="sig-param">gacmax=90.0</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.Meta" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Meta object contains attributes associated with the metadata
+for a single receiver function analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">UTCDateTime</span></code>) – Origin time of earthquake</p></li>
+<li><p><strong>dep</strong> (<em>float</em>) – Depth of hypocenter (km)</p></li>
+<li><p><strong>lon</strong> (<em>float</em>) – Longitude coordinate of epicenter</p></li>
+<li><p><strong>lat</strong> (<em>float</em>) – Latitude coordinate of epicenter</p></li>
+<li><p><strong>mag</strong> (<em>float</em>) – Magnitude of earthquake</p></li>
+<li><p><strong>gac</strong> (<em>float</em>) – Great arc circle between station and epicenter (degrees)</p></li>
+<li><p><strong>epi_dist</strong> (<em>float</em>) – Epicentral distance between station and epicenter (km)</p></li>
+<li><p><strong>baz</strong> (<em>float</em>) – Back-azimuth - pointing to earthquake from station (degrees)</p></li>
+<li><p><strong>az</strong> (<em>float</em>) – Azimuth - pointing to station from earthquake (degrees)</p></li>
+<li><p><strong>ttime</strong> (<em>float</em>) – Predicted arrival time (sec)</p></li>
+<li><p><strong>ph</strong> (<em>str</em>) – Phase name</p></li>
+<li><p><strong>slow</strong> (<em>float</em>) – Horizontal slowness of phase</p></li>
+<li><p><strong>inc</strong> (<em>float</em>) – Incidence angle of phase at surface</p></li>
+<li><p><strong>vp</strong> (<em>float</em>) – P-wave velocity at surface (km/s)</p></li>
+<li><p><strong>vs</strong> (<em>float</em>) – S-wave velocity at surface (km/s)</p></li>
+<li><p><strong>align</strong> (<em>str</em>) – Alignment of coordinate system for rotation
+(‘ZRT’, ‘LQT’, or ‘PVH’)</p></li>
+<li><p><strong>rotated</strong> (<em>bool</em>) – Whether or not data have been rotated to <code class="docutils literal notranslate"><span class="pre">align</span></code>
+coordinate system</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="hkstack">
+<h2>HkStack<a class="headerlink" href="#hkstack" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rfpy.hk.HkStack">
+<em class="property">class </em><code class="sig-prename descclassname">rfpy.hk.</code><code class="sig-name descname">HkStack</code><span class="sig-paren">(</span><em class="sig-param">rfV1</em>, <em class="sig-param">rfV2=None</em>, <em class="sig-param">strike=None</em>, <em class="sig-param">dip=None</em>, <em class="sig-param">vp=6.0</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.hk.HkStack" title="Permalink to this definition">¶</a></dt>
+<dd><p>A HkStack object contains attributes and methods to stack radial
+receiver functions along moveout curves for point measurements
+of the depth to Moho (H) and P-to-S velocity ratio (k) beneath
+a seismic stations. The object is initialized with at least one
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> containing observed (or synthetised)
+radial receiver functions. The methods available can produce linear
+weighted stacks or product stacks, and can be used in the presence
+of flat or dipping Moho (with known strike and dip).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The object is initialized with the <code class="docutils literal notranslate"><span class="pre">rfV1</span></code> field only, and
+other attributes are added to the object as the analysis proceeds.
+A second <code class="docutils literal notranslate"><span class="pre">rfV2</span></code> can be included, which is typically a copy of <code class="docutils literal notranslate"><span class="pre">rfV1</span></code>
+filtered at different corner frequencies and is used to stack along the
+Pps and Pss moveout curves.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rfV1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream object containing the radial-component receiver function
+seismograms</p></li>
+<li><p><strong>rfV2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream object containing the radial-component receiver function
+seismograms (typically filtered at lower frequencies)</p></li>
+<li><p><strong>strike</strong> (<em>float</em>) – Strike angle of dipping Moho (has to be known or estimated a priori)</p></li>
+<li><p><strong>dip</strong> (<em>float</em>) – Dip angle of Moho (has to be known or estimated a priori)</p></li>
+<li><p><strong>vp</strong> (<em>float</em>) – Mean P-wave velocity of the crust (km/s)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Other Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>kbound</strong> (<em>list</em>) – List of 2 floats that determine the range of Vp/Vs values to search</p></li>
+<li><p><strong>dk</strong> (<em>float</em>) – Spacing between adjacent Vp/Vs search values</p></li>
+<li><p><strong>hbound</strong> (<em>list</em>) – List of 2 floats that determine the range of Moho depth values to search</p></li>
+<li><p><strong>dh</strong> (<em>float</em>) – Spacing between adjacent Moho depth search values</p></li>
+<li><p><strong>weights</strong> (<em>list</em>) – List of 3 floats that determine the relative weights of the individual
+phase stacks to be used in the final stack. The third weight is negative
+since Pss amplitudes are opposite to those of the Ps and Pps phases.</p></li>
+<li><p><strong>phases</strong> (<em>list</em>) – List of 3 strings (‘ps’, ‘pps’, ‘pss’) corresponding to the thre phases
+of interest (<cite>do not modify this attribute</cite>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="rfpy.hk.HkStack.stack">
+<code class="sig-name descname">stack</code><span class="sig-paren">(</span><em class="sig-param">vp=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.hk.HkStack.stack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to calculate Hk stacks from radial receiver functions.
+The stacks are calculated using phase-weighted stacking for
+individual phases and take the median of the weighted stack
+to avoid bias by outliers.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If two streams are available as attributes, the method will assume
+that the second stream should be used for stacking along the Pps
+and Pss move out curves (e.g., if the second stream contains
+lower frequency signals). Furthermore, If the <code class="docutils literal notranslate"><span class="pre">vp</span></code> argument is
+not specified, the method will use the
+value set during initialization (<code class="docutils literal notranslate"><span class="pre">vp=6.0</span></code> km/s)</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>vp</strong> (<em>float</em>) – Mean crust P-wave velocity (km/s).</p>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="rfpy.hk.HkStack.pws">
+<code class="sig-name descname">pws</code><a class="headerlink" href="#rfpy.hk.HkStack.pws" title="Permalink to this definition">¶</a></dt>
+<dd><p>Array of phase stacks, where the outer dimension corresponds
+to the phase index (shape <code class="docutils literal notranslate"><span class="pre">nH,</span> <span class="pre">nk,</span> <span class="pre">nph</span></code>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rfpy.hk.HkStack.sig">
+<code class="sig-name descname">sig</code><a class="headerlink" href="#rfpy.hk.HkStack.sig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Variance of phase stacks, where the outer dimension corresponds
+to the phase index (shape <code class="docutils literal notranslate"><span class="pre">nH,</span> <span class="pre">nk,</span> <span class="pre">nph</span></code>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="method">
+<dt id="rfpy.hk.HkStack.stack_dip">
+<code class="sig-name descname">stack_dip</code><span class="sig-paren">(</span><em class="sig-param">vp=None</em>, <em class="sig-param">strike=None</em>, <em class="sig-param">dip=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.hk.HkStack.stack_dip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to calculate Hk stacks from radial receiver functions
+using known stike and dip angles of the Moho.
+The stacks are calculated using phase-weighted stacking for
+individual phases and take the median of the weighted stack
+to avoid bias by outliers.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If two streams are available as attributes, the method will assume
+that the second stream should be used for stacking along the Pps
+and Pss move out curves (e.g., if the second stream contains
+lower frequency signals). Furthermore,
+If the arguments are not specified, the method will use the
+values set during initialization (<code class="docutils literal notranslate"><span class="pre">vp=6.0</span></code> km/s,
+<code class="docutils literal notranslate"><span class="pre">strike=0.</span></code>, <code class="docutils literal notranslate"><span class="pre">dip=0.</span></code>)</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vp</strong> (<em>float</em>) – Mean crust P-wave velocity (km/s).</p></li>
+<li><p><strong>strike</strong> (<em>float</em>) – Strike angle of dipping Moho (has to be known or estimated a priori)</p></li>
+<li><p><strong>dip</strong> (<em>float</em>) – Dip angle of Moho (has to be known or estimated a priori)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">pws</code></dt>
+<dd><p>Array of phase stacks, where the outer dimension corresponds
+to the phase index (shape <code class="docutils literal notranslate"><span class="pre">nH,</span> <span class="pre">nk,</span> <span class="pre">nph</span></code>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">sig</code></dt>
+<dd><p>Variance of phase stacks, where the outer dimension corresponds
+to the phase index (shape <code class="docutils literal notranslate"><span class="pre">nH,</span> <span class="pre">nk,</span> <span class="pre">nph</span></code>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="method">
+<dt id="rfpy.hk.HkStack.average">
+<code class="sig-name descname">average</code><span class="sig-paren">(</span><em class="sig-param">typ='sum'</em>, <em class="sig-param">q=0.05</em>, <em class="sig-param">err_method='amp'</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.hk.HkStack.average" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to combine the phase-weighted stacks to produce a final
+stack, from which to estimate the H and k parameters and their
+associated errors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>typ</strong> (<em>str</em>) – How the phase-weigthed stacks should be combined to produce
+a final stack. Available options are: weighted sum (<code class="docutils literal notranslate"><span class="pre">typ=sum</span></code>)
+or product (<code class="docutils literal notranslate"><span class="pre">typ=prod</span></code>).</p></li>
+<li><p><strong>q</strong> (<em>float</em>) – Confidence level for the error estimate</p></li>
+<li><p><strong>err_method</strong> (<em>str</em>) – How errors should be estimated. Options are <code class="docutils literal notranslate"><span class="pre">err_method='amp'</span></code>
+to estimate errors from amplitude, or <code class="docutils literal notranslate"><span class="pre">err_method='stats'</span></code> to
+use a statistical F test from the residuals.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="rfpy.hk.HkStack.error">
+<code class="sig-name descname">error</code><span class="sig-paren">(</span><em class="sig-param">q=0.05</em>, <em class="sig-param">err_method='amp'</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.hk.HkStack.error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to determine the error on H and k estimates.</p>
+<p>From Walsh, JGR, 2013</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>q</strong> (<em>float</em>) – Confidence level for the error estimate</p></li>
+<li><p><strong>err_method</strong> (<em>str</em>) – How errors should be estimated. Options are <code class="docutils literal notranslate"><span class="pre">err_method='amp'</span></code>
+to estimate errors from amplitude, or <code class="docutils literal notranslate"><span class="pre">err_method='stats'</span></code> to
+use a statistical F test from the residuals.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="rfpy.hk.HkStack.plot">
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param">save=False</em>, <em class="sig-param">title=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.hk.HkStack.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to plot H-K stacks. By default all 4 panels
+are plotted: The <code class="docutils literal notranslate"><span class="pre">ps</span></code>, <code class="docutils literal notranslate"><span class="pre">pps</span></code> and <code class="docutils literal notranslate"><span class="pre">pss</span></code> stacks, and the
+final (averaged) stack. Error contours are also plotted,
+as well as the position of the maximum stack values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>save</strong> (<em>bool</em>) – Whether or not to save the Figure</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – Title of plot</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="harmonics">
+<h2>Harmonics<a class="headerlink" href="#harmonics" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="rfpy.harmonics.Harmonics">
+<em class="property">class </em><code class="sig-prename descclassname">rfpy.harmonics.</code><code class="sig-name descname">Harmonics</code><span class="sig-paren">(</span><em class="sig-param">radialRF</em>, <em class="sig-param">transvRF=None</em>, <em class="sig-param">azim=0</em>, <em class="sig-param">xmin=0.0</em>, <em class="sig-param">xmax=10.0</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.harmonics.Harmonics" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Harmonics object contains attributes and methods to decompose
+radial and transverse component receiver functions into
+back-azimuth harmonics. The object is initialized with two
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> objects containing observed (or synthetised)
+radial and transverse receiver functions. The methods available
+can decompose the receiver functions along a fixed azimuth, or
+search for the optimal azimuth within a time range by minimizing
+one component.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The object is initialized with the <code class="docutils literal notranslate"><span class="pre">rfV1</span></code> field only, and
+other attributes are added to the object as the analysis proceeds.
+A second <code class="docutils literal notranslate"><span class="pre">rfV2</span></code> can be included, which is typically a copy of <code class="docutils literal notranslate"><span class="pre">rfV1</span></code>
+filtered at different corner frequencies and is used to stack along the
+Pps and Pss moveout curves.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>radialRF</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream object containing the radial-component receiver function
+seismograms</p></li>
+<li><p><strong>transvRF</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream object containing the transverse-component receiver function
+seismograms</p></li>
+<li><p><strong>azim</strong> (<em>float</em>) – Direction (azimuth) along which the B1 component of the stream
+is minimized (between <code class="docutils literal notranslate"><span class="pre">xmin</span></code> and <code class="docutils literal notranslate"><span class="pre">xmax</span></code>)</p></li>
+<li><p><strong>xmin</strong> (<em>float</em>) – Minimum x axis value over which to calculate <code class="docutils literal notranslate"><span class="pre">azim</span></code></p></li>
+<li><p><strong>xmax</strong> (<em>float</em>) – Maximum x axis value over which to calculate <code class="docutils literal notranslate"><span class="pre">azim</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Other Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>hstream</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream containing the 5 harmonics, oriented in direction <code class="docutils literal notranslate"><span class="pre">azim</span></code></p></li>
+<li><p><strong>radial_forward</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>, optional) – Stream containing the radial receiver functions</p></li>
+<li><p><strong>transv_forward</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>, optional) – Stream containing the transverse receiver functions</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="rfpy.harmonics.Harmonics.dcomp_find_azim">
+<code class="sig-name descname">dcomp_find_azim</code><span class="sig-paren">(</span><em class="sig-param">xmin=None</em>, <em class="sig-param">xmax=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.harmonics.Harmonics.dcomp_find_azim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to decompose radial and transverse receiver function
+streams into back-azimuth harmonics and determine the main
+orientation <code class="docutils literal notranslate"><span class="pre">azim</span></code>, obtained by minimizing the B1 component
+between <code class="docutils literal notranslate"><span class="pre">xmin</span></code> and <code class="docutils literal notranslate"><span class="pre">xmax</span></code> (i.e., time or depth).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xmin</strong> (<em>float</em>) – Minimum x axis value over which to calculate <code class="docutils literal notranslate"><span class="pre">azim</span></code></p></li>
+<li><p><strong>xmax</strong> (<em>float</em>) – Maximum x axis value over which to calculate <code class="docutils literal notranslate"><span class="pre">azim</span></code></p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="rfpy.harmonics.Harmonics.hstream">
+<code class="sig-name descname">hstream</code><a class="headerlink" href="#rfpy.harmonics.Harmonics.hstream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stream containing the 5 harmonics, oriented in direction <code class="docutils literal notranslate"><span class="pre">azim</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rfpy.harmonics.Harmonics.azim">
+<code class="sig-name descname">azim</code><a class="headerlink" href="#rfpy.harmonics.Harmonics.azim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Direction (azimuth) along which the B1 component of the stream
+is minimized (between <code class="docutils literal notranslate"><span class="pre">xmin</span></code> and <code class="docutils literal notranslate"><span class="pre">xmax</span></code>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rfpy.harmonics.Harmonics.var">
+<code class="sig-name descname">var</code><a class="headerlink" href="#rfpy.harmonics.Harmonics.var" title="Permalink to this definition">¶</a></dt>
+<dd><p>Variance of the 5 harmonics between <code class="docutils literal notranslate"><span class="pre">xmin</span></code> and <code class="docutils literal notranslate"><span class="pre">xmax</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="method">
+<dt id="rfpy.harmonics.Harmonics.dcomp_fix_azim">
+<code class="sig-name descname">dcomp_fix_azim</code><span class="sig-paren">(</span><em class="sig-param">azim=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.harmonics.Harmonics.dcomp_fix_azim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to decompose radial and transverse receiver function
+streams into back-azimuth harmonics along direction <code class="docutils literal notranslate"><span class="pre">azim</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>azim</strong> (<em>float</em>) – Direction (azimuth) along which the B1 component of the stream
+is minimized (between <code class="docutils literal notranslate"><span class="pre">xmin</span></code> and <code class="docutils literal notranslate"><span class="pre">xmax</span></code>)</p>
+</dd>
+</dl>
+<dl class="attribute">
+<dt>
+<code class="sig-name descname">hstream</code></dt>
+<dd><p>Stream containing the 5 harmonics, oriented in direction <code class="docutils literal notranslate"><span class="pre">azim</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="method">
+<dt id="rfpy.harmonics.Harmonics.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">baz_list=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.harmonics.Harmonics.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to forward calculate radial and transverse component
+receiver functions given the 5 pre-determined harmonics and
+a list of back-azimuth values. The receiver function signal
+parameters (length, sampling rate, etc.) will be identical
+to those in the stream of harmonic components.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>baz_list</strong> (<em>list</em>) – List of back-azimuth directions over which to calculate
+the receiver functions. If no list is specified, the method
+will use the same back-azimuths as those in the original
+receiver function streams</p>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="rfpy.harmonics.Harmonics.radial_forward">
+<code class="sig-name descname">radial_forward</code><a class="headerlink" href="#rfpy.harmonics.Harmonics.radial_forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stream containing the radial receiver functions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="rfpy.harmonics.Harmonics.transv_forward">
+<code class="sig-name descname">transv_forward</code><a class="headerlink" href="#rfpy.harmonics.Harmonics.transv_forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stream containing the transverse receiver functions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="method">
+<dt id="rfpy.harmonics.Harmonics.plot">
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param">ymax=30.0</em>, <em class="sig-param">maxval=10.0</em>, <em class="sig-param">save=False</em>, <em class="sig-param">title=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.harmonics.Harmonics.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to plot the 5 harmonic components.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ymax</strong> (<em>float</em>) – Maximum y axis value (time or depth) over which to
+plot the harmonic components</p></li>
+<li><p><strong>maxval</strong> (<em>float</em>) – Scaling factor for the amplitudes (typically &gt; 1)</p></li>
+<li><p><strong>save</strong> (<em>bool</em>) – Whether or not to save the plot</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – Title of plot, to be used in the Figure and the
+file name (if <code class="docutils literal notranslate"><span class="pre">save==True</span></code>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="modules">
+<h1>Modules<a class="headerlink" href="#modules" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-rfpy.binning">
+<span id="binning"></span><h2>binning<a class="headerlink" href="#module-rfpy.binning" title="Permalink to this headline">¶</a></h2>
+<p>Functions to bin receiver functions along back-azimuth or slowness
+bins, or both, or for all data, regardless of the x axis (time or depth).</p>
+<dl class="function">
+<dt id="rfpy.binning.bin">
+<code class="sig-prename descclassname">rfpy.binning.</code><code class="sig-name descname">bin</code><span class="sig-paren">(</span><em class="sig-param">stream1</em>, <em class="sig-param">stream2=None</em>, <em class="sig-param">typ='baz'</em>, <em class="sig-param">nbin=37</em>, <em class="sig-param">pws=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.bin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to stack receiver functions into (baz or slow) bins
+This can be done using a linear stack (i.e., simple
+mean), or using phase-weighted stacking.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stream1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream of equal-length seismograms to be stacked into
+a single trace.</p></li>
+<li><p><strong>stream2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Optionally stack a second stream in the same operation.</p></li>
+<li><p><strong>dbaz</strong> (<em>int</em>) – Number of bazk-azimuth samples in bins</p></li>
+<li><p><strong>dslow</strong> (<em>int</em>) – Number of slowness samples in bins</p></li>
+<li><p><strong>pws</strong> (<em>bool</em>) – Whether or not to perform phase-weighted stacking</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>stack</strong> – Stream containing one or two stacked traces,
+depending on the number of input streams</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="rfpy.binning.bin_baz_slow">
+<code class="sig-prename descclassname">rfpy.binning.</code><code class="sig-name descname">bin_baz_slow</code><span class="sig-paren">(</span><em class="sig-param">stream1</em>, <em class="sig-param">stream2=None</em>, <em class="sig-param">nbaz=37</em>, <em class="sig-param">nslow=21</em>, <em class="sig-param">pws=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.bin_baz_slow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to stack receiver functions into back-azimuth and slowness bins.
+This can be done using a linear stack (i.e., simple
+mean), or using phase-weighted stacking.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stream1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream of equal-length seismograms to be stacked into
+a single trace.</p></li>
+<li><p><strong>stream2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Optionally stack a second stream in the same operation.</p></li>
+<li><p><strong>dbaz</strong> (<em>int</em>) – Number of bazk-azimuth samples in bins</p></li>
+<li><p><strong>dslow</strong> (<em>int</em>) – Number of slowness samples in bins</p></li>
+<li><p><strong>pws</strong> (<em>bool</em>) – Whether or not to perform phase-weighted stacking</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>stack</strong> – Stream containing one or two stacked traces,
+depending on the number of input streams</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="rfpy.binning.bin_all">
+<code class="sig-prename descclassname">rfpy.binning.</code><code class="sig-name descname">bin_all</code><span class="sig-paren">(</span><em class="sig-param">stream1</em>, <em class="sig-param">stream2=None</em>, <em class="sig-param">pws=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.bin_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to bin all streams into a single trace.
+This can be done using a linear stack (i.e., simple
+mean), or using phase-weighted stacking.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stream1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream of equal-length seismograms to be stacked into
+a single trace.</p></li>
+<li><p><strong>stream2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Optionally stack a second stream in the same operation.</p></li>
+<li><p><strong>pws</strong> (<em>bool</em>) – Whether or not to perform phase-weighted stacking</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>stack</strong> – Stream containing one or two stacked traces,
+depending on the number of input streams</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-rfpy.ccp">
+<span id="ccp"></span><h2>ccp<a class="headerlink" href="#module-rfpy.ccp" title="Permalink to this headline">¶</a></h2>
+<p>Functions to calculate piercing points from a velocity model and slowness
+values, bin them, and produce CCP stacks using receiver functions.</p>
+<dl class="function">
+<dt id="rfpy.ccp.ppoint_distance">
+<code class="sig-prename descclassname">rfpy.ccp.</code><code class="sig-name descname">ppoint_distance</code><span class="sig-paren">(</span><em class="sig-param">tr</em>, <em class="sig-param">dz</em>, <em class="sig-param">vs</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.ppoint_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate horizontal distance for interval dz and velocity vs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tr</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code>) – Single trace object to migrate to depth</p></li>
+<li><p><strong>dz</strong> (<em>float</em>) – Vertical sampling distance</p></li>
+<li><p><strong>vs</strong> (<em>float</em>) – S-wave velocity (km/s)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="rfpy.ccp.ppoint">
+<code class="sig-prename descclassname">rfpy.ccp.</code><code class="sig-name descname">ppoint</code><span class="sig-paren">(</span><em class="sig-param">tr</em>, <em class="sig-param">dist</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.ppoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine geographic location of piercing point</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tr</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code>) – Single trace object to migrate to depth</p></li>
+<li><p><strong>dist</strong> (<em>float</em>) – Horizontal istance from the station (km)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="rfpy.ccp.ttime">
+<code class="sig-prename descclassname">rfpy.ccp.</code><code class="sig-name descname">ttime</code><span class="sig-paren">(</span><em class="sig-param">tr</em>, <em class="sig-param">dz</em>, <em class="sig-param">vp</em>, <em class="sig-param">vs</em>, <em class="sig-param">phase=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.ttime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate travel time for interval dz and velocities vp and vs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tr</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code>) – Single trace object to migrate to depth</p></li>
+<li><p><strong>dz</strong> (<em>float</em>) – Vertical sampling distance (km)</p></li>
+<li><p><strong>vp</strong> (<em>float</em>) – P-wave velocity</p></li>
+<li><p><strong>vs</strong> (<em>float</em>) – S-wave velocity</p></li>
+<li><p><strong>phase</strong> (<em>str</em>) – Phase of interest</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="rfpy.ccp.timeshift">
+<code class="sig-prename descclassname">rfpy.ccp.</code><code class="sig-name descname">timeshift</code><span class="sig-paren">(</span><em class="sig-param">tr</em>, <em class="sig-param">tt</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.timeshift" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shift a trace by a travel time tt and take amplitude at zero</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tr</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code>) – Single trace object to migrate to depth</p></li>
+<li><p><strong>tt</strong> (<em>float</em>) – Travel time (sec)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="rfpy.ccp.raypath">
+<code class="sig-prename descclassname">rfpy.ccp.</code><code class="sig-name descname">raypath</code><span class="sig-paren">(</span><em class="sig-param">tr</em>, <em class="sig-param">nz=50</em>, <em class="sig-param">dep=None</em>, <em class="sig-param">vp=None</em>, <em class="sig-param">vs=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.raypath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate travel times through velocity model for all phases of interest</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tr</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code>) – Single trace object to migrate to depth</p></li>
+<li><p><strong>nz</strong> (<em>int</em>) – Number of layers in interpolation</p></li>
+<li><p><strong>dep</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Depth array for velocity model</p></li>
+<li><p><strong>vp</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – P-wave velocity array for velocity model</p></li>
+<li><p><strong>vs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – S-wave velocity array for velocity model</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-rfpy.plotting">
+<span id="plotting"></span><h2>plotting<a class="headerlink" href="#module-rfpy.plotting" title="Permalink to this headline">¶</a></h2>
+<p>Functions to plot single station P-receiver functions as wiggle plots.</p>
+<p>Options to plot by receiver functions # vs time/depth, by back-azimuth vs
+time/depth or slowness vs time.</p>
+<dl class="function">
+<dt id="rfpy.plotting.wiggle">
+<code class="sig-prename descclassname">rfpy.plotting.</code><code class="sig-name descname">wiggle</code><span class="sig-paren">(</span><em class="sig-param">stream1</em>, <em class="sig-param">stream2=None</em>, <em class="sig-param">sort=None</em>, <em class="sig-param">tmax=30</em>, <em class="sig-param">normalize=True</em>, <em class="sig-param">save=False</em>, <em class="sig-param">title=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.plotting.wiggle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to plot receiver function traces by index in stream. By default,
+only one stream is required, which produces a Figure with a single panel.
+Optionally, if a second stream is present, the Figure will contain two panels.
+The stream(s) can be sorted by stats attribute <code class="docutils literal notranslate"><span class="pre">sort</span></code>, normalized, and
+the Figure can be saved as .eps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stream1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream of receiver function traces</p></li>
+<li><p><strong>stream2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream of receiver function traces, for a two-panel Figure</p></li>
+<li><p><strong>sort</strong> (<em>str</em>) – Name of attribute in the <code class="docutils literal notranslate"><span class="pre">stats</span></code> attribute of indivudial traces, used
+to sort the traces in the Stream(s).</p></li>
+<li><p><strong>xmax</strong> (<em>float</em>) – Maximum x-axis value displayed in the Figure.</p></li>
+<li><p><strong>normalize</strong> (<em>bool</em>) – Whether or not to normalize the traces according to the max amplitude
+in <code class="docutils literal notranslate"><span class="pre">stream1</span></code></p></li>
+<li><p><strong>save</strong> (<em>bool</em>) – Whether or not to save the Figure</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – Title of plot</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="rfpy.plotting.wiggle_bins">
+<code class="sig-prename descclassname">rfpy.plotting.</code><code class="sig-name descname">wiggle_bins</code><span class="sig-paren">(</span><em class="sig-param">stream1</em>, <em class="sig-param">stream2=None</em>, <em class="sig-param">tr1=None</em>, <em class="sig-param">tr2=None</em>, <em class="sig-param">btyp='baz'</em>, <em class="sig-param">xmax=30</em>, <em class="sig-param">xtyp='time'</em>, <em class="sig-param">scale=None</em>, <em class="sig-param">save=False</em>, <em class="sig-param">title=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.plotting.wiggle_bins" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to plot receiver function according to either baz or
+slowness bins. By default,
+only one stream is required, which produces a Figure with a single panel.
+Optionally, if a second stream is present, the Figure will contain two panels.
+If the single trace arguments are present, they will be plotted at the top.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stream1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream of receiver function traces</p></li>
+<li><p><strong>stream2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream of receiver function traces, for a two-panel Figure</p></li>
+<li><p><strong>tr1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code>) – Trace to plot at the top of <code class="docutils literal notranslate"><span class="pre">stream1</span></code></p></li>
+<li><p><strong>tr2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code>) – Trace to plot at the top of <code class="docutils literal notranslate"><span class="pre">stream2</span></code></p></li>
+<li><p><strong>btyp</strong> (<em>str</em>) – Type of plot to produce (either ‘baz’, ‘slow’, or ‘dist’)</p></li>
+<li><p><strong>xmax</strong> (<em>float</em>) – Maximum x-axis value displayed in the Figure.</p></li>
+<li><p><strong>xtyp</strong> (<em>str</em>) – Type of x-axis label (either ‘time’ or ‘depth’)</p></li>
+<li><p><strong>scale</strong> (<em>float</em>) – Scale factor applied to trace amplitudes for plotting</p></li>
+<li><p><strong>save</strong> (<em>bool</em>) – Whether or not to save the Figure</p></li>
+<li><p><strong>title</strong> (<em>str</em>) – Title of plot</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="scripts.html" class="btn btn-neutral float-right" title="Scripts" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="rfpy.html" class="btn btn-neutral float-left" title="Licence" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Pascal Audet
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

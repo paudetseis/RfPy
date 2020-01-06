@@ -1,0 +1,869 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Licence &mdash; Home 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Classes" href="api.html" />
+    <link rel="prev" title="GitHub Repositories" href="links.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Home
+          
+
+          
+            
+            <img src="_static/RfPy_logo_small.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Quick Links</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="links.html">GitHub Repositories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="links.html#references">References</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Licence</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#installation">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#conda-environment">Conda environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-from-pypi">Installing from Pypi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-from-source">Installing from source</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#basic-usage">Basic Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#calculating-receiver-functions">Calculating Receiver Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#initialization">Initialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#receiver-function-processing">Receiver function processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#demo-example">Demo example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#post-processing-h-k-stacking">Post-Processing: <cite>H-k</cite> stacking</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Initialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#h-k-processing">H-k processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Demo example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#post-processing-harmonic-decomposition">Post-Processing: Harmonic Decomposition</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Initialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#harmonic-decomposition">Harmonic decomposition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#forward-modeling">Forward modeling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Demo example</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html#modules">Modules</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Scripts &amp; Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="scripts.html">Scripts</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Home</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Licence</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/rfpy.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="figure align-center">
+<img alt="_images/RfPy_logo.png" src="_images/RfPy_logo.png" />
+</div>
+<div class="section" id="licence">
+<h1>Licence<a class="headerlink" href="#licence" title="Permalink to this headline">¶</a></h1>
+<p>Copyright 2019 Pascal Audet</p>
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the “Software”), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:</p>
+<p>The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.</p>
+<p>THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</p>
+</div>
+<div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<p>The current version has been tested using <strong>Python3.6 and 3.7</strong> Also, the following packages are required:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/paudetseis/StDb">stdb</a></p></li>
+</ul>
+<p>Other required packages (e.g., <code class="docutils literal notranslate"><span class="pre">obspy</span></code>)
+will be automatically installed by <code class="docutils literal notranslate"><span class="pre">stdb</span></code>.</p>
+</div>
+<div class="section" id="conda-environment">
+<h2>Conda environment<a class="headerlink" href="#conda-environment" title="Permalink to this headline">¶</a></h2>
+<p>We recommend creating a custom <code class="docutils literal notranslate"><span class="pre">conda</span></code> environment
+where <code class="docutils literal notranslate"><span class="pre">RfPy</span></code> can be installed along with some of its dependencies.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda create -n rfpy <span class="nv">python</span><span class="o">=</span><span class="m">3</span>.7 obspy -c conda-forge
+</pre></div>
+</div>
+<p>Activate the newly created environment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda activate rfpy
+</pre></div>
+</div>
+<p>Install remaining dependencies using <code class="docutils literal notranslate"><span class="pre">pip</span></code> inside the <code class="docutils literal notranslate"><span class="pre">rfpy</span></code> environment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install stdb
+</pre></div>
+</div>
+</div>
+<div class="section" id="installing-from-pypi">
+<h2>Installing from Pypi<a class="headerlink" href="#installing-from-pypi" title="Permalink to this headline">¶</a></h2>
+<p><em>This option is not available at this time</em></p>
+</div>
+<div class="section" id="installing-from-source">
+<h2>Installing from source<a class="headerlink" href="#installing-from-source" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Clone the repository:</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/paudetseis/RfPy.git
+<span class="nb">cd</span> RfPy
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Install using pip:</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install stdb
+pip install .
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="basic-usage">
+<h1>Basic Usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="calculating-receiver-functions">
+<h2>Calculating Receiver Functions<a class="headerlink" href="#calculating-receiver-functions" title="Permalink to this headline">¶</a></h2>
+<p>The basic class of <code class="docutils literal notranslate"><span class="pre">RfPy</span></code> is <a class="reference internal" href="api.html#rfpy.rfdata.RFData" title="rfpy.rfdata.RFData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RFData</span></code></a>, which contains attributes and
+methods for the calculation of single-station, teleseismic
+<cite>P</cite>-wave receiver functions from three-component seismograms. A <a class="reference internal" href="api.html#rfpy.rfdata.RFData" title="rfpy.rfdata.RFData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RFData</span></code></a>
+object contains three main attributes: a <code class="xref py py-class docutils literal notranslate"><span class="pre">StDb</span></code> object with station information,
+a <a class="reference internal" href="api.html#rfpy.rfdata.Meta" title="rfpy.rfdata.Meta"><code class="xref py py-class docutils literal notranslate"><span class="pre">Meta</span></code></a> object containing event meta data, and a <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>
+object containing the unrotated 3-component seismograms. Additional processing attributes
+are added as the analysis proceeds. The sequence of initialization and addition of attributes
+is important, as described in the documentation below.</p>
+<p>Note that, at the end of the process, the <a class="reference internal" href="api.html#rfpy.rfdata.RFData" title="rfpy.rfdata.RFData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RFData</span></code></a> object will further contain
+a <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> object with the receiver function data.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A <a class="reference internal" href="api.html#rfpy.rfdata.RFData" title="rfpy.rfdata.RFData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RFData</span></code></a> object is meant to facilitate processing of single-station
+and single-event P-wave receiver functions. For processing multiple event-station pairs,
+an equal number of <a class="reference internal" href="api.html#rfpy.rfdata.RFData" title="rfpy.rfdata.RFData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RFData</span></code></a> objects need to be
+created. See the accompanying Scripts and Jupyter Notebooks for details.</p>
+</div>
+<div class="section" id="initialization">
+<h3>Initialization<a class="headerlink" href="#initialization" title="Permalink to this headline">¶</a></h3>
+<p>A <code class="docutils literal notranslate"><span class="pre">RFData</span></code> object is initialized with an <code class="xref py py-class docutils literal notranslate"><span class="pre">StDb</span></code> object, e.g. consider such an
+object <code class="docutils literal notranslate"><span class="pre">sta</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rfpy</span> <span class="kn">import</span> <span class="n">RFData</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span> <span class="o">=</span> <span class="n">RFData</span><span class="p">(</span><span class="n">sta</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Once the object is initialized, the first step is to add an <code class="docutils literal notranslate"><span class="pre">obspy.core.event.Event</span></code>
+object. For example, given such an object <code class="docutils literal notranslate"><span class="pre">ev</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span><span class="n">ev</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now that the event has been added, the <a class="reference internal" href="api.html#rfpy.rfdata.RFData" title="rfpy.rfdata.RFData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RFData</span></code></a> object has determined
+whether or not it is suitable for receiver function analysis (i.e.,
+if the event is within a suitable epicentral distance range), which is
+available as a new <code class="docutils literal notranslate"><span class="pre">meta</span></code> attribute:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">accept</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Alternatively, the <a class="reference internal" href="api.html#rfpy.rfdata.RFData.add_event" title="rfpy.rfdata.RFData.add_event"><code class="xref py py-func docutils literal notranslate"><span class="pre">add_event()</span></code></a>
+(or <a class="reference internal" href="api.html#rfpy.rfdata.RFData.add_data" title="rfpy.rfdata.RFData.add_data"><code class="xref py py-func docutils literal notranslate"><span class="pre">add_data()</span></code></a>) method can be used
+with the argument <code class="docutils literal notranslate"><span class="pre">returned=True</span></code> to return the <code class="docutils literal notranslate"><span class="pre">accept</span></code> attribute
+directly.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span><span class="n">ev</span><span class="p">,</span> <span class="n">returned</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</div>
+<p>If the <code class="docutils literal notranslate"><span class="pre">accept</span></code> attribute is <code class="docutils literal notranslate"><span class="pre">True</span></code>, continue with the analysis by
+adding raw three-component data. There are two methods to perform this step.
+If the data are available in memory (e.g., in a <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> object <code class="docutils literal notranslate"><span class="pre">stream</span></code>),
+one can use the <a class="reference internal" href="api.html#rfpy.rfdata.RFData.add_data" title="rfpy.rfdata.RFData.add_data"><code class="xref py py-func docutils literal notranslate"><span class="pre">add_data()</span></code></a> method directly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>Do not</strong> simply add a <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> object as an
+attribute <code class="docutils literal notranslate"><span class="pre">data</span></code> to the <a class="reference internal" href="api.html#rfpy.rfdata.RFData" title="rfpy.rfdata.RFData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RFData</span></code></a>
+object (e.g., <code class="docutils literal notranslate"><span class="pre">rfdata.data</span> <span class="pre">=</span> <span class="pre">stream</span></code>). Instead use this method, as it checks
+whether or not the data are suitable for receiver function analysis.</p>
+</div>
+<p>Otherwise, one can use the method <a class="reference internal" href="api.html#rfpy.rfdata.RFData.download_data" title="rfpy.rfdata.RFData.download_data"><code class="xref py py-func docutils literal notranslate"><span class="pre">download_data()</span></code></a> to obtain
+the three-component data from an FDSN Client:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">download_data</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">accept</span></code> attribute will be updated with the availability of the <code class="docutils literal notranslate"><span class="pre">data</span></code>
+attribute, i.e. if no data is available, the <code class="docutils literal notranslate"><span class="pre">accept</span></code> attribute will be set
+to <code class="docutils literal notranslate"><span class="pre">False</span></code>. The methods to add data can also be used with the argument
+<code class="docutils literal notranslate"><span class="pre">returned=True</span></code> to report whether or not the data are available.</p>
+</div>
+<div class="section" id="receiver-function-processing">
+<h3>Receiver function processing<a class="headerlink" href="#receiver-function-processing" title="Permalink to this headline">¶</a></h3>
+<p>Now that we have complete meta data and raw seismogram data, we can
+use methods to rotate and/or calculate the signal-to-noise ratio.
+The rotation flag is set in the <code class="docutils literal notranslate"><span class="pre">rfdata.meta.align</span></code> attribute, which by
+default is <code class="docutils literal notranslate"><span class="pre">'ZRT'</span></code>. This means that <code class="docutils literal notranslate"><span class="pre">'ZNE'</span></code> data will be rotated to <code class="docutils literal notranslate"><span class="pre">'ZRT'</span></code>
+before deconvolution, automatically. However, we can set a different alignment
+(e.g., <code class="docutils literal notranslate"><span class="pre">'LQT'</span></code> or <code class="docutils literal notranslate"><span class="pre">'PVH'</span></code>) and perform the rotation prior to deconvolution.
+Once rotation is performed, however, the initial <code class="docutils literal notranslate"><span class="pre">'ZNE'</span></code> data is no longer
+available and further rotation cannot be performed:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">rotate</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">rotated</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">align</span>
+<span class="go">&#39;ZRT&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">align</span><span class="o">=</span><span class="s1">&#39;PVH&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="go">Exception: Data have been rotated already - aborting</span>
+</pre></div>
+</div>
+<p>The SNR is calculated based on the <code class="docutils literal notranslate"><span class="pre">align</span></code> attribute, on the first component
+(e.g., either <code class="docutils literal notranslate"><span class="pre">'Z'</span></code>, <code class="docutils literal notranslate"><span class="pre">'L'</span></code> or <code class="docutils literal notranslate"><span class="pre">'P'</span></code>). Therefore, this method is typically
+carried out following the <code class="docutils literal notranslate"><span class="pre">rotate</span></code> method:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">calc_snr</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">rfdata</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">snr</span><span class="p">)</span>
+<span class="go">float</span>
+</pre></div>
+</div>
+<p>Finally, the last step is to perform the deconvolution using the method
+<a class="reference internal" href="api.html#rfpy.rfdata.RFData.deconvolve" title="rfpy.rfdata.RFData.deconvolve"><code class="xref py py-func docutils literal notranslate"><span class="pre">deconvolve()</span></code></a>,
+which stores the receiver function data as a new attribute <code class="docutils literal notranslate"><span class="pre">rf</span></code>, which is a
+three-component <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> object:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">deconvolve</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Although no plotting method is provided for the <a class="reference internal" href="api.html#rfpy.rfdata.RFData" title="rfpy.rfdata.RFData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RFData</span></code></a> object,
+the <code class="docutils literal notranslate"><span class="pre">rf</span></code> attribute is a <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>
+object that can be plotted using the <code class="xref py py-func docutils literal notranslate"><span class="pre">plot()</span></code> method
+(e.g., <code class="docutils literal notranslate"><span class="pre">rfdata.rf.plot()</span></code>).</p>
+<p>Following receiver function deconvolution, all the information is stored in the attributes
+of the object. Ultimately, a method is available to convert the <code class="docutils literal notranslate"><span class="pre">RFData</span></code> object to a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> object with new attributes:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span> <span class="o">=</span> <span class="n">rfdata</span><span class="o">.</span><span class="n">to_stream</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="demo-example">
+<h3>Demo example<a class="headerlink" href="#demo-example" title="Permalink to this headline">¶</a></h3>
+<p>To look at a concrete example for station <a class="reference external" href="http://ds.iris.edu/mda/NY/MMPY/">MMPY</a>,
+consider the demo data provided with the package and process them using all default values:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rfpy</span> <span class="kn">import</span> <span class="n">RFData</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span> <span class="o">=</span> <span class="n">RFData</span><span class="p">(</span><span class="s1">&#39;demo&#39;</span><span class="p">)</span>
+<span class="go">Uploading demo station data - station NY.MMPY</span>
+</pre></div>
+</div>
+<p>Check out its attributes (initialization only stores the <code class="docutils literal notranslate"><span class="pre">sta</span></code> attribute)</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="vm">__dict__</span>
+<span class="go">{&#39;sta&#39;: {&#39;station&#39;: &#39;MMPY&#39;,</span>
+<span class="go">  &#39;network&#39;: &#39;NY&#39;,</span>
+<span class="go">  &#39;altnet&#39;: [],</span>
+<span class="go">  &#39;channel&#39;: &#39;HH&#39;,</span>
+<span class="go">  &#39;location&#39;: [&#39;--&#39;],</span>
+<span class="go">  &#39;latitude&#39;: 62.618919,</span>
+<span class="go">  &#39;longitude&#39;: -131.262466,</span>
+<span class="go">  &#39;elevation&#39;: 0.0,</span>
+<span class="go">  &#39;startdate&#39;: 2013-07-01T00:00:00.000000Z,</span>
+<span class="go">  &#39;enddate&#39;: 2599-12-31T23:59:59.000000Z,</span>
+<span class="go">  &#39;polarity&#39;: 1.0,</span>
+<span class="go">  &#39;azcorr&#39;: 0.0,</span>
+<span class="go">  &#39;status&#39;: &#39;open&#39;},</span>
+<span class="go"> &#39;meta&#39;: None,</span>
+<span class="go"> &#39;data&#39;: None}</span>
+</pre></div>
+</div>
+<p>Now import an event:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span><span class="s1">&#39;demo&#39;</span><span class="p">)</span>
+<span class="go">2015-02-02T08:25:51.300000Z |  -1.583, +145.315 | 6.0 MW</span>
+</pre></div>
+</div>
+<p>Print the content of the object meta data</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="vm">__dict__</span>
+<span class="go">{&#39;time&#39;: 2015-02-02T08:25:51.300000Z,</span>
+<span class="go"> &#39;dep&#39;: 34000.0,</span>
+<span class="go"> &#39;lon&#39;: 145.3149,</span>
+<span class="go"> &#39;lat&#39;: -1.5827,</span>
+<span class="go"> &#39;mag&#39;: 6.0,</span>
+<span class="go"> &#39;epi_dist&#39;: 9823.972036840038,</span>
+<span class="go"> &#39;az&#39;: 27.282925592822235,</span>
+<span class="go"> &#39;baz&#39;: 263.555086495223,</span>
+<span class="go"> &#39;gac&#39;: 88.34910308671685,</span>
+<span class="go"> &#39;ttime&#39;: 768.19792906912335,</span>
+<span class="go"> &#39;ph&#39;: &#39;P&#39;,</span>
+<span class="go"> &#39;slow&#39;: 0.042684575337198057,</span>
+<span class="go"> &#39;inc&#39;: 14.30813192210563,</span>
+<span class="go"> &#39;accept&#39;: True,</span>
+<span class="go"> &#39;vp&#39;: 6.0,</span>
+<span class="go"> &#39;vs&#39;: 3.6,</span>
+<span class="go"> &#39;align&#39;: &#39;ZRT&#39;,</span>
+<span class="go"> &#39;rotated&#39;: False,</span>
+<span class="go"> &#39;snr&#39;: None}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Once the event object is loaded, it is possible to edit the attributes
+of <code class="docutils literal notranslate"><span class="pre">meta</span></code>, although we recommend only editing <code class="docutils literal notranslate"><span class="pre">vp</span></code>, <code class="docutils literal notranslate"><span class="pre">vs</span></code> or
+<code class="docutils literal notranslate"><span class="pre">align</span></code>, and avoid editing any of the station-event attributes</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">vp</span> <span class="o">=</span> <span class="mf">5.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">vs</span> <span class="o">=</span> <span class="mf">3.3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">vp</span><span class="p">,</span> <span class="n">rfdata</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">vs</span>
+<span class="go">(5.5, 3.3)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">align</span> <span class="o">=</span> <span class="s1">&#39;LQT&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">align</span>
+<span class="go">&#39;LQT&#39;</span>
+</pre></div>
+</div>
+</div>
+<p>Now add data to the object:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="s1">&#39;demo&#39;</span><span class="p">)</span>
+<span class="go">3 Trace(s) in Stream:</span>
+<span class="go">NY.MMPY..HHN | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples</span>
+<span class="go">NY.MMPY..HHE | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples</span>
+<span class="go">NY.MMPY..HHZ | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples</span>
+</pre></div>
+</div>
+<p>Perform receiver function deconvolution using default values:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">deconvolve</span><span class="p">()</span>
+<span class="go">Warning: Data have not been rotated yet - rotating now</span>
+<span class="go">Warning: SNR has not been calculated - calculating now using default</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">rf</span>
+<span class="go">3 Trace(s) in Stream:</span>
+<span class="go">NY.MMPY..RFZ | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples</span>
+<span class="go">NY.MMPY..RFR | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples</span>
+<span class="go">NY.MMPY..RFT | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span> <span class="o">=</span> <span class="n">rfdata</span><span class="o">.</span><span class="n">to_stream</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span>
+<span class="go">3 Trace(s) in Stream:</span>
+<span class="go">NY.MMPY..RFZ | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples</span>
+<span class="go">NY.MMPY..RFR | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples</span>
+<span class="go">NY.MMPY..RFT | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples</span>
+</pre></div>
+</div>
+<p>Check out new stats in traces</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">snr</span>
+<span class="go">XXXX</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">slow</span>
+<span class="go">YYYY</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">baz</span>
+<span class="go">ZZZZ</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">is_rf</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="post-processing-h-k-stacking">
+<h2>Post-Processing: <cite>H-k</cite> stacking<a class="headerlink" href="#post-processing-h-k-stacking" title="Permalink to this headline">¶</a></h2>
+<p>The class <a class="reference internal" href="api.html#rfpy.hk.HkStack" title="rfpy.hk.HkStack"><code class="xref py py-class docutils literal notranslate"><span class="pre">HkStack</span></code></a> contains attributes and methods to calculate thickness (<cite>H</cite>)
+and Vp/Vs ratio (<cite>k</cite>) of the crust (in reality, <cite>H</cite> refers to Moho depth, and <cite>k</cite> is Vp/Vs of
+the medium from the surface to <cite>H</cite>) based on moveout times of direct <cite>Ps</cite> and reverberated
+<cite>Pps</cite> and <cite>Pss</cite> phases from radial-component receiver functions. The individual
+phase stacks are obtained from the median weighted by the phase of individual
+signals. Methods are available to combine the phase stacks into a weighted sum
+or a product.</p>
+<div class="section" id="id1">
+<h3>Initialization<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>A <code class="docutils literal notranslate"><span class="pre">HkStack</span></code> object is initialized with a <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>
+object containing radial receiver function data. The <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>
+is built by adding (or appending) radial receiver functions obtained from valid
+<a class="reference internal" href="api.html#rfpy.rfdata.RFData" title="rfpy.rfdata.RFData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RFData</span></code></a> objects using the <a class="reference internal" href="api.html#rfpy.rfdata.RFData.to_stream" title="rfpy.rfdata.RFData.to_stream"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_stream()</span></code></a>
+method.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rfpy</span> <span class="kn">import</span> <span class="n">HkStack</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span> <span class="o">=</span> <span class="n">HkStack</span><span class="p">(</span><span class="n">rfstream</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">rfstream</span></code> typically requires minimal pre-processing, such as
+bandpass filtering to enhance the converted and reverberated phases.
+For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;bandpass&#39;</span><span class="p">,</span> <span class="n">freqmin</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">freqmax</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">corners</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">zerophase</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span> <span class="o">=</span> <span class="n">HkStack</span><span class="p">(</span><span class="n">rfstream</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is also possible to use two <code class="docutils literal notranslate"><span class="pre">rfstream</span></code> objects during initialization
+of the <a class="reference internal" href="api.html#rfpy.hk.HkStack" title="rfpy.hk.HkStack"><code class="xref py py-class docutils literal notranslate"><span class="pre">HkStack</span></code></a> object - one for the direct conversion
+(i.e., <code class="docutils literal notranslate"><span class="pre">'ps'</span></code> phase),
+and the second one for the reverberated phases (i.e., <code class="docutils literal notranslate"><span class="pre">'pps'</span></code>, <code class="docutils literal notranslate"><span class="pre">'pss'</span></code>).
+The second <code class="docutils literal notranslate"><span class="pre">rfstream</span></code> should therefore be a copy of the first one, but perhaps
+filtered uding different frequency corners:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream2</span> <span class="o">=</span> <span class="n">rfstream</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream2</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;bandpass&#39;</span><span class="p">,</span> <span class="n">freqmin</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">freqmax</span><span class="o">=</span><span class="mf">0.35</span><span class="p">,</span> <span class="n">corners</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">zerophase</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span> <span class="o">=</span> <span class="n">HkStack</span><span class="p">(</span><span class="n">rfstream</span><span class="p">,</span> <span class="n">rfstream2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>To speed things up during processing (and to avoid redundant stacking), it is possible to
+use one of the <a class="reference internal" href="api.html#module-rfpy.binning" title="rfpy.binning"><code class="xref py py-func docutils literal notranslate"><span class="pre">binning()</span></code></a> functions, alghouth <strong>not</strong> the
+<a class="reference internal" href="api.html#rfpy.binning.bin_all" title="rfpy.binning.bin_all"><code class="xref py py-func docutils literal notranslate"><span class="pre">bin_all()</span></code></a> function, e.g.,</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rfpy.binning</span> <span class="kn">import</span> <span class="nb">bin</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream_binned</span> <span class="o">=</span> <span class="n">rfstream</span><span class="o">.</span><span class="n">bin</span><span class="p">(</span><span class="n">typ</span><span class="o">=</span><span class="s1">&#39;slow&#39;</span><span class="p">,</span> <span class="n">nbin</span><span class="o">=</span><span class="mi">21</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span> <span class="o">=</span> <span class="n">HkStack</span><span class="p">(</span><span class="n">rfstream_binned</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="h-k-processing">
+<h3>H-k processing<a class="headerlink" href="#h-k-processing" title="Permalink to this headline">¶</a></h3>
+<p>Once the <a class="reference internal" href="api.html#rfpy.hk.HkStack" title="rfpy.hk.HkStack"><code class="xref py py-class docutils literal notranslate"><span class="pre">HkStack</span></code></a> object is initialized with the <code class="docutils literal notranslate"><span class="pre">rfstream</span></code>, a findividual phase
+stacks can be calculated automatically using the default settings:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The only parameter to set is the <cite>P</cite>-wave velocity of the crust - if not set,
+the default value of 6.0 km/s is used (available as the attribute <code class="docutils literal notranslate"><span class="pre">hkstack.vp</span></code>).
+To change the search bounds for the phase stacks, we can edit the attributes of the
+<a class="reference internal" href="api.html#rfpy.hk.HkStack" title="rfpy.hk.HkStack"><code class="xref py py-class docutils literal notranslate"><span class="pre">HkStack</span></code></a> object prior to calling the method <a class="reference internal" href="api.html#rfpy.hk.HkStack.stack" title="rfpy.hk.HkStack.stack"><code class="xref py py-func docutils literal notranslate"><span class="pre">stack()</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">hbound</span> <span class="o">=</span> <span class="p">[</span><span class="mf">15.</span><span class="p">,</span> <span class="mf">40.</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">dh</span> <span class="o">=</span> <span class="mf">1.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">kbound</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.6</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">dk</span> <span class="o">=</span> <span class="mf">0.01</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">vp</span><span class="o">=</span><span class="mf">5.5</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Setting small values for <code class="docutils literal notranslate"><span class="pre">hkstack.dh</span></code> and <code class="docutils literal notranslate"><span class="pre">hkstack.dk</span></code> will slow down
+the processing significantly, but produce much cleaner and more precise
+stacks.</p>
+</div>
+<p>In the presence of a dipping Moho interface, it is possible to use the method
+<a class="reference internal" href="api.html#rfpy.hk.HkStack.stack_dip" title="rfpy.hk.HkStack.stack_dip"><code class="xref py py-func docutils literal notranslate"><span class="pre">stack_dip()</span></code></a>, with the additional <code class="docutils literal notranslate"><span class="pre">strike</span></code> and <code class="docutils literal notranslate"><span class="pre">dip</span></code> arguments.
+If not specified, the code will use the default values stored as attributes of the
+<a class="reference internal" href="api.html#rfpy.hk.HkStack" title="rfpy.hk.HkStack"><code class="xref py py-class docutils literal notranslate"><span class="pre">HkStack</span></code></a> object:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">stack_dip</span><span class="p">(</span><span class="n">strike</span><span class="o">=</span><span class="mf">215.</span><span class="p">,</span> <span class="n">dip</span><span class="o">=</span><span class="mf">25.</span><span class="p">,</span> <span class="n">vp</span><span class="o">=</span><span class="mf">5.5</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Once the phase stacks are calculated and stored as attributes of the object,
+we can call the method <a class="reference internal" href="api.html#rfpy.hk.HkStack.average" title="rfpy.hk.HkStack.average"><code class="xref py py-func docutils literal notranslate"><span class="pre">average()</span></code></a> to combine the phase stacks
+into a single, final stack. By default the final stack is a simple weighted sum
+of the individual phase stacks, using weights defined as object attributes:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">weights</span>
+<span class="go">[0.5, 2., -1.]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">average</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>To produce a final stack that consists of the product of the positive parts
+of individual phase stacks (to enhance normal-polarity Moho arrivals and ignore
+un-modelled negative polarity signals), use the <code class="docutils literal notranslate"><span class="pre">typ='prod'</span></code> argument:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">typ</span><span class="o">=</span><span class="s1">&#39;prod&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The estimates of <cite>H</cite> and <cite>k</cite> are determined from the maximum value in the final
+stack as attributes <code class="docutils literal notranslate"><span class="pre">hkstack.h0</span></code> and <code class="docutils literal notranslate"><span class="pre">hkstack.k0</span></code>. The method will also
+call the <a class="reference internal" href="api.html#rfpy.hk.HkStack.error" title="rfpy.hk.HkStack.error"><code class="xref py py-func docutils literal notranslate"><span class="pre">error()</span></code></a> method to calculate the errors
+and error contour around the solution.</p>
+<p>The individual and final stacks can be plotted by calling the method
+<a class="reference internal" href="api.html#rfpy.hk.HkStack.plot" title="rfpy.hk.HkStack.plot"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot()</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id2">
+<h3>Demo example<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>Initialize object with demo data for station <a class="reference external" href="http://ds.iris.edu/mda/NY/MMPY/">MMPY</a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rfpy</span> <span class="kn">import</span> <span class="n">HkStack</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span> <span class="o">=</span> <span class="n">HkStack</span><span class="p">(</span><span class="s1">&#39;demo&#39;</span><span class="p">)</span>
+<span class="go">Uploading demo data - station NY.MMPY</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Check content of object</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="vm">__dict__</span>
+<span class="go">{&#39;rfV1&#39;: 66 Trace(s) in Stream:</span>
+
+<span class="go">NY.MMPY..RFV | 2016-05-31T10:11:49.520000Z - 2016-05-31T10:13:44.520000Z | 5.0 Hz, 576 samples</span>
+<span class="gp">...</span>
+<span class="go">(64 other traces)</span>
+<span class="gp">...</span>
+<span class="go">NY.MMPY..RFV | 2015-06-08T06:10:13.330000Z - 2015-06-08T06:12:08.330000Z | 5.0 Hz, 576 samples</span>
+
+<span class="go">[Use &quot;print(Stream.__str__(extended=True))&quot; to print all Traces],</span>
+<span class="go"> &#39;rfV2&#39;: None,</span>
+<span class="go"> &#39;strike&#39;: None,</span>
+<span class="go"> &#39;dip&#39;: None,</span>
+<span class="go"> &#39;vp&#39;: 6.0,</span>
+<span class="go"> &#39;kbound&#39;: [1.56, 2.1],</span>
+<span class="go"> &#39;dk&#39;: 0.02,</span>
+<span class="go"> &#39;hbound&#39;: [20.0, 50.0],</span>
+<span class="go"> &#39;dh&#39;: 0.5,</span>
+<span class="go"> &#39;weights&#39;: [0.5, 2.0, -1.0],</span>
+<span class="go"> &#39;phases&#39;: [&#39;ps&#39;, &#39;pps&#39;, &#39;pss&#39;]}</span>
+</pre></div>
+</div>
+<p>These receiver functions have been obtained by adding <a class="reference internal" href="api.html#rfpy.rfdata.RFData" title="rfpy.rfdata.RFData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RFData</span></code></a> objects
+as streams to an <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> object, without other processing. Note that they
+are aligned in the <code class="docutils literal notranslate"><span class="pre">'PVH'</span></code> coordinate system, as specified in the channel name (i.e., <code class="docutils literal notranslate"><span class="pre">'RFV'</span></code> for
+the radial component). To prepare them for stacking, we can bin the receiver functions into
+back-azimuth and slowness bins (in the presence of a dipping interface), or simply slowness bins
+(for horizontal interfaces):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rfpy</span> <span class="kn">import</span> <span class="n">binning</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rfV_binned</span> <span class="o">=</span> <span class="n">binning</span><span class="o">.</span><span class="n">bin</span><span class="p">(</span><span class="n">hkstack</span><span class="o">.</span><span class="n">rfV1</span><span class="p">,</span> <span class="n">typ</span><span class="o">=</span><span class="s1">&#39;slow&#39;</span><span class="p">,</span> <span class="n">nbin</span><span class="o">=</span><span class="mi">21</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">rfV1</span> <span class="o">=</span> <span class="n">rfV_binned</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>it is straightforward to directly
+filter the <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> object, and perhaps also add a copy of the stream
+with a different frequency corner as another attribute <code class="docutils literal notranslate"><span class="pre">rfV2</span></code>, as suggested above:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">rfV2</span> <span class="o">=</span>  <span class="n">hkstack</span><span class="o">.</span><span class="n">rfV1</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">rfV1</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;bandpass&#39;</span><span class="p">,</span> <span class="n">freqmin</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">freqmax</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">corners</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">zerophase</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">rfV2</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;bandpass&#39;</span><span class="p">,</span> <span class="n">freqmin</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">freqmax</span><span class="o">=</span><span class="mf">0.35</span><span class="p">,</span> <span class="n">corners</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">zerophase</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now simply process the hkstack object using the default values to obtain <cite>H</cite> and <cite>k</cite> estimates</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span>
+<span class="go">Computing: [###############] 61/61</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">average</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The final estimates are available as attributes</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">h0</span>
+<span class="go">32.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">err_h0</span>
+<span class="go">1.875</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">k0</span>
+<span class="go">1.78</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">err_k0</span>
+<span class="go">0.115</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="post-processing-harmonic-decomposition">
+<h2>Post-Processing: Harmonic Decomposition<a class="headerlink" href="#post-processing-harmonic-decomposition" title="Permalink to this headline">¶</a></h2>
+<p>The class <a class="reference internal" href="api.html#rfpy.harmonics.Harmonics" title="rfpy.harmonics.Harmonics"><code class="xref py py-class docutils literal notranslate"><span class="pre">Harmonics</span></code></a> contains attributes and methods to
+calculate the first five
+harmonic components of radial and transverse component receiver function
+data from a singular value decomposition. The harmonic decomposition can
+be performed at a fixed azimuth (i.e., along some known dominant strike
+direction in the subsurface), or alternatively the decomposition can
+be optimized to search for the dominant azimuth that maximizes the energy
+on one of the components. This direction can be interpreted as the
+strike of a dipping interface or can be related to anisotropic axes.</p>
+<div class="section" id="id4">
+<h3>Initialization<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>a <a class="reference internal" href="api.html#rfpy.harmonics.Harmonics" title="rfpy.harmonics.Harmonics"><code class="xref py py-class docutils literal notranslate"><span class="pre">Harmonics</span></code></a> object is initialized with <strong>both</strong> radial
+and transverse component receiver function <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> objects.
+The <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> objects are built by adding (or appending)
+radial and transverse receiver functions obtained from valid
+<a class="reference internal" href="api.html#rfpy.rfdata.RFData" title="rfpy.rfdata.RFData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RFData</span></code></a> objects using the <a class="reference internal" href="api.html#rfpy.rfdata.RFData.to_stream" title="rfpy.rfdata.RFData.to_stream"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_stream()</span></code></a>
+method.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rfpy</span> <span class="kn">import</span> <span class="n">Harmonics</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span> <span class="o">=</span> <span class="n">Harmonics</span><span class="p">(</span><span class="n">rfRstream</span><span class="p">,</span> <span class="n">rfTstream</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">rfRstream</span></code> and <code class="docutils literal notranslate"><span class="pre">rfTstream</span></code> typically require minimal pre-processing, such as
+bandpass filtering to enhance the converted and reverberated phases.
+For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfRstream</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;bandpass&#39;</span><span class="p">,</span> <span class="n">freqmin</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">freqmax</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">corners</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">zerophase</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rfTstream</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;bandpass&#39;</span><span class="p">,</span> <span class="n">freqmin</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">freqmax</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">corners</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">zerophase</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span> <span class="o">=</span> <span class="n">Harmonics</span><span class="p">(</span><span class="n">rfRstream</span><span class="p">,</span> <span class="n">rfTstream</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The radial and transverse components should not be mixed, and should contain
+purely radial and purely transverse components (i.e. no mixing of components).
+Furthermore, the <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> objects should have equal length
+and the same ordering.</p>
+</div>
+</div>
+<div class="section" id="harmonic-decomposition">
+<h3>Harmonic decomposition<a class="headerlink" href="#harmonic-decomposition" title="Permalink to this headline">¶</a></h3>
+<p>Once the <a class="reference internal" href="api.html#rfpy.harmonics.Harmonics" title="rfpy.harmonics.Harmonics"><code class="xref py py-class docutils literal notranslate"><span class="pre">Harmonics</span></code></a> object is initialized, processing is done by typing:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="n">dcomp_fix_azim</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Or, alternatively,</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="n">dcomp_find_azim</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>In either case the harmonic components are available as an attribute of type
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> (<code class="docutils literal notranslate"><span class="pre">harmonics.hstream</span></code>) and, if available, the azimuth
+of the dominant direction (<code class="docutils literal notranslate"><span class="pre">harmonics.azim</span></code>).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When using the method <code class="xref py py-func docutils literal notranslate"><span class="pre">rfpy.harmonics.dcomp_find_azim()</span></code>, it is possible to
+specify a range of values over which to perform the search using the arguments
+<code class="docutils literal notranslate"><span class="pre">xmin</span></code> and <code class="docutils literal notranslate"><span class="pre">xmax</span></code>, where <cite>x</cite> refers to the independent variable (i.e., time
+or depth, if the streams have been converted from time to depth a priori).</p>
+</div>
+<p>Once the harmonic decomposition is performed, the components can be plotted using
+the method <a class="reference internal" href="api.html#rfpy.harmonics.Harmonics.plot" title="rfpy.harmonics.Harmonics.plot"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot()</span></code></a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="forward-modeling">
+<h3>Forward modeling<a class="headerlink" href="#forward-modeling" title="Permalink to this headline">¶</a></h3>
+<p>If the <code class="docutils literal notranslate"><span class="pre">hstream</span></code> attribute is available, it is possible to <em>forward model</em> receiver functions
+for a range of back-azimuth values, or just a single value. In case the back-azimuths are
+not specified, the method will use the range of values available in the original
+radial and transverse component receiver function data.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="n">forward</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The new <cite>predicted</cite> radial and transverse component receiver functions are available
+as attributes of type <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> (<code class="docutils literal notranslate"><span class="pre">harmonics.forwardR</span></code> and <code class="docutils literal notranslate"><span class="pre">harmonics.forwardT</span></code>)</p>
+</div>
+<div class="section" id="id5">
+<h3>Demo example<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>Initialize object with demo data for station <a class="reference external" href="http://ds.iris.edu/mda/NY/MMPY/">MMPY</a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rfpy</span> <span class="kn">import</span> <span class="n">Harmonics</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span> <span class="o">=</span> <span class="n">Harmonics</span><span class="p">(</span><span class="s1">&#39;demo&#39;</span><span class="p">)</span>
+<span class="go">Uploading demo data - station NY.MMPY</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Check content of object</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="vm">__dict__</span>
+<span class="go">{&#39;strV&#39;: 66 Trace(s) in Stream:</span>
+
+<span class="go">NY.MMPY..RFV | 2016-05-31T10:11:49.520000Z - 2016-05-31T10:13:44.520000Z | 5.0 Hz, 576 samples</span>
+<span class="gp">...</span>
+<span class="go">(64 other traces)</span>
+<span class="gp">...</span>
+<span class="go">NY.MMPY..RFV | 2015-06-08T06:10:13.330000Z - 2015-06-08T06:12:08.330000Z | 5.0 Hz, 576 samples</span>
+
+<span class="go">[Use &quot;print(Stream.__str__(extended=True))&quot; to print all Traces],</span>
+<span class="go"> &#39;strH&#39;: 66 Trace(s) in Stream:</span>
+
+<span class="go">NY.MMPY..RFH | 2016-05-31T10:11:49.520000Z - 2016-05-31T10:13:44.520000Z | 5.0 Hz, 576 samples</span>
+<span class="gp">...</span>
+<span class="go">(64 other traces)</span>
+<span class="gp">...</span>
+<span class="go">NY.MMPY..RFH | 2015-06-08T06:10:13.330000Z - 2015-06-08T06:12:08.330000Z | 5.0 Hz, 576 samples</span>
+
+<span class="go">[Use &quot;print(Stream.__str__(extended=True))&quot; to print all Traces],</span>
+<span class="go"> &#39;azim&#39;: 0,</span>
+<span class="go"> &#39;xmin&#39;: 0.0,</span>
+<span class="go"> &#39;xmax&#39;: 40.0}</span>
+</pre></div>
+</div>
+<p>As with the <a class="reference internal" href="api.html#rfpy.hk.HkStack" title="rfpy.hk.HkStack"><code class="xref py py-class docutils literal notranslate"><span class="pre">HkStack</span></code></a> object, these receiver functions have been obtained
+by adding <a class="reference internal" href="api.html#rfpy.rfdata.RFData" title="rfpy.rfdata.RFData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RFData</span></code></a> objects
+as streams to an <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> object, without other processing. Note that they
+are aligned in the <code class="docutils literal notranslate"><span class="pre">'PVH'</span></code> coordinate system, as specified in the channel name (i.e., <code class="docutils literal notranslate"><span class="pre">'RFV'</span></code>
+and <code class="docutils literal notranslate"><span class="pre">'RFH'</span></code>). To prepare them for harmonic decomposition, we can bin the receiver functions into
+back-azimuth and slowness bins :</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rfpy</span> <span class="kn">import</span> <span class="n">binning</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">str_binned</span> <span class="o">=</span> <span class="n">binning</span><span class="o">.</span><span class="n">bin_baz_slow</span><span class="p">(</span><span class="n">harmonics</span><span class="o">.</span><span class="n">strV</span><span class="p">,</span> <span class="n">harmonics</span><span class="o">.</span><span class="n">strH</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="n">strV</span> <span class="o">=</span> <span class="n">str_binned</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="n">strH</span> <span class="o">=</span> <span class="n">str_binned</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>It is straightforward to directly
+filter the <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> object, and perhaps also add a copy of the stream
+with a different frequency corner as another attribute <code class="docutils literal notranslate"><span class="pre">rfV2</span></code>, as suggested above:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="n">strV</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;bandpass&#39;</span><span class="p">,</span> <span class="n">freqmin</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">freqmax</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">corners</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">zerophase</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="n">strH</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;bandpass&#39;</span><span class="p">,</span> <span class="n">freqmin</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">freqmax</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">corners</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">zerophase</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now simply perform harmonic decomposition</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="n">dcomp_fix_azim</span><span class="p">()</span>
+<span class="go">Decomposing receiver functions into baz harmonics for azimuth =  0</span>
+</pre></div>
+</div>
+<p>Plot them</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="api.html" class="btn btn-neutral float-right" title="Classes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="links.html" class="btn btn-neutral float-left" title="GitHub Repositories" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Pascal Audet
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
