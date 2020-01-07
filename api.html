@@ -631,7 +631,7 @@ use a statistical F test from the residuals.</p></li>
 
 <dl class="method">
 <dt id="rfpy.hk.HkStack.plot">
-<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param">save=False</em>, <em class="sig-param">title=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.hk.HkStack.plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param">save=False</em>, <em class="sig-param">title=None</em>, <em class="sig-param">form='png'</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.hk.HkStack.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to plot H-K stacks. By default all 4 panels
 are plotted: The <code class="docutils literal notranslate"><span class="pre">ps</span></code>, <code class="docutils literal notranslate"><span class="pre">pps</span></code> and <code class="docutils literal notranslate"><span class="pre">pss</span></code> stacks, and the
 final (averaged) stack. Error contours are also plotted,
@@ -642,6 +642,17 @@ as well as the position of the maximum stack values.</p>
 <li><p><strong>save</strong> (<em>bool</em>) – Whether or not to save the Figure</p></li>
 <li><p><strong>title</strong> (<em>str</em>) – Title of plot</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="rfpy.hk.HkStack.save">
+<code class="sig-name descname">save</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.hk.HkStack.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves HkStack object to file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file</strong> (<em>str</em>) – File name for HkStack object</p>
 </dd>
 </dl>
 </dd></dl>
@@ -808,18 +819,29 @@ receiver function streams</p>
 
 <dl class="method">
 <dt id="rfpy.harmonics.Harmonics.plot">
-<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param">ymax=30.0</em>, <em class="sig-param">maxval=10.0</em>, <em class="sig-param">save=False</em>, <em class="sig-param">title=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.harmonics.Harmonics.plot" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param">ymax=30.0</em>, <em class="sig-param">scale=10.0</em>, <em class="sig-param">save=False</em>, <em class="sig-param">title=None</em>, <em class="sig-param">form='png'</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.harmonics.Harmonics.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to plot the 5 harmonic components.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ymax</strong> (<em>float</em>) – Maximum y axis value (time or depth) over which to
 plot the harmonic components</p></li>
-<li><p><strong>maxval</strong> (<em>float</em>) – Scaling factor for the amplitudes (typically &gt; 1)</p></li>
+<li><p><strong>scale</strong> (<em>float</em>) – Scaling factor for the amplitudes (typically &gt; 1)</p></li>
 <li><p><strong>save</strong> (<em>bool</em>) – Whether or not to save the plot</p></li>
 <li><p><strong>title</strong> (<em>str</em>) – Title of plot, to be used in the Figure and the
 file name (if <code class="docutils literal notranslate"><span class="pre">save==True</span></code>)</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="rfpy.harmonics.Harmonics.save">
+<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param">file</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.harmonics.Harmonics.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves harmonics object to file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file</strong> (<em>str</em>) – File name for Harmonics object</p>
 </dd>
 </dl>
 </dd></dl>
