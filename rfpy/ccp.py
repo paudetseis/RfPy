@@ -53,10 +53,10 @@ class CCPimage(object):
         self.xs_lon2 = coord_end[1]
 
     def add_rfstream(self, rfstream):
-        
+
         self.radialRF.append(rfstream)
 
-    def prep_data(self, f1, f2ps, f2pps, f2pss):
+    def prep_data(self, f1, f2ps, f2pps, f2pss, n_depth=120):
 
         # Process streams one at a time
         for RF in self.radialRF:

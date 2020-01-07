@@ -143,7 +143,6 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=True):
     return final_stream
 
 
-# 
 def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=True):
     """ 
     Function to stack receiver functions into back-azimuth and slowness bins.
