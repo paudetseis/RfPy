@@ -12,6 +12,9 @@ Harmonic decomposition and CCP stacking. The code uses
 the ``StDb`` package for querying and building a station database 
 used in command-line scripts.
 
+.. image:: https://travis-ci.com/paudetseis/RfPy.svg?branch=master
+    :target: https://travis-ci.com/paudetseis/RfPy
+    
 .. toctree::
    :maxdepth: 1
    :caption: Quick Links
