@@ -27,8 +27,6 @@ Harmonic decomposition module.
 # Import modules and functions
 import numpy as np
 from obspy.core import Stream, Trace
-import matplotlib
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 
@@ -411,7 +409,7 @@ class Harmonics(object):
             self.transv_forward.append(trT)
 
 
-    def plot(self, ymax=30., maxval=10., save=False, title=None):
+    def plot(self, ymax=30., scale=10., save=False, title=None, form='png'):
         """
         Method to plot the 5 harmonic components.
 
@@ -420,7 +418,7 @@ class Harmonics(object):
         ymax : float
             Maximum y axis value (time or depth) over which to 
             plot the harmonic components
-        maxval : float
+        scale : float
             Scaling factor for the amplitudes (typically > 1)
         save : bool
             Whether or not to save the plot
@@ -448,23 +446,20 @@ class Harmonics(object):
         for i, trace in enumerate(self.hstream):
             # i += 1
             ax1.fill_betweenx(
-                y, i+1, i+1+trace.data*maxval,
+                y, i+1, i+1+trace.data*scale,
                 where=trace.data+1e-6 <= 0.,
                 facecolor='blue',
                 linewidth=0)
             ax1.fill_betweenx(
-                y, i+1, i+1+trace.data*maxval,
+                y, i+1, i+1+trace.data*scale,
                 where=trace.data+1e-6 >= 0.,
                 facecolor='red',
                 linewidth=0)
 
         ax1.set_ylim(ymax, 0)
-        # ax1.set_ylabel('Depth (km)')
         ax1.set_xlabel('Harmonic components')
         if title:
             ax1.set_title(title)
-        else:
-            ax1.set_title('Station: ' + sta)
 
         labels = [item.get_text() for item in ax1.get_xticklabels()]
         labels[1] = '$A$'
@@ -478,8 +473,22 @@ class Harmonics(object):
         ax1.grid()
 
         if save:
-            plt.savefig('FIGURES/'+sta+'.'+title+'.eps', dpi=300,
-                        bbox_inches='tight', format='eps')
-        else:
-            plt.show()
+            plt.savefig('FIGURES/'+sta+'.'+title+'.'+form, dpi=300,
+                        bbox_inches='tight', format=form)
+        plt.show()
 
+    def save(self, file):
+        """
+        Saves harmonics object to file
+
+        Parameters
+        ----------
+        file : str
+            File name for Harmonics object
+
+        """
+
+        import pickle
+        output = open(file, 'wb')
+        pickle.dump(self, output)
+        output.close()

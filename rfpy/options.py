@@ -551,10 +551,44 @@ def get_hk_options():
         default=None,
         help="Specify the dip of dipping Moho. [Default None]")
 
+    PlotGroup = OptionGroup(
+        parser,
+        title='Settings for plotting results',
+        description="Specify parameters for plotting the H-k stacks.")
+    PlotGroup.add_option(
+        "--plot",
+        action="store_true",
+        dest="plot",
+        default=False,
+        help="Set this option to produce a plot of the stacks [Default "+
+        "does not produce plot]")
+    PlotGroup.add_option(
+        "--save-plot",
+        action="store_true",
+        dest="save_plot",
+        default=False,
+        help="Set this option to save the plot [Default doesn't save]")
+    PlotGroup.add_option(
+        "--title",
+        action="store",
+        type=str,
+        dest="title",
+        default="",
+        help="Specify plot title [Default has no title]")
+    PlotGroup.add_option(
+        "--format",
+        action="store",
+        type=str,
+        dest="form",
+        default="png",
+        help="Specify format of figure. Can be any one of the valid" +
+        "matplotlib formats: 'png', 'jpg', 'eps', 'pdf'. [Default 'png']")
+
     parser.add_option_group(TimeGroup)
     parser.add_option_group(PreGroup)
     parser.add_option_group(HKGroup)
     parser.add_option_group(ModelGroup)
+    parser.add_option_group(PlotGroup)
 
     (opts, args) = parser.parse_args()
 
@@ -613,7 +647,8 @@ def get_hk_options():
         if opts.freqs_copy is None:
             opts.freqs_copy = [0.05, 0.35]
         else:
-            opts.freqs_copy = [float(val) for val in opts.freqs_copy.split(',')]
+            opts.freqs_copy = [float(val)
+                               for val in opts.freqs_copy.split(',')]
             opts.freqs_copy = sorted(opts.freqs_copy)
             if (len(opts.freqs_copy)) != 2:
                 parser.error(
@@ -774,10 +809,67 @@ def get_harmonics_options():
         help="Specify a list of two floats with minimum and maximum" +
         "bounds on time range for finding the optimal azimuth (sec). " +
         "[Default [0., 10.] when '--find-azim' is set]")
+    HarmonicGroup.add_option(
+        "--save",
+        action="store_true",
+        dest="save",
+        default=False,
+        help="Set this option to save the Harmonics object "+
+        "to a pickled file. [Default does not save object]")
+
+    PlotGroup = OptionGroup(
+        parser,
+        title='Settings for plotting results',
+        description="Specify parameters for plotting the back-azimuth " +
+        "harmonics.")
+    PlotGroup.add_option(
+        "--plot",
+        action="store_true",
+        dest="plot",
+        default=False,
+        help="Set this option to produce a plot of the back-azimuth harmonics")
+    PlotGroup.add_option(
+        "--ymax",
+        action="store",
+        type=float,
+        dest="ymax",
+        default=30.,
+        help="Specify the maximum y axis value for the plot in units of the" +
+        "dependent variable (e.g., sec). [Default 30.]")
+    PlotGroup.add_option(
+        "--scale",
+        action="store",
+        type=float,
+        dest="scale",
+        default=30.,
+        help="Specify the scaling value that multiplies the amplitude " +
+        "of the harmonic components. [Default 10.]")
+    PlotGroup.add_option(
+        "--save-plot",
+        action="store_true",
+        dest="save_plot",
+        default=False,
+        help="Set this option to save the plot [Default doesn't save]")
+    PlotGroup.add_option(
+        "--title",
+        action="store",
+        type=str,
+        dest="title",
+        default="",
+        help="Specify plot title [Default has no title]")
+    PlotGroup.add_option(
+        "--format",
+        action="store",
+        type=str,
+        dest="form",
+        default="png",
+        help="Specify format of figure. Can be any one of the valid" +
+        "matplotlib formats: 'png', 'jpg', 'eps', 'pdf'. [Default 'png']")
 
     parser.add_option_group(TimeGroup)
     parser.add_option_group(PreGroup)
     parser.add_option_group(HarmonicGroup)
+    parser.add_option_group(PlotGroup)
 
     (opts, args) = parser.parse_args()
 

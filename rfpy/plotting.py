@@ -35,8 +35,6 @@ import numpy as np
 import scipy as sp
 from obspy.core import Stream, Trace, AttribDict
 from scipy.interpolate import griddata
-import matplotlib
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 

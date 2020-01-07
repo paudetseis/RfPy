@@ -34,8 +34,6 @@ from obspy.core import Stream, UTCDateTime
 from rfpy import options, binning, plotting
 from rfpy import HkStack
 
-# Main function
-
 
 def main():
 
@@ -168,7 +166,7 @@ def main():
         hkstack.dk = opts.dk
         hkstack.weights = opts.weights
 
-        # Stack with or without dip 
+        # Stack with or without dip
         if opts.calc_dip:
             hkstack.stack_dip()
         else:
@@ -177,13 +175,20 @@ def main():
         # Average stacks
         hkstack.average(typ=opts.typ)
 
-        hkstack.plot()
+        if opts.plot:
+            hkstack.plot(opts.save_plot, opts.title, opts.form)
+
+        if opts.save:
+            filename = datapath + "/" + hkstack.hstream[0].stats.station + \
+                ".hkstack.pkl"
+            hkstack.save(file=filename)
 
         # Save the hkstack object to file.
         # Add check at beginning to see if file is present.
         # If it is (and overwrite is specified), load it
         # and add the option to simply try another stacking method, weights,
         # and/or plotting
+
 
 if __name__ == "__main__":
 

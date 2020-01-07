@@ -34,8 +34,6 @@ from obspy.core import Stream, UTCDateTime
 from rfpy import options, binning, plotting
 from rfpy import Harmonics
 
-# Main function
-
 
 def main():
 
@@ -165,7 +163,13 @@ def main():
         else:
             harmonics.dcomp_fix_azim(azim=opts.azim)
 
-        harmonics.plot()
+        if opts.plot:
+            harmonics.plot(opts.ymax, opts.scale, opts.save_plot, opts.title, opts.form)
+
+        if opts.save:
+            filename = datapath + "/" + hkstack.hstream[0].stats.station + \
+                ".harmonics.pkl"
+            harmonics.save()
 
         # Save the hkstack object to file.
         # Add check at beginning to see if file is present.

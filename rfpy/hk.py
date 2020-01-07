@@ -33,8 +33,6 @@ from obspy.core import Stream, Trace, AttribDict
 from scipy.signal import hilbert
 from scipy import stats
 import sys
-import matplotlib
-matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 
 
@@ -417,7 +415,7 @@ class HkStack(object):
         self.err_h0 = max(0.25*(H[max(err[0])] - H[min(err[0])]), self.dh)
 
 
-    def plot(self, save=False, title=None):
+    def plot(self, save=False, title=None, form='png'):
         """
         Method to plot H-K stacks. By default all 4 panels
         are plotted: The ``ps``, ``pps`` and ``pss`` stacks, and the
@@ -528,10 +526,25 @@ class HkStack(object):
 
         if save:
             plt.savefig('FIGURES/' + self.rfV1[0].stats.station +
-                        '.' + title+'.eps', format='eps')
-            plt.close()
-        else:
-            plt.show()
+                        '.' + title+'.'+form, format=form)
+        plt.show()
+
+    def save(self):
+        """
+        Saves HkStack object to file
+
+        Parameters
+        ----------
+        file : str
+            File name for HkStack object
+
+        """
+
+        import pickle
+        output = open(file, 'wb')
+        pickle.dump(self, output)
+        output.close()
+
 
     def _residuals(self):
         """ 
