@@ -6,7 +6,7 @@
 RfPy is a software to calculate single event-station receiver functions from the spectral deconvolution technique. Methods are available to post-process the receiver function data to calculate H-k stacks and back-azimuth harmonics. The code uses the ``StDb`` package for querying and building a station database and can be used through command-line scripts.
 
 [![Build Status](https://travis-ci.com/paudetseis/RfPy.svg?branch=master)](https://travis-ci.com/paudetseis/RfPy)
-
+[![codecov](https://codecov.io/gh/paudetseis/RfPy/branch/master/graph/badge.svg)](https://codecov.io/gh/paudetseis/RfPy)
 
 Installation, Usage, API documentation and scripts are described at 
 https://paudetseis.github.io/RfPy/.

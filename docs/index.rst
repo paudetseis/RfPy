@@ -14,7 +14,9 @@ used in command-line scripts.
 
 .. image:: https://travis-ci.com/paudetseis/RfPy.svg?branch=master
     :target: https://travis-ci.com/paudetseis/RfPy
-    
+.. image:: https://codecov.io/gh/paudetseis/RfPy/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/paudetseis/RfPy
+
 .. toctree::
    :maxdepth: 1
    :caption: Quick Links
