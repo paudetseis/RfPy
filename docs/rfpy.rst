@@ -564,20 +564,28 @@ Now simply process the hkstack object using the default values to obtain `H` and
     Computing: [###############] 61/61
 
     >>> hkstack.average()
-    >>> hkstack.plot()
-
+    
 The final estimates are available as attributes
 
 .. sourcecode:: python
 
     >>> hkstack.h0
-    32.0
+    34.0
     >>> hkstack.err_h0
-    1.875
+    5.5
     >>> hkstack.k0
-    1.78
+    1.72
     >>> hkstack.err_k0
-    0.115
+    0.14
+
+Plot the stacks with error contours
+
+.. sourcecode:: python
+
+    >>> hkstack.plot()
+
+.. figure:: ../rfpy/examples/figures/Figure_hk_demo.png
+   :align: center
 
 
 Post-Processing: Harmonic Decomposition
@@ -720,9 +728,9 @@ back-azimuth and slowness bins :
 .. sourcecode:: python
 
     >>> from rfpy import binning
-    >>> str_binned = binning.bin_baz_slow(harmonics.strV, harmonics.strH)
-    >>> harmonics.strV = str_binned[0]
-    >>> harmonics.strH = str_binned[1]
+    >>> str_binned = binning.bin_baz_slow(harmonics.radialRF, harmonics.transvRF)
+    >>> harmonics.radialRF = str_binned[0]
+    >>> harmonics.transvRF = str_binned[1]
 
 It is straightforward to directly
 filter the :class:`~obspy.core.Stream` object, and perhaps also add a copy of the stream
@@ -730,8 +738,8 @@ with a different frequency corner as another attribute ``rfV2``, as suggested ab
 
 .. sourcecode:: python
 
-    >>> harmonics.strV.filter('bandpass', freqmin=0.05, freqmax=0.5, corners=2, zerophase=True)
-    >>> harmonics.strH.filter('bandpass', freqmin=0.05, freqmax=0.5, corners=2, zerophase=True)
+    >>> harmonics.radialRF.filter('bandpass', freqmin=0.05, freqmax=0.5, corners=2, zerophase=True)
+    >>> harmonics.transvRF.filter('bandpass', freqmin=0.05, freqmax=0.5, corners=2, zerophase=True)
 
 Now simply perform harmonic decomposition
 
@@ -744,5 +752,7 @@ Plot them
 
 .. sourcecode:: python
 
-    >>> harmonics.plot()
+    >>> harmonics.plot(ymax=10.)
 
+.. figure:: ../rfpy/examples/figures/Figure_harmonics_demo.png
+   :align: center
