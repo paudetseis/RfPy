@@ -125,11 +125,12 @@ def main():
         print("|   End:   {0:19s}                  |".format(
             tend.strftime("%Y-%m-%d %H:%M:%S")))
         if opts.maxmag is None:
-            print("|   Mag:   >{0:3.1f}                                 |".format(
-                opts.minmag))
+            print("|   Mag:   >{0:3.1f}", format(opts.minmag) +
+                  "                                 |")
         else:
-            msg = "|   Mag:   {0:3.1f} - {1:3.1f}                            |".format(
-                opts.minmag, opts.maxmag)
+            msg = "|   Mag:   {0:3.1f}".format(opts.minmag) + \
+                " - {1:3.1f}".format(opts.maxmag) +
+            "                            |"
             print(msg)
 
         print("| ...                                           |")
@@ -143,7 +144,8 @@ def main():
         nevK = 0
         nevtT = len(cat)
         print(
-            "|  Found {0:5d} possible events                  |".format(nevtT))
+            "|  Found {0:5d}".format(nevtT) +
+            " possible events                  |")
         ievs = range(0, nevtT)
 
         # Get Local Data Availabilty
@@ -213,9 +215,11 @@ def main():
                 print(
                     "*   Dep: {0:6.2f}; Mag: {1:3.1f}".format(
                         rfdata.meta.dep/1000., rfdata.meta.mag))
-                print("*     {0:5s} -> Ev: {1:7.2f} km; {2:7.2f} deg; {3:6.2f}; {4:6.2f}".format(
-                          rfdata.sta.station, rfdata.meta.epi_dist,
-                          rfdata.meta.gac, rfdata.meta.baz, rfdata.meta.az))
+                print("*     {0:5s}".format(rfdata.sta.station) +
+                      " -> Ev: {0:7.2f} km;".format(rfdata.meta.epi_dist) +
+                      " {0:7.2f} deg;".format(rfdata.meta.gac) +
+                      " {0:6.2f};".format(rfdata.meta.baz) +
+                      " {1:6.2f}".format(rfdata.meta.az))
 
                 # Get data
                 has_data = rfdata.download_data(
@@ -233,7 +237,6 @@ def main():
                 # Create Folder
                 if not os.path.isdir(evtdir):
                     os.makedirs(evtdir)
-
 
                 # Rotate from ZNE to 'align' ('ZRT', 'LQT', or 'PVH')
                 rfdata.rotate(vp=opts.vp, vs=opts.vs, align=opts.align)
@@ -257,7 +260,7 @@ def main():
 
                 # Save event meta data
                 pickle.dump(rfdata.meta, open(
-                        evtdir + "/Meta_Data.pkl", "wb"))
+                    evtdir + "/Meta_Data.pkl", "wb"))
 
                 # Save Station Data
                 pickle.dump(rfdata.sta, open(

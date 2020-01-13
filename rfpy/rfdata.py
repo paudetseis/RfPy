@@ -211,10 +211,10 @@ class RFData(object):
             client = Client()
             # Get catalogue using deployment start and end
             event = client.get_events(
-                starttime=UTCDateTime('2015-02-02T08:00:00'),
-                endtime=UTCDateTime('2015-02-02T09:00:00'),
+                starttime=UTCDateTime('2015-07-03T06:00:00'),
+                endtime=UTCDateTime('2015-07-03T07:00:00'),
                 minmagnitude=6.0,
-                maxmagnitude=7.0)[0]
+                maxmagnitude=6.5)[0]
             print(event.short_str())
 
         if not isinstance(event, Event):
@@ -259,9 +259,10 @@ class RFData(object):
         # Load demo data
         if stream == 'demo' or stream == 'Demo':
             import os
-            from obspy.core import read
-            stream = read(os.path.join(os.path.dirname(__file__),
-                                       "../examples/data", "2015*.mseed"))
+            stream = pickle.load(
+                open(
+                    os.path.join(os.path.dirname(__file__),
+                                       "../examples/data", "ZNE_Data.pkl")))
             print(stream)
 
         if not isinstance(stream, Stream):
