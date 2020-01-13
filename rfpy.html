@@ -417,30 +417,30 @@ consider the demo data provided with the package and process them using all defa
 </div>
 <p>Now import an event:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span><span class="s1">&#39;demo&#39;</span><span class="p">)</span>
-<span class="go">2015-02-02T08:25:51.300000Z |  -1.583, +145.315 | 6.0 MW</span>
+<span class="go">2015-07-03T06:43:22.840000Z | +10.139, +125.977 | 6.1 MW</span>
 </pre></div>
 </div>
 <p>Print the content of the object meta data</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="vm">__dict__</span>
-<span class="go">{&#39;time&#39;: 2015-02-02T08:25:51.300000Z,</span>
-<span class="go"> &#39;dep&#39;: 34000.0,</span>
-<span class="go"> &#39;lon&#39;: 145.3149,</span>
-<span class="go"> &#39;lat&#39;: -1.5827,</span>
-<span class="go"> &#39;mag&#39;: 6.0,</span>
-<span class="go"> &#39;epi_dist&#39;: 9823.972036840038,</span>
-<span class="go"> &#39;az&#39;: 27.282925592822235,</span>
-<span class="go"> &#39;baz&#39;: 263.555086495223,</span>
-<span class="go"> &#39;gac&#39;: 88.34910308671685,</span>
-<span class="go"> &#39;ttime&#39;: 768.19792906912335,</span>
-<span class="go"> &#39;ph&#39;: &#39;P&#39;,</span>
-<span class="go"> &#39;slow&#39;: 0.042684575337198057,</span>
-<span class="go"> &#39;inc&#39;: 14.30813192210563,</span>
-<span class="go"> &#39;accept&#39;: True,</span>
-<span class="go"> &#39;vp&#39;: 6.0,</span>
-<span class="go"> &#39;vs&#39;: 3.6,</span>
-<span class="go"> &#39;align&#39;: &#39;ZRT&#39;,</span>
-<span class="go"> &#39;rotated&#39;: False,</span>
-<span class="go"> &#39;snr&#39;: None}</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>  <span class="o">&gt;&gt;&gt;</span> <span class="n">rfdata</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="vm">__dict__</span>
+<span class="p">{</span><span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="mi">2015</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">03</span><span class="n">T06</span><span class="p">:</span><span class="mi">43</span><span class="p">:</span><span class="mf">22.840000</span><span class="n">Z</span><span class="p">,</span>
+ <span class="s1">&#39;lon&#39;</span><span class="p">:</span> <span class="mf">125.977</span><span class="p">,</span>
+ <span class="s1">&#39;lat&#39;</span><span class="p">:</span> <span class="mf">10.1385</span><span class="p">,</span>
+ <span class="s1">&#39;dep&#39;</span><span class="p">:</span> <span class="mf">50.8</span><span class="p">,</span>
+ <span class="s1">&#39;mag&#39;</span><span class="p">:</span> <span class="mf">6.1</span><span class="p">,</span>
+ <span class="s1">&#39;epi_dist&#39;</span><span class="p">:</span> <span class="mf">9654.95322183263</span><span class="p">,</span>
+ <span class="s1">&#39;az&#39;</span><span class="p">:</span> <span class="mf">26.754776375134075</span><span class="p">,</span>
+ <span class="s1">&#39;baz&#39;</span><span class="p">:</span> <span class="mf">286.03267562515674</span><span class="p">,</span>
+ <span class="s1">&#39;gac&#39;</span><span class="p">:</span> <span class="mf">86.82908036528741</span><span class="p">,</span>
+ <span class="s1">&#39;ttime&#39;</span><span class="p">:</span> <span class="mf">766.29205941718612</span><span class="p">,</span>
+ <span class="s1">&#39;ph&#39;</span><span class="p">:</span> <span class="s1">&#39;P&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;slow&#39;</span><span class="p">:</span> <span class="mf">0.043863956666625202</span><span class="p">,</span>
+ <span class="s1">&#39;inc&#39;</span><span class="p">:</span> <span class="mf">14.712262941689376</span><span class="p">,</span>
+ <span class="s1">&#39;accept&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+ <span class="s1">&#39;vp&#39;</span><span class="p">:</span> <span class="mf">6.0</span><span class="p">,</span>
+ <span class="s1">&#39;vs&#39;</span><span class="p">:</span> <span class="mf">3.6</span><span class="p">,</span>
+ <span class="s1">&#39;align&#39;</span><span class="p">:</span> <span class="s1">&#39;ZRT&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;rotated&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+ <span class="s1">&#39;snr&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -459,41 +459,53 @@ of <code class="docutils literal notranslate"><span class="pre">meta</span></cod
 </div>
 </div>
 <p>Now add data to the object:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="s1">&#39;demo&#39;</span><span class="p">)</span>
-<span class="go">3 Trace(s) in Stream:</span>
-<span class="go">NY.MMPY..HHN | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples</span>
-<span class="go">NY.MMPY..HHE | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples</span>
-<span class="go">NY.MMPY..HHZ | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>  <span class="o">&gt;&gt;&gt;</span> <span class="n">rfdata</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="s1">&#39;demo&#39;</span><span class="p">)</span>
+<span class="mi">3</span> <span class="n">Trace</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="ow">in</span> <span class="n">Stream</span><span class="p">:</span>
+<span class="n">NY</span><span class="o">.</span><span class="n">MMPY</span><span class="o">..</span><span class="n">HHZ</span> <span class="o">|</span> <span class="mi">2015</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">03</span><span class="n">T06</span><span class="p">:</span><span class="mi">54</span><span class="p">:</span><span class="mf">09.140000</span><span class="n">Z</span> <span class="o">-</span> <span class="mi">2015</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">03</span><span class="n">T06</span><span class="p">:</span><span class="mi">58</span><span class="p">:</span><span class="mf">08.940000</span><span class="n">Z</span> <span class="o">|</span> <span class="mf">5.0</span> <span class="n">Hz</span><span class="p">,</span> <span class="mi">1200</span> <span class="n">samples</span>
+<span class="n">NY</span><span class="o">.</span><span class="n">MMPY</span><span class="o">..</span><span class="n">HHN</span> <span class="o">|</span> <span class="mi">2015</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">03</span><span class="n">T06</span><span class="p">:</span><span class="mi">54</span><span class="p">:</span><span class="mf">09.140000</span><span class="n">Z</span> <span class="o">-</span> <span class="mi">2015</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">03</span><span class="n">T06</span><span class="p">:</span><span class="mi">58</span><span class="p">:</span><span class="mf">08.940000</span><span class="n">Z</span> <span class="o">|</span> <span class="mf">5.0</span> <span class="n">Hz</span><span class="p">,</span> <span class="mi">1200</span> <span class="n">samples</span>
+<span class="n">NY</span><span class="o">.</span><span class="n">MMPY</span><span class="o">..</span><span class="n">HHE</span> <span class="o">|</span> <span class="mi">2015</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">03</span><span class="n">T06</span><span class="p">:</span><span class="mi">54</span><span class="p">:</span><span class="mf">09.140000</span><span class="n">Z</span> <span class="o">-</span> <span class="mi">2015</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">03</span><span class="n">T06</span><span class="p">:</span><span class="mi">58</span><span class="p">:</span><span class="mf">08.940000</span><span class="n">Z</span> <span class="o">|</span> <span class="mf">5.0</span> <span class="n">Hz</span><span class="p">,</span> <span class="mi">1200</span> <span class="n">samples</span>
 </pre></div>
 </div>
 <p>Perform receiver function deconvolution using default values:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">deconvolve</span><span class="p">()</span>
 <span class="go">Warning: Data have not been rotated yet - rotating now</span>
-<span class="go">Warning: SNR has not been calculated - calculating now using default</span>
+<span class="go">Warning: SNR has not been calculated - calculating now using</span>
+
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">rf</span>
 <span class="go">3 Trace(s) in Stream:</span>
-<span class="go">NY.MMPY..RFZ | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples</span>
-<span class="go">NY.MMPY..RFR | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples</span>
-<span class="go">NY.MMPY..RFT | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples</span>
+<span class="go">NY.MMPY..RFZ | 2015-07-03T06:56:04.140000Z - 2015-07-03T06:57:59.140000Z | 5.0 Hz, 576 samples</span>
+<span class="go">NY.MMPY..RFR | 2015-07-03T06:56:04.140000Z - 2015-07-03T06:57:59.140000Z | 5.0 Hz, 576 samples</span>
+<span class="go">NY.MMPY..RFT | 2015-07-03T06:56:04.140000Z - 2015-07-03T06:57:59.140000Z | 5.0 Hz, 576 samples</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span> <span class="o">=</span> <span class="n">rfdata</span><span class="o">.</span><span class="n">to_stream</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span>
 <span class="go">3 Trace(s) in Stream:</span>
-<span class="go">NY.MMPY..RFZ | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples</span>
-<span class="go">NY.MMPY..RFR | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples</span>
-<span class="go">NY.MMPY..RFT | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples</span>
+<span class="go">NY.MMPY..RFZ | 2015-07-03T06:56:04.140000Z - 2015-07-03T06:57:59.140000Z | 5.0 Hz, 576 samples</span>
+<span class="go">NY.MMPY..RFR | 2015-07-03T06:56:04.140000Z - 2015-07-03T06:57:59.140000Z | 5.0 Hz, 576 samples</span>
+<span class="go">NY.MMPY..RFT | 2015-07-03T06:56:04.140000Z - 2015-07-03T06:57:59.140000Z | 5.0 Hz, 576 samples</span>
 </pre></div>
 </div>
 <p>Check out new stats in traces</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">snr</span>
-<span class="go">XXXX</span>
+<span class="go">10.799614447256117</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">slow</span>
-<span class="go">YYYY</span>
+<span class="go">0.043863956666625202</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">baz</span>
-<span class="go">ZZZZ</span>
+<span class="go">286.03267562515674</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">is_rf</span>
 <span class="go">True</span>
 </pre></div>
+</div>
+<p>Plot filtered and trimmed <code class="docutils literal notranslate"><span class="pre">rfstream</span></code></p>
+<p>..sourcecode:: python</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;bandpass&#39;</span><span class="p">,</span> <span class="n">freqmin</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">freqmax</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t1</span> <span class="o">=</span> <span class="n">rfstream</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">starttime</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">t1</span><span class="o">+</span><span class="mf">30.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="figure align-center">
+<img alt="../rfpy/examples/figures/Figure_rfdata_demo.png" src="../rfpy/examples/figures/Figure_rfdata_demo.png" />
 </div>
 </div>
 </div>
@@ -641,7 +653,7 @@ back-azimuth and slowness bins (in the presence of a dipping interface), or simp
 (for horizontal interfaces):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rfpy</span> <span class="kn">import</span> <span class="n">binning</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rfV_binned</span> <span class="o">=</span> <span class="n">binning</span><span class="o">.</span><span class="n">bin</span><span class="p">(</span><span class="n">hkstack</span><span class="o">.</span><span class="n">rfV1</span><span class="p">,</span> <span class="n">typ</span><span class="o">=</span><span class="s1">&#39;slow&#39;</span><span class="p">,</span> <span class="n">nbin</span><span class="o">=</span><span class="mi">21</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">rfV1</span> <span class="o">=</span> <span class="n">rfV_binned</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">rfV1</span> <span class="o">=</span> <span class="n">rfV_binned</span>
 </pre></div>
 </div>
 <p>it is straightforward to directly
@@ -657,19 +669,25 @@ with a different frequency corner as another attribute <code class="docutils lit
 <span class="go">Computing: [###############] 61/61</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">average</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>The final estimates are available as attributes</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">h0</span>
-<span class="go">32.0</span>
+<span class="go">34.0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">err_h0</span>
-<span class="go">1.875</span>
+<span class="go">5.5</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">k0</span>
-<span class="go">1.78</span>
+<span class="go">1.72</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">err_k0</span>
-<span class="go">0.115</span>
+<span class="go">0.14</span>
 </pre></div>
+</div>
+<p>Plot the stacks with error contours</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="figure align-center">
+<img alt="../rfpy/examples/figures/Figure_hk_demo.png" src="../rfpy/examples/figures/Figure_hk_demo.png" />
 </div>
 </div>
 </div>
@@ -792,16 +810,16 @@ are aligned in the <code class="docutils literal notranslate"><span class="pre">
 and <code class="docutils literal notranslate"><span class="pre">'RFH'</span></code>). To prepare them for harmonic decomposition, we can bin the receiver functions into
 back-azimuth and slowness bins :</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rfpy</span> <span class="kn">import</span> <span class="n">binning</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">str_binned</span> <span class="o">=</span> <span class="n">binning</span><span class="o">.</span><span class="n">bin_baz_slow</span><span class="p">(</span><span class="n">harmonics</span><span class="o">.</span><span class="n">strV</span><span class="p">,</span> <span class="n">harmonics</span><span class="o">.</span><span class="n">strH</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="n">strV</span> <span class="o">=</span> <span class="n">str_binned</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="n">strH</span> <span class="o">=</span> <span class="n">str_binned</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">str_binned</span> <span class="o">=</span> <span class="n">binning</span><span class="o">.</span><span class="n">bin_baz_slow</span><span class="p">(</span><span class="n">harmonics</span><span class="o">.</span><span class="n">radialRF</span><span class="p">,</span> <span class="n">harmonics</span><span class="o">.</span><span class="n">transvRF</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="n">radialRF</span> <span class="o">=</span> <span class="n">str_binned</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="n">transvRF</span> <span class="o">=</span> <span class="n">str_binned</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>It is straightforward to directly
 filter the <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> object, and perhaps also add a copy of the stream
 with a different frequency corner as another attribute <code class="docutils literal notranslate"><span class="pre">rfV2</span></code>, as suggested above:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="n">strV</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;bandpass&#39;</span><span class="p">,</span> <span class="n">freqmin</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">freqmax</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">corners</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">zerophase</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="n">strH</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;bandpass&#39;</span><span class="p">,</span> <span class="n">freqmin</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">freqmax</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">corners</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">zerophase</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="n">radialRF</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;bandpass&#39;</span><span class="p">,</span> <span class="n">freqmin</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">freqmax</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">corners</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">zerophase</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="n">transvRF</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;bandpass&#39;</span><span class="p">,</span> <span class="n">freqmin</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">freqmax</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">corners</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">zerophase</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Now simply perform harmonic decomposition</p>
@@ -810,8 +828,11 @@ with a different frequency corner as another attribute <code class="docutils lit
 </pre></div>
 </div>
 <p>Plot them</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ymax</span><span class="o">=</span><span class="mf">10.</span><span class="p">)</span>
 </pre></div>
+</div>
+<div class="figure align-center">
+<img alt="../rfpy/examples/figures/Figure_harmonics_demo.png" src="../rfpy/examples/figures/Figure_harmonics_demo.png" />
 </div>
 </div>
 </div>
