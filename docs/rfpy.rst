@@ -270,32 +270,32 @@ Now import an event:
 .. sourcecode:: python
 
     >>> rfdata.add_event('demo')
-    2015-02-02T08:25:51.300000Z |  -1.583, +145.315 | 6.0 MW
+    2015-07-03T06:43:22.840000Z | +10.139, +125.977 | 6.1 MW
 
 Print the content of the object meta data
 
 .. sourcecode:: python
 
     >>> rfdata.meta.__dict__
-    {'time': 2015-02-02T08:25:51.300000Z,
-     'dep': 34000.0,
-     'lon': 145.3149,
-     'lat': -1.5827,
-     'mag': 6.0,
-     'epi_dist': 9823.972036840038,
-     'az': 27.282925592822235,
-     'baz': 263.555086495223,
-     'gac': 88.34910308671685,
-     'ttime': 768.19792906912335,
-     'ph': 'P',
-     'slow': 0.042684575337198057,
-     'inc': 14.30813192210563,
-     'accept': True,
-     'vp': 6.0,
-     'vs': 3.6,
-     'align': 'ZRT',
-     'rotated': False,
-     'snr': None}
+  {'time': 2015-07-03T06:43:22.840000Z,
+   'lon': 125.977,
+   'lat': 10.1385,
+   'dep': 50.8,
+   'mag': 6.1,
+   'epi_dist': 9654.95322183263,
+   'az': 26.754776375134075,
+   'baz': 286.03267562515674,
+   'gac': 86.82908036528741,
+   'ttime': 766.29205941718612,
+   'ph': 'P',
+   'slow': 0.043863956666625202,
+   'inc': 14.712262941689376,
+   'accept': True,
+   'vp': 6.0,
+   'vs': 3.6,
+   'align': 'ZRT',
+   'rotated': False,
+   'snr': None}
 
 .. note::
 
@@ -318,10 +318,10 @@ Now add data to the object:
 .. sourcecode:: python
 
     >>> rfdata.add_data('demo')
-    3 Trace(s) in Stream:
-    NY.MMPY..HHN | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
-    NY.MMPY..HHE | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
-    NY.MMPY..HHZ | 2015-02-02T08:36:39.500000Z - 2015-02-02T08:40:39.300000Z | 5.0 Hz, 1200 samples
+  3 Trace(s) in Stream:
+  NY.MMPY..HHZ | 2015-07-03T06:54:09.140000Z - 2015-07-03T06:58:08.940000Z | 5.0 Hz, 1200 samples
+  NY.MMPY..HHN | 2015-07-03T06:54:09.140000Z - 2015-07-03T06:58:08.940000Z | 5.0 Hz, 1200 samples
+  NY.MMPY..HHE | 2015-07-03T06:54:09.140000Z - 2015-07-03T06:58:08.940000Z | 5.0 Hz, 1200 samples
 
 Perform receiver function deconvolution using default values:
 
@@ -329,32 +329,46 @@ Perform receiver function deconvolution using default values:
 
     >>> rfdata.deconvolve()
     Warning: Data have not been rotated yet - rotating now
-    Warning: SNR has not been calculated - calculating now using default
+    Warning: SNR has not been calculated - calculating now using 
+
     >>> rfdata.rf
     3 Trace(s) in Stream:
-    NY.MMPY..RFZ | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
-    NY.MMPY..RFR | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
-    NY.MMPY..RFT | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
-    
+    NY.MMPY..RFZ | 2015-07-03T06:56:04.140000Z - 2015-07-03T06:57:59.140000Z | 5.0 Hz, 576 samples
+    NY.MMPY..RFR | 2015-07-03T06:56:04.140000Z - 2015-07-03T06:57:59.140000Z | 5.0 Hz, 576 samples
+    NY.MMPY..RFT | 2015-07-03T06:56:04.140000Z - 2015-07-03T06:57:59.140000Z | 5.0 Hz, 576 samples    
+
     >>> rfstream = rfdata.to_stream()
     >>> rfstream
     3 Trace(s) in Stream:
-    NY.MMPY..RFZ | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
-    NY.MMPY..RFR | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
-    NY.MMPY..RFT | 2015-02-02T08:38:34.500000Z - 2015-02-02T08:40:29.500000Z | 5.0 Hz, 576 samples
+    NY.MMPY..RFZ | 2015-07-03T06:56:04.140000Z - 2015-07-03T06:57:59.140000Z | 5.0 Hz, 576 samples
+    NY.MMPY..RFR | 2015-07-03T06:56:04.140000Z - 2015-07-03T06:57:59.140000Z | 5.0 Hz, 576 samples
+    NY.MMPY..RFT | 2015-07-03T06:56:04.140000Z - 2015-07-03T06:57:59.140000Z | 5.0 Hz, 576 samples
 
 Check out new stats in traces
 
 .. sourcecode:: python
 
     >>> rfstream[0].stats.snr
-    XXXX
+    10.799614447256117
     >>> rfstream[0].stats.slow
-    YYYY
+    0.043863956666625202
     >>> rfstream[0].stats.baz
-    ZZZZ
+    286.03267562515674
     >>> rfstream[0].stats.is_rf
     True
+
+Plot filtered and trimmed ``rfstream``
+
+
+..sourcecode:: python
+
+    >>> rfstream.filter('bandpass', freqmin=0.05, freqmax=0.5)
+    >>> t1 = rfstream[0].stats.starttime
+    >>> rfstream.trim(t1, t1+30.)
+    >>> rfstream.plot()
+
+.. figure:: ../rfpy/examples/figures/Figure_rfdata_demo.png
+   :align: center
 
 
 Post-Processing: `H-k` stacking

@@ -263,8 +263,6 @@ class RFData(object):
             file = open(os.path.join(
                 os.path.dirname(__file__),
                 "examples/data", "ZNE_Data.pkl"), "rb")
-            print(file)
-
             stream = pickle.load(file)
             print(stream)
 
