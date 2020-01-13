@@ -544,7 +544,7 @@ back-azimuth and slowness bins (in the presence of a dipping interface), or simp
 
     >>> from rfpy import binning
     >>> rfV_binned = binning.bin(hkstack.rfV1, typ='slow', nbin=21)[0]
-    >>> hkstack.rfV1 = rfV_binned[0]
+    >>> hkstack.rfV1 = rfV_binned
 
 it is straightforward to directly
 filter the :class:`~obspy.core.Stream` object, and perhaps also add a copy of the stream
