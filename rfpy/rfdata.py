@@ -259,10 +259,13 @@ class RFData(object):
         # Load demo data
         if stream == 'demo' or stream == 'Demo':
             import os
-            stream = pickle.load(
-                open(
-                    os.path.join(os.path.dirname(__file__),
-                                       "../examples/data", "ZNE_Data.pkl")))
+            import pickle
+            file = open(os.path.join(
+                os.path.dirname(__file__),
+                "examples/data", "ZNE_Data.pkl"), "rb")
+            print(file)
+
+            stream = pickle.load(file)
             print(stream)
 
         if not isinstance(stream, Stream):

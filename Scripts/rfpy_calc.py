@@ -129,8 +129,8 @@ def main():
                   "                                 |")
         else:
             msg = "|   Mag:   {0:3.1f}".format(opts.minmag) + \
-                " - {1:3.1f}".format(opts.maxmag) +
-            "                            |"
+                " - {0:3.1f}".format(opts.maxmag) + \
+                "                            |"
             print(msg)
 
         print("| ...                                           |")
@@ -219,7 +219,7 @@ def main():
                       " -> Ev: {0:7.2f} km;".format(rfdata.meta.epi_dist) +
                       " {0:7.2f} deg;".format(rfdata.meta.gac) +
                       " {0:6.2f};".format(rfdata.meta.baz) +
-                      " {1:6.2f}".format(rfdata.meta.az))
+                      " {0:6.2f}".format(rfdata.meta.az))
 
                 # Get data
                 has_data = rfdata.download_data(
@@ -237,6 +237,10 @@ def main():
                 # Create Folder
                 if not os.path.isdir(evtdir):
                     os.makedirs(evtdir)
+
+                # Save ZNE Traces
+                pickle.dump(rfdata.data, open(
+                    evtdir + "/ZNE_Data.pkl", "wb"))
 
                 # Rotate from ZNE to 'align' ('ZRT', 'LQT', or 'PVH')
                 rfdata.rotate(vp=opts.vp, vs=opts.vs, align=opts.align)
@@ -265,10 +269,6 @@ def main():
                 # Save Station Data
                 pickle.dump(rfdata.sta, open(
                     evtdir + "/Station_Data.pkl", "wb"))
-
-                # Save ZNE Traces
-                pickle.dump(rfdata.data, open(
-                    evtdir + "/ZNE_Data.pkl", "wb"))
 
                 # Save RF Traces
                 pickle.dump(rfstream, open(
