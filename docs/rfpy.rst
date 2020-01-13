@@ -367,7 +367,7 @@ Plot filtered and trimmed ``rfstream``
     >>> rfstream.trim(t1, t1+30.)
     >>> rfstream.plot()
 
-.. figure:: ../rfpy/examples/figures/Figure_rfdata_demo.png
+.. figure:: ../rfpy/examples/data/Figure_rfdata_demo.png
    :align: center
 
 
@@ -564,7 +564,7 @@ Now simply process the hkstack object using the default values to obtain `H` and
     Computing: [###############] 61/61
 
     >>> hkstack.average()
-    
+
 The final estimates are available as attributes
 
 .. sourcecode:: python
@@ -584,7 +584,7 @@ Plot the stacks with error contours
 
     >>> hkstack.plot()
 
-.. figure:: ../rfpy/examples/figures/Figure_hk_demo.png
+.. figure:: ../rfpy/examples/data/Figure_hk_demo.png
    :align: center
 
 
@@ -754,5 +754,5 @@ Plot them
 
     >>> harmonics.plot(ymax=10.)
 
-.. figure:: ../rfpy/examples/figures/Figure_harmonics_demo.png
+.. figure:: ../rfpy/examples/data/Figure_harmonics_demo.png
    :align: center
