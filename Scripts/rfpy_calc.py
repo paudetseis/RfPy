@@ -234,11 +234,6 @@ def main():
                 if not os.path.isdir(evtdir):
                     os.makedirs(evtdir)
 
-                # Save raw Trace files
-                outZNE = open(evtdir + "/ZNE_Data.pkl", "wb")
-                pickle.dump(rfdata.meta, outZNE)
-                pickle.dump(rfdata.data, outZNE)
-                outZNE.close()
 
                 # Rotate from ZNE to 'align' ('ZRT', 'LQT', or 'PVH')
                 rfdata.rotate(vp=opts.vp, vs=opts.vs, align=opts.align)
@@ -258,35 +253,23 @@ def main():
                     twin=opts.twin, vp=opts.vp, vs=opts.vs, align=opts.align)
 
                 # Convert to Stream
-                rfRstream = rfdata.to_stream().select(
-                    component=opts.align[1])[0]
-                rfTstream = rfdata.to_stream().select(
-                    component=opts.align[2])[0]
+                rfstream = rfdata.to_stream()
 
                 # Save event meta data
-                pickle.dump(
-                    rfdata.meta, open(evtdir + "/Meta_Data.pkl", "wb"))
+                pickle.dump(rfdata.meta, open(
+                        evtdir + "/Meta_Data.pkl", "wb"))
 
-                # Station Data
+                # Save Station Data
                 pickle.dump(rfdata.sta, open(
                     evtdir + "/Station_Data.pkl", "wb"))
 
-                cL = rfdata.meta.align[0]
-                cQ = rfdata.meta.align[1]
-                cT = rfdata.meta.align[2]
+                # Save ZNE Traces
+                pickle.dump(rfdata.data, open(
+                    evtdir + "/ZNE_Data.pkl", "wb"))
 
                 # Save RF Traces
-                outRF = open(evtdir + "/RF_Data.pkl", "wb")
-                pickle.dump(rfRstream, outRF)
-                pickle.dump(rfTstream, outRF)
-                outRF.close()
-
-                # rfdata.data.select(component=cL).write(os.path.join(
-                #     evtdir, trpref + "."+cL+".mseed"), format='MSEED')
-                # rfdata.data.select(component=cQ).write(os.path.join(
-                #     evtdir, trpref + "."+cQ+".mseed"), format='MSEED')
-                # rfdata.data.select(component=cT).write(os.path.join(
-                #     evtdir, trpref + "."+cT+".mseed"), format='MSEED')
+                pickle.dump(rfstream, open(
+                    evtdir + "/RF_Data.pkl", "wb"))
 
                 # Update
                 print("* Wrote Output Files to: ")

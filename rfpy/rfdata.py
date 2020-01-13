@@ -83,6 +83,8 @@ class Meta(object):
         self.lon = event.origins[0].longitude
         self.lat = event.origins[0].latitude
         self.dep = event.origins[0].depth
+
+        # Check if depth is valid type
         if self.dep is not None:
             if self.dep > 1000.:
                 self.dep = self.dep/1000.
