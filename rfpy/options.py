@@ -213,7 +213,7 @@ def get_calc_options():
         dest="maxdist",
         default=90.,
         help="Specify the maximum great circle distance (degrees) between " +
-        "the station and event. [Default 120.]")
+        "the station and event. [Default 90.]")
 
     # Constants Settings
     ConstGroup = OptionGroup(

@@ -80,9 +80,14 @@ class Meta(object):
 
         # Extract event 4D parameters
         self.time = event.origins[0].time
-        self.dep = event.origins[0].depth
         self.lon = event.origins[0].longitude
         self.lat = event.origins[0].latitude
+        self.dep = event.origins[0].depth
+        if self.dep is not None:
+            if self.dep > 1000.:
+                self.dep = self.dep/1000.
+        else:
+            self.dep = 10.
 
         # Magnitude
         self.mag = event.magnitudes[0].mag
