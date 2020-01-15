@@ -38,7 +38,7 @@ from matplotlib import cm
 class CCPimage(object):
 
     def __init__(self, coord_start=[None, None], coord_end=[None, None],
-                 weights=[1., 1., -1.],
+                 weights=[1., 2., -2.],
                  dep=np.array([0., 4., 8., 14., 30., 35., 45., 120.]),
                  vp=np.array([4.0, 5.9, 6.2, 6.3, 6.8, 7.2, 8.0, 8.1]),
                  vpvs=1.73):
