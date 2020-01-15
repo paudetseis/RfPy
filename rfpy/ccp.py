@@ -171,8 +171,10 @@ class CCPimage(object):
         # number of cells laterally for specified cell_length (rounded)
         n_lateral = int(np.rint(xs_length/cell_length))
 
-        xs_latitudes = np.asarray(np.linspace(xs_lat1, xs_lat2, n_lateral))
-        xs_longitudes = np.asarray(np.linspace(xs_lon1, xs_lon2, n_lateral))
+        xs_latitudes = np.asarray(
+            np.linspace(self.xs_lat1, self.xs_lat2, n_lateral))
+        xs_longitudes = np.asarray(
+            np.linspace(self.xs_lon1, self.xs_lon2, n_lateral))
         lateral_distances = np.arange(n_lateral)*cell_length
 
         xs_amps_ps = np.zeros((n_depth, n_lateral, n_traces))
@@ -362,7 +364,8 @@ class CCPimage(object):
         ax3.invert_yaxis()
 
         ax4.pcolormesh(self.lateral_distances, self.depth_array,
-                       self.tot_trace_ccp, cmap=cm.RdBu_r, vmin=vmin, vmax=vmax)
+                       self.tot_trace_ccp, cmap=cm.RdBu_r,
+                       vmin=vmin, vmax=vmax)
         bar = plt.colorbar()
         ax4.set_xlim((min(self.lateral_distances)),
                      (max(self.lateral_distances)))
@@ -422,7 +425,8 @@ class CCPimage(object):
         ax3.invert_yaxis()
 
         ax4.pcolormesh(self.lateral_distances, self.depth_array,
-                       self.tot_trace_gccp, cmap=cm.RdBu_r, vmin=vmin, vmax=vmax)
+                       self.tot_trace_gccp, cmap=cm.RdBu_r,
+                       vmin=vmin, vmax=vmax)
         bar = plt.colorbar()
         ax4.set_xlim((min(self.lateral_distances)),
                      (max(self.lateral_distances)))
