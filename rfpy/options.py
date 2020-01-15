@@ -1144,6 +1144,140 @@ def get_ccp_options():
 
     return (opts, indb)
 
+
+def get_plot_options():
+    """
+    Get Options from :class:`~optparse.OptionParser` objects.
+
+    This function is used for data processing on-the-fly (requires web connection)
+
+    """
+
+    from optparse import OptionParser, OptionGroup
+    from os.path import exists as exist
+    from obspy import UTCDateTime
+    from numpy import nan
+
+    parser = OptionParser(
+        usage="Usage: %prog [options] <station database>",
+        description="Script used to plot receiver function data ")
+
+    # General Settings
+    parser.add_option(
+        "--keys",
+        action="store",
+        type=str,
+        dest="stkeys",
+        default="",
+        help="Specify a comma separated list of station keys for " +
+        "which to perform the analysis. These must be " +
+        "contained within the station database. Partial keys will " +
+        "be used to match against those in the dictionary. For " +
+        "instance, providing IU will match with all stations in " +
+        "the IU network [Default processes all stations in the database]")
+    parser.add_option(
+        "-v", "-V", "--verbose",
+        action="store_true",
+        dest="verb",
+        default=False,
+        help="Specify to increase verbosity.")
+    parser.add_option(
+        "-O", "--overwrite",
+        action="store_true",
+        dest="ovr",
+        default=False,
+        help="Force the overwriting of pre-existing figures. " +
+        "[Default False]")
+
+    PreGroup = OptionGroup(
+        parser,
+        title='Pre-processing Settings',
+        description="Options for pre-processing of receiver function " +
+        "data for CCP stacking")
+    PreGroup.add_option(
+        "--snr",
+        action="store",
+        type=float,
+        dest="snr",
+        default=5.,
+        help="Specify the SNR threshold for extracting receiver functions. "+
+        "[Default 5.]")
+    PreGroup.add_option(
+        "--fmin",
+        action="store",
+        type=float,
+        dest="fmin",
+        default=0.05,
+        help="Specify the low frequency corner for the bandpass filter. "+
+        "[Default [0.05]]")
+    PreGroup.add_option(
+        "--fmax",
+        action="store",
+        type=float,
+        dest="fmax",
+        default=0.75,
+        help="Specify the high frequency corner for the bandpass filter. "+
+        "[Default [0.75]]")
+    PreGroup.add_option(
+        "--nbaz",
+        action="store",
+        dest="nbaz",
+        type=int,
+        default=None,
+        help="Specify integer number of back-azimuth bins to consider " +
+        "(typically 36 or 72). If not None, the plot will show receiver "+
+        "functions sorted by back-azimuth values. [Default None]")
+    PreGroup.add_option(
+        "--nslow",
+        action="store",
+        dest="nslow",
+        type=int,
+        default=None,
+        help="Specify integer number of slowness bins to consider " +
+        "(typically 20 or 40). If not None, the plot will show receiver "+
+        "functions sorted by slowness values. [Default None]")
+
+    parser.add_option_group(PreGroup)
+
+    (opts, args) = parser.parse_args()
+
+    # Check inputs
+    if len(args) != 1:
+        parser.error("Need station database file")
+    indb = args[0]
+    if not exist(indb):
+        parser.error("Input file " + indb + " does not exist")
+
+    # create station key list
+    if len(opts.stkeys) > 0:
+        opts.stkeys = opts.stkeys.split(',')
+
+    if opts.coord_start is None:
+        parser.error("--start=lon,lat is required")
+    else:
+        opts.coord_start = [float(val) for val in opts.coord_start.split(',')]
+        if (len(opts.coord_start)) != 2:
+            parser.error(
+                "Error: --start should contain 2 " +
+                "comma-separated floats")
+
+    if opts.coord_end is None:
+        parser.error("--end=lon,lat is required")
+    else:
+        opts.coord_end = [float(val) for val in opts.coord_end.split(',')]
+        if (len(opts.coord_end)) != 2:
+            parser.error(
+                "Error: --end should contain 2 " +
+                "comma-separated floats")
+
+    if not opts.nbaz and not opts.nslow:
+        parser.error("Specify at least one of --nbaz or --nslow")
+    elif opts.nbaz and opts.nslow:
+        parser.error("Specify only one of --nbaz or --nslow")
+        
+    return (opts, indb)
+
+
 def parse_localdata_for_comp(comp='Z', stdata=list, sta=None,
                              start=UTCDateTime, end=UTCDateTime, ndval=nan):
     """
