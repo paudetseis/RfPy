@@ -278,6 +278,13 @@ class RFData(object):
             print("Error: Not all channels are available")
             self.meta.accept = False
 
+        lenE = len(trE.data)
+        lenN = len(trN.data)
+        lenZ = len(trZ.data)
+
+        if not (lenE == lenN) or not (lenE == lenZ):
+            self.meta.accept = False
+
         if returned:
             return self.meta.accept
 
@@ -338,6 +345,13 @@ class RFData(object):
             trZ = stream.select(component='Z')[0]
             self.data = Stream(traces=[trZ, trN, trE])
         except:
+            self.meta.accept = False
+
+        lenE = len(trE.data)
+        lenN = len(trN.data)
+        lenZ = len(trZ.data)
+
+        if not (lenE == lenN) or not (lenE == lenZ):
             self.meta.accept = False
 
         if returned:
