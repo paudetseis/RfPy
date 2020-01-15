@@ -93,9 +93,10 @@ class CCPimage(object):
             del RFbin
 
             print("Station: "+st_ps[0].stats.station)
-            for itr in range(len(st_ps)):
+            for itr in _progressbar(range(len(st_ps)), 'Preparing data: ', 20):
+            # for itr in range(len(st_ps)):
 
-                print('tr ', itr+1, ' out of ', len(st_ps))
+                # print('tr ', itr+1, ' out of ', len(st_ps))
 
                 # Get raypath and travel time for all phases
                 tt_ps, tt_pps, tt_pss, plon, plat, idep = \
@@ -181,8 +182,9 @@ class CCPimage(object):
         xs_amps_pps = np.zeros((n_depth, n_lateral, n_traces))
         xs_amps_pss = np.zeros((n_depth, n_lateral, n_traces))
 
-        for i_depth in range(n_depth):
-            print('i_depth for Grid loop', i_depth+1, ' out of ', n_depth)
+        for i_depth in _progressbar(range(n_depth), 'Prestacking: ', 20):
+        # for i_depth in range(n_depth):
+            # print('i_depth for Grid loop', i_depth+1, ' out of ', n_depth)
 
             for i_coor in range(n_traces):
 
@@ -237,9 +239,10 @@ class CCPimage(object):
         xs_pps_avg = np.zeros((self.n_depth, self.n_lateral))
         xs_pss_avg = np.zeros((self.n_depth, self.n_lateral))
 
-        for i_depth in range(self.n_depth):
-            print('i_depth for Average loop',
-                  i_depth, ' out of ', self.n_depth)
+        for i_depth in _progressbar(range(self.n_depth), 'CCP averaging: ', 20):
+        # for i_depth in range(self.n_depth):
+        #     print('i_depth for Average loop',
+        #           i_depth, ' out of ', self.n_depth)
 
             for i_cell in range(self.n_lateral):
 
@@ -328,7 +331,7 @@ class CCPimage(object):
         # plt.pcolormesh(lateral_distances,depth_array,xs_ps_avg,cmap=cm.coolwarm,vmin=vmin,vmax=vmax)
         im1 = ax1.pcolormesh(self.lateral_distances, self.depth_array,
                        self.xs_ps_avg, cmap=cm.RdBu_r, vmin=vmin, vmax=vmax)
-        plt.colorbar(im1, ax=ax1)
+        bar = plt.colorbar(im1, ax=ax1)
         ax1.set_xlim((min(self.lateral_distances)),
                      (max(self.lateral_distances)))
         ax1.set_ylim((min(self.depth_array)), (max(self.depth_array)))
@@ -341,7 +344,7 @@ class CCPimage(object):
         # plt.pcolormesh(lateral_distances,depth_array,xs_pps_avg,cmap=cm.coolwarm,vmin=vmin,vmax=vmax)
         im2 = ax2.pcolormesh(self.lateral_distances, self.depth_array,
                        self.xs_pps_avg, cmap=cm.RdBu_r, vmin=vmin, vmax=vmax)
-        plt.colorbar(im2, ax=ax2)
+        bar = plt.colorbar(im2, ax=ax2)
         ax2.set_xlim((min(self.lateral_distances)),
                      (max(self.lateral_distances)))
         ax2.set_ylim((min(self.depth_array)), (max(self.depth_array)))
@@ -353,7 +356,7 @@ class CCPimage(object):
 
         im3 = ax3.pcolormesh(self.lateral_distances, self.depth_array,
                        self.xs_pss_avg, cmap=cm.RdBu_r, vmin=vmin, vmax=vmax)
-        plt.colorbar(im3, ax=ax3)
+        bar = plt.colorbar(im3, ax=ax3)
         ax3.set_xlim((min(self.lateral_distances)),
                      (max(self.lateral_distances)))
         ax3.set_ylim((min(self.depth_array)), (max(self.depth_array)))
@@ -366,7 +369,7 @@ class CCPimage(object):
         im4 = ax4.pcolormesh(self.lateral_distances, self.depth_array,
                        self.tot_trace_ccp, cmap=cm.RdBu_r,
                        vmin=vmin, vmax=vmax)
-        plt.colorbar(im4, ax=ax4)
+        bar = plt.colorbar(im4, ax=ax4)
         ax4.set_xlim((min(self.lateral_distances)),
                      (max(self.lateral_distances)))
         ax4.set_ylim((min(self.depth_array)), (max(self.depth_array)))
@@ -389,7 +392,7 @@ class CCPimage(object):
         # plt.pcolormesh(lateral_distances,depth_array,xs_ps_avg,cmap=cm.coolwarm,vmin=vmin,vmax=vmax)
         im1 = ax1.pcolormesh(self.lateral_distances, self.depth_array,
                        self.xs_gauss_ps, cmap=cm.RdBu_r, vmin=vmin, vmax=vmax)
-        plt.colorbar(im1, ax=ax1)
+        bar = plt.colorbar(im1, ax=ax1)
         ax1.set_xlim((min(self.lateral_distances)),
                      (max(self.lateral_distances)))
         ax1.set_ylim((min(self.depth_array)), (max(self.depth_array)))
@@ -402,7 +405,7 @@ class CCPimage(object):
         # plt.pcolormesh(lateral_distances,depth_array,xs_pps_avg,cmap=cm.coolwarm,vmin=vmin,vmax=vmax)
         im2 = ax2.pcolormesh(self.lateral_distances, self.depth_array,
                        self.xs_gauss_pps, cmap=cm.RdBu_r, vmin=vmin, vmax=vmax)
-        plt.colorbar(im2, ax=ax2)
+        bar = plt.colorbar(im2, ax=ax2)
         ax2.set_xlim((min(self.lateral_distances)),
                      (max(self.lateral_distances)))
         ax2.set_ylim((min(self.depth_array)), (max(self.depth_array)))
@@ -414,7 +417,7 @@ class CCPimage(object):
 
         im3 = ax3.pcolormesh(self.lateral_distances, self.depth_array,
                        self.xs_gauss_pss, cmap=cm.RdBu_r, vmin=vmin, vmax=vmax)
-        plt.colorbar(im3, ax=ax3)
+        bar = plt.colorbar(im3, ax=ax3)
         ax3.set_xlim((min(self.lateral_distances)),
                      (max(self.lateral_distances)))
         ax3.set_ylim((min(self.depth_array)), (max(self.depth_array)))
@@ -427,7 +430,7 @@ class CCPimage(object):
         im4 = ax4.pcolormesh(self.lateral_distances, self.depth_array,
                        self.tot_trace_gccp, cmap=cm.RdBu_r,
                        vmin=vmin, vmax=vmax)
-        plt.colorbar(im4, ax=ax4)
+        bar = plt.colorbar(im4, ax=ax4)
         ax4.set_xlim((min(self.lateral_distances)),
                      (max(self.lateral_distances)))
         ax4.set_ylim((min(self.depth_array)), (max(self.depth_array)))
@@ -654,3 +657,24 @@ def haversine(lat, lon, xs_lat, xs_lon):  # great-circle distance (kilometres)
     distance = np.abs(2.*earth_radius*np.arcsin(np.sqrt(a)), dtype=float)
 
     return np.abs(distance)
+
+
+def _progressbar(it, prefix="", size=60, file=sys.stdout):
+    """
+    Show progress bar while looping in for loop
+
+    """
+
+    count = len(it)
+
+    def show(j):
+        x = int(size*j/count)
+        file.write("%s[%s%s] %i/%i\r" %
+                   (prefix, "#"*x, "."*(size-x), j, count))
+        file.flush()
+    show(0)
+    for i, item in enumerate(it):
+        yield item
+        show(i+1)
+    file.write("\n")
+    file.flush()
