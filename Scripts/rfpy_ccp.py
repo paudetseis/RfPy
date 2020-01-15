@@ -109,12 +109,24 @@ def main():
 
         ccpimage.add_rfstream(rfRstream)
 
+    print()
+    print("|-----------------------------------------------|")
+    print()
+
     ccpimage.prep_data(f1=opts.f1, f2ps=opts.f2ps,
                        f2pps=opts.f2pps, f2pss=opts.f2pss,
                        n_depth=opts.n_depth, nbaz=opts.nbaz,
                        nslow=opts.nslow)
 
+    print()
+    print("|-----------------------------------------------|")
+    print()
+
     ccpimage.prestack(cell_length=opts.cell_length)
+
+    print()
+    print("|-----------------------------------------------|")
+    print()
 
     if opts.run_ccp:
         ccpimage.ccp()

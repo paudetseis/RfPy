@@ -26,6 +26,7 @@ values, bin them, and produce CCP stacks using receiver functions.
 
 """
 
+import sys
 import numpy as np
 import scipy as sp
 from scipy.signal import hilbert
@@ -46,7 +47,6 @@ class CCPimage(object):
         self.dep = dep
         self.vp = vp
         self.vs = vp/vpvs
-        print(self.vp)
         self.weights = weights
         self.xs_lat1 = coord_start[0]
         self.xs_lon1 = coord_start[1]
@@ -93,7 +93,7 @@ class CCPimage(object):
             del RFbin
 
             print("Station: "+st_ps[0].stats.station)
-            for itr in _progressbar(range(len(st_ps)), 'Preparing data: ', 20):
+            for itr in _progressbar(range(len(st_ps)), 'Preparing data: ', 25):
             # for itr in range(len(st_ps)):
 
                 # print('tr ', itr+1, ' out of ', len(st_ps))
@@ -182,7 +182,7 @@ class CCPimage(object):
         xs_amps_pps = np.zeros((n_depth, n_lateral, n_traces))
         xs_amps_pss = np.zeros((n_depth, n_lateral, n_traces))
 
-        for i_depth in _progressbar(range(n_depth), 'Prestacking: ', 20):
+        for i_depth in _progressbar(range(n_depth), 'Prestacking: ', 25):
         # for i_depth in range(n_depth):
             # print('i_depth for Grid loop', i_depth+1, ' out of ', n_depth)
 
@@ -239,7 +239,7 @@ class CCPimage(object):
         xs_pps_avg = np.zeros((self.n_depth, self.n_lateral))
         xs_pss_avg = np.zeros((self.n_depth, self.n_lateral))
 
-        for i_depth in _progressbar(range(self.n_depth), 'CCP averaging: ', 20):
+        for i_depth in _progressbar(range(self.n_depth), 'CCP averaging: ', 25):
         # for i_depth in range(self.n_depth):
         #     print('i_depth for Average loop',
         #           i_depth, ' out of ', self.n_depth)
@@ -323,7 +323,7 @@ class CCPimage(object):
 
         self.tot_trace_gccp = tot_trace
 
-    def plot_ccp(self, vmin=-0.015, vmax=0.015, save=False, form='png'):
+    def plot_ccp(self, vmin=-0.03, vmax=0.03, save=False, form='png'):
 
         fig, (ax1, ax2, ax3, ax4) = plt.subplots(
             4, 1, figsize=(8.5, 8))
@@ -382,6 +382,7 @@ class CCPimage(object):
         if save:
             plt.savefig('FIGURES/ccp.' + it + '.' + form)
 
+        plt.tight_layout()
         plt.show()
 
     def plot_gccp(self, vmin=-0.015, vmax=0.015, save=False, form='png'):
@@ -443,6 +444,7 @@ class CCPimage(object):
         if save:
             plt.savefig('FIGURES/gccp.' + it + '.' + form)
 
+        plt.tight_layout()
         plt.show()
 
 
