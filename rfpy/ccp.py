@@ -56,7 +56,8 @@ class CCPimage(object):
 
         self.radialRF.append(rfstream)
 
-    def prep_data(self, f1, f2ps, f2pps, f2pss, n_depth=120):
+    def prep_data(self, f1=0.05, f2ps=0.5, f2pps=0.3, f2pss=0.3, n_depth=120,
+                  nbaz=36+1, nslow=40+1):
 
         # Process streams one at a time
         for RF in self.radialRF:
@@ -64,7 +65,7 @@ class CCPimage(object):
             # Bin RFs into back-azimuth and slowness bins to speed up
             # calculations
             RFbin = binning.bin_baz_slow(
-                RF, nbaz=36+1, nslow=40+1, pws=True)[0]
+                RF, nbaz=nbaz, nslow=nslow, pws=True)[0]
             n_traces = len(RFbin)
             amp_ps_tr = np.empty([n_traces, n_depth])
             amp_pps_tr = np.empty([n_traces, n_depth])

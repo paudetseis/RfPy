@@ -937,6 +937,214 @@ def get_harmonics_options():
     return (opts, indb)
 
 
+def get_ccp_options():
+    """
+    Get Options from :class:`~optparse.OptionParser` objects.
+
+    This function is used for data processing on-the-fly (requires web connection)
+
+    """
+
+    from optparse import OptionParser, OptionGroup
+    from os.path import exists as exist
+    from obspy import UTCDateTime
+    from numpy import nan
+
+    parser = OptionParser(
+        usage="Usage: %prog [options] <station database>",
+        description="Script used to process receiver function data " +
+        "for common-conversion-point (CCP) imaging.")
+
+    # General Settings
+    parser.add_option(
+        "--keys",
+        action="store",
+        type=str,
+        dest="stkeys",
+        default="",
+        help="Specify a comma separated list of station keys for " +
+        "which to perform the analysis. These must be " +
+        "contained within the station database. Partial keys will " +
+        "be used to match against those in the dictionary. For " +
+        "instance, providing IU will match with all stations in " +
+        "the IU network [Default processes all stations in the database]")
+    parser.add_option(
+        "-v", "-V", "--verbose",
+        action="store_true",
+        dest="verb",
+        default=False,
+        help="Specify to increase verbosity.")
+    parser.add_option(
+        "-O", "--overwrite",
+        action="store_true",
+        dest="ovr",
+        default=False,
+        help="Force the overwriting of pre-existing data. " +
+        "[Default False]")
+
+    LineGroup = OptionGroup(
+        parser,
+        title='Line Geometry Settings',
+        description="Options for defining the line along which to "+
+        "produce the CCP image")
+    LineGroup.add_option(
+        "--start",
+        action="store",
+        type=str,
+        dest="coord_start",
+        default=None,
+        help="Specify a list of two floats with the latitude and longitude "+
+        "of the start point, in this respective order. [Exception raised "+
+        "if not specified]")
+    LineGroup.add_option(
+        "--end",
+        action="store",
+        dest="ccord_end",
+        type=str,
+        default=None,
+        help="Specify a list of two floats with the latitude and longitude"+
+        "of the end point, in this respective order. [Exception raised "+
+        "if not specified]")
+    LineGroup.add_optiopn(
+        "--ndepth",
+        action="store",
+        dest="n_depth",
+        type=int,
+        default=120,
+        help="Specify integer number of depth cells to consider. " +
+        "[Default 120]")
+    LineGroup.add_optiopn(
+        "--cell-size",
+        action="store",
+        dest="cell_length",
+        type=float,
+        default=2.,
+        help="Specify horizontal cell size in km. " +
+        "[Default 2.]")
+
+    PreGroup = OptionGroup(
+        parser,
+        title='Pre-processing Settings',
+        description="Options for pre-processing of receiver function " +
+        "data for CCP stacking")
+    PreGroup.add_option(
+        "--snr",
+        action="store",
+        type=float,
+        dest="snr",
+        default=5.,
+        help="Specify the SNR threshold for extracting receiver functions. "+
+        "[Default 5.]")
+    PreGroup.add_option(
+        "--f1",
+        action="store",
+        type=float,
+        dest="f1",
+        default=0.05,
+        help="Specify the low frequency corner for the bandpass filter "+
+        "for all phases (Hz). [Default [0.05]]")
+    PreGroup.add_option(
+        "--f2ps",
+        action="store",
+        type=float,
+        dest="f2ps",
+        default=0.5,
+        help="Specify the high frequency corner for the bandpass filter "+
+        "for the Ps phase (Hz). [Default [0.5]]")
+    PreGroup.add_option(
+        "--f2pps",
+        action="store",
+        type=float,
+        dest="f2pps",
+        default=0.3,
+        help="Specify the high frequency corner for the bandpass filter "+
+        "for the Pps phase (Hz). [Default [0.3]]")
+    PreGroup.add_option(
+        "--f2pss",
+        action="store",
+        type=float,
+        dest="f2pss",
+        default=0.3,
+        help="Specify the high frequency corner for the bandpass filter "+
+        "for the Pss phase (Hz). [Default [0.3]]")
+    PreGroup.add_option(
+        "--nbaz",
+        action="store",
+        dest="nbaz",
+        type=int,
+        default=36,
+        help="Specify integer number of back-azimuth bins to consider. " +
+        "[Default 36]")
+    PreGroup.add_option(
+        "--nslow",
+        action="store",
+        dest="nslow",
+        type=int,
+        default=40,
+        help="Specify integer number of slowness bins to consider. " +
+        "[Default 40]")
+
+    CCPGroup = OptionGroup(
+        parser,
+        title='CCP Settings',
+        description="Options for specifying the type of CCP stacking "+
+        "to perform")
+    CCPGroup.add_option(
+        "--ccp",
+        action="store_true",
+        dest="run_ccp",
+        default=False,
+        help="Set this option for standard CCP stacking with multiples. "+
+        "[Default False]")
+    CCPGroup.add_option(
+        "--gccp",
+        action="store_true",
+        dest="run_gccp",
+        default=False,
+        help="Set this option for Gaussian-weighted, phase-weighted CCP "+
+        "stacking with multiples. [Default False]")
+
+    parser.add_option_group(TimeGroup)
+    parser.add_option_group(LineGroup)
+    parser.add_option_group(PreGroup)
+    parser.add_option_group(CCPGroup)
+
+    (opts, args) = parser.parse_args()
+
+    # Check inputs
+    if len(args) != 1:
+        parser.error("Need station database file")
+    indb = args[0]
+    if not exist(indb):
+        parser.error("Input file " + indb + " does not exist")
+
+    # create station key list
+    if len(opts.stkeys) > 0:
+        opts.stkeys = opts.stkeys.split(',')
+
+    if opts.coord_start is None:
+        parser.error("--start=lon,lat is required")
+    else:
+        opts.coord_start = [float(val) for val in opts.coord_start.split(',')]
+        if (len(opts.coord_start)) != 2:
+            parser.error(
+                "Error: --start should contain 2 " +
+                "comma-separated floats")
+
+    if opts.coord_end is None:
+        parser.error("--end=lon,lat is required")
+    else:
+        opts.coord_end = [float(val) for val in opts.coord_end.split(',')]
+        if (len(opts.coord_end)) != 2:
+            parser.error(
+                "Error: --end should contain 2 " +
+                "comma-separated floats")
+
+    if not opts.run_ccp and not opts.run_gccp:
+        parser.error("Specify at least one of --ccp or --gccp")
+
+    return (opts, indb)
+
 def parse_localdata_for_comp(comp='Z', stdata=list, sta=None,
                              start=UTCDateTime, end=UTCDateTime, ndval=nan):
     """
