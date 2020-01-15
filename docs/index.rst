@@ -17,6 +17,21 @@ used in command-line scripts.
 .. image:: https://codecov.io/gh/paudetseis/RfPy/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/paudetseis/RfPy
 
+.. note::
+
+   ``RfPy`` was written independently of the Python software `rf <https://rf.readthedocs.io>`_,
+   although it is possible that some classes and methods defined here might be applied
+   to ``rf`` objects, since both are heavily based on `obspy <http://www.obspy.org>`_. The main
+   differences between ``RfPy`` and ``rf`` are as follows:
+
+   * ``RfPy`` only calculates `P` receiver functions, whereas ``rf`` can also calculate
+     `S` receiver functions. 
+   * ``RfPy`` uses a Wiener spectral deconvolution technique that minimizes noise based on
+     observed seismic noise on all components, whereas ``rf`` uses either a water-level 
+     spectral deconvolution or a time-domain deconvolution.
+   * ``RfData`` objects are used to calculate single-station and single-event receiver 
+     functions, whereas ``rf`` can handle multiple stations at once. 
+
 .. toctree::
    :maxdepth: 1
    :caption: Quick Links
