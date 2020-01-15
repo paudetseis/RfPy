@@ -237,6 +237,9 @@ def main():
                 # Create Folder
                 if not os.path.isdir(evtdir):
                     os.makedirs(evtdir)
+                else:
+                    if not opts.ovr:
+                        continue
 
                 # Save ZNE Traces
                 pickle.dump(rfdata.data, open(
