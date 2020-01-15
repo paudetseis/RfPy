@@ -326,9 +326,9 @@ class CCPimage(object):
             4, 1, figsize=(8.5, 8))
 
         # plt.pcolormesh(lateral_distances,depth_array,xs_ps_avg,cmap=cm.coolwarm,vmin=vmin,vmax=vmax)
-        ax1.pcolormesh(self.lateral_distances, self.depth_array,
+        im1 = ax1.pcolormesh(self.lateral_distances, self.depth_array,
                        self.xs_ps_avg, cmap=cm.RdBu_r, vmin=vmin, vmax=vmax)
-        bar = plt.colorbar()
+        plt.colorbar(im1, ax=ax1)
         ax1.set_xlim((min(self.lateral_distances)),
                      (max(self.lateral_distances)))
         ax1.set_ylim((min(self.depth_array)), (max(self.depth_array)))
@@ -339,9 +339,9 @@ class CCPimage(object):
         ax1.invert_yaxis()
 
         # plt.pcolormesh(lateral_distances,depth_array,xs_pps_avg,cmap=cm.coolwarm,vmin=vmin,vmax=vmax)
-        ax2.pcolormesh(self.lateral_distances, self.depth_array,
+        im2 = ax2.pcolormesh(self.lateral_distances, self.depth_array,
                        self.xs_pps_avg, cmap=cm.RdBu_r, vmin=vmin, vmax=vmax)
-        bar = plt.colorbar()
+        plt.colorbar(im2, ax=ax2)
         ax2.set_xlim((min(self.lateral_distances)),
                      (max(self.lateral_distances)))
         ax2.set_ylim((min(self.depth_array)), (max(self.depth_array)))
@@ -351,9 +351,9 @@ class CCPimage(object):
         ax2.set_title('Pps CCP image', size=10)
         ax2.invert_yaxis()
 
-        ax3.pcolormesh(self.lateral_distances, self.depth_array,
+        im3 = ax3.pcolormesh(self.lateral_distances, self.depth_array,
                        self.xs_pss_avg, cmap=cm.RdBu_r, vmin=vmin, vmax=vmax)
-        bar = plt.colorbar()
+        plt.colorbar(im3, ax=ax3)
         ax3.set_xlim((min(self.lateral_distances)),
                      (max(self.lateral_distances)))
         ax3.set_ylim((min(self.depth_array)), (max(self.depth_array)))
@@ -363,10 +363,10 @@ class CCPimage(object):
         ax3.set_title('Pss CCP image', size=10)
         ax3.invert_yaxis()
 
-        ax4.pcolormesh(self.lateral_distances, self.depth_array,
+        im4 = ax4.pcolormesh(self.lateral_distances, self.depth_array,
                        self.tot_trace_ccp, cmap=cm.RdBu_r,
                        vmin=vmin, vmax=vmax)
-        bar = plt.colorbar()
+        plt.colorbar(im4, ax=ax4)
         ax4.set_xlim((min(self.lateral_distances)),
                      (max(self.lateral_distances)))
         ax4.set_ylim((min(self.depth_array)), (max(self.depth_array)))
@@ -387,9 +387,9 @@ class CCPimage(object):
             4, 1, figsize=(8.5, 8))
 
         # plt.pcolormesh(lateral_distances,depth_array,xs_ps_avg,cmap=cm.coolwarm,vmin=vmin,vmax=vmax)
-        ax1.pcolormesh(self.lateral_distances, self.depth_array,
+        im1 = ax1.pcolormesh(self.lateral_distances, self.depth_array,
                        self.xs_gauss_ps, cmap=cm.RdBu_r, vmin=vmin, vmax=vmax)
-        bar = plt.colorbar()
+        plt.colorbar(im1, ax=ax1)
         ax1.set_xlim((min(self.lateral_distances)),
                      (max(self.lateral_distances)))
         ax1.set_ylim((min(self.depth_array)), (max(self.depth_array)))
@@ -400,9 +400,9 @@ class CCPimage(object):
         ax1.invert_yaxis()
 
         # plt.pcolormesh(lateral_distances,depth_array,xs_pps_avg,cmap=cm.coolwarm,vmin=vmin,vmax=vmax)
-        ax2.pcolormesh(self.lateral_distances, self.depth_array,
+        im2 = ax2.pcolormesh(self.lateral_distances, self.depth_array,
                        self.xs_gauss_pps, cmap=cm.RdBu_r, vmin=vmin, vmax=vmax)
-        bar = plt.colorbar()
+        plt.colorbar(im2, ax=ax2)
         ax2.set_xlim((min(self.lateral_distances)),
                      (max(self.lateral_distances)))
         ax2.set_ylim((min(self.depth_array)), (max(self.depth_array)))
@@ -412,9 +412,9 @@ class CCPimage(object):
         ax2.set_title('Pps GCCP image', size=10)
         ax2.invert_yaxis()
 
-        ax3.pcolormesh(self.lateral_distances, self.depth_array,
+        im3 = ax3.pcolormesh(self.lateral_distances, self.depth_array,
                        self.xs_gauss_pss, cmap=cm.RdBu_r, vmin=vmin, vmax=vmax)
-        bar = plt.colorbar()
+        plt.colorbar(im3, ax=ax3)
         ax3.set_xlim((min(self.lateral_distances)),
                      (max(self.lateral_distances)))
         ax3.set_ylim((min(self.depth_array)), (max(self.depth_array)))
@@ -424,10 +424,10 @@ class CCPimage(object):
         ax3.set_title('Pss GCCP image', size=10)
         ax3.invert_yaxis()
 
-        ax4.pcolormesh(self.lateral_distances, self.depth_array,
+        im4 = ax4.pcolormesh(self.lateral_distances, self.depth_array,
                        self.tot_trace_gccp, cmap=cm.RdBu_r,
                        vmin=vmin, vmax=vmax)
-        bar = plt.colorbar()
+        plt.colorbar(im4, ax=ax4)
         ax4.set_xlim((min(self.lateral_distances)),
                      (max(self.lateral_distances)))
         ax4.set_ylim((min(self.depth_array)), (max(self.depth_array)))
