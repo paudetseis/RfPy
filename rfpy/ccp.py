@@ -38,7 +38,7 @@ from matplotlib import cm
 class CCPimage(object):
 
     def __init__(self, coord_start=[None, None], coord_end=[None, None],
-                 weights=[0.5, 3., -3.],
+                 weights=[1., 1., -1.],
                  dep=np.array([0., 4., 8., 14., 30., 35., 45., 120.]),
                  vp=np.array([4.0, 5.9, 6.2, 6.3, 6.8, 7.2, 8.0, 8.1]),
                  vpvs=1.73):
@@ -93,10 +93,7 @@ class CCPimage(object):
             del RFbin
 
             print("Station: "+st_ps[0].stats.station)
-            for itr in _progressbar(range(len(st_ps)), 'Preparing data: ', 25):
-            # for itr in range(len(st_ps)):
-
-                # print('tr ', itr+1, ' out of ', len(st_ps))
+            for itr in _progressbar(range(len(st_ps)), '', 25):
 
                 # Get raypath and travel time for all phases
                 tt_ps, tt_pps, tt_pss, plon, plat, idep = \
@@ -182,9 +179,7 @@ class CCPimage(object):
         xs_amps_pps = np.zeros((n_depth, n_lateral, n_traces))
         xs_amps_pss = np.zeros((n_depth, n_lateral, n_traces))
 
-        for i_depth in _progressbar(range(n_depth), 'Prestacking: ', 25):
-        # for i_depth in range(n_depth):
-            # print('i_depth for Grid loop', i_depth+1, ' out of ', n_depth)
+        for i_depth in _progressbar(range(n_depth), '', 25):
 
             for i_coor in range(n_traces):
 
@@ -239,10 +234,7 @@ class CCPimage(object):
         xs_pps_avg = np.zeros((self.n_depth, self.n_lateral))
         xs_pss_avg = np.zeros((self.n_depth, self.n_lateral))
 
-        for i_depth in _progressbar(range(self.n_depth), 'CCP averaging: ', 25):
-        # for i_depth in range(self.n_depth):
-        #     print('i_depth for Average loop',
-        #           i_depth, ' out of ', self.n_depth)
+        for i_depth in _progressbar(range(self.n_depth), '', 25):
 
             for i_cell in range(self.n_lateral):
 
@@ -297,9 +289,9 @@ class CCPimage(object):
 
     def pws_gccp(self):
 
-        tot_trace = np.zeros((n_depth, n_lateral))
+        tot_trace = np.zeros((self.n_depth, self.n_lateral))
 
-        for i_cell in range(n_lateral):
+        for i_cell in range(self.n_lateral):
             ps_trace = self.xs_gauss_ps[:, i_cell]
             pps_trace = self.xs_gauss_pps[:, i_cell]
             pss_trace = self.xs_gauss_pss[:, i_cell]
@@ -323,7 +315,7 @@ class CCPimage(object):
 
         self.tot_trace_gccp = tot_trace
 
-    def plot_ccp(self, vmin=-0.03, vmax=0.03, save=False, form='png'):
+    def plot_ccp(self, vmin=-0.05, vmax=0.05, save=False, form='png'):
 
         fig, (ax1, ax2, ax3, ax4) = plt.subplots(
             4, 1, figsize=(8.5, 8))

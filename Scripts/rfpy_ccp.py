@@ -82,10 +82,8 @@ def main():
         print(" ")
         print(" ")
         print("|===============================================|")
-        print("|===============================================|")
         print("|                   {0:>8s}                    |".format(
             sta.station))
-        print("|===============================================|")
         print("|===============================================|")
         print("|  Station: {0:>2s}.{1:5s}                            |".format(
             sta.network, sta.station))
@@ -111,6 +109,8 @@ def main():
 
     print()
     print("|-----------------------------------------------|")
+    print("|  Preparing data before stacking               |")
+    print("|-----------------------------------------------|")
     print()
 
     ccpimage.prep_data(f1=opts.f1, f2ps=opts.f2ps,
@@ -120,11 +120,15 @@ def main():
 
     print()
     print("|-----------------------------------------------|")
+    print("|  CCP stacking each phase                      |")
+    print("|-----------------------------------------------|")
     print()
 
     ccpimage.prestack(cell_length=opts.cell_length)
 
     print()
+    print("|-----------------------------------------------|")
+    print("|  Averaging all phases                         |")
     print("|-----------------------------------------------|")
     print()
 
