@@ -27,3 +27,4 @@ __author__ = 'Pascal Audet'
 from .rfdata import RFData
 from .hk import HkStack
 from .harmonics import Harmonics
+from .ccp import CCPimage

@@ -38,14 +38,15 @@ class CCPimage(object):
 
     def __init__(self, coord_start=[None, None], coord_end=[None, None],
                  weights=[0.5, 3., -3.],
-                 dep=np.array([0., 4., 8., 14., 30., 35., 45., 110.]),
-                 vs=np.array([4.0, 5.9, 6.2, 6.3, 6.8, 7.2, 8.0, 8.1]),
+                 dep=np.array([0., 4., 8., 14., 30., 35., 45., 120.]),
+                 vp=np.array([4.0, 5.9, 6.2, 6.3, 6.8, 7.2, 8.0, 8.1]),
                  vpvs=1.73):
 
         self.radialRF = []
         self.dep = dep
-        self.vs = vs
-        self.vp = vs*vpvs
+        self.vp = vp
+        self.vs = vp/vpvs
+        print(self.vp)
         self.weights = weights
         self.xs_lat1 = coord_start[0]
         self.xs_lon1 = coord_start[1]
@@ -58,6 +59,8 @@ class CCPimage(object):
 
     def prep_data(self, f1=0.05, f2ps=0.5, f2pps=0.3, f2pss=0.3, n_depth=120,
                   nbaz=36+1, nslow=40+1):
+
+        i_key = 0
 
         # Process streams one at a time
         for RF in self.radialRF:
@@ -89,6 +92,7 @@ class CCPimage(object):
                 corners=4, zerophase=True)
             del RFbin
 
+            print("Station: "+st_ps[0].stats.station)
             for itr in range(len(st_ps)):
 
                 print('tr ', itr+1, ' out of ', len(st_ps))
@@ -110,19 +114,19 @@ class CCPimage(object):
 
                 # Loop through travel times and shift RFs to get amplitudes
                 for tt in tt_ps:
-                    a, phase = timeshift(tr_ps[itr], tt)
+                    a, phase = timeshift(st_ps[itr], tt)
                     amp_ps.append(self.weights[0]*a)
                 amp_ps_tr[itr, :] = amp_ps
 
                 # Loop through travel times and shift RFs to get amplitudes
                 for tt in tt_pps:
-                    a, phase = timeshift(tr_pps[itr], tt)
+                    a, phase = timeshift(st_pps[itr], tt)
                     amp_pps.append(self.weights[1]*a)
                 amp_pps_tr[itr, :] = amp_pps
 
                 # Loop through travel times and shift RFs to get amplitudes
                 for tt in tt_pss:
-                    a, phase = timeshift(tr_pss[itr], tt)
+                    a, phase = timeshift(st_pss[itr], tt)
                     amp_pss.append(self.weights[2]*a)
                 amp_pss_tr[itr, :] = amp_pss
 
@@ -159,9 +163,6 @@ class CCPimage(object):
     def prestack(self, cell_length=1.):
 
         (n_depth, n_traces) = self.lon_depth.shape
-
-        # Specify coordinates of cross-section end points
-        earth_radius = 6371  # kilometres
 
         # Get total length of grid from end points
         xs_length = haversine(self.xs_lat1, self.xs_lon1,
@@ -454,7 +455,7 @@ def ppoint_distance(tr, dz, vs):
     """
 
     # Calculate distance
-    dx = dz*np.tan(np.arcsin(slow*vs))
+    dx = dz*np.tan(np.arcsin(tr.stats.slow*vs))
 
     return dx
 
@@ -595,12 +596,6 @@ def raypath(tr, nz=50, dep=None, vp=None, vs=None):
     ttpps = np.zeros(nz)
     ttpss = np.zeros(nz)
 
-    # Default velocity model - can be updated later
-    if (dep is None) and (vp is None) and (vs is None):
-        dep = np.array([0., 4., 8., 14., 25.9, 35.7, 45., 110., 200.])
-        vp = np.array([4.0, 5.9, 6.2, 6.3, 6.8, 7.2, 8.0, 8.1, 8.2])
-        vs = vp/1.73
-
     # Get regular depth array
     idep = np.linspace(dep.min(), dep.max(), nz)
 
@@ -641,6 +636,9 @@ def raypath(tr, nz=50, dep=None, vp=None, vs=None):
 
 
 def haversine(lat, lon, xs_lat, xs_lon):  # great-circle distance (kilometres)
+
+    earth_radius = 6371.  # kilometres
+
     lat = np.radians(lat)
     lon = np.radians(lon)
     xs_lat = np.radians(xs_lat)

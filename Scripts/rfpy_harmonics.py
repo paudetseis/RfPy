@@ -127,8 +127,8 @@ def main():
 
                 file = open(datapath+"/"+folder+"/RF_Data.pkl", "rb")
                 rfdata = pickle.load(file)
-                rfRstream.append(rfdata)
-                rfTstream.append(rfdata)
+                rfRstream.append(rfdata[1])
+                rfTstream.append(rfdata[2])
                 file.close()
 
             else:

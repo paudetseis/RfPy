@@ -999,13 +999,13 @@ def get_ccp_options():
     LineGroup.add_option(
         "--end",
         action="store",
-        dest="ccord_end",
+        dest="coord_end",
         type=str,
         default=None,
         help="Specify a list of two floats with the latitude and longitude"+
         "of the end point, in this respective order. [Exception raised "+
         "if not specified]")
-    LineGroup.add_optiopn(
+    LineGroup.add_option(
         "--ndepth",
         action="store",
         dest="n_depth",
@@ -1013,14 +1013,14 @@ def get_ccp_options():
         default=120,
         help="Specify integer number of depth cells to consider. " +
         "[Default 120]")
-    LineGroup.add_optiopn(
+    LineGroup.add_option(
         "--cell-size",
         action="store",
         dest="cell_length",
         type=float,
-        default=2.,
+        default=2.5,
         help="Specify horizontal cell size in km. " +
-        "[Default 2.]")
+        "[Default 2.5]")
 
     PreGroup = OptionGroup(
         parser,
@@ -1048,17 +1048,17 @@ def get_ccp_options():
         action="store",
         type=float,
         dest="f2ps",
-        default=0.5,
+        default=0.75,
         help="Specify the high frequency corner for the bandpass filter "+
-        "for the Ps phase (Hz). [Default [0.5]]")
+        "for the Ps phase (Hz). [Default [0.75]]")
     PreGroup.add_option(
         "--f2pps",
         action="store",
         type=float,
         dest="f2pps",
-        default=0.3,
+        default=0.36,
         help="Specify the high frequency corner for the bandpass filter "+
-        "for the Pps phase (Hz). [Default [0.3]]")
+        "for the Pps phase (Hz). [Default [0.36]]")
     PreGroup.add_option(
         "--f2pss",
         action="store",
@@ -1104,7 +1104,6 @@ def get_ccp_options():
         help="Set this option for Gaussian-weighted, phase-weighted CCP "+
         "stacking with multiples. [Default False]")
 
-    parser.add_option_group(TimeGroup)
     parser.add_option_group(LineGroup)
     parser.add_option_group(PreGroup)
     parser.add_option_group(CCPGroup)

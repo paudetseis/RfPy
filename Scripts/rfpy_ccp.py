@@ -103,8 +103,8 @@ def main():
             if os.path.isfile(filename):
                 file = open(filename, "rb")
                 rfdata = pickle.load(file)
-                if rfdata.stats.snr > opts.snr:
-                    rfRstream.append(rfdata)
+                if rfdata[1].stats.snr > opts.snr:
+                    rfRstream.append(rfdata[1])
                 file.close()
 
         ccpimage.add_rfstream(rfRstream)
@@ -125,7 +125,7 @@ def main():
         ccpimage.gccp()
         ccpimage.pws_gccp()
         ccpimage.plot_gccp()
-        
+
 
 if __name__ == "__main__":
 
