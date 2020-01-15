@@ -221,7 +221,17 @@ def main():
                       " {0:6.2f};".format(rfdata.meta.baz) +
                       " {0:6.2f}".format(rfdata.meta.az))
 
-                # Get data
+                # Event Folder
+                timekey = rfdata.meta.time.strftime("%Y%m%d_%H%M%S")
+                evtdir = datapath + "/" + timekey
+
+                # Check if RF data already exist and overwrite has been set
+                if os.path.isdir(evtdir):
+                    if os.path.isfile(evtdir+"/RF_Data.pkl"):
+                        if not opts.ovr:
+                            continue
+
+                    # Get data
                 has_data = rfdata.download_data(
                     client=client, dts=opts.dts,
                     ndval=opts.ndval, new_sr=opts.new_sampling_rate,
@@ -230,16 +240,9 @@ def main():
                 if not has_data:
                     continue
 
-                # Create Event Folder
-                timekey = rfdata.meta.time.strftime("%Y%m%d_%H%M%S")
-                evtdir = datapath + "/" + timekey
-
-                # Create Folder
+                # Create Folder if it doesn't exist
                 if not os.path.isdir(evtdir):
                     os.makedirs(evtdir)
-                else:
-                    if not opts.ovr:
-                        continue
 
                 # Save ZNE Traces
                 pickle.dump(rfdata.data, open(
