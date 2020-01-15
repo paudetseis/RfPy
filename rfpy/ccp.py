@@ -186,8 +186,8 @@ class CCPimage(object):
 
             for i_coor in range(n_traces):
 
-                lat_tr = lat_depth[i_depth, i_coor]
-                lon_tr = lon_depth[i_depth, i_coor]
+                lat_tr = self.lat_depth[i_depth, i_coor]
+                lon_tr = self.lon_depth[i_depth, i_coor]
                 distance_tests = np.empty(n_lateral)
 
                 for i_xs in range(n_lateral):
