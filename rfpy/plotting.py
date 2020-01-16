@@ -39,7 +39,7 @@ import matplotlib.pyplot as plt
 
 
 def wiggle(stream1, stream2=None, sort=None, tmax=30, normalize=True,
-           save=False, title=None):
+           save=False, title=None, form='png'):
     """
     Function to plot receiver function traces by index in stream. By default, 
     only one stream is required, which produces a Figure with a single panel.
@@ -135,8 +135,8 @@ def wiggle(stream1, stream2=None, sort=None, tmax=30, normalize=True,
 
     if save:
         plt.savefig('RF_PLOTS/' + stream1[0].stats.station +
-                    '.' + title + '.png',
-                    dpi=300, bbox_inches='tight')
+                    '.' + title + '.' + form,
+                    dpi=300, bbox_inches='tight', format=form)
     else:
         plt.show()
 
@@ -144,7 +144,7 @@ def wiggle(stream1, stream2=None, sort=None, tmax=30, normalize=True,
 # PLot wiggles according to either baz or slowness
 def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
                 btyp='baz', xmax=30, xtyp='time', scale=None,
-                save=False, title=None):
+                save=False, title=None, form='png'):
     """
     Function to plot receiver function according to either baz or
     slowness bins. By default, 
@@ -246,7 +246,7 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
                 y = tr.stats.baz
                 maxval = 100
             elif btyp == 'slow':
-                y = tr.stats.user0
+                y = tr.stats.slow
                 maxval = 0.02
             elif btyp == 'dist':
                 y = tr.stats.dist
@@ -362,6 +362,5 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
 
     if save:
         plt.savefig('RF_PLOTS/' + stream1[0].stats.station +
-                    '.' + title + '.eps', format='eps')
-    else:
-        plt.show()
+                    '.' + title + '.' + form, format=form)
+    plt.show()

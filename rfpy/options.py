@@ -247,8 +247,8 @@ def get_calc_options():
         action="store",
         type=float,
         dest="vs",
-        default=3.6,
-        help="Specify near-surface Vs (km/s). [Default 3.6]")
+        default=3.5,
+        help="Specify near-surface Vs (km/s). [Default 3.5]")
     ConstGroup.add_option(
         "--dt_snr",
         action="store",
@@ -278,7 +278,7 @@ def get_calc_options():
         action="store",
         type=float,
         dest="twin",
-        default=30.,
+        default=60.,
         help="Specify the source time duration for deconvolution " +
         "(sec). [Default 30.]")
 
@@ -1193,7 +1193,7 @@ def get_plot_options():
         parser,
         title='Pre-processing Settings',
         description="Options for pre-processing of receiver function " +
-        "data for CCP stacking")
+        "data before plotting")
     PreGroup.add_option(
         "--snr",
         action="store",
@@ -1215,9 +1215,9 @@ def get_plot_options():
         action="store",
         type=float,
         dest="fmax",
-        default=0.75,
+        default=0.5,
         help="Specify the high frequency corner for the bandpass filter. "+
-        "[Default [0.75]]")
+        "[Default [0.5]]")
     PreGroup.add_option(
         "--nbaz",
         action="store",
@@ -1237,6 +1237,33 @@ def get_plot_options():
         "(typically 20 or 40). If not None, the plot will show receiver "+
         "functions sorted by slowness values. [Default None]")
 
+    PlotGroup = OptionGroup(
+        parser,
+        title='Plotting Settings',
+        description="Options for plot format")
+    PlotGroup.add_option(
+        "--save",
+        action="store_true",
+        dest="saveplot",
+        default=False,
+        help="Set this option if you wish to save the figure. [Default "+
+        "does not save figure]")
+    PlotGroup.add_option(
+        "--title",
+        action="store",
+        dest="titleplot",
+        type=str,
+        default='',
+        help="Specify title of figure. [Default None]")
+    PlotGroup.add_option(
+        "--format",
+        action="store",
+        type=str,
+        dest="form",
+        default="png",
+        help="Specify format of figure. Can be any one of the valid" +
+        "matplotlib formats: 'png', 'jpg', 'eps', 'pdf'. [Default 'png']")
+
     parser.add_option_group(PreGroup)
 
     (opts, args) = parser.parse_args()
@@ -1252,29 +1279,11 @@ def get_plot_options():
     if len(opts.stkeys) > 0:
         opts.stkeys = opts.stkeys.split(',')
 
-    if opts.coord_start is None:
-        parser.error("--start=lon,lat is required")
-    else:
-        opts.coord_start = [float(val) for val in opts.coord_start.split(',')]
-        if (len(opts.coord_start)) != 2:
-            parser.error(
-                "Error: --start should contain 2 " +
-                "comma-separated floats")
-
-    if opts.coord_end is None:
-        parser.error("--end=lon,lat is required")
-    else:
-        opts.coord_end = [float(val) for val in opts.coord_end.split(',')]
-        if (len(opts.coord_end)) != 2:
-            parser.error(
-                "Error: --end should contain 2 " +
-                "comma-separated floats")
-
-    if not opts.nbaz and not opts.nslow:
+    if opts.nbaz is None and opts.nslow is None:
         parser.error("Specify at least one of --nbaz or --nslow")
-    elif opts.nbaz and opts.nslow:
+    elif opts.nbaz is not None and opts.nslow is not None:
         parser.error("Specify only one of --nbaz or --nslow")
-        
+
     return (opts, indb)
 
 
@@ -1694,7 +1703,7 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
     # Check the correct 3 components exist
     if st is None:
         print("* Error retrieving waveforms")
-        print("****************************************************")
+        print("**************************************************")
         return True, None
     elif (not st.select(component='Z')[0] or not st.select(component='E'[0])
           or not st.select(component='N')[0]):
@@ -1705,7 +1714,7 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
             print("*   --E Missing")
         if not st.select(component='N')[0]:
             print("*   --N Missing")
-        print("****************************************************")
+        print("**************************************************")
         return True, None
 
     # Three components successfully retrieved
@@ -1714,10 +1723,10 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
     # Check trace lengths
     ll0 = len(st.select(component='Z')[0].data)
     ll1 = len(st.select(component='E')[0].data)
-    ll2 = len(st.select(component='Z')[0].data)
+    ll2 = len(st.select(component='N')[0].data)
     if not (ll0 == ll1 and ll0 == ll2):
         print(("* Error:  Trace lengths (Z,E,N): ", ll0, ll1, ll2))
-        print("****************************************************")
+        print("**************************************************")
         return True, None
 
     # Detrend data

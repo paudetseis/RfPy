@@ -102,10 +102,10 @@ class Meta(object):
         self.epi_dist /= 1000
         self.gac = k2d(self.epi_dist)
 
-        if self.gac > 30. and self.gac < 90.:
+        if self.gac > gacmin and self.gac < gacmax:
 
             # Get travel time info
-            tpmodel = TauPyModel()
+            tpmodel = TauPyModel(model='iasp91')
 
             # Get Travel times (Careful: here dep is in meters)
             arrivals = tpmodel.get_travel_times(
@@ -521,7 +521,7 @@ class RFData(object):
         # Calculate signal/noise ratio in dB
         self.meta.snr = 10*np.log10(srms*srms/nrms/nrms)
 
-    def deconvolve(self, twin=30., vp=None, vs=None, align=None):
+    def deconvolve(self, twin=60., vp=None, vs=None, align=None):
         """
         Deconvolves three-compoent data using one component as the source wavelet.
         The source component is always taken as the dominant compressional 

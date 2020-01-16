@@ -54,10 +54,6 @@ def main():
     else:
         stkeys = db.keys()
 
-    # Initialize CCPimage object
-    ccpimage = CCPimage(coord_start=opts.coord_start,
-                        coord_end=opts.coord_end)
-
     # Loop over station keys
     for stkey in list(stkeys):
 
@@ -94,6 +90,7 @@ def main():
         print("|-----------------------------------------------|")
 
         rfRstream = Stream()
+        rfTstream = Stream()
 
         for folder in os.listdir(datapath):
 
@@ -101,46 +98,35 @@ def main():
             if os.path.isfile(filename):
                 file = open(filename, "rb")
                 rfdata = pickle.load(file)
-                if rfdata[1].stats.snr > opts.snr:
-                    rfRstream.append(rfdata[1])
+                if rfdata[0].stats.snr > opts.snr:
+                    if np.std(rfdata[1].data) < 0.25 and \
+                            np.std(rfdata[2].data) < 0.25:
+                        rfRstream.append(rfdata[1])
+                        rfTstream.append(rfdata[2])
                 file.close()
 
-        ccpimage.add_rfstream(rfRstream)
+        rfRstream.filter('bandpass', freqmin=opts.fmin,
+                         freqmax=opts.fmax, corners=2,
+                         zerophase=True)
+        rfTstream.filter('bandpass', freqmin=opts.fmin,
+                         freqmax=opts.fmax, corners=2,
+                         zerophase=True)
 
-    print()
-    print("|-----------------------------------------------|")
-    print("|  Preparing data before stacking               |")
-    print("|-----------------------------------------------|")
-    print()
+        if opts.saveplot and not os.path.isdir('RF_PLOTS'):
+            os.makedirs('RF_PLOTS')
 
-    ccpimage.prep_data(f1=opts.f1, f2ps=opts.f2ps,
-                       f2pps=opts.f2pps, f2pss=opts.f2pss,
-                       n_depth=opts.n_depth, nbaz=opts.nbaz,
-                       nslow=opts.nslow)
-
-    print()
-    print("|-----------------------------------------------|")
-    print("|  CCP stacking each phase                      |")
-    print("|-----------------------------------------------|")
-    print()
-
-    ccpimage.prestack(cell_length=opts.cell_length)
-
-    print()
-    print("|-----------------------------------------------|")
-    print("|  Averaging all phases                         |")
-    print("|-----------------------------------------------|")
-    print()
-
-    if opts.run_ccp:
-        ccpimage.ccp()
-        ccpimage.stack_ccp()
-        ccpimage.plot_ccp()
-
-    if opts.run_gccp:
-        ccpimage.gccp()
-        ccpimage.pws_gccp()
-        ccpimage.plot_gccp()
+        if opts.nbaz:
+            rf_tmp = binning.bin(rfRstream, rfTstream,
+                                 typ='baz', nbin=opts.nbaz+1)
+            plotting.wiggle_bins(rf_tmp[0], rf_tmp[1],
+                                 btyp='baz', save=opts.saveplot,
+                                 title=opts.titleplot, form=opts.form)
+        elif opts.nslow:
+            rf_tmp = binning.bin(rfRstream, rfTstream,
+                                 typ='slow', nbin=opts.nslow+1)
+            plotting.wiggle_bins(rf_tmp[0], rf_tmp[1],
+                                 btyp='slow', save=opts.saveplot,
+                                 title=opts.titleplot, form=opts.form)
 
 
 if __name__ == "__main__":

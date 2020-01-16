@@ -268,6 +268,8 @@ def main():
                 # Convert to Stream
                 rfstream = rfdata.to_stream()
 
+                # rfstream[1].plot()
+                
                 # Save event meta data
                 pickle.dump(rfdata.meta, open(
                     evtdir + "/Meta_Data.pkl", "wb"))
