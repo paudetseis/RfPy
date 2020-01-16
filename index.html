@@ -178,6 +178,22 @@ the <code class="docutils literal notranslate"><span class="pre">StDb</span></co
 used in command-line scripts.</p>
 <a class="reference external image-reference" href="https://travis-ci.com/paudetseis/RfPy"><img alt="https://travis-ci.com/paudetseis/RfPy.svg?branch=master" src="https://travis-ci.com/paudetseis/RfPy.svg?branch=master" /></a>
 <a class="reference external image-reference" href="https://codecov.io/gh/paudetseis/RfPy"><img alt="https://codecov.io/gh/paudetseis/RfPy/branch/master/graph/badge.svg" src="https://codecov.io/gh/paudetseis/RfPy/branch/master/graph/badge.svg" /></a>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">RfPy</span></code> was written independently of the Python software <a class="reference external" href="https://rf.readthedocs.io">rf</a>,
+although it is possible that some classes and methods defined here might be applied
+to <code class="docutils literal notranslate"><span class="pre">rf</span></code> objects, since both are heavily based on <a class="reference external" href="http://www.obspy.org">obspy</a>. The main
+differences between <code class="docutils literal notranslate"><span class="pre">RfPy</span></code> and <code class="docutils literal notranslate"><span class="pre">rf</span></code> are as follows:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">RfPy</span></code> only calculates <cite>P</cite> receiver functions, whereas <code class="docutils literal notranslate"><span class="pre">rf</span></code> can also calculate
+<cite>S</cite> receiver functions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RfPy</span></code> uses a Wiener spectral deconvolution technique that minimizes noise based on
+observed seismic noise on all components, whereas <code class="docutils literal notranslate"><span class="pre">rf</span></code> uses either a water-level
+spectral deconvolution or a time-domain deconvolution.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RfData</span></code> objects are used to calculate single-station and single-event receiver
+functions, whereas <code class="docutils literal notranslate"><span class="pre">rf</span></code> can handle multiple stations at once.</p></li>
+</ul>
+</div>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Quick Links</span></p>
 <ul>
