@@ -262,9 +262,9 @@ def get_calc_options():
         action="store",
         type=float,
         dest="fmin",
-        default=0.1,
+        default=0.05,
         help="Specify the minimum frequency corner for SNR " +
-        "filter (Hz). [Default 0.1]")
+        "filter (Hz). [Default 0.05]")
     ConstGroup.add_option(
         "--fmax",
         action="store",
@@ -1675,29 +1675,50 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
             if len(tloc) == 0:
                 tloc = "--"
             # Construct Channel List
-            channels = sta.channel.upper() + 'E,' + sta.channel.upper() + \
-                'N,' + sta.channel.upper() + 'Z'
-            print(("*          {1:2s}[ENZ].{2:2s} - Checking Network".format(
+            channelsZNE = sta.channel.upper() + 'Z,' + sta.channel.upper() + \
+                'N,' + sta.channel.upper() + 'E'
+            print(("*          {1:2s}[ZNE].{2:2s} - Checking Network".format(
                 sta.station, sta.channel.upper(), tloc)))
             try:
                 st = client.get_waveforms(network=sta.network,
                                           station=sta.station, location=loc,
-                                          channel=channels, starttime=start,
+                                          channel=channelsZNE, starttime=start,
                                           endtime=end, attach_response=False)
                 if len(st) == 3:
                     erd = False
-                    print("*             - Data Downloaded")
+                    print("*              - ZNE Data Downloaded")
                 else:
-                    erd = True
-                    st = None
-                    print("*             - Data Unavailable")
+                    # it's possible if len(st)==1 that data is Z12
+                    # print("*              - ZNE Data Unavailable")
+                    # Construct Channel List
+                    channelsZ12 = sta.channel.upper() + 'Z,' + sta.channel.upper() + \
+                        '1,' + sta.channel.upper() + '2'
+                    print(("*          {1:2s}[Z12].{2:2s} - Checking Network".format(
+                        sta.station, sta.channel.upper(), tloc)))
+                    try: 
+                        st = client.get_waveforms(network=sta.network,
+                                                  station=sta.station, location=loc,
+                                                  channel=channelsZ12, starttime=start,
+                                                  endtime=end, attach_response=False)
+                        if len(st) == 3:
+                            erd = False
+                            print("*              - Z12 Data Downloaded")
+                        else:
+                            erd = True
+                            st = None
+                            # print("*              - Z12 Data Unavailable")
+                    except:
+                        erd = True
+                        st = None
+                        # print("*              - Data Unavailable")
+
             except:
                 erd = True
                 st = None
-                print("*             - Data Unavailable")
 
             # Break if we successfully obtained 3 components in st
             if not erd:
+
                 break
 
     # Check the correct 3 components exist
@@ -1705,37 +1726,21 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
         print("* Error retrieving waveforms")
         print("**************************************************")
         return True, None
-    elif (not st.select(component='Z')[0] or not st.select(component='E'[0])
-          or not st.select(component='N')[0]):
-        print("* Error retrieving waveforms")
-        if not st.select(component='Z')[0]:
-            print("*   --Z Missing")
-        if not st.select(component='E')[0]:
-            print("*   --E Missing")
-        if not st.select(component='N')[0]:
-            print("*   --N Missing")
-        print("**************************************************")
-        return True, None
+
+    # elif (not st.select(component='Z')[0] or not st.select(component='E'[0])
+    #       or not st.select(component='N')[0]):
+    #     print("* Error retrieving waveforms")
+    #     if not st.select(component='Z')[0]:
+    #         print("*   --Z Missing")
+    #     if not st.select(component='E')[0]:
+    #         print("*   --E Missing")
+    #     if not st.select(component='N')[0]:
+    #         print("*   --N Missing")
+    #     print("**************************************************")
+    #     return True, None
 
     # Three components successfully retrieved
-    print("* Waveforms Retrieved...")
-
-    # Check trace lengths
-    ll0 = len(st.select(component='Z')[0].data)
-    ll1 = len(st.select(component='E')[0].data)
-    ll2 = len(st.select(component='N')[0].data)
-    if not (ll0 == ll1 and ll0 == ll2):
-        print(("* Error:  Trace lengths (Z,E,N): ", ll0, ll1, ll2))
-        print("**************************************************")
-        return True, None
-
-    # Detrend data
-    st.detrend('demean')
-    st.detrend('linear')
-
-    # Filter Traces
-    st.filter('lowpass', freq=0.5*new_sr, corners=2, zerophase=True)
-    st.resample(new_sr)
-
-    # Return Flag and Data
-    return False, st
+    else:
+        print("* Waveforms Retrieved...")
+        # Return Flag and Data
+        return False, st

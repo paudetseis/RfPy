@@ -254,6 +254,7 @@ def main():
                 # Calculate snr over dt_snr seconds
                 rfdata.calc_snr(
                     dt=opts.dt_snr, fmin=opts.fmin, fmax=opts.fmax)
+                print("* SNR: {}".format(rfdata.meta.snr))
 
                 # Make sure no processing happens for NaNs
                 if np.isnan(rfdata.meta.snr):

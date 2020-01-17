@@ -99,8 +99,8 @@ def main():
                 file = open(filename, "rb")
                 rfdata = pickle.load(file)
                 if rfdata[0].stats.snr > opts.snr:
-                    if np.std(rfdata[1].data) < 0.25 and \
-                            np.std(rfdata[2].data) < 0.25:
+                    if np.std(rfdata[1].data) < 0.2 and \
+                            np.std(rfdata[2].data) < 0.2:
                         rfRstream.append(rfdata[1])
                         rfTstream.append(rfdata[2])
                 file.close()

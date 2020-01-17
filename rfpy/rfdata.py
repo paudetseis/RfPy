@@ -110,7 +110,7 @@ class Meta(object):
             # Get Travel times (Careful: here dep is in meters)
             arrivals = tpmodel.get_travel_times(
                 distance_in_degree=self.gac,
-                source_depth_in_km=self.dep/1000.,
+                source_depth_in_km=self.dep,
                 phase_list=["P"])
             if len(arrivals) > 1:
                 print("arrival has many entries:" + len(arrivals))
@@ -131,7 +131,7 @@ class Meta(object):
 
         # Defaults for non - station-event geometry attributes
         self.vp = 6.0
-        self.vs = 3.6
+        self.vs = 3.5
         self.align = 'ZRT'
 
         # Attributes that get updated as analysis progresses
@@ -227,7 +227,7 @@ class RFData(object):
         if returned:
             return self.meta.accept
 
-    def add_data(self, stream, returned=False):
+    def add_data(self, stream, returned=False, new_sr=5.):
         """
         Adds stream as object attribute
 
@@ -281,7 +281,15 @@ class RFData(object):
 
             if not (lenE == lenN) or not (lenE == lenZ):
                 self.meta.accept = False
-                
+
+            # Detrend data
+            self.data.detrend('demean')
+            self.data.detrend('linear')
+
+            # Filter Traces
+            self.data.filter('lowpass', freq=0.5*new_sr, corners=2, zerophase=True)
+            self.data.resample(new_sr)
+
         except:
             print("Error: Not all channels are available")
             self.meta.accept = False
@@ -346,15 +354,36 @@ class RFData(object):
             trZ = stream.select(component='Z')[0]
             self.data = Stream(traces=[trZ, trN, trE])
 
-            lenE = len(trE.data)
-            lenN = len(trN.data)
-            lenZ = len(trZ.data)
+        # If there is no ZNE, perhaps there is Z12?
+        except:
 
-            if not (lenE == lenN) or not (lenE == lenZ):
+            try:
+                tr1 = stream.select(component='1')[0]
+                tr2 = stream.select(component='2')[0]
+                trZ = stream.select(component='Z')[0]
+                self.data = Stream(traces=[trZ, tr1, tr2])
+
+                # Now rotate from Z12 to ZNE
+                self.rotate(align='ZNE')
+
+            except:
                 self.meta.accept = False
 
-        except:
+        # Check trace lengths
+        lenE = len(self.data.select(component='E')[0].data)
+        lenN = len(self.data.select(component='N')[0].data)
+        lenZ = len(self.data.select(component='Z')[0].data)
+
+        if not (lenE == lenN and lenE == lenZ):
             self.meta.accept = False
+
+        # Detrend data
+        self.data.detrend('demean')
+        self.data.detrend('linear')
+
+        # Filter Traces
+        self.data.filter('lowpass', freq=0.5*new_sr, corners=2, zerophase=True)
+        self.data.resample(new_sr)
 
         if returned:
             return self.meta.accept
@@ -397,7 +426,30 @@ class RFData(object):
         if not align:
             align = self.meta.align
 
-        if align == 'ZRT':
+        if align == 'ZNE':
+            # Rotating from 1,2 to N,E is the negative of
+            # trotation from RT to NE, with 
+            # baz corresponding to azim of component 1
+            from obspy.signal.rotate import rotate_rt_ne
+
+            # Copy traces
+            trZ = self.data.select(component='Z')[0].copy()
+            trN = self.data.select(component='1')[0].copy()
+            trE = self.data.select(component='2')[0].copy()
+
+            # Get azimuth of component 1
+            azim = self.sta.azcorr
+            N, E = rotate_rt_ne(trN.data, trE.data, azim)
+            trN.data = -1.*N
+            trE.data = -1.*E
+
+            # Update stats of streams
+            trN.stats.channel = trN.stats.channel[:-1] + 'N'
+            trE.stats.channel = trE.stats.channel[:-1] + 'E'
+
+            self.data = Stream(traces=[trZ, trN, trE])
+
+        elif align == 'ZRT':
             self.data.rotate('NE->RT',
                              back_azimuth=self.meta.baz)
             self.meta.align = align
@@ -469,7 +521,7 @@ class RFData(object):
         else:
             raise(Exception("incorrect 'align' argument"))
 
-    def calc_snr(self, dt=30., fmin=0.1, fmax=1.):
+    def calc_snr(self, dt=30., fmin=0.05, fmax=1.):
         """
         Calculates signal-to-noise ratio on either Z, L or P component
 
@@ -496,7 +548,7 @@ class RFData(object):
             print("SNR already calculated - continuing")
             return
 
-        t1 = self.meta.time + self.meta.ttime - 5.
+        t1 = self.meta.time + self.meta.ttime
 
         comp = self.meta.align[0]
 
@@ -612,7 +664,10 @@ class RFData(object):
                 and lwin == len(trT.data) and lwin == len(trNl.data)
                 and lwin == len(trNq.data)):
             print('problem with lwin')
+            print(lwin, len(trL.data), len(trQ.data), len(trT.data),
+                len(trNl.data), lwin == len(trNq.data))
             self.rf = Stream(traces=[Trace(), Trace(), Trace()])
+            return
 
         # Apply taper
         trL.data *= window
