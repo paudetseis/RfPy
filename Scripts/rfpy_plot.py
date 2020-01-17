@@ -63,7 +63,8 @@ def main():
         # Define path to see if it exists
         datapath = 'DATA/' + stkey
         if not os.path.isdir(datapath):
-            raise(Exception('Path to '+datapath+' doesn`t exist - aborting'))
+            print('Path to '+datapath+' doesn`t exist - continuing')
+            continue
 
         # Temporary print locations
         tlocs = sta.location

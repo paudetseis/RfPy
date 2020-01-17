@@ -354,6 +354,22 @@ class RFData(object):
             trZ = stream.select(component='Z')[0]
             self.data = Stream(traces=[trZ, trN, trE])
 
+            # Check trace lengths
+            lenE = len(self.data.select(component='E')[0].data)
+            lenN = len(self.data.select(component='N')[0].data)
+            lenZ = len(self.data.select(component='Z')[0].data)
+
+            if not (lenE == lenN and lenE == lenZ):
+                self.meta.accept = False
+
+            # Detrend data
+            self.data.detrend('demean')
+            self.data.detrend('linear')
+
+            # Filter Traces
+            self.data.filter('lowpass', freq=0.5*new_sr, corners=2, zerophase=True)
+            self.data.resample(new_sr)
+
         # If there is no ZNE, perhaps there is Z12?
         except:
 
@@ -366,24 +382,24 @@ class RFData(object):
                 # Now rotate from Z12 to ZNE
                 self.rotate(align='ZNE')
 
+                # Check trace lengths
+                lenE = len(self.data.select(component='E')[0].data)
+                lenN = len(self.data.select(component='N')[0].data)
+                lenZ = len(self.data.select(component='Z')[0].data)
+
+                if not (lenE == lenN and lenE == lenZ):
+                    self.meta.accept = False
+
+                # Detrend data
+                self.data.detrend('demean')
+                self.data.detrend('linear')
+
+                # Filter Traces
+                self.data.filter('lowpass', freq=0.5*new_sr, corners=2, zerophase=True)
+                self.data.resample(new_sr)
+
             except:
                 self.meta.accept = False
-
-        # Check trace lengths
-        lenE = len(self.data.select(component='E')[0].data)
-        lenN = len(self.data.select(component='N')[0].data)
-        lenZ = len(self.data.select(component='Z')[0].data)
-
-        if not (lenE == lenN and lenE == lenZ):
-            self.meta.accept = False
-
-        # Detrend data
-        self.data.detrend('demean')
-        self.data.detrend('linear')
-
-        # Filter Traces
-        self.data.filter('lowpass', freq=0.5*new_sr, corners=2, zerophase=True)
-        self.data.resample(new_sr)
 
         if returned:
             return self.meta.accept
