@@ -347,7 +347,12 @@ class RFData(object):
             client=client, sta=self.sta, start=tstart, end=tend,
             stdata=self.sta.station, ndval=ndval, new_sr=new_sr)
 
-        # Store as attributes with traces in dictionay
+        if err:
+            self.meta.accept = False
+            if returned:
+                return self.meta.accept
+
+        # Store as attributes with traces in dictionary
         try:
             trE = stream.select(component='E')[0]
             trN = stream.select(component='N')[0]
@@ -360,7 +365,24 @@ class RFData(object):
             lenZ = len(self.data.select(component='Z')[0].data)
 
             if not (lenE == lenN and lenE == lenZ):
-                self.meta.accept = False
+                print("Lengths are incompatible: ",lenE,lenN,lenZ)
+                print("lengths should be: "+str(2.*dts/trZ.stats.delta))
+
+                # Try trimming?
+                try:
+                    trE.trim(tstart,tend)
+                    trN.trim(tstart,tend)
+                    trZ.trim(tstart,tend)
+                    
+                    # Check trace lengths
+                    lenE = len(self.data.select(component='E')[0].data)
+                    lenN = len(self.data.select(component='N')[0].data)
+                    lenZ = len(self.data.select(component='Z')[0].data)
+
+                    if not (lenE == lenN and lenE == lenZ):
+                        print("Lengths still not equal - continuing")
+                except:
+                    self.meta.accept = False
 
             # Detrend data
             self.data.detrend('demean')
@@ -444,7 +466,7 @@ class RFData(object):
 
         if align == 'ZNE':
             # Rotating from 1,2 to N,E is the negative of
-            # trotation from RT to NE, with 
+            # rotation from RT to NE, with 
             # baz corresponding to azim of component 1
             from obspy.signal.rotate import rotate_rt_ne
 
@@ -454,6 +476,9 @@ class RFData(object):
             trE = self.data.select(component='2')[0].copy()
 
             # Get azimuth of component 1
+            if not hasattr(self.sta.azcorr):
+                raise(Exception("no azimuth defined for Z12->ZNE rotation"))
+
             azim = self.sta.azcorr
             N, E = rotate_rt_ne(trN.data, trE.data, azim)
             trN.data = -1.*N

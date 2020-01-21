@@ -69,12 +69,15 @@ def main():
             print('Path to '+datapath+' doesn`t exist - creating it')
             os.makedirs(datapath)
 
-        # Establish client
+        # Establish client for data
         if len(opts.UserAuth) == 0:
-            client = Client(opts.Server)
+            data_client = Client(opts.Server)
         else:
-            client = Client(opts.Server, user=opts.UserAuth[0],
+            data_client = Client(opts.Server, user=opts.UserAuth[0],
                             password=opts.UserAuth[1])
+
+        # Establish client for events
+        event_client = Client()
 
         # Get catalogue search start time
         if opts.startT is None:
@@ -136,7 +139,7 @@ def main():
         print("| ...                                           |")
 
         # Get catalogue using deployment start and end
-        cat = client.get_events(
+        cat = event_client.get_events(
             starttime=tstart, endtime=tend,
             minmagnitude=opts.minmag, maxmagnitude=opts.maxmag)
 
@@ -233,7 +236,7 @@ def main():
 
                     # Get data
                 has_data = rfdata.download_data(
-                    client=client, dts=opts.dts,
+                    client=data_client, dts=opts.dts,
                     ndval=opts.ndval, new_sr=opts.new_sampling_rate,
                     returned=True)
 

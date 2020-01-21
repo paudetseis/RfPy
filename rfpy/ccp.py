@@ -41,7 +41,7 @@ class CCPimage(object):
     """
     A CCPimage object contains attributes and methods to produce
     Common Conversion Point (CCP) stacks for each of the main
-    three Moho phases (Ps, Pps and Pss) using radial-component
+    three main phases (Ps, Pps and Pss) using radial-component
     receiver functions. The object is used to project the stacks along
     a linear profile, specified by start and end geographical coordinate 
     locations, which are subsequently averaged to produce a final 
