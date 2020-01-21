@@ -103,11 +103,11 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#hkstack">HkStack</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#harmonics">Harmonics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ccpimage">CCPimage</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="#modules">Modules</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-rfpy.binning">binning</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-rfpy.ccp">ccp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-rfpy.plotting">plotting</a></li>
 </ul>
 </li>
@@ -849,97 +849,8 @@ file name (if <code class="docutils literal notranslate"><span class="pre">save=
 </dd></dl>
 
 </div>
-</div>
-<div class="section" id="modules">
-<h1>Modules<a class="headerlink" href="#modules" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="module-rfpy.binning">
-<span id="binning"></span><h2>binning<a class="headerlink" href="#module-rfpy.binning" title="Permalink to this headline">¶</a></h2>
-<p>Functions to bin receiver functions along back-azimuth or slowness
-bins, or both, or for all data, regardless of the x axis (time or depth).</p>
-<dl class="function">
-<dt id="rfpy.binning.bin">
-<code class="sig-prename descclassname">rfpy.binning.</code><code class="sig-name descname">bin</code><span class="sig-paren">(</span><em class="sig-param">stream1</em>, <em class="sig-param">stream2=None</em>, <em class="sig-param">typ='baz'</em>, <em class="sig-param">nbin=37</em>, <em class="sig-param">pws=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.bin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function to stack receiver functions into (baz or slow) bins
-This can be done using a linear stack (i.e., simple
-mean), or using phase-weighted stacking.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>stream1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream of equal-length seismograms to be stacked into
-a single trace.</p></li>
-<li><p><strong>stream2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Optionally stack a second stream in the same operation.</p></li>
-<li><p><strong>dbaz</strong> (<em>int</em>) – Number of bazk-azimuth samples in bins</p></li>
-<li><p><strong>dslow</strong> (<em>int</em>) – Number of slowness samples in bins</p></li>
-<li><p><strong>pws</strong> (<em>bool</em>) – Whether or not to perform phase-weighted stacking</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>stack</strong> – Stream containing one or two stacked traces,
-depending on the number of input streams</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="rfpy.binning.bin_baz_slow">
-<code class="sig-prename descclassname">rfpy.binning.</code><code class="sig-name descname">bin_baz_slow</code><span class="sig-paren">(</span><em class="sig-param">stream1</em>, <em class="sig-param">stream2=None</em>, <em class="sig-param">nbaz=37</em>, <em class="sig-param">nslow=21</em>, <em class="sig-param">pws=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.bin_baz_slow" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function to stack receiver functions into back-azimuth and slowness bins.
-This can be done using a linear stack (i.e., simple
-mean), or using phase-weighted stacking.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>stream1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream of equal-length seismograms to be stacked into
-a single trace.</p></li>
-<li><p><strong>stream2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Optionally stack a second stream in the same operation.</p></li>
-<li><p><strong>dbaz</strong> (<em>int</em>) – Number of bazk-azimuth samples in bins</p></li>
-<li><p><strong>dslow</strong> (<em>int</em>) – Number of slowness samples in bins</p></li>
-<li><p><strong>pws</strong> (<em>bool</em>) – Whether or not to perform phase-weighted stacking</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>stack</strong> – Stream containing one or two stacked traces,
-depending on the number of input streams</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="rfpy.binning.bin_all">
-<code class="sig-prename descclassname">rfpy.binning.</code><code class="sig-name descname">bin_all</code><span class="sig-paren">(</span><em class="sig-param">stream1</em>, <em class="sig-param">stream2=None</em>, <em class="sig-param">pws=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.bin_all" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function to bin all streams into a single trace.
-This can be done using a linear stack (i.e., simple
-mean), or using phase-weighted stacking.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>stream1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream of equal-length seismograms to be stacked into
-a single trace.</p></li>
-<li><p><strong>stream2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Optionally stack a second stream in the same operation.</p></li>
-<li><p><strong>pws</strong> (<em>bool</em>) – Whether or not to perform phase-weighted stacking</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>stack</strong> – Stream containing one or two stacked traces,
-depending on the number of input streams</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-</div>
-<div class="section" id="module-rfpy.ccp">
-<span id="ccp"></span><h2>ccp<a class="headerlink" href="#module-rfpy.ccp" title="Permalink to this headline">¶</a></h2>
-<p>Functions to calculate piercing points from a velocity model and slowness
-values, bin them, and produce CCP stacks using receiver functions.</p>
+<div class="section" id="ccpimage">
+<h2>CCPimage<a class="headerlink" href="#ccpimage" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="rfpy.ccp.CCPimage">
 <em class="property">class </em><code class="sig-prename descclassname">rfpy.ccp.</code><code class="sig-name descname">CCPimage</code><span class="sig-paren">(</span><em class="sig-param">coord_start=[None, None], coord_end=[None, None], weights=[1.0, 1.0, -1.0], dep=array([   0.,    4.,    8.,   14.,   30.,   35.,   45.,  110.]), vp=array([ 4. ,  5.9,  6.2,  6.3,  6.8,  7.2,  8. ,  8.1]), vpvs=1.73</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage" title="Permalink to this definition">¶</a></dt>
@@ -1096,79 +1007,89 @@ phase-weighted CCP image.</p>
 
 </dd></dl>
 
+</div>
+</div>
+<div class="section" id="modules">
+<h1>Modules<a class="headerlink" href="#modules" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-rfpy.binning">
+<span id="binning"></span><h2>binning<a class="headerlink" href="#module-rfpy.binning" title="Permalink to this headline">¶</a></h2>
+<p>Functions to bin receiver functions along back-azimuth or slowness
+bins, or both, or for all data, regardless of the x axis (time or depth).</p>
 <dl class="function">
-<dt id="rfpy.ccp.ppoint_distance">
-<code class="sig-prename descclassname">rfpy.ccp.</code><code class="sig-name descname">ppoint_distance</code><span class="sig-paren">(</span><em class="sig-param">tr</em>, <em class="sig-param">dz</em>, <em class="sig-param">vs</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.ppoint_distance" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate horizontal distance for interval dz and velocity vs</p>
+<dt id="rfpy.binning.bin">
+<code class="sig-prename descclassname">rfpy.binning.</code><code class="sig-name descname">bin</code><span class="sig-paren">(</span><em class="sig-param">stream1</em>, <em class="sig-param">stream2=None</em>, <em class="sig-param">typ='baz'</em>, <em class="sig-param">nbin=37</em>, <em class="sig-param">pws=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.bin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to stack receiver functions into (baz or slow) bins
+This can be done using a linear stack (i.e., simple
+mean), or using phase-weighted stacking.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tr</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code>) – Single trace object to migrate to depth</p></li>
-<li><p><strong>dz</strong> (<em>float</em>) – Vertical sampling distance</p></li>
-<li><p><strong>vs</strong> (<em>float</em>) – S-wave velocity (km/s)</p></li>
+<li><p><strong>stream1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream of equal-length seismograms to be stacked into
+a single trace.</p></li>
+<li><p><strong>stream2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Optionally stack a second stream in the same operation.</p></li>
+<li><p><strong>dbaz</strong> (<em>int</em>) – Number of bazk-azimuth samples in bins</p></li>
+<li><p><strong>dslow</strong> (<em>int</em>) – Number of slowness samples in bins</p></li>
+<li><p><strong>pws</strong> (<em>bool</em>) – Whether or not to perform phase-weighted stacking</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>stack</strong> – Stream containing one or two stacked traces,
+depending on the number of input streams</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
-<dt id="rfpy.ccp.ppoint">
-<code class="sig-prename descclassname">rfpy.ccp.</code><code class="sig-name descname">ppoint</code><span class="sig-paren">(</span><em class="sig-param">tr</em>, <em class="sig-param">dist</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.ppoint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determine geographic location of piercing point</p>
+<dt id="rfpy.binning.bin_baz_slow">
+<code class="sig-prename descclassname">rfpy.binning.</code><code class="sig-name descname">bin_baz_slow</code><span class="sig-paren">(</span><em class="sig-param">stream1</em>, <em class="sig-param">stream2=None</em>, <em class="sig-param">nbaz=37</em>, <em class="sig-param">nslow=21</em>, <em class="sig-param">pws=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.bin_baz_slow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to stack receiver functions into back-azimuth and slowness bins.
+This can be done using a linear stack (i.e., simple
+mean), or using phase-weighted stacking.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tr</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code>) – Single trace object to migrate to depth</p></li>
-<li><p><strong>dist</strong> (<em>float</em>) – Horizontal istance from the station (km)</p></li>
+<li><p><strong>stream1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream of equal-length seismograms to be stacked into
+a single trace.</p></li>
+<li><p><strong>stream2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Optionally stack a second stream in the same operation.</p></li>
+<li><p><strong>dbaz</strong> (<em>int</em>) – Number of bazk-azimuth samples in bins</p></li>
+<li><p><strong>dslow</strong> (<em>int</em>) – Number of slowness samples in bins</p></li>
+<li><p><strong>pws</strong> (<em>bool</em>) – Whether or not to perform phase-weighted stacking</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>stack</strong> – Stream containing one or two stacked traces,
+depending on the number of input streams</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
-<dt id="rfpy.ccp.ttime">
-<code class="sig-prename descclassname">rfpy.ccp.</code><code class="sig-name descname">ttime</code><span class="sig-paren">(</span><em class="sig-param">tr</em>, <em class="sig-param">dz</em>, <em class="sig-param">vp</em>, <em class="sig-param">vs</em>, <em class="sig-param">phase=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.ttime" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate travel time for interval dz and velocities vp and vs</p>
+<dt id="rfpy.binning.bin_all">
+<code class="sig-prename descclassname">rfpy.binning.</code><code class="sig-name descname">bin_all</code><span class="sig-paren">(</span><em class="sig-param">stream1</em>, <em class="sig-param">stream2=None</em>, <em class="sig-param">pws=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.bin_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to bin all streams into a single trace.
+This can be done using a linear stack (i.e., simple
+mean), or using phase-weighted stacking.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>tr</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code>) – Single trace object to migrate to depth</p></li>
-<li><p><strong>dz</strong> (<em>float</em>) – Vertical sampling distance (km)</p></li>
-<li><p><strong>vp</strong> (<em>float</em>) – P-wave velocity</p></li>
-<li><p><strong>vs</strong> (<em>float</em>) – S-wave velocity</p></li>
-<li><p><strong>phase</strong> (<em>str</em>) – Phase of interest</p></li>
+<li><p><strong>stream1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream of equal-length seismograms to be stacked into
+a single trace.</p></li>
+<li><p><strong>stream2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Optionally stack a second stream in the same operation.</p></li>
+<li><p><strong>pws</strong> (<em>bool</em>) – Whether or not to perform phase-weighted stacking</p></li>
 </ul>
 </dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="rfpy.ccp.timeshift">
-<code class="sig-prename descclassname">rfpy.ccp.</code><code class="sig-name descname">timeshift</code><span class="sig-paren">(</span><em class="sig-param">tr</em>, <em class="sig-param">tt</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.timeshift" title="Permalink to this definition">¶</a></dt>
-<dd><p>Shift a trace by a travel time tt and take amplitude at zero</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>tr</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code>) – Single trace object to migrate to depth</p></li>
-<li><p><strong>tt</strong> (<em>float</em>) – Travel time (sec)</p></li>
-</ul>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>stack</strong> – Stream containing one or two stacked traces,
+depending on the number of input streams</p>
 </dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="rfpy.ccp.raypath">
-<code class="sig-prename descclassname">rfpy.ccp.</code><code class="sig-name descname">raypath</code><span class="sig-paren">(</span><em class="sig-param">tr</em>, <em class="sig-param">nz=50</em>, <em class="sig-param">dep=None</em>, <em class="sig-param">vp=None</em>, <em class="sig-param">vs=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.raypath" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate travel times through velocity model for all phases of interest</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>tr</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code>) – Single trace object to migrate to depth</p></li>
-<li><p><strong>nz</strong> (<em>int</em>) – Number of layers in interpolation</p></li>
-<li><p><strong>dep</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Depth array for velocity model</p></li>
-<li><p><strong>vp</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – P-wave velocity array for velocity model</p></li>
-<li><p><strong>vs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – S-wave velocity array for velocity model</p></li>
-</ul>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
 </dd>
 </dl>
 </dd></dl>

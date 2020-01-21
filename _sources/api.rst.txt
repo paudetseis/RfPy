@@ -35,6 +35,12 @@ Harmonics
 .. autoclass:: rfpy.harmonics.Harmonics
    :members:
 
+CCPimage
+--------
+
+.. autoclass:: rfpy.ccp.CCPimage
+   :members:
+
 Modules
 =======
 
@@ -42,12 +48,6 @@ binning
 -------
 
 .. automodule:: rfpy.binning
-   :members:
-
-ccp
----
-
-.. automodule:: rfpy.ccp
    :members:
 
 plotting
