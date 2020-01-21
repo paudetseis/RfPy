@@ -560,7 +560,7 @@ def get_hk_options():
         action="store_true",
         dest="plot",
         default=False,
-        help="Set this option to produce a plot of the stacks [Default "+
+        help="Set this option to produce a plot of the stacks [Default " +
         "does not produce plot]")
     PlotGroup.add_option(
         "--save-plot",
@@ -814,7 +814,7 @@ def get_harmonics_options():
         action="store_true",
         dest="save",
         default=False,
-        help="Set this option to save the Harmonics object "+
+        help="Set this option to save the Harmonics object " +
         "to a pickled file. [Default does not save object]")
 
     PlotGroup = OptionGroup(
@@ -985,7 +985,7 @@ def get_ccp_options():
     LineGroup = OptionGroup(
         parser,
         title='Line Geometry Settings',
-        description="Options for defining the line along which to "+
+        description="Options for defining the line along which to " +
         "produce the CCP image")
     LineGroup.add_option(
         "--start",
@@ -993,8 +993,8 @@ def get_ccp_options():
         type=str,
         dest="coord_start",
         default=None,
-        help="Specify a list of two floats with the latitude and longitude "+
-        "of the start point, in this respective order. [Exception raised "+
+        help="Specify a list of two floats with the latitude and longitude " +
+        "of the start point, in this respective order. [Exception raised " +
         "if not specified]")
     LineGroup.add_option(
         "--end",
@@ -1002,8 +1002,8 @@ def get_ccp_options():
         dest="coord_end",
         type=str,
         default=None,
-        help="Specify a list of two floats with the latitude and longitude"+
-        "of the end point, in this respective order. [Exception raised "+
+        help="Specify a list of two floats with the latitude and longitude" +
+        "of the end point, in this respective order. [Exception raised " +
         "if not specified]")
     LineGroup.add_option(
         "--ndepth",
@@ -1033,7 +1033,7 @@ def get_ccp_options():
         type=float,
         dest="snr",
         default=5.,
-        help="Specify the SNR threshold for extracting receiver functions. "+
+        help="Specify the SNR threshold for extracting receiver functions. " +
         "[Default 5.]")
     PreGroup.add_option(
         "--f1",
@@ -1041,7 +1041,7 @@ def get_ccp_options():
         type=float,
         dest="f1",
         default=0.05,
-        help="Specify the low frequency corner for the bandpass filter "+
+        help="Specify the low frequency corner for the bandpass filter " +
         "for all phases (Hz). [Default [0.05]]")
     PreGroup.add_option(
         "--f2ps",
@@ -1049,7 +1049,7 @@ def get_ccp_options():
         type=float,
         dest="f2ps",
         default=0.75,
-        help="Specify the high frequency corner for the bandpass filter "+
+        help="Specify the high frequency corner for the bandpass filter " +
         "for the Ps phase (Hz). [Default [0.75]]")
     PreGroup.add_option(
         "--f2pps",
@@ -1057,7 +1057,7 @@ def get_ccp_options():
         type=float,
         dest="f2pps",
         default=0.36,
-        help="Specify the high frequency corner for the bandpass filter "+
+        help="Specify the high frequency corner for the bandpass filter " +
         "for the Pps phase (Hz). [Default [0.36]]")
     PreGroup.add_option(
         "--f2pss",
@@ -1065,7 +1065,7 @@ def get_ccp_options():
         type=float,
         dest="f2pss",
         default=0.3,
-        help="Specify the high frequency corner for the bandpass filter "+
+        help="Specify the high frequency corner for the bandpass filter " +
         "for the Pss phase (Hz). [Default [0.3]]")
     PreGroup.add_option(
         "--nbaz",
@@ -1087,22 +1087,56 @@ def get_ccp_options():
     CCPGroup = OptionGroup(
         parser,
         title='CCP Settings',
-        description="Options for specifying the type of CCP stacking "+
+        description="Options for specifying the type of CCP stacking " +
         "to perform")
+    CCPGroup.add_option(
+        "--load",
+        action="store_true",
+        dest="load",
+        default=False,
+        help="Set this option to load rfstreams into CCPimage object. " +
+        "[Default False]")
+    CCPGroup.add_option(
+        "--prep",
+        action="store_true",
+        dest="prep",
+        default=False,
+        help="Set this option to prepare CCPimage before pre-stacking. " +
+        "[Default False]")
+    CCPGroup.add_option(
+        "--prestack",
+        action="store_true",
+        dest="prestack",
+        default=False,
+        help="Set this option to prestack all phases before CCP averaging. " +
+        "[Default False]")
     CCPGroup.add_option(
         "--ccp",
         action="store_true",
-        dest="run_ccp",
+        dest="ccp",
         default=False,
-        help="Set this option for standard CCP stacking with multiples. "+
+        help="Set this option for standard CCP stacking with multiples. " +
         "[Default False]")
     CCPGroup.add_option(
         "--gccp",
         action="store_true",
-        dest="run_gccp",
+        dest="gccp",
         default=False,
-        help="Set this option for Gaussian-weighted, phase-weighted CCP "+
+        help="Set this option for Gaussian-weighted, phase-weighted CCP " +
         "stacking with multiples. [Default False]")
+    CCPGroup.add_option(
+        "--all",
+        action="store_true",
+        dest="all_in_one",
+        default=False,
+        help="Set this option to perform all steps serially. [Default False]")
+    CCPGroup.add_option(
+        "--figure",
+        action="store_true",
+        dest="ccp_figure",
+        default=False,
+        help="Set this option to plot the final [G]CCP figure. "+
+        "[Default False]")
 
     parser.add_option_group(LineGroup)
     parser.add_option_group(PreGroup)
@@ -1139,8 +1173,8 @@ def get_ccp_options():
                 "Error: --end should contain 2 " +
                 "comma-separated floats")
 
-    if not opts.run_ccp and not opts.run_gccp:
-        parser.error("Specify at least one of --ccp or --gccp")
+    # if not opts.ccp and not opts.run_gccp:
+    #     parser.error("Specify at least one of --ccp or --gccp")
 
     return (opts, indb)
 
@@ -1200,7 +1234,7 @@ def get_plot_options():
         type=float,
         dest="snr",
         default=5.,
-        help="Specify the SNR threshold for extracting receiver functions. "+
+        help="Specify the SNR threshold for extracting receiver functions. " +
         "[Default 5.]")
     PreGroup.add_option(
         "--fmin",
@@ -1208,7 +1242,7 @@ def get_plot_options():
         type=float,
         dest="fmin",
         default=0.05,
-        help="Specify the low frequency corner for the bandpass filter. "+
+        help="Specify the low frequency corner for the bandpass filter. " +
         "[Default [0.05]]")
     PreGroup.add_option(
         "--fmax",
@@ -1216,7 +1250,7 @@ def get_plot_options():
         type=float,
         dest="fmax",
         default=0.5,
-        help="Specify the high frequency corner for the bandpass filter. "+
+        help="Specify the high frequency corner for the bandpass filter. " +
         "[Default [0.5]]")
     PreGroup.add_option(
         "--nbaz",
@@ -1225,7 +1259,7 @@ def get_plot_options():
         type=int,
         default=None,
         help="Specify integer number of back-azimuth bins to consider " +
-        "(typically 36 or 72). If not None, the plot will show receiver "+
+        "(typically 36 or 72). If not None, the plot will show receiver " +
         "functions sorted by back-azimuth values. [Default None]")
     PreGroup.add_option(
         "--nslow",
@@ -1234,7 +1268,7 @@ def get_plot_options():
         type=int,
         default=None,
         help="Specify integer number of slowness bins to consider " +
-        "(typically 20 or 40). If not None, the plot will show receiver "+
+        "(typically 20 or 40). If not None, the plot will show receiver " +
         "functions sorted by slowness values. [Default None]")
 
     PlotGroup = OptionGroup(
@@ -1246,7 +1280,7 @@ def get_plot_options():
         action="store_true",
         dest="saveplot",
         default=False,
-        help="Set this option if you wish to save the figure. [Default "+
+        help="Set this option if you wish to save the figure. [Default " +
         "does not save figure]")
     PlotGroup.add_option(
         "--title",
@@ -1680,10 +1714,11 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
             print(("*          {1:2s}[ZNE].{2:2s} - Checking Network".format(
                 sta.station, sta.channel.upper(), tloc)))
             try:
-                st = client.get_waveforms(network=sta.network,
-                                          station=sta.station, location=loc,
-                                          channel=channelsZNE, starttime=start,
-                                          endtime=end, attach_response=False)
+                st = client.get_waveforms(
+                    network=sta.network,
+                    station=sta.station, location=loc,
+                    channel=channelsZNE, starttime=start,
+                    endtime=end, attach_response=False)
                 if len(st) == 3:
                     erd = False
                     print("*              - ZNE Data Downloaded")
@@ -1691,15 +1726,18 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
                     # it's possible if len(st)==1 that data is Z12
                     # print("*              - ZNE Data Unavailable")
                     # Construct Channel List
-                    channelsZ12 = sta.channel.upper() + 'Z,' + sta.channel.upper() + \
-                        '1,' + sta.channel.upper() + '2'
-                    print(("*          {1:2s}[Z12].{2:2s} - Checking Network".format(
-                        sta.station, sta.channel.upper(), tloc)))
-                    try: 
-                        st = client.get_waveforms(network=sta.network,
-                                                  station=sta.station, location=loc,
-                                                  channel=channelsZ12, starttime=start,
-                                                  endtime=end, attach_response=False)
+                    channelsZ12 = sta.channel.upper() + 'Z,' + \
+                        sta.channel.upper() + '1,' + \
+                        sta.channel.upper() + '2'
+                    msg = "*          {1:2s}[Z12].{2:2s} - Checking Network".format(
+                        sta.station, sta.channel.upper(), tloc)
+                    print(msg)
+                    try:
+                        st = client.get_waveforms(
+                            network=sta.network,
+                            station=sta.station, location=loc,
+                            channel=channelsZ12, starttime=start,
+                            endtime=end, attach_response=False)
                         if len(st) == 3:
                             erd = False
                             print("*              - Z12 Data Downloaded")

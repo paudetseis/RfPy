@@ -26,7 +26,9 @@ values, bin them, and produce CCP stacks using receiver functions.
 
 """
 
+import os
 import sys
+import pickle
 import numpy as np
 import scipy as sp
 from scipy.signal import hilbert
@@ -52,13 +54,22 @@ class CCPimage(object):
         self.xs_lon1 = coord_start[1]
         self.xs_lat2 = coord_end[0]
         self.xs_lon2 = coord_end[1]
+        self.is_ready_for_prep = False
+        self.is_ready_for_prestack = False
+        self.is_ready_for_ccp = False
+        self.is_ready_for_gccp = False
 
     def add_rfstream(self, rfstream):
 
-        self.radialRF.append(rfstream)
+        if len(rfstream)>0:
+            self.radialRF.append(rfstream)
+            self.is_ready_for_prep = True
 
     def prep_data(self, f1=0.05, f2ps=0.5, f2pps=0.3, f2pss=0.3, n_depth=120,
-                  nbaz=36+1, nslow=40+1):
+                  nbaz=36+1, nslow=40+1, save=None):
+
+        if not self.is_ready_for_prep:
+            raise(Exception("CCPimage not ready for pre-prep"))
 
         i_key = 0
 
@@ -155,10 +166,14 @@ class CCPimage(object):
         self.lon_depth = lon_depth
         self.lat_depth = lat_depth
         self.depth_array = depth_array
+        self.is_ready_for_prestack = True
 
         del self.radialRF
 
     def prestack(self, cell_length=1.):
+
+        if not self.is_ready_for_prestack:
+            raise(Exception("CCPimage not ready for prestack"))
 
         (n_depth, n_traces) = self.lon_depth.shape
 
@@ -227,8 +242,13 @@ class CCPimage(object):
         self.lateral_distances = lateral_distances
         self.n_lateral = n_lateral
         self.n_depth = n_depth
+        self.is_ready_for_ccp = True
+        self.is_ready_for_gccp = True
 
     def ccp(self):
+
+        if not self.is_ready_for_ccp:
+            raise(Exception("CCPimage not ready for ccp"))
 
         xs_ps_avg = np.zeros((self.n_depth, self.n_lateral))
         xs_pps_avg = np.zeros((self.n_depth, self.n_lateral))
@@ -263,6 +283,9 @@ class CCPimage(object):
         self.xs_pss_avg = xs_pss_avg
 
     def gccp(self, wlen=15.):
+
+        if not self.is_ready_for_gccp:
+            raise(Exception("CCPimage not ready for gccp"))
 
         dlat = max(self.lateral_distances)/self.n_lateral
 
@@ -314,6 +337,20 @@ class CCPimage(object):
             tot_trace[:, i_cell] = (ps_trace + pps_trace + pss_trace)*weight**2
 
         self.tot_trace_gccp = tot_trace
+
+
+    def save(self, title):
+
+        if title is None:
+            title = "CCP_image.pkl"
+
+        if not ".pkl" in title:
+            file = open(title+".pkl", "wb")
+        else:
+            file = open(title, "wb")
+        pickle.dump(self, file)
+        file.close()
+
 
     def plot_ccp(self, vmin=-0.05, vmax=0.05, save=False, form='png'):
 
@@ -375,7 +412,9 @@ class CCPimage(object):
         ax4.invert_yaxis()
 
         if save:
-            plt.savefig('FIGURES/ccp.' + it + '.' + form)
+            if not os.path.isdir("FIGURES"):
+                os.makedirs("FIGURES")
+            plt.savefig('FIGURES/ccp.' + form)
 
         plt.tight_layout()
         plt.show()
@@ -444,7 +483,9 @@ class CCPimage(object):
         ax4.invert_yaxis()
 
         if save:
-            plt.savefig('FIGURES/gccp.' + it + '.' + form)
+            if not os.path.isdir("FIGURES"):
+                os.makedirs("FIGURES")
+            plt.savefig('FIGURES/gccp.' + form)
 
         plt.tight_layout()
         plt.show()
