@@ -940,6 +940,162 @@ depending on the number of input streams</p>
 <span id="ccp"></span><h2>ccp<a class="headerlink" href="#module-rfpy.ccp" title="Permalink to this headline">¶</a></h2>
 <p>Functions to calculate piercing points from a velocity model and slowness
 values, bin them, and produce CCP stacks using receiver functions.</p>
+<dl class="class">
+<dt id="rfpy.ccp.CCPimage">
+<em class="property">class </em><code class="sig-prename descclassname">rfpy.ccp.</code><code class="sig-name descname">CCPimage</code><span class="sig-paren">(</span><em class="sig-param">coord_start=[None, None], coord_end=[None, None], weights=[1.0, 1.0, -1.0], dep=array([   0.,    4.,    8.,   14.,   30.,   35.,   45.,  110.]), vp=array([ 4. ,  5.9,  6.2,  6.3,  6.8,  7.2,  8. ,  8.1]), vpvs=1.73</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage" title="Permalink to this definition">¶</a></dt>
+<dd><p>A CCPimage object contains attributes and methods to produce
+Common Conversion Point (CCP) stacks for each of the main
+three Moho phases (Ps, Pps and Pss) using radial-component
+receiver functions. The object is used to project the stacks along
+a linear profile, specified by start and end geographical coordinate
+locations, which are subsequently averaged to produce a final
+CCP image. The averaging can be done using a linear weighted sum,
+or a phase-weighted sum. Methods should be used in the appropriate
+sequence (see <code class="docutils literal notranslate"><span class="pre">rfpy_ccp.py</span></code> for details).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The object initially does not have defined coordinate locations for
+the profile. If not initialized with these values specified, make sure
+they are specified lated, before the other methods are used, e.g.
+<code class="docutils literal notranslate"><span class="pre">ccpimage.xs_lat1</span> <span class="pre">=</span> <span class="pre">10.;</span> <span class="pre">ccpimage.xs_lon1</span> <span class="pre">=</span> <span class="pre">110.</span></code>, etc. Note also that the
+default 1D velocity model may not be applicable to your region of
+interest.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coord_start</strong> (<em>list</em>) – List of two floats corresponding to the (latitude, longitude)
+pair for the start point of the profile</p></li>
+<li><p><strong>coord_end</strong> (<em>list</em>) – List of two floats corresponding to the (latitude, longitude)
+pair for the end point of the profile</p></li>
+<li><p><strong>weights</strong> (<em>list</em>) – List of three floats with corresponding weights for the Ps, Pps
+and Pss phases used during linear, weighted averaging</p></li>
+<li><p><strong>dep</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Array of depth values defining the 1D background seismic velocity model.
+Note that the maximum depth defined here sets the maximum depth
+in each of the CCP stacks and the final CCP image.</p></li>
+<li><p><strong>vp</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Array of Vp values defining the 1D background seismic velocity model</p></li>
+<li><p><strong>vpvs</strong> (<em>float</em>) – Constant Vp/Vs ratio for the 1D model.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Other Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>radialRF</strong> (<em>list</em>) – List of <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> objects containing the radial
+receiver functions along the line. Each item in the list contains the
+streams for one single station.</p></li>
+<li><p><strong>vs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>) – Array of Vp values defining the 1D background seismic velocity model</p></li>
+<li><p><strong>xs_lat1</strong> (<em>float</em>) – Latitude of start point defining the linear profile.</p></li>
+<li><p><strong>xs_lon1</strong> (<em>float</em>) – Longitude of start point defining the linear profile.</p></li>
+<li><p><strong>xs_lat2</strong> (<em>float</em>) – Latitude of end point defining the linear profile.</p></li>
+<li><p><strong>xs_lon2</strong> (<em>float</em>) – Longitude of end point defining the linear profile.</p></li>
+<li><p><strong>is_ready_for_prep</strong> (<em>boolean</em>) – Whether or not the object is ready for the method <code class="docutils literal notranslate"><span class="pre">prep_data</span></code></p></li>
+<li><p><strong>is_ready_for_prestack</strong> (<em>boolean</em>) – Whether or not the object is ready for the method <code class="docutils literal notranslate"><span class="pre">prestack</span></code></p></li>
+<li><p><strong>is_ready_for_ccp</strong> (<em>boolean</em>) – Whether or not the object is ready for the method <code class="docutils literal notranslate"><span class="pre">ccp</span></code></p></li>
+<li><p><strong>is_ready_for_gccp</strong> (<em>boolean</em>) – Whether or not the object is ready for the method <code class="docutils literal notranslate"><span class="pre">gccp</span></code></p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="rfpy.ccp.CCPimage.add_rfstream">
+<code class="sig-name descname">add_rfstream</code><span class="sig-paren">(</span><em class="sig-param">rfstream</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.add_rfstream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to add a <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> object to the list
+<code class="docutils literal notranslate"><span class="pre">radialRF</span></code>. With at least one stream in <code class="docutils literal notranslate"><span class="pre">radialRF</span></code>, the object
+is ready for the <code class="docutils literal notranslate"><span class="pre">prep_data</span></code> method, and the corresponding flag is
+updated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>rfstream</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream object containing radial receiver functions for one station</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="rfpy.ccp.CCPimage.prep_data">
+<code class="sig-name descname">prep_data</code><span class="sig-paren">(</span><em class="sig-param">f1=0.05</em>, <em class="sig-param">f2ps=0.5</em>, <em class="sig-param">f2pps=0.25</em>, <em class="sig-param">f2pss=0.2</em>, <em class="sig-param">n_depth=120</em>, <em class="sig-param">nbaz=37</em>, <em class="sig-param">nslow=41</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.prep_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to pre-process the data and calculate the CCP points for each
+of the receiver functions. Pre-processing includes the binning to
+back-azimuth and slowness bins to reduce processing time and generate
+cleaner stacks, as well as filtering to emphasize the energy of the
+various phases as a function of depth. As a general rule, the high
+frequency corner of the 2 reverberated phases (Pps and Pss) should be
+approximately half of the high frequency corner of the direct
+(Ps) phase. At the end of this step, the object is updated with
+the amplitude at the lat, lon and depth values corresponding to the
+raypath for each receiver function. The object is now ready for the
+method <code class="docutils literal notranslate"><span class="pre">prestack</span></code>, with the corresponding flag updated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f1</strong> (<em>float</em>) – Low-frequency corner of the bandpass filter used for all phases (Hz)</p></li>
+<li><p><strong>f2ps</strong> (<em>float</em>) – High-frequency corner of the bandpass filter used for the Ps phase (Hz)</p></li>
+<li><p><strong>f2pps</strong> (<em>float</em>) – High-frequency corner of the bandpass filter used for the Pps phase (Hz)</p></li>
+<li><p><strong>f2pss</strong> (<em>float</em>) – High-frequency corner of the bandpass filter used for the Pss phase (Hz)</p></li>
+<li><p><strong>n_depth</strong> (<em>int</em>) – Number of depth increments in the calculation of the raypaths. Note that
+total depth of the image is set by the values in the 1D velocity profile.</p></li>
+<li><p><strong>nbaz</strong> (<em>int</em>) – Number of increments in the back-azimuth bins</p></li>
+<li><p><strong>nslow</strong> (<em>int</em>) – Number of increments in the slowness bins</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="rfpy.ccp.CCPimage.prestack">
+<code class="sig-name descname">prestack</code><span class="sig-paren">(</span><em class="sig-param">cell_length=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.prestack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to project the raypaths onto the 2D profile for each of the three
+phases. The final grid is defined here, using the parameter <code class="docutils literal notranslate"><span class="pre">cell_length</span></code>.
+The horizontal extent is pre-determined from the start and end points of
+the profile. At the end of this step, the object contains the set of
+amplitudes at each of the 2D grid points, for each of the three phases.
+The object is now ready for the methods <code class="docutils literal notranslate"><span class="pre">ccp</span></code> and/or <code class="docutils literal notranslate"><span class="pre">gccp</span></code>, with
+the corresponding flag updated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cell_length</strong> (<em>float</em>) – Horizontal distance sampling for the final 2D grid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="rfpy.ccp.CCPimage.ccp">
+<code class="sig-name descname">ccp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.ccp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to average the amplitudes at each grid point to produce 2D images
+for each of the three phases. At the end of this step, the object
+contains the three 2D arrays that can be further averaged into a single
+final image.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rfpy.ccp.CCPimage.gccp">
+<code class="sig-name descname">gccp</code><span class="sig-paren">(</span><em class="sig-param">wlen=15.0</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.gccp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to average the amplitudes at each grid point to produce 2D images
+for each of the three phases. In this method, the grid points are further
+smoothed in the horizontal direction using a Gaussian function to simulate
+P-wave sensitivity kernels. At the end of this step, the object
+contains the three 2D smoothed arrays that can be further averaged into a
+single final image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>wlen</strong> (<em>float</em>) – Wavelength of the P-wave for smoothing (km).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="rfpy.ccp.CCPimage.stack_ccp">
+<code class="sig-name descname">stack_ccp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.stack_ccp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to average the three 2D images into a final, weighted CCP image
+using the weights defined in the attribute.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="rfpy.ccp.CCPimage.pws_gccp">
+<code class="sig-name descname">pws_gccp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.pws_gccp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to average the three 2D smoothed images into a final,
+phase-weighted CCP image.</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="function">
 <dt id="rfpy.ccp.ppoint_distance">
 <code class="sig-prename descclassname">rfpy.ccp.</code><code class="sig-name descname">ppoint_distance</code><span class="sig-paren">(</span><em class="sig-param">tr</em>, <em class="sig-param">dz</em>, <em class="sig-param">vs</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.ppoint_distance" title="Permalink to this definition">¶</a></dt>
