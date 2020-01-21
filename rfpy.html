@@ -277,13 +277,13 @@ object containing the unrotated 3-component seismograms. Additional processing a
 are added as the analysis proceeds. The sequence of initialization and addition of attributes
 is important, as described in the documentation below.</p>
 <p>Note that, at the end of the process, the <a class="reference internal" href="api.html#rfpy.rfdata.RFData" title="rfpy.rfdata.RFData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RFData</span></code></a> object will further contain
-a <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> object with the receiver function data.</p>
+a <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> object as an additional attribute, containing the receiver function data.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>A <a class="reference internal" href="api.html#rfpy.rfdata.RFData" title="rfpy.rfdata.RFData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RFData</span></code></a> object is meant to facilitate processing of single-station
 and single-event P-wave receiver functions. For processing multiple event-station pairs,
 an equal number of <a class="reference internal" href="api.html#rfpy.rfdata.RFData" title="rfpy.rfdata.RFData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RFData</span></code></a> objects need to be
-created. See the accompanying Scripts and Jupyter Notebooks for details.</p>
+created. See the accompanying Scripts for details.</p>
 </div>
 <div class="section" id="initialization">
 <h3>Initialization<a class="headerlink" href="#initialization" title="Permalink to this headline">¶</a></h3>
@@ -293,7 +293,7 @@ object <code class="docutils literal notranslate"><span class="pre">sta</span></
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span> <span class="o">=</span> <span class="n">RFData</span><span class="p">(</span><span class="n">sta</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Once the object is initialized, the first step is to add an <code class="docutils literal notranslate"><span class="pre">obspy.core.event.Event</span></code>
+<p>Once the object is initialized, the first step is to add an <code class="xref py py-class docutils literal notranslate"><span class="pre">obspy.core.event.Event`</span></code>
 object. For example, given such an object <code class="docutils literal notranslate"><span class="pre">ev</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span><span class="n">ev</span><span class="p">)</span>
 </pre></div>

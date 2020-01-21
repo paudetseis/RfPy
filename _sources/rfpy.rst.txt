@@ -99,14 +99,14 @@ are added as the analysis proceeds. The sequence of initialization and addition 
 is important, as described in the documentation below. 
 
 Note that, at the end of the process, the :class:`~rfpy.rfdata.RFData` object will further contain
-a :class:`~obspy.core.Stream` object with the receiver function data.
+a :class:`~obspy.core.Stream` object as an additional attribute, containing the receiver function data.
 
 .. note::
 
     A :class:`~rfpy.rfdata.RFData` object is meant to facilitate processing of single-station 
     and single-event P-wave receiver functions. For processing multiple event-station pairs, 
     an equal number of :class:`~rfpy.rfdata.RFData` objects need to be 
-    created. See the accompanying Scripts and Jupyter Notebooks for details.
+    created. See the accompanying Scripts for details.
 
 Initialization
 ++++++++++++++
@@ -120,7 +120,7 @@ object ``sta``:
     >>> rfdata = RFData(sta)
 
 
-Once the object is initialized, the first step is to add an ``obspy.core.event.Event`` 
+Once the object is initialized, the first step is to add an :class:`obspy.core.event.Event``
 object. For example, given such an object ``ev``:
 
 .. sourcecode:: python
