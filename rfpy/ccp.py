@@ -38,6 +38,72 @@ from matplotlib import cm
 
 
 class CCPimage(object):
+    """
+    A CCPimage object contains attributes and methods to produce
+    Common Conversion Point (CCP) stacks for each of the main
+    three Moho phases (Ps, Pps and Pss) using radial-component
+    receiver functions. The object is used to project the stacks along
+    a linear profile, specified by start and end geographical coordinate 
+    locations, which are subsequently averaged to produce a final 
+    CCP image. The averaging can be done using a linear weighted sum, 
+    or a phase-weighted sum. Methods should be used in the appropriate
+    sequence (see ``rfpy_ccp.py`` for details).
+
+    Note
+    ----
+    The object initially does not have defined coordinate locations for 
+    the profile. If not initialized with these values specified, make sure
+    they are specified lated, before the other methods are used, e.g.
+    ``ccpimage.xs_lat1 = 10.; ccpimage.xs_lon1 = 110.``, etc. Note also that the 
+    default 1D velocity model may not be applicable to your region of 
+    interest. 
+
+    Parameters
+    ----------
+    coord_start : list
+        List of two floats corresponding to the (latitude, longitude)
+        pair for the start point of the profile 
+    coord_end : list
+        List of two floats corresponding to the (latitude, longitude)
+        pair for the end point of the profile 
+    weights : list
+        List of three floats with corresponding weights for the Ps, Pps
+        and Pss phases used during linear, weighted averaging
+    dep : :class:`~numpy.ndarray`
+        Array of depth values defining the 1D background seismic velocity model.
+        Note that the maximum depth defined here sets the maximum depth 
+        in each of the CCP stacks and the final CCP image.
+    vp : :class:`~numpy.ndarray`
+        Array of Vp values defining the 1D background seismic velocity model
+    vpvs : float
+        Constant Vp/Vs ratio for the 1D model. 
+
+    Other Parameters
+    ----------------
+    radialRF : list
+        List of :class:`~obspy.core.Stream` objects containing the radial
+        receiver functions along the line. Each item in the list contains the
+        streams for one single station.
+    vs : :class:`~numpy.ndarray`
+        Array of Vp values defining the 1D background seismic velocity model
+    xs_lat1 : float
+        Latitude of start point defining the linear profile.
+    xs_lon1 : float
+        Longitude of start point defining the linear profile.
+    xs_lat2 : float
+        Latitude of end point defining the linear profile.
+    xs_lon2 : float
+        Longitude of end point defining the linear profile.
+    is_ready_for_prep : boolean
+        Whether or not the object is ready for the method ``prep_data``
+    is_ready_for_prestack : boolean
+        Whether or not the object is ready for the method ``prestack``
+    is_ready_for_ccp : boolean
+        Whether or not the object is ready for the method ``ccp``
+    is_ready_for_gccp : boolean
+        Whether or not the object is ready for the method ``gccp``
+
+    """
 
     def __init__(self, coord_start=[None, None], coord_end=[None, None],
                  weights=[1., 1., -1.],
@@ -60,13 +126,58 @@ class CCPimage(object):
         self.is_ready_for_gccp = False
 
     def add_rfstream(self, rfstream):
+        """
+        Method to add a :class:`~obspy.core.Stream` object to the list
+        ``radialRF``. With at least one stream in ``radialRF``, the object
+        is ready for the ``prep_data`` method, and the corresponding flag is
+        updated. 
 
+        Parameters
+        ----------
+
+        rfstream : :class:`~obspy.core.Stream`
+            Stream object containing radial receiver functions for one station
+
+        """
         if len(rfstream)>0:
             self.radialRF.append(rfstream)
             self.is_ready_for_prep = True
 
-    def prep_data(self, f1=0.05, f2ps=0.5, f2pps=0.3, f2pss=0.3, n_depth=120,
-                  nbaz=36+1, nslow=40+1, save=None):
+    def prep_data(self, f1=0.05, f2ps=0.5, f2pps=0.25, f2pss=0.2, n_depth=120,
+                  nbaz=36+1, nslow=40+1):
+        """
+        Method to pre-process the data and calculate the CCP points for each 
+        of the receiver functions. Pre-processing includes the binning to
+        back-azimuth and slowness bins to reduce processing time and generate
+        cleaner stacks, as well as filtering to emphasize the energy of the
+        various phases as a function of depth. As a general rule, the high 
+        frequency corner of the 2 reverberated phases (Pps and Pss) should be 
+        approximately half of the high frequency corner of the direct 
+        (Ps) phase. At the end of this step, the object is updated with
+        the amplitude at the lat, lon and depth values corresponding to the
+        raypath for each receiver function. The object is now ready for the
+        method ``prestack``, with the corresponding flag updated.
+
+        Parameters
+        ----------
+
+        f1 : float
+            Low-frequency corner of the bandpass filter used for all phases (Hz)
+        f2ps : float
+            High-frequency corner of the bandpass filter used for the Ps phase (Hz)
+        f2pps : float
+            High-frequency corner of the bandpass filter used for the Pps phase (Hz)
+        f2pss : float
+            High-frequency corner of the bandpass filter used for the Pss phase (Hz)
+        n_depth : int
+            Number of depth increments in the calculation of the raypaths. Note that 
+            total depth of the image is set by the values in the 1D velocity profile.
+        nbaz : int
+            Number of increments in the back-azimuth bins
+        nslow : int
+            Number of increments in the slowness bins
+            
+        """
 
         if not self.is_ready_for_prep:
             raise(Exception("CCPimage not ready for pre-prep"))
@@ -124,19 +235,19 @@ class CCPimage(object):
                 # Loop through travel times and shift RFs to get amplitudes
                 for tt in tt_ps:
                     a, phase = timeshift(st_ps[itr], tt)
-                    amp_ps.append(self.weights[0]*a)
+                    amp_ps.append(a)
                 amp_ps_tr[itr, :] = amp_ps
 
                 # Loop through travel times and shift RFs to get amplitudes
                 for tt in tt_pps:
                     a, phase = timeshift(st_pps[itr], tt)
-                    amp_pps.append(self.weights[1]*a)
+                    amp_pps.append(a)
                 amp_pps_tr[itr, :] = amp_pps
 
                 # Loop through travel times and shift RFs to get amplitudes
                 for tt in tt_pss:
                     a, phase = timeshift(st_pss[itr], tt)
-                    amp_pss.append(self.weights[2]*a)
+                    amp_pss.append(a)
                 amp_pss_tr[itr, :] = amp_pss
 
             if i_key == 0:
@@ -171,6 +282,22 @@ class CCPimage(object):
         del self.radialRF
 
     def prestack(self, cell_length=1.):
+        """
+        Method to project the raypaths onto the 2D profile for each of the three
+        phases. The final grid is defined here, using the parameter ``cell_length``.
+        The horizontal extent is pre-determined from the start and end points of 
+        the profile. At the end of this step, the object contains the set of 
+        amplitudes at each of the 2D grid points, for each of the three phases.
+        The object is now ready for the methods ``ccp`` and/or ``gccp``, with 
+        the corresponding flag updated.
+
+        Parameters
+        ----------
+
+        cell_length : float
+            Horizontal distance sampling for the final 2D grid. 
+
+        """
 
         if not self.is_ready_for_prestack:
             raise(Exception("CCPimage not ready for prestack"))
@@ -246,6 +373,13 @@ class CCPimage(object):
         self.is_ready_for_gccp = True
 
     def ccp(self):
+        """
+        Method to average the amplitudes at each grid point to produce 2D images
+        for each of the three phases. At the end of this step, the object
+        contains the three 2D arrays that can be further averaged into a single
+        final image. 
+
+        """
 
         if not self.is_ready_for_ccp:
             raise(Exception("CCPimage not ready for ccp"))
@@ -283,9 +417,26 @@ class CCPimage(object):
         self.xs_pss_avg = xs_pss_avg
 
     def gccp(self, wlen=15.):
+        """
+        Method to average the amplitudes at each grid point to produce 2D images
+        for each of the three phases. In this method, the grid points are further
+        smoothed in the horizontal direction using a Gaussian function to simulate
+        P-wave sensitivity kernels. At the end of this step, the object
+        contains the three 2D smoothed arrays that can be further averaged into a 
+        single final image. 
+
+        Parameters
+        ----------
+
+        wlen : float
+            Wavelength of the P-wave for smoothing (km).
+
+        """
 
         if not self.is_ready_for_gccp:
             raise(Exception("CCPimage not ready for gccp"))
+        if not hasattr(self, 'xs_ps_avg'):
+            self.ccp()
 
         dlat = max(self.lateral_distances)/self.n_lateral
 
@@ -299,6 +450,11 @@ class CCPimage(object):
             self.xs_pss_avg, sigma=(0, wlen/dlat))
 
     def stack_ccp(self):
+        """
+        Method to average the three 2D images into a final, weighted CCP image
+        using the weights defined in the attribute.
+
+        """
 
         tot_trace = np.zeros((self.n_depth, self.n_lateral))
 
@@ -306,11 +462,18 @@ class CCPimage(object):
             ps_trace = self.xs_ps_avg[:, i_cell]
             pps_trace = self.xs_pps_avg[:, i_cell]
             pss_trace = self.xs_pss_avg[:, i_cell]
-            tot_trace[:, i_cell] = (ps_trace + pps_trace + pss_trace)
+            tot_trace[:, i_cell] = (self.weights[0]*ps_trace + 
+                self.weights[1]*pps_trace + 
+                self.weights[2]*pss_trace)
 
         self.tot_trace_ccp = tot_trace
 
     def pws_gccp(self):
+        """
+        Method to average the three 2D smoothed images into a final, 
+        phase-weighted CCP image.
+
+        """
 
         tot_trace = np.zeros((self.n_depth, self.n_lateral))
 
