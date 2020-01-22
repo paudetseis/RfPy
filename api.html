@@ -359,7 +359,7 @@ due to different conventions.</p>
 
 <dl class="method">
 <dt id="rfpy.rfdata.RFData.deconvolve">
-<code class="sig-name descname">deconvolve</code><span class="sig-paren">(</span><em class="sig-param">twin=60.0</em>, <em class="sig-param">vp=None</em>, <em class="sig-param">vs=None</em>, <em class="sig-param">align=None</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.deconvolve" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">deconvolve</code><span class="sig-paren">(</span><em class="sig-param">twin=60.0</em>, <em class="sig-param">vp=None</em>, <em class="sig-param">vs=None</em>, <em class="sig-param">align=None</em>, <em class="sig-param">method='wiener'</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.deconvolve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deconvolves three-compoent data using one component as the source wavelet.
 The source component is always taken as the dominant compressional
 component, which can be either ‘Z’, ‘L’, or ‘P’.</p>
@@ -371,6 +371,8 @@ component, which can be either ‘Z’, ‘L’, or ‘P’.</p>
 <li><p><strong>vs</strong> (<em>float</em>) – S-wave velocity at surface (km/s)</p></li>
 <li><p><strong>align</strong> (<em>str</em>) – Alignment of coordinate system for rotation
 (‘ZRT’, ‘LQT’, or ‘PVH’)</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – Method for deconvolution. Options are ‘wiener’ or
+‘multitaper’</p></li>
 </ul>
 </dd>
 </dl>
@@ -853,7 +855,7 @@ file name (if <code class="docutils literal notranslate"><span class="pre">save=
 <h2>CCPimage<a class="headerlink" href="#ccpimage" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="rfpy.ccp.CCPimage">
-<em class="property">class </em><code class="sig-prename descclassname">rfpy.ccp.</code><code class="sig-name descname">CCPimage</code><span class="sig-paren">(</span><em class="sig-param">coord_start=[None, None], coord_end=[None, None], weights=[1.0, 1.0, -1.0], dep=array([   0.,    4.,    8.,   14.,   30.,   35.,   45.,  110.]), vp=array([ 4. ,  5.9,  6.2,  6.3,  6.8,  7.2,  8. ,  8.1]), vpvs=1.73</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">rfpy.ccp.</code><code class="sig-name descname">CCPimage</code><span class="sig-paren">(</span><em class="sig-param">coord_start=[None, None], coord_end=[None, None], weights=[1.0, 3.0, -3.0], dep=array([   0.,    4.,    8.,   14.,   30.,   35.,   45.,  110.]), vp=array([ 4. ,  5.9,  6.2,  6.3,  6.8,  7.2,  8. ,  8.1]), vpvs=1.73, dx=2.5, dz=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage" title="Permalink to this definition">¶</a></dt>
 <dd><p>A CCPimage object contains attributes and methods to produce
 Common Conversion Point (CCP) stacks for each of the main
 three main phases (Ps, Pps and Pss) using radial-component
@@ -921,7 +923,7 @@ updated.</p>
 
 <dl class="method">
 <dt id="rfpy.ccp.CCPimage.prep_data">
-<code class="sig-name descname">prep_data</code><span class="sig-paren">(</span><em class="sig-param">f1=0.05</em>, <em class="sig-param">f2ps=0.5</em>, <em class="sig-param">f2pps=0.25</em>, <em class="sig-param">f2pss=0.2</em>, <em class="sig-param">n_depth=120</em>, <em class="sig-param">nbaz=37</em>, <em class="sig-param">nslow=41</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.prep_data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">prep_data</code><span class="sig-paren">(</span><em class="sig-param">f1=0.05</em>, <em class="sig-param">f2ps=0.5</em>, <em class="sig-param">f2pps=0.25</em>, <em class="sig-param">f2pss=0.2</em>, <em class="sig-param">nbaz=37</em>, <em class="sig-param">nslow=41</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.prep_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to pre-process the data and calculate the CCP points for each
 of the receiver functions. Pre-processing includes the binning to
 back-azimuth and slowness bins to reduce processing time and generate
@@ -940,8 +942,6 @@ method <code class="docutils literal notranslate"><span class="pre">prestack</sp
 <li><p><strong>f2ps</strong> (<em>float</em>) – High-frequency corner of the bandpass filter used for the Ps phase (Hz)</p></li>
 <li><p><strong>f2pps</strong> (<em>float</em>) – High-frequency corner of the bandpass filter used for the Pps phase (Hz)</p></li>
 <li><p><strong>f2pss</strong> (<em>float</em>) – High-frequency corner of the bandpass filter used for the Pss phase (Hz)</p></li>
-<li><p><strong>n_depth</strong> (<em>int</em>) – Number of depth increments in the calculation of the raypaths. Note that
-total depth of the image is set by the values in the 1D velocity profile.</p></li>
 <li><p><strong>nbaz</strong> (<em>int</em>) – Number of increments in the back-azimuth bins</p></li>
 <li><p><strong>nslow</strong> (<em>int</em>) – Number of increments in the slowness bins</p></li>
 </ul>
@@ -951,9 +951,9 @@ total depth of the image is set by the values in the 1D velocity profile.</p></l
 
 <dl class="method">
 <dt id="rfpy.ccp.CCPimage.prestack">
-<code class="sig-name descname">prestack</code><span class="sig-paren">(</span><em class="sig-param">cell_length=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.prestack" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">prestack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.prestack" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to project the raypaths onto the 2D profile for each of the three
-phases. The final grid is defined here, using the parameter <code class="docutils literal notranslate"><span class="pre">cell_length</span></code>.
+phases. The final grid is defined here, using the parameter <code class="docutils literal notranslate"><span class="pre">dx</span></code> in km.
 The horizontal extent is pre-determined from the start and end points of
 the profile. At the end of this step, the object contains the set of
 amplitudes at each of the 2D grid points, for each of the three phases.
@@ -961,7 +961,7 @@ The object is now ready for the methods <code class="docutils literal notranslat
 the corresponding flag updated.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>cell_length</strong> (<em>float</em>) – Horizontal distance sampling for the final 2D grid.</p>
+<dd class="field-odd"><p><strong>dx</strong> (<em>float</em>) – Horizontal distance sampling for the final 2D grid.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -992,15 +992,15 @@ single final image.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="rfpy.ccp.CCPimage.stack_ccp">
-<code class="sig-name descname">stack_ccp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.stack_ccp" title="Permalink to this definition">¶</a></dt>
+<dt id="rfpy.ccp.CCPimage.linear_stack">
+<code class="sig-name descname">linear_stack</code><span class="sig-paren">(</span><em class="sig-param">typ='ccp'</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.linear_stack" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to average the three 2D images into a final, weighted CCP image
 using the weights defined in the attribute.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="rfpy.ccp.CCPimage.pws_gccp">
-<code class="sig-name descname">pws_gccp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.pws_gccp" title="Permalink to this definition">¶</a></dt>
+<dt id="rfpy.ccp.CCPimage.phase_weighted_stack">
+<code class="sig-name descname">phase_weighted_stack</code><span class="sig-paren">(</span><em class="sig-param">typ='gccp'</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.phase_weighted_stack" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to average the three 2D smoothed images into a final,
 phase-weighted CCP image.</p>
 </dd></dl>
