@@ -1765,20 +1765,42 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
         print("**************************************************")
         return True, None
 
-    # elif (not st.select(component='Z')[0] or not st.select(component='E'[0])
-    #       or not st.select(component='N')[0]):
-    #     print("* Error retrieving waveforms")
-    #     if not st.select(component='Z')[0]:
-    #         print("*   --Z Missing")
-    #     if not st.select(component='E')[0]:
-    #         print("*   --E Missing")
-    #     if not st.select(component='N')[0]:
-    #         print("*   --N Missing")
-    #     print("**************************************************")
-    #     return True, None
-
     # Three components successfully retrieved
     else:
+
+        trA = st[0].copy()
+        trB = st[1].copy()
+        trC = st[2].copy()
+
+        # Check trace lengths
+        lenA = len(trA.data)
+        lenB = len(trB.data)
+        lenC = len(trC.data)
+
+        if not (lenA == lenB and lenA == lenC):
+            print("* Lengths are incompatible: ",lenA,lenB,lenC)
+            print("* Lengths should be: "+str(int((start-end)/trA.stats.delta)))
+
+            # Try trimming?
+            try:
+                trA.trim(start,end)
+                trB.trim(start,end)
+                trC.trim(start,end)
+
+                # Check trace lengths again
+                lenA = len(trA.data)
+                lenB = len(trB.data)
+                lenC = len(trC.data)
+
+                if not (lenA == lenB and lenA == lenC):
+                    print("*     Trimmed lengths still not equal - aborting")
+                    return True, None
+                else:
+                    st = Stream(traces=[trA,trB,trC])
+            except:
+                print("*    Trimming cannot be performed - aborting")
+                return True, None
+
         print("* Waveforms Retrieved...")
         # Return Flag and Data
         return False, st

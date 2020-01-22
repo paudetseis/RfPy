@@ -347,42 +347,12 @@ class RFData(object):
             client=client, sta=self.sta, start=tstart, end=tend,
             stdata=self.sta.station, ndval=ndval, new_sr=new_sr)
 
-        if err:
-            self.meta.accept = False
-            if returned:
-                return self.meta.accept
-
         # Store as attributes with traces in dictionary
         try:
             trE = stream.select(component='E')[0]
             trN = stream.select(component='N')[0]
             trZ = stream.select(component='Z')[0]
             self.data = Stream(traces=[trZ, trN, trE])
-
-            # Check trace lengths
-            lenE = len(self.data.select(component='E')[0].data)
-            lenN = len(self.data.select(component='N')[0].data)
-            lenZ = len(self.data.select(component='Z')[0].data)
-
-            if not (lenE == lenN and lenE == lenZ):
-                print("Lengths are incompatible: ",lenE,lenN,lenZ)
-                print("lengths should be: "+str(2.*dts/trZ.stats.delta))
-
-                # Try trimming?
-                try:
-                    trE.trim(tstart,tend)
-                    trN.trim(tstart,tend)
-                    trZ.trim(tstart,tend)
-                    
-                    # Check trace lengths
-                    lenE = len(self.data.select(component='E')[0].data)
-                    lenN = len(self.data.select(component='N')[0].data)
-                    lenZ = len(self.data.select(component='Z')[0].data)
-
-                    if not (lenE == lenN and lenE == lenZ):
-                        print("Lengths still not equal - continuing")
-                except:
-                    self.meta.accept = False
 
             # Detrend data
             self.data.detrend('demean')
@@ -403,14 +373,6 @@ class RFData(object):
 
                 # Now rotate from Z12 to ZNE
                 self.rotate(align='ZNE')
-
-                # Check trace lengths
-                lenE = len(self.data.select(component='E')[0].data)
-                lenN = len(self.data.select(component='N')[0].data)
-                lenZ = len(self.data.select(component='Z')[0].data)
-
-                if not (lenE == lenN and lenE == lenZ):
-                    self.meta.accept = False
 
                 # Detrend data
                 self.data.detrend('demean')
