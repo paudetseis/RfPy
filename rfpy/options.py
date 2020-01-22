@@ -29,6 +29,7 @@ that accompany this package.
 # -*- coding: utf-8 -*-
 from obspy import UTCDateTime
 from numpy import nan, isnan
+from obspy.core import Stream
 
 
 def get_calc_options():
@@ -1135,7 +1136,7 @@ def get_ccp_options():
         action="store_true",
         dest="ccp_figure",
         default=False,
-        help="Set this option to plot the final [G]CCP figure. "+
+        help="Set this option to plot the final [G]CCP figure. " +
         "[Default False]")
 
     parser.add_option_group(LineGroup)
@@ -1667,7 +1668,7 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
     """
 
     from fnmatch import filter
-    from obspy import read
+    from obspy import read, Stream
     from os.path import dirname, join, exists
     from numpy import any
 
@@ -1778,14 +1779,15 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
         lenC = len(trC.data)
 
         if not (lenA == lenB and lenA == lenC):
-            print("* Lengths are incompatible: ",lenA,lenB,lenC)
-            print("* Lengths should be: "+str(int((start-end)/trA.stats.delta)))
+            print("* Lengths are incompatible: ", lenA, lenB, lenC)
+            print("* Lengths should be: "+str(int((end-start)/trA.stats.delta)))
+            print("*    Trying to trim...")
 
             # Try trimming?
             try:
-                trA.trim(start,end)
-                trB.trim(start,end)
-                trC.trim(start,end)
+                trA.trim(start, end)
+                trB.trim(start, end)
+                trC.trim(start, end)
 
                 # Check trace lengths again
                 lenA = len(trA.data)
@@ -1793,14 +1795,19 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
                 lenC = len(trC.data)
 
                 if not (lenA == lenB and lenA == lenC):
-                    print("*     Trimmed lengths still not equal - aborting")
+                    print("*    Trimmed lengths still incompatible: ",
+                          lenA, lenB, lenC)
+                    print("*    Aborting")
                     return True, None
                 else:
-                    st = Stream(traces=[trA,trB,trC])
+                    print("* Waveforms Trimmed and Retrieved...")
+                    st = Stream(traces=[trA, trB, trC])
+                    return False, st
             except:
                 print("*    Trimming cannot be performed - aborting")
                 return True, None
 
-        print("* Waveforms Retrieved...")
-        # Return Flag and Data
-        return False, st
+        else:
+            print("* Waveforms Retrieved...")
+            # Return Flag and Data
+            return False, st

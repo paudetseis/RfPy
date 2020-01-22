@@ -437,10 +437,6 @@ class RFData(object):
             trN = self.data.select(component='1')[0].copy()
             trE = self.data.select(component='2')[0].copy()
 
-            # Get azimuth of component 1
-            if not hasattr(self.sta.azcorr):
-                raise(Exception("no azimuth defined for Z12->ZNE rotation"))
-
             azim = self.sta.azcorr
             N, E = rotate_rt_ne(trN.data, trE.data, azim)
             trN.data = -1.*N
