@@ -282,6 +282,14 @@ def get_calc_options():
         default=60.,
         help="Specify the source time duration for deconvolution " +
         "(sec). [Default 30.]")
+    ConstGroup.add_option(
+        "--method",
+        action="store",
+        dest="method",
+        type=str,
+        default="wiener",
+        help="Specify the deconvolution method. Available methods " +
+        "include 'wiener' and 'multitaper'. [Default 'wiener']")
 
     parser.add_option_group(ServerGroup)
     parser.add_option_group(DataGroup)
@@ -359,6 +367,114 @@ def get_calc_options():
         opts.dt_snr = opts.dts - 10.
         print("SNR window > data window. Defaulting to data " +
               "window minus 10 sec.")
+
+    if opts.method not in ['wiener', 'multitaper']:
+        parser.error(
+            "Error: 'method' should be either 'wiener' or " +
+            "'multitaper'")
+
+    return (opts, indb)
+
+
+def get_recalc_options():
+    """
+    Get Options from :class:`~optparse.OptionParser` objects.
+
+    This function is used for data processing on-the-fly (requires web connection)
+
+    """
+
+    from optparse import OptionParser, OptionGroup
+    from os.path import exists as exist
+    from obspy import UTCDateTime
+    from numpy import nan
+
+    parser = OptionParser(
+        usage="Usage: %prog [options] <station database>",
+        description="Script used to download and pre-process " +
+        "three-component (Z, N, and E), seismograms for individual " +
+        "events and calculate teleseismic P-wave receiver functions" +
+        "This version requests data on the fly for a given date " +
+        "range. Data are requested from the internet using the " +
+        "client services framework. The stations are processed one " +
+        "by one and the data are stored to disk.")
+
+    # General Settings
+    parser.add_option(
+        "--keys",
+        action="store",
+        type=str,
+        dest="stkeys",
+        default="",
+        help="Specify a comma separated list of station keys for " +
+        "which to perform the analysis. These must be " +
+        "contained within the station database. Partial keys will " +
+        "be used to match against those in the dictionary. For " +
+        "instance, providing IU will match with all stations in " +
+        "the IU network [Default processes all stations in the database]")
+
+    # Constants Settings
+    ConstGroup = OptionGroup(
+        parser,
+        title='Parameter Settings',
+        description="Miscellaneous default values and settings")
+    ConstGroup.add_option(
+        "--align",
+        action="store",
+        type=str,
+        dest="align",
+        default=None,
+        help="Specify component alignment key. Can be either " +
+        "ZRT, LQT, or PVH. [Default ZRT]")
+    ConstGroup.add_option(
+        "--vp",
+        action="store",
+        type=float,
+        dest="vp",
+        default=6.0,
+        help="Specify near-surface Vp (km/s). [Default 6.0]")
+    ConstGroup.add_option(
+        "--vs",
+        action="store",
+        type=float,
+        dest="vs",
+        default=3.5,
+        help="Specify near-surface Vs (km/s). [Default 3.5]")
+    ConstGroup.add_option(
+        "--method",
+        action="store",
+        dest="method",
+        type=str,
+        default="wiener",
+        help="Specify the deconvolution method. Available methods " +
+        "include 'wiener' and 'multitaper'. [Default 'wiener']")
+
+    parser.add_option_group(ConstGroup)
+
+    (opts, args) = parser.parse_args()
+
+    # Check inputs
+    if len(args) != 1:
+        parser.error("Need station database file")
+    indb = args[0]
+    if not exist(indb):
+        parser.error("Input file " + indb + " does not exist")
+
+    # create station key list
+    if len(opts.stkeys) > 0:
+        opts.stkeys = opts.stkeys.split(',')
+
+    if opts.align is None:
+        opts.align = 'ZRT'
+    elif opts.align not in ['ZRT', 'LQT', 'PVH']:
+        parser.error(
+            "Error: Incorrect alignment specifier. Should be " +
+            "either 'ZRT', 'LQT', or 'PVH'.")
+
+    if opts.method not in ['wiener', 'multitaper']:
+        parser.error(
+            "Error: 'method' should be either 'wiener' or " +
+            "'multitaper'")
 
     return (opts, indb)
 
@@ -1007,17 +1123,17 @@ def get_ccp_options():
         "of the end point, in this respective order. [Exception raised " +
         "if not specified]")
     LineGroup.add_option(
-        "--ndepth",
+        "--dz",
         action="store",
-        dest="n_depth",
+        dest="dz",
         type=int,
-        default=120,
-        help="Specify integer number of depth cells to consider. " +
-        "[Default 120]")
+        default=1.,
+        help="Specify vertical cell size in km. " +
+        "[Default 1.]")
     LineGroup.add_option(
-        "--cell-size",
+        "--dx",
         action="store",
-        dest="cell_length",
+        dest="dx",
         type=float,
         default=2.5,
         help="Specify horizontal cell size in km. " +
@@ -1084,6 +1200,14 @@ def get_ccp_options():
         default=40,
         help="Specify integer number of slowness bins to consider. " +
         "[Default 40]")
+    PreGroup.add_option(
+        "--wlen",
+        action="store",
+        dest="wlen",
+        type=float,
+        default=35.,
+        help="Specify wavelength of P-wave as sensitivity (km). " +
+        "[Default 35.]")
 
     CCPGroup = OptionGroup(
         parser,
@@ -1126,11 +1250,19 @@ def get_ccp_options():
         help="Set this option for Gaussian-weighted, phase-weighted CCP " +
         "stacking with multiples. [Default False]")
     CCPGroup.add_option(
-        "--all",
+        "--linear",
         action="store_true",
-        dest="all_in_one",
+        dest="linear",
         default=False,
-        help="Set this option to perform all steps serially. [Default False]")
+        help="Set this option to produce a linear, weighted stack for the " +
+        "final CCP image. [Default True unless --phase is set]")
+    CCPGroup.add_option(
+        "--phase",
+        action="store_true",
+        dest="phase",
+        default=False,
+        help="Set this option to produce a phase weighted stack for the " +
+        "final CCP image. [Default False]")
     CCPGroup.add_option(
         "--figure",
         action="store_true",
@@ -1156,26 +1288,38 @@ def get_ccp_options():
     if len(opts.stkeys) > 0:
         opts.stkeys = opts.stkeys.split(',')
 
-    if opts.coord_start is None:
+    if opts.load and opts.coord_start is None:
         parser.error("--start=lon,lat is required")
-    else:
+    elif opts.load and opts.coord_start is not None:
         opts.coord_start = [float(val) for val in opts.coord_start.split(',')]
         if (len(opts.coord_start)) != 2:
             parser.error(
                 "Error: --start should contain 2 " +
                 "comma-separated floats")
 
-    if opts.coord_end is None:
+    if opts.load and opts.coord_end is None:
         parser.error("--end=lon,lat is required")
-    else:
+    elif opts.load and opts.coord_end is not None:
         opts.coord_end = [float(val) for val in opts.coord_end.split(',')]
         if (len(opts.coord_end)) != 2:
             parser.error(
                 "Error: --end should contain 2 " +
                 "comma-separated floats")
 
-    # if not opts.ccp and not opts.run_gccp:
-    #     parser.error("Specify at least one of --ccp or --gccp")
+    if not (opts.load or opts.prep or opts.prestack or opts.ccp
+            or opts.gccp):
+        parser.error(
+            "Error: needs at least one CCP Setting (--load, --prep, " +
+            "--prestack, --ccp or --gccp")
+
+    if opts.linear and opts.phase:
+        parser.error(
+            "Error: cannot use --linear and --phase at the same time")
+
+    if opts.ccp and not opts.linear and not opts.phase:
+        opts.linear = True
+    if opts.gccp and not opts.linear and not opts.phase:
+        opts.phase = True
 
     return (opts, indb)
 

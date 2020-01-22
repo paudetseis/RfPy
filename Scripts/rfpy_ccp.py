@@ -54,18 +54,32 @@ def main():
     else:
         stkeys = db.keys()
 
-    if opts.load or opts.all_in_one:
+    if opts.load:
 
         # Check if CCPimage object exists and whether overwrite has been set
-        pre_prep_file = 'CCP_PrePrep.pkl'
-        if os.path.isfile(pre_prep_file) and not opts.ovr:
-            ccpimage = pickle.load(open(pre_prep_file,"rb"))
+        load_file = 'CCP_load.pkl'
+        if os.path.isfile(load_file) and not opts.ovr:
+            ccpimage = pickle.load(open(load_file,"rb"))
 
         else:
 
+            print()
+            print("|-----------------------------------------------|")
+            print("|  Loading data                                 |")
+            print("|-----------------------------------------------|")
+            print("| Gridding: ")
+            print("|     start    = {0:5.1f},{1:6.1f}".format(
+                opts.coord_start[0],opts.coord_start[1]))
+            print("|     end      = {0:5.1f},{1:6.1f}".format(
+                opts.coord_end[0],opts.coord_end[1]))
+            print("|     dz    = {0} (km)".format(str(opts.dz)))
+            print("|     dx    = {0} (km)".format(str(opts.dx)))
+            print()
+
             # Initialize CCPimage object
             ccpimage = CCPimage(coord_start=opts.coord_start,
-                                coord_end=opts.coord_end)
+                                coord_end=opts.coord_end,
+                                dz=opts.dz, dx=opts.dx)
 
             # Loop over station keys
             for stkey in list(stkeys):
@@ -76,7 +90,8 @@ def main():
                 # Define path to see if it exists
                 datapath = 'DATA/' + stkey
                 if not os.path.isdir(datapath):
-                    raise(Exception('Path to '+datapath+' doesn`t exist - aborting'))
+                    print('Path to '+datapath+' doesn`t exist - continuing')
+                    continue
 
                 # Temporary print locations
                 tlocs = sta.location
@@ -86,21 +101,6 @@ def main():
                     if len(tlocs[il]) == 0:
                         tlocs[il] = "--"
                 sta.location = tlocs
-
-                # Update Display
-                print(" ")
-                print(" ")
-                print("|===============================================|")
-                print("|                   {0:>8s}                    |".format(
-                    sta.station))
-                print("|===============================================|")
-                print("|  Station: {0:>2s}.{1:5s}                            |".format(
-                    sta.network, sta.station))
-                print("|      Channel: {0:2s}; Locations: {1:15s}  |".format(
-                    sta.channel, ",".join(tlocs)))
-                print("|      Lon: {0:7.2f}; Lat: {1:6.2f}                |".format(
-                    sta.longitude, sta.latitude))
-                print("|-----------------------------------------------|")
 
                 rfRstream = Stream()
                 for folder in os.listdir(datapath):
@@ -112,26 +112,32 @@ def main():
                         if rfdata[1].stats.snr > opts.snr:
                             rfRstream.append(rfdata[1])
                         file.close()
+                print("Station: {0:>2s}.{1:5s} -  {2} traces loaded".format(
+                    sta.network, sta.station, len(rfRstream)))
+                if len(rfRstream)==0:
+                    continue
 
                 ccpimage.add_rfstream(rfRstream)
 
             if len(ccpimage.radialRF) > 0:
-                ccpimage.save("CCP_PrePrep.pkl")
+                ccpimage.save("CCP_load.pkl")
                 ccpimage.is_ready_for_prep = True
+                print()
+                print("CCPimage saved to 'CCP_load.pkl'")
             else:
                 ccpimage.is_ready_for_prep = False
     else:
         pass
 
-    if opts.prep or opts.all_in_one:
+    if opts.prep:
 
         prep_file = "CCP_prep.pkl"
         if os.path.isfile(prep_file) and not opts.ovr:
             ccpimage = pickle.load(open(prep_file, "rb"))
         else:
-            pre_prep_file = 'CCP_PrePrep.pkl'
-            if os.path.isfile(pre_prep_file) and not opts.ovr:
-                ccpimage = pickle.load(open(ccp_prep_file), "rb")
+            load_file = 'CCP_load.pkl'
+            if not os.path.isfile(load_file):
+                raise(Exception("No CCP_load.pkl file available - aborting"))
             else:
                 print()
                 print("|-----------------------------------------------|")
@@ -142,54 +148,58 @@ def main():
                 print("|     f2ps  = {0:4.2f} (Hz)".format(opts.f2ps))
                 print("|     f2pps = {0:4.2f} (Hz)".format(opts.f2pps))
                 print("|     f2pss = {0:4.2f} (Hz)".format(opts.f2pss))
-                print("| Gridding: ")
-                print("|     n_depth = {0}".format(str(opts.n_depth)))
-                print("|     nbaz    = {0}".format(str(opts.nbaz)))
-                print("|     nslow   = {0}".format(str(opts.nslow)))
+                print("| Binning: ")
+                print("|     nbaz  = {0}".format(str(opts.nbaz)))
+                print("|     nslow = {0}".format(str(opts.nslow)))
                 print()
+
+                ccpimage = pickle.load(open(load_file,"rb"))
                 ccpimage.prep_data(f1=opts.f1, f2ps=opts.f2ps,
                                    f2pps=opts.f2pps, f2pss=opts.f2pss,
-                                   n_depth=opts.n_depth, nbaz=opts.nbaz,
-                                   nslow=opts.nslow)
+                                   nbaz=opts.nbaz, nslow=opts.nslow)
                 ccpimage.is_ready_for_prestack = True
                 ccpimage.save(prep_file)
+                print()
+                print("CCPimage saved to {0}".format(prep_file))
 
     else:
         pass
 
 
-    if opts.prestack or opts.all_in_one:
+    if opts.prestack:
 
         prestack_file = "CCP_prestack.pkl"
         if os.path.isfile(prestack_file) and not opts.ovr:
             ccpimage = pickle.load(open(prestack_file, "rb"))
         else:
             prep_file = "CCP_prep.pkl"
-            if os.path.isfile(prep_file) and not opts.ovr:
-                ccpimage = pickle.load(open(prep_file, "rb"))
+            if not os.path.isfile(prep_file):
+                raise(Exception("No CCP_prep.pkl file available - aborting"))
             else:
                 print()
                 print("|-----------------------------------------------|")
                 print("|  CCP pre-stacking each phase                  |")
                 print("|-----------------------------------------------|")
-                print("| Horizontal sampling: ")
-                print("|     cell_length = {0:4.1f} (km)".format(opts.cell_length))
                 print()
-                ccpimage.prestack(cell_length=opts.cell_length)
+
+                ccpimage = pickle.load(open(prep_file, "rb"))
+                ccpimage.prestack()
                 ccpimage.save(prestack_file)
+                print()
+                print("CCPimage saved to {0}".format(prestack_file))
 
     else:
         pass
 
-    if opts.ccp or opts.all_in_one:
+    if opts.ccp:
 
         ccp_file = "CCP_stack.pkl"
         if os.path.isfile(ccp_file) and not opts.ovr:
             ccpimage = pickle.load(open(ccp_file, "rb"))
         else:
             prestack_file = "CCP_prestack.pkl"
-            if os.path.isfile(prestack_file) and not opts.ovr:
-                ccpimage = pickle.load(open(prestack_file, "rb"))
+            if not os.path.isfile(prestack_file):
+                raise(Exception("No CCP_prestack.pkl file available - aborting"))
             else:
                 print()
                 print("|-----------------------------------------------|")
@@ -197,9 +207,15 @@ def main():
                 print("|-----------------------------------------------|")
                 print()
 
+                ccpimage = pickle.load(open(prestack_file, "rb"))
                 ccpimage.ccp()
-                ccpimage.stack_ccp()
+                if opts.linear:
+                    ccpimage.linear_stack(typ='ccp')
+                elif opts.phase:
+                    ccpimage.phase_weighted_stack(typ='ccp')
                 ccpimage.save(ccp_file)
+                print()
+                print("CCPimage saved to {0}".format(ccp_file))
 
         if opts.ccp_figure:
             ccpimage.plot_ccp(save=True)
@@ -207,15 +223,15 @@ def main():
     else:
         pass
 
-    if opts.gccp or opts.all_in_one:
+    if opts.gccp:
 
         gccp_file = "GCCP_stack.pkl"
         if os.path.isfile(gccp_file) and not opts.ovr:
             ccpimage = pickle.load(open(gccp_file, "rb"))
         else:
             prestack_file = "CCP_prestack.pkl"
-            if os.path.isfile(prestack_file) and not opts.ovr:
-                ccpimage = pickle.load(open(prestack_file, "rb"))
+            if not os.path.isfile(prestack_file):
+                raise(Exception("No CCP_prestack.pkl file available - aborting"))
             else:
                 print()
                 print("|-----------------------------------------------|")
@@ -223,9 +239,17 @@ def main():
                 print("|-----------------------------------------------|")
                 print()
 
-                ccpimage.gccp()
-                ccpimage.pws_gccp()
+                ccpimage = pickle.load(open(prestack_file, "rb"))
+                ccpimage.weights = [1., 3., -3.]
+                ccpimage.gccp(wlen=opts.wlen)
+                if opts.linear:
+                    ccpimage.linear_stack(typ='gccp')
+                elif opts.phase:
+                    ccpimage.phase_weighted_stack(typ='gccp')
                 ccpimage.save(gccp_file)
+                print()
+                print("CCPimage saved to {0}".format(gccp_file))
+
         if opts.ccp_figure:
             ccpimage.plot_gccp(save=True)
 

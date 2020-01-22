@@ -106,15 +106,13 @@ class CCPimage(object):
     """
 
     def __init__(self, coord_start=[None, None], coord_end=[None, None],
-                 weights=[1., 1., -1.],
+                 weights=[1., 3., -3.],
                  dep=np.array([0., 4., 8., 14., 30., 35., 45., 110.]),
                  vp=np.array([4.0, 5.9, 6.2, 6.3, 6.8, 7.2, 8.0, 8.1]),
-                 vpvs=1.73):
+                 vpvs=1.73, dx=2.5, dz=1.):
 
         self.radialRF = []
         self.dep = dep
-        self.vp = vp
-        self.vs = vp/vpvs
         self.weights = weights
         self.xs_lat1 = coord_start[0]
         self.xs_lon1 = coord_start[1]
@@ -124,6 +122,26 @@ class CCPimage(object):
         self.is_ready_for_prestack = False
         self.is_ready_for_ccp = False
         self.is_ready_for_gccp = False
+
+        # Define grid parameters
+        self.dz = dz
+        self.dx = dx
+
+        # Get total length of grid from end points
+        xlength = haversine(self.xs_lat1, self.xs_lon1,
+                              self.xs_lat2, self.xs_lon2)
+
+        # number of cells laterally and vertically
+        self.nx = int(np.rint(xlength/self.dx))
+        self.nz = int(self.dep[-1]/self.dz)
+
+        self.xarray = np.arange(self.nx)*self.dx
+        self.zarray = np.arange(self.nz)*self.dz
+
+        # Interpolate Vp and Vs models on depth grid
+        vs = vp/vpvs
+        self.vp = sp.interpolate.interp1d(dep, vp, kind='linear')(self.zarray)
+        self.vs = sp.interpolate.interp1d(dep, vs, kind='linear')(self.zarray)
 
     def add_rfstream(self, rfstream):
         """
@@ -139,11 +157,11 @@ class CCPimage(object):
             Stream object containing radial receiver functions for one station
 
         """
-        if len(rfstream)>0:
+        if len(rfstream) > 0:
             self.radialRF.append(rfstream)
             self.is_ready_for_prep = True
 
-    def prep_data(self, f1=0.05, f2ps=0.5, f2pps=0.25, f2pss=0.2, n_depth=120,
+    def prep_data(self, f1=0.05, f2ps=0.5, f2pps=0.25, f2pss=0.2,
                   nbaz=36+1, nslow=40+1):
         """
         Method to pre-process the data and calculate the CCP points for each 
@@ -169,20 +187,18 @@ class CCPimage(object):
             High-frequency corner of the bandpass filter used for the Pps phase (Hz)
         f2pss : float
             High-frequency corner of the bandpass filter used for the Pss phase (Hz)
-        n_depth : int
-            Number of depth increments in the calculation of the raypaths. Note that 
-            total depth of the image is set by the values in the 1D velocity profile.
         nbaz : int
             Number of increments in the back-azimuth bins
         nslow : int
             Number of increments in the slowness bins
-            
+
         """
 
         if not self.is_ready_for_prep:
             raise(Exception("CCPimage not ready for pre-prep"))
 
-        i_key = 0
+        ikey = 0
+        total_traces = 0
 
         # Process streams one at a time
         for RF in self.radialRF:
@@ -192,11 +208,13 @@ class CCPimage(object):
             RFbin = binning.bin_baz_slow(
                 RF, nbaz=nbaz, nslow=nslow, pws=True)[0]
             n_traces = len(RFbin)
-            amp_ps_tr = np.empty([n_traces, n_depth])
-            amp_pps_tr = np.empty([n_traces, n_depth])
-            amp_pss_tr = np.empty([n_traces, n_depth])
-            lon_tr = np.empty([n_traces, n_depth])
-            lat_tr = np.empty([n_traces, n_depth])
+            total_traces += n_traces
+
+            amp_ps_tr = np.empty([n_traces, self.nz])
+            amp_pps_tr = np.empty([n_traces, self.nz])
+            amp_pss_tr = np.empty([n_traces, self.nz])
+            lon_tr = np.empty([n_traces, self.nz])
+            lat_tr = np.empty([n_traces, self.nz])
 
             st_ps = RFbin.copy()
             st_pps = RFbin.copy()
@@ -218,13 +236,11 @@ class CCPimage(object):
             for itr in _progressbar(range(len(st_ps)), '', 25):
 
                 # Get raypath and travel time for all phases
-                tt_ps, tt_pps, tt_pss, plon, plat, idep = \
-                    raypath(st_ps[itr], nz=n_depth,
-                            dep=self.dep, vp=self.vp, vs=self.vs)
+                tt_ps, tt_pps, tt_pss, plon, plat = \
+                    raypath(st_ps[itr], dep=self.zarray, vp=self.vp, vs=self.vs)
 
                 # Now get amplitude of RF at corresponding travel
                 # time along the raypath
-                depth_array = np.asarray(idep)
                 lon_tr[itr, :] = plon
                 lat_tr[itr, :] = plat
 
@@ -250,14 +266,14 @@ class CCPimage(object):
                     amp_pss.append(a)
                 amp_pss_tr[itr, :] = amp_pss
 
-            if i_key == 0:
+            if ikey == 0:
                 amp_ps_depth = amp_ps_tr.transpose()
                 amp_pps_depth = amp_pps_tr.transpose()
                 amp_pss_depth = amp_pss_tr.transpose()
                 lon_depth = lon_tr.transpose()
                 lat_depth = lat_tr.transpose()
 
-            elif i_key > 0:
+            elif ikey > 0:
                 amp_ps_depth = np.concatenate(
                     (amp_ps_depth, amp_ps_tr.transpose()), axis=1)
                 amp_pps_depth = np.concatenate(
@@ -269,22 +285,22 @@ class CCPimage(object):
                 lat_depth = np.concatenate(
                     (lat_depth, lat_tr.transpose()), axis=1)
 
-            i_key += 1
+            ikey += 1
 
         self.amp_ps_depth = amp_ps_depth
         self.amp_pps_depth = amp_pps_depth
         self.amp_pss_depth = amp_pss_depth
         self.lon_depth = lon_depth
         self.lat_depth = lat_depth
-        self.depth_array = depth_array
         self.is_ready_for_prestack = True
+        self.n_traces = total_traces
 
         del self.radialRF
 
-    def prestack(self, cell_length=1.):
+    def prestack(self):
         """
         Method to project the raypaths onto the 2D profile for each of the three
-        phases. The final grid is defined here, using the parameter ``cell_length``.
+        phases. The final grid is defined here, using the parameter ``dx`` in km.
         The horizontal extent is pre-determined from the start and end points of 
         the profile. At the end of this step, the object contains the set of 
         amplitudes at each of the 2D grid points, for each of the three phases.
@@ -294,7 +310,7 @@ class CCPimage(object):
         Parameters
         ----------
 
-        cell_length : float
+        dx : float
             Horizontal distance sampling for the final 2D grid. 
 
         """
@@ -302,73 +318,60 @@ class CCPimage(object):
         if not self.is_ready_for_prestack:
             raise(Exception("CCPimage not ready for prestack"))
 
-        (n_depth, n_traces) = self.lon_depth.shape
-
-        # Get total length of grid from end points
-        xs_length = haversine(self.xs_lat1, self.xs_lon1,
-                              self.xs_lat2, self.xs_lon2)
-
-        # number of cells laterally for specified cell_length (rounded)
-        n_lateral = int(np.rint(xs_length/cell_length))
-
         xs_latitudes = np.asarray(
-            np.linspace(self.xs_lat1, self.xs_lat2, n_lateral))
+            np.linspace(self.xs_lat1, self.xs_lat2, self.nx))
         xs_longitudes = np.asarray(
-            np.linspace(self.xs_lon1, self.xs_lon2, n_lateral))
-        lateral_distances = np.arange(n_lateral)*cell_length
+            np.linspace(self.xs_lon1, self.xs_lon2, self.nx))
 
-        xs_amps_ps = np.zeros((n_depth, n_lateral, n_traces))
-        xs_amps_pps = np.zeros((n_depth, n_lateral, n_traces))
-        xs_amps_pss = np.zeros((n_depth, n_lateral, n_traces))
+        xs_amps_ps = np.zeros((self.nz, self.nx, self.n_traces))
+        xs_amps_pps = np.zeros((self.nz, self.nx, self.n_traces))
+        xs_amps_pss = np.zeros((self.nz, self.nx, self.n_traces))
 
-        for i_depth in _progressbar(range(n_depth), '', 25):
+        for iz in _progressbar(range(self.nz), '', 25):
 
-            for i_coor in range(n_traces):
+            for i_coor in range(self.n_traces):
 
-                lat_tr = self.lat_depth[i_depth, i_coor]
-                lon_tr = self.lon_depth[i_depth, i_coor]
-                distance_tests = np.empty(n_lateral)
+                lat_tr = self.lat_depth[iz, i_coor]
+                lon_tr = self.lon_depth[iz, i_coor]
+                distance_tests = np.empty(self.nx)
 
-                for i_xs in range(n_lateral):
+                for i_xs in range(self.nx):
                     lat_xs = xs_latitudes[i_xs]
                     lon_xs = xs_longitudes[i_xs]
                     distance_tests[i_xs] = haversine(
                         lat_xs, lon_xs, lat_tr, lon_tr)
 
                 minimum_distance = np.amin(distance_tests)
-                i_cell = np.where(distance_tests ==
+                ix = np.where(distance_tests ==
                                   np.amin(distance_tests))[0][0]
 
                 nonzero_count = np.count_nonzero(
-                    xs_amps_ps[i_depth, i_cell, :])
-                new_amp_ps = self.amp_ps_depth[i_depth, i_coor]
-                if xs_amps_ps[i_depth, i_cell, 0] == 0.:
-                    xs_amps_ps[i_depth, i_cell, 0] = new_amp_ps
+                    xs_amps_ps[iz, ix, :])
+                new_amp_ps = self.amp_ps_depth[iz, i_coor]
+                if xs_amps_ps[iz, ix, 0] == 0.:
+                    xs_amps_ps[iz, ix, 0] = new_amp_ps
                 else:
-                    xs_amps_ps[i_depth, i_cell, nonzero_count] = new_amp_ps
+                    xs_amps_ps[iz, ix, nonzero_count] = new_amp_ps
 
                 nonzero_count = np.count_nonzero(
-                    xs_amps_pps[i_depth, i_cell, :])
-                new_amp_pps = self.amp_pps_depth[i_depth, i_coor]
-                if xs_amps_pps[i_depth, i_cell, 0] == 0.:
-                    xs_amps_pps[i_depth, i_cell, 0] = new_amp_pps
+                    xs_amps_pps[iz, ix, :])
+                new_amp_pps = self.amp_pps_depth[iz, i_coor]
+                if xs_amps_pps[iz, ix, 0] == 0.:
+                    xs_amps_pps[iz, ix, 0] = new_amp_pps
                 else:
-                    xs_amps_pps[i_depth, i_cell, nonzero_count] = new_amp_pps
+                    xs_amps_pps[iz, ix, nonzero_count] = new_amp_pps
 
                 nonzero_count = np.count_nonzero(
-                    xs_amps_pss[i_depth, i_cell, :])
-                new_amp_pss = self.amp_pss_depth[i_depth, i_coor]
-                if xs_amps_pss[i_depth, i_cell, 0] == 0.:
-                    xs_amps_pss[i_depth, i_cell, 0] = new_amp_pss
+                    xs_amps_pss[iz, ix, :])
+                new_amp_pss = self.amp_pss_depth[iz, i_coor]
+                if xs_amps_pss[iz, ix, 0] == 0.:
+                    xs_amps_pss[iz, ix, 0] = new_amp_pss
                 else:
-                    xs_amps_pss[i_depth, i_cell, nonzero_count] = new_amp_pss
+                    xs_amps_pss[iz, ix, nonzero_count] = new_amp_pss
 
         self.xs_amps_ps = xs_amps_ps
         self.xs_amps_pps = xs_amps_pps
         self.xs_amps_pss = xs_amps_pss
-        self.lateral_distances = lateral_distances
-        self.n_lateral = n_lateral
-        self.n_depth = n_depth
         self.is_ready_for_ccp = True
         self.is_ready_for_gccp = True
 
@@ -384,37 +387,32 @@ class CCPimage(object):
         if not self.is_ready_for_ccp:
             raise(Exception("CCPimage not ready for ccp"))
 
-        xs_ps_avg = np.zeros((self.n_depth, self.n_lateral))
-        xs_pps_avg = np.zeros((self.n_depth, self.n_lateral))
-        xs_pss_avg = np.zeros((self.n_depth, self.n_lateral))
+        xs_ps_avg = np.zeros((self.nz, self.nx))
+        xs_pps_avg = np.zeros((self.nz, self.nx))
+        xs_pss_avg = np.zeros((self.nz, self.nx))
 
-        for i_depth in _progressbar(range(self.n_depth), '', 25):
+        for iz in _progressbar(range(self.nz), '', 25):
 
-            for i_cell in range(self.n_lateral):
+            for ix in range(self.nx):
 
-                nonzero_count = np.count_nonzero(
-                    self.xs_amps_ps[i_depth, i_cell, :])
+                nonzero_count = np.count_nonzero(self.xs_amps_ps[iz, ix, :])
                 if nonzero_count != 0:
-                    amps_ps = self.xs_amps_ps[i_depth, i_cell, 0:nonzero_count]
-                    xs_ps_avg[i_depth, i_cell] = np.mean(amps_ps)
+                    amps_ps = self.xs_amps_ps[iz, ix, 0:nonzero_count]
+                    xs_ps_avg[iz, ix] = np.mean(amps_ps)
 
-                nonzero_count = np.count_nonzero(
-                    self.xs_amps_pps[i_depth, i_cell, :])
+                nonzero_count = np.count_nonzero(self.xs_amps_pps[iz, ix, :])
                 if nonzero_count != 0:
-                    amps_pps = self.xs_amps_pps[i_depth,
-                                                i_cell, 0:nonzero_count]
-                    xs_pps_avg[i_depth, i_cell] = np.mean(amps_pps)
+                    amps_pps = self.xs_amps_pps[iz, ix, 0:nonzero_count]
+                    xs_pps_avg[iz, ix] = np.mean(amps_pps)
 
-                nonzero_count = np.count_nonzero(
-                    self.xs_amps_pss[i_depth, i_cell, :])
+                nonzero_count = np.count_nonzero(self.xs_amps_pss[iz, ix, :])
                 if nonzero_count != 0:
-                    amps_pss = self.xs_amps_pss[i_depth,
-                                                i_cell, 0:nonzero_count]
-                    xs_pss_avg[i_depth, i_cell] = np.mean(amps_pss)
+                    amps_pss = self.xs_amps_pss[iz, ix, 0:nonzero_count]
+                    xs_pss_avg[iz, ix] = np.mean(amps_pss)
 
-        self.xs_ps_avg = xs_ps_avg
-        self.xs_pps_avg = xs_pps_avg
-        self.xs_pss_avg = xs_pss_avg
+        self.xs_ps_avg = xs_ps_avg*self.weights[0]
+        self.xs_pps_avg = xs_pps_avg*self.weights[1]
+        self.xs_pss_avg = xs_pss_avg*self.weights[2]
 
     def gccp(self, wlen=15.):
         """
@@ -438,7 +436,7 @@ class CCPimage(object):
         if not hasattr(self, 'xs_ps_avg'):
             self.ccp()
 
-        dlat = max(self.lateral_distances)/self.n_lateral
+        dlat = max(self.xarray)/self.nx
 
         import scipy.ndimage as ndimage
 
@@ -449,38 +447,62 @@ class CCPimage(object):
         self.xs_gauss_pss = ndimage.filters.gaussian_filter(
             self.xs_pss_avg, sigma=(0, wlen/dlat))
 
-    def stack_ccp(self):
+    def linear_stack(self, typ='ccp'):
         """
         Method to average the three 2D images into a final, weighted CCP image
         using the weights defined in the attribute.
 
         """
 
-        tot_trace = np.zeros((self.n_depth, self.n_lateral))
+        tot_trace = np.zeros((self.nz, self.nx))
 
-        for i_cell in range(self.n_lateral):
-            ps_trace = self.xs_ps_avg[:, i_cell]
-            pps_trace = self.xs_pps_avg[:, i_cell]
-            pss_trace = self.xs_pss_avg[:, i_cell]
-            tot_trace[:, i_cell] = (self.weights[0]*ps_trace + 
-                self.weights[1]*pps_trace + 
-                self.weights[2]*pss_trace)
+        if typ=='ccp':
+            if not hasattr(self, "xs_ps_avg"):
+                self.ccp()
+            xs_ps = self.xs_ps_avg
+            xs_pps = self.xs_pps_avg
+            xs_pss = self.xs_pss_avg
+        elif typ=='gccp':
+            if not hasattr(self, 'xs_gauss_ps'):
+                self.gccp()
+            xs_ps = self.xs_gauss_ps
+            xs_pps = self.xs_gauss_pps
+            xs_pss = self.xs_gauss_pss
 
-        self.tot_trace_ccp = tot_trace
+        for ix in range(self.nx):
+            ps_trace = xs_ps[:, ix]
+            pps_trace = xs_pps[:, ix]
+            pss_trace = xs_pss[:, ix]
+            tot_trace[:, ix] = (ps_trace + pps_trace + pss_trace)
 
-    def pws_gccp(self):
+        self.tot_trace = tot_trace
+
+    def phase_weighted_stack(self, typ='gccp'):
         """
         Method to average the three 2D smoothed images into a final, 
         phase-weighted CCP image.
 
         """
 
-        tot_trace = np.zeros((self.n_depth, self.n_lateral))
+        tot_trace = np.zeros((self.nz, self.nx))
 
-        for i_cell in range(self.n_lateral):
-            ps_trace = self.xs_gauss_ps[:, i_cell]
-            pps_trace = self.xs_gauss_pps[:, i_cell]
-            pss_trace = self.xs_gauss_pss[:, i_cell]
+        if typ=='ccp':
+            if not hasattr(self, "xs_ps_avg"):
+                self.ccp()
+            xs_ps = self.xs_ps_avg
+            xs_pps = self.xs_pps_avg
+            xs_pss = self.xs_pss_avg
+        elif typ=='gccp':
+            if not hasattr(self, 'xs_gauss_ps'):
+                self.gccp()
+            xs_ps = self.xs_gauss_ps
+            xs_pps = self.xs_gauss_pps
+            xs_pss = self.xs_gauss_pss
+
+        for ix in range(self.nx):
+            ps_trace = xs_ps[:, ix]
+            pps_trace = xs_pps[:, ix]
+            pss_trace = xs_pss[:, ix]
 
             weight = np.zeros(len(ps_trace), dtype=complex)
             ps_hilb = hilbert(ps_trace)
@@ -497,9 +519,9 @@ class CCPimage(object):
 
             weight = np.abs(weight)/3.
 
-            tot_trace[:, i_cell] = (ps_trace + pps_trace + pss_trace)*weight**2
+            tot_trace[:, ix] = (ps_trace + pps_trace + pss_trace)*weight**2
 
-        self.tot_trace_gccp = tot_trace
+        self.tot_trace = tot_trace
 
 
     def save(self, title):
@@ -520,54 +542,54 @@ class CCPimage(object):
         fig, (ax1, ax2, ax3, ax4) = plt.subplots(
             4, 1, figsize=(8.5, 8))
 
-        # plt.pcolormesh(lateral_distances,depth_array,xs_ps_avg,cmap=cm.coolwarm,vmin=vmin,vmax=vmax)
-        im1 = ax1.pcolormesh(self.lateral_distances, self.depth_array,
+        # plt.pcolormesh(xarray,zarray,xs_ps_avg,cmap=cm.coolwarm,vmin=vmin,vmax=vmax)
+        im1 = ax1.pcolormesh(self.xarray, self.zarray,
                              self.xs_ps_avg, cmap=cm.RdBu_r,
                              vmin=vmin, vmax=vmax)
         bar = plt.colorbar(im1, ax=ax1)
-        ax1.set_xlim((min(self.lateral_distances)),
-                     (max(self.lateral_distances)))
-        ax1.set_ylim((min(self.depth_array)), (max(self.depth_array)))
+        ax1.set_xlim((min(self.xarray)),
+                     (max(self.xarray)))
+        ax1.set_ylim((min(self.zarray)), (max(self.zarray)))
         bar.ax.set_ylabel('Amplitude', size=10)
         # ax1.set_xlabel('Lateral Distance (km)', size=10)
         ax1.set_ylabel('Depth (km)', size=10)
         ax1.set_title('Ps CCP image', size=10)
         ax1.invert_yaxis()
 
-        # plt.pcolormesh(lateral_distances,depth_array,xs_pps_avg,cmap=cm.coolwarm,vmin=vmin,vmax=vmax)
-        im2 = ax2.pcolormesh(self.lateral_distances, self.depth_array,
-                             self.xs_pps_avg*3., cmap=cm.RdBu_r,
+        # plt.pcolormesh(xarray,zarray,xs_pps_avg,cmap=cm.coolwarm,vmin=vmin,vmax=vmax)
+        im2 = ax2.pcolormesh(self.xarray, self.zarray,
+                             self.xs_pps_avg, cmap=cm.RdBu_r,
                              vmin=vmin, vmax=vmax)
         bar = plt.colorbar(im2, ax=ax2)
-        ax2.set_xlim((min(self.lateral_distances)),
-                     (max(self.lateral_distances)))
-        ax2.set_ylim((min(self.depth_array)), (max(self.depth_array)))
+        ax2.set_xlim((min(self.xarray)),
+                     (max(self.xarray)))
+        ax2.set_ylim((min(self.zarray)), (max(self.zarray)))
         bar.ax.set_ylabel('Amplitude', size=10)
         # ax2.set_xlabel('Lateral Distance (km)', size=10)
         ax2.set_ylabel('Depth (km)', size=10)
         ax2.set_title('Pps CCP image', size=10)
         ax2.invert_yaxis()
 
-        im3 = ax3.pcolormesh(self.lateral_distances, self.depth_array,
-                             self.xs_pss_avg*3., cmap=cm.RdBu_r,
+        im3 = ax3.pcolormesh(self.xarray, self.zarray,
+                             self.xs_pss_avg, cmap=cm.RdBu_r,
                              vmin=vmin, vmax=vmax)
         bar = plt.colorbar(im3, ax=ax3)
-        ax3.set_xlim((min(self.lateral_distances)),
-                     (max(self.lateral_distances)))
-        ax3.set_ylim((min(self.depth_array)), (max(self.depth_array)))
+        ax3.set_xlim((min(self.xarray)),
+                     (max(self.xarray)))
+        ax3.set_ylim((min(self.zarray)), (max(self.zarray)))
         bar.ax.set_ylabel('Amplitude', size=10)
         # ax3.set_xlabel('Lateral Distance (km)', size=10)
         ax3.set_ylabel('Depth (km)', size=10)
         ax3.set_title('Pss CCP image', size=10)
         ax3.invert_yaxis()
 
-        im4 = ax4.pcolormesh(self.lateral_distances, self.depth_array,
-                             self.tot_trace_ccp, cmap=cm.RdBu_r,
+        im4 = ax4.pcolormesh(self.xarray, self.zarray,
+                             self.tot_trace, cmap=cm.RdBu_r,
                              vmin=vmin, vmax=vmax)
         bar = plt.colorbar(im4, ax=ax4)
-        ax4.set_xlim((min(self.lateral_distances)),
-                     (max(self.lateral_distances)))
-        ax4.set_ylim((min(self.depth_array)), (max(self.depth_array)))
+        ax4.set_xlim((min(self.xarray)),
+                     (max(self.xarray)))
+        ax4.set_ylim((min(self.zarray)), (max(self.zarray)))
         bar.ax.set_ylabel('Amplitude', size=10)
         ax4.set_xlabel('Lateral Distance (km)', size=10)
         ax4.set_ylabel('Depth (km)', size=10)
@@ -587,41 +609,41 @@ class CCPimage(object):
         fig, (ax1, ax2, ax3, ax4) = plt.subplots(
             4, 1, figsize=(8.5, 8))
 
-        # plt.pcolormesh(lateral_distances,depth_array,xs_ps_avg,cmap=cm.coolwarm,vmin=vmin,vmax=vmax)
-        im1 = ax1.pcolormesh(self.lateral_distances, self.depth_array,
+        # plt.pcolormesh(xarray,zarray,xs_ps_avg,cmap=cm.coolwarm,vmin=vmin,vmax=vmax)
+        im1 = ax1.pcolormesh(self.xarray, self.zarray,
                              self.xs_gauss_ps, cmap=cm.RdBu_r,
                              vmin=vmin, vmax=vmax)
         bar = plt.colorbar(im1, ax=ax1)
-        ax1.set_xlim((min(self.lateral_distances)),
-                     (max(self.lateral_distances)))
-        ax1.set_ylim((min(self.depth_array)), (max(self.depth_array)))
+        ax1.set_xlim((min(self.xarray)),
+                     (max(self.xarray)))
+        ax1.set_ylim((min(self.zarray)), (max(self.zarray)))
         bar.ax.set_ylabel('Amplitude', size=10)
         # ax1.set_xlabel('Lateral Distance (km)', size=10)
         ax1.set_ylabel('Depth (km)', size=10)
         ax1.set_title('Ps GCCP image', size=10)
         ax1.invert_yaxis()
 
-        # plt.pcolormesh(lateral_distances,depth_array,xs_pps_avg,cmap=cm.coolwarm,vmin=vmin,vmax=vmax)
-        im2 = ax2.pcolormesh(self.lateral_distances, self.depth_array,
-                             self.xs_gauss_pps*3, cmap=cm.RdBu_r,
+        # plt.pcolormesh(xarray,zarray,xs_pps_avg,cmap=cm.coolwarm,vmin=vmin,vmax=vmax)
+        im2 = ax2.pcolormesh(self.xarray, self.zarray,
+                             self.xs_gauss_pps, cmap=cm.RdBu_r,
                              vmin=vmin, vmax=vmax)
         bar = plt.colorbar(im2, ax=ax2)
-        ax2.set_xlim((min(self.lateral_distances)),
-                     (max(self.lateral_distances)))
-        ax2.set_ylim((min(self.depth_array)), (max(self.depth_array)))
+        ax2.set_xlim((min(self.xarray)),
+                     (max(self.xarray)))
+        ax2.set_ylim((min(self.zarray)), (max(self.zarray)))
         bar.ax.set_ylabel('Amplitude', size=10)
         # ax2.set_xlabel('Lateral Distance (km)', size=10)
         ax2.set_ylabel('Depth (km)', size=10)
         ax2.set_title('Pps GCCP image', size=10)
         ax2.invert_yaxis()
 
-        im3 = ax3.pcolormesh(self.lateral_distances, self.depth_array,
-                             self.xs_gauss_pss*3, cmap=cm.RdBu_r,
+        im3 = ax3.pcolormesh(self.xarray, self.zarray,
+                             self.xs_gauss_pss, cmap=cm.RdBu_r,
                              vmin=vmin, vmax=vmax)
         bar = plt.colorbar(im3, ax=ax3)
-        ax3.set_xlim((min(self.lateral_distances)),
-                     (max(self.lateral_distances)))
-        ax3.set_ylim((min(self.depth_array)), (max(self.depth_array)))
+        ax3.set_xlim((min(self.xarray)),
+                     (max(self.xarray)))
+        ax3.set_ylim((min(self.zarray)), (max(self.zarray)))
         bar.ax.set_ylabel('Amplitude', size=10)
         # ax3.set_xlabel('Lateral Distance (km)', size=10)
         ax3.set_ylabel('Depth (km)', size=10)
@@ -629,16 +651,16 @@ class CCPimage(object):
         ax3.invert_yaxis()
 
         import scipy.ndimage as ndimage
-        self.tot_trace_gccp = ndimage.filters.gaussian_filter(
-            self.tot_trace_gccp, sigma=(3, 0), order=0)
+        self.tot_trace = ndimage.filters.gaussian_filter(
+            self.tot_trace, sigma=(3, 0), order=0)
 
-        im4 = ax4.pcolormesh(self.lateral_distances, self.depth_array,
-                             self.tot_trace_gccp, cmap=cm.RdBu_r,
+        im4 = ax4.pcolormesh(self.xarray, self.zarray,
+                             self.tot_trace, cmap=cm.RdBu_r,
                              vmin=vmin, vmax=vmax)
         bar = plt.colorbar(im4, ax=ax4)
-        ax4.set_xlim((min(self.lateral_distances)),
-                     (max(self.lateral_distances)))
-        ax4.set_ylim((min(self.depth_array)), (max(self.depth_array)))
+        ax4.set_xlim((min(self.xarray)),
+                     (max(self.xarray)))
+        ax4.set_ylim((min(self.zarray)), (max(self.zarray)))
         bar.ax.set_ylabel('Amplitude', size=10)
         ax4.set_xlabel('Lateral Distance (km)', size=10)
         ax4.set_ylabel('Depth (km)', size=10)
@@ -654,15 +676,15 @@ class CCPimage(object):
         plt.show()
 
 
-def ppoint_distance(tr, dz, vs):
+def ppoint_distance(tr, delta_z, vs):
     """
-    Calculate horizontal distance for interval dz and velocity vs
+    Calculate horizontal distance for interval delta_z and velocity vs
 
     Parameters
     ----------
     tr : :class:`~obspy.core.Trace`
         Single trace object to migrate to depth
-    dz : float
+    delta_z : float
         Vertical sampling distance
     vs : float
         S-wave velocity (km/s)
@@ -670,9 +692,9 @@ def ppoint_distance(tr, dz, vs):
     """
 
     # Calculate distance
-    dx = dz*np.tan(np.arcsin(tr.stats.slow*vs))
+    delta_x = delta_z*np.tan(np.arcsin(tr.stats.slow*vs))
 
-    return dx
+    return delta_x
 
 
 def ppoint(tr, dist):
@@ -706,15 +728,15 @@ def ppoint(tr, dist):
     return plon, plat
 
 
-def ttime(tr, dz, vp, vs, phase=None):
+def ttime(tr, delta_z, vp, vs, phase=None):
     """
-    Calculate travel time for interval dz and velocities vp and vs
+    Calculate travel time for interval delta_z and velocities vp and vs
 
     Parameters
     ----------
     tr : :class:`~obspy.core.Trace`
         Single trace object to migrate to depth
-    dz : float
+    delta_z : float
         Vertical sampling distance (km)
     vp : float
         P-wave velocity
@@ -729,13 +751,13 @@ def ttime(tr, dz, vp, vs, phase=None):
 
     # Calculate travel time for phase
     if phase == 'Ps':
-        tt = dz*(np.sqrt((1./vs)**2 - slow**2) -
+        tt = delta_z*(np.sqrt((1./vs)**2 - slow**2) -
                  np.sqrt((1./vp)**2 - slow**2))
     elif phase == 'Pps':
-        tt = dz*(np.sqrt((1./vs)**2 - slow**2) +
+        tt = delta_z*(np.sqrt((1./vs)**2 - slow**2) +
                  np.sqrt((1./vp)**2 - slow**2))
     elif phase == 'Pss':
-        tt = 2.*dz*(np.sqrt((1./vs)**2 - slow**2))
+        tt = 2.*delta_z*(np.sqrt((1./vs)**2 - slow**2))
     else:
         print('Error - unrecognized phase, ', phase)
         print('Returning tt = 0')
@@ -785,7 +807,7 @@ def timeshift(tr, tt):
     return amp, hilb_tt_phase
 
 
-def raypath(tr, nz=50, dep=None, vp=None, vs=None):
+def raypath(tr, dep=None, vp=None, vs=None):
     """
     Calculate travel times through velocity model for all phases of interest
 
@@ -804,22 +826,16 @@ def raypath(tr, nz=50, dep=None, vp=None, vs=None):
 
     """
 
+    # Get exact depth parameters
+    delta_z = dep[1] - dep[0]
+    nz = len(dep)
+
     # Define arrays with zeros
     plat = np.zeros(nz)
     plon = np.zeros(nz)
     ttps = np.zeros(nz)
     ttpps = np.zeros(nz)
     ttpss = np.zeros(nz)
-
-    # Get regular depth array
-    idep = np.linspace(dep.min(), dep.max(), nz)
-
-    # Interpolate Vp and Vs models on depth grid
-    ivp = sp.interpolate.interp1d(dep, vp, kind='linear')(idep)
-    ivs = sp.interpolate.interp1d(dep, vs, kind='linear')(idep)
-
-    # Get exact depth interval
-    dz = idep[1] - idep[0]
 
     # Now loop through all depths
     for iz in range(nz):
@@ -828,17 +844,17 @@ def raypath(tr, nz=50, dep=None, vp=None, vs=None):
         dtps = 0.
         dtpps = 0.
         dtpss = 0.
-        dx = 0.
+        delta_x = 0.
 
         # Sum over depths from 0 to iz
         for i in range(iz):
-            dtps += ttime(tr, dz, ivp[i], ivs[i], 'Ps')
-            dtpps += ttime(tr, dz, ivp[i], ivs[i], 'Pps')
-            dtpss += ttime(tr, dz, ivp[i], ivs[i], 'Pss')
-            dx += ppoint_distance(tr, dz, ivs[i])
+            dtps += ttime(tr, delta_z, vp[i], vs[i], 'Ps')
+            dtpps += ttime(tr, delta_z, vp[i], vs[i], 'Pps')
+            dtpss += ttime(tr, delta_z, vp[i], vs[i], 'Pss')
+            delta_x += ppoint_distance(tr, delta_z, vs[i])
 
         # Get piercing point from distance
-        plo, pla = ppoint(tr, dx)
+        plo, pla = ppoint(tr, delta_x)
 
         # Assign values to arrays
         ttps[iz] = dtps
@@ -847,7 +863,7 @@ def raypath(tr, nz=50, dep=None, vp=None, vs=None):
         plon[iz] = plo
         plat[iz] = pla
 
-    return ttps, ttpps, ttpss, plon, plat, idep
+    return ttps, ttpps, ttpss, plon, plat
 
 
 def haversine(lat, lon, xs_lat, xs_lon):  # great-circle distance (kilometres)

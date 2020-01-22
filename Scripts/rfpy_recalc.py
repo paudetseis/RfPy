@@ -29,21 +29,21 @@ import os.path
 import pickle
 import glob
 import stdb
-from obspy import Stream
-from rfpy import options, binning, plotting
-from rfpy import CCPimage
+from rfpy import options
+from rfpy import RFData
 
 
 def main():
 
     # Run Input Parser
-    (opts, indb) = options.get_plot_options()
+    (opts, indb) = options.get_recalc_options()
 
     # Load Database
     db = stdb.io.load_db(fname=indb)
 
     # Construct station key loop
     allkeys = db.keys()
+    sorted(allkeys)
 
     # Extract key subset
     if len(opts.stkeys) > 0:
@@ -78,8 +78,10 @@ def main():
         print(" ")
         print(" ")
         print("|===============================================|")
+        print("|===============================================|")
         print("|                   {0:>8s}                    |".format(
             sta.station))
+        print("|===============================================|")
         print("|===============================================|")
         print("|  Station: {0:>2s}.{1:5s}                            |".format(
             sta.network, sta.station))
@@ -89,47 +91,44 @@ def main():
             sta.longitude, sta.latitude))
         print("|-----------------------------------------------|")
 
-        rfRstream = Stream()
-        rfTstream = Stream()
-
         for folder in os.listdir(datapath):
 
-            filename = datapath+"/"+folder+"/RF_Data.pkl"
-            if os.path.isfile(filename):
-                file = open(filename, "rb")
-                rfdata = pickle.load(file)
-                if rfdata[0].stats.snr > opts.snr:
-                    if np.std(rfdata[1].data) < 0.2 and \
-                            np.std(rfdata[2].data) < 0.2:
-                        rfRstream.append(rfdata[1])
-                        rfTstream.append(rfdata[2])
-                file.close()
+            # Re-initialize RFData object
+            rfdata = RFData(sta)
 
-        if len(rfRstream)==0:
-            continue
-            
-        rfRstream.filter('bandpass', freqmin=opts.fmin,
-                         freqmax=opts.fmax, corners=2,
-                         zerophase=True)
-        rfTstream.filter('bandpass', freqmin=opts.fmin,
-                         freqmax=opts.fmax, corners=2,
-                         zerophase=True)
+            # Load meta data
+            if not os.path.isfile(datapath+"/"+folder+"/Meta_Data.pkl"):
+                continue
+            rfdata.meta = pickle.load(open(
+                datapath+"/"+folder+"/Meta_Data.pkl",'rb'))
+            print("* SNR: {}".format(rfdata.meta.snr))
 
-        if opts.saveplot and not os.path.isdir('RF_PLOTS'):
-            os.makedirs('RF_PLOTS')
+            # Load ZNE data
+            rfdata.data = pickle.load(open(
+                datapath+"/"+folder+"/ZNE_Data.pkl",'rb'))
 
-        if opts.nbaz:
-            rf_tmp = binning.bin(rfRstream, rfTstream,
-                                 typ='baz', nbin=opts.nbaz+1)
-            plotting.wiggle_bins(rf_tmp[0], rf_tmp[1],
-                                 btyp='baz', save=opts.saveplot,
-                                 title=opts.titleplot, form=opts.form)
-        elif opts.nslow:
-            rf_tmp = binning.bin(rfRstream, rfTstream,
-                                 typ='slow', nbin=opts.nslow+1)
-            plotting.wiggle_bins(rf_tmp[0], rf_tmp[1],
-                                 btyp='slow', save=opts.saveplot,
-                                 title=opts.titleplot, form=opts.form)
+            # Remove rotated flag
+            rfdata.meta.rotated = False
+
+            # Rotate from ZNE to 'align' ('ZRT', 'LQT', or 'PVH')
+            rfdata.rotate(vp=opts.vp, vs=opts.vs, align=opts.align)
+
+            # Deconvolve data
+            rfdata.deconvolve(
+                vp=opts.vp, vs=opts.vs, 
+                align=opts.align, method=opts.method)
+
+            # Convert to Stream
+            rfstream = rfdata.to_stream()
+
+            # Save RF Traces
+            pickle.dump(rfstream, open(
+                datapath+"/"+folder+"/RF_Data.pkl", "wb"))
+
+            # Update
+            print("* Wrote Output Files to: ")
+            print("*     "+folder)
+            print("**************************************************")
 
 
 if __name__ == "__main__":

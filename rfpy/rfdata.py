@@ -287,7 +287,8 @@ class RFData(object):
             self.data.detrend('linear')
 
             # Filter Traces
-            self.data.filter('lowpass', freq=0.5*new_sr, corners=2, zerophase=True)
+            self.data.filter('lowpass', freq=0.5*new_sr,
+                             corners=2, zerophase=True)
             self.data.resample(new_sr)
 
         except:
@@ -359,7 +360,8 @@ class RFData(object):
             self.data.detrend('linear')
 
             # Filter Traces
-            self.data.filter('lowpass', freq=0.5*new_sr, corners=2, zerophase=True)
+            self.data.filter('lowpass', freq=0.5*new_sr,
+                             corners=2, zerophase=True)
             self.data.resample(new_sr)
 
         # If there is no ZNE, perhaps there is Z12?
@@ -379,7 +381,8 @@ class RFData(object):
                 self.data.detrend('linear')
 
                 # Filter Traces
-                self.data.filter('lowpass', freq=0.5*new_sr, corners=2, zerophase=True)
+                self.data.filter('lowpass', freq=0.5*new_sr,
+                                 corners=2, zerophase=True)
                 self.data.resample(new_sr)
 
             except:
@@ -428,7 +431,7 @@ class RFData(object):
 
         if align == 'ZNE':
             # Rotating from 1,2 to N,E is the negative of
-            # rotation from RT to NE, with 
+            # rotation from RT to NE, with
             # baz corresponding to azim of component 1
             from obspy.signal.rotate import rotate_rt_ne
 
@@ -572,7 +575,8 @@ class RFData(object):
         # Calculate signal/noise ratio in dB
         self.meta.snr = 10*np.log10(srms*srms/nrms/nrms)
 
-    def deconvolve(self, twin=60., vp=None, vs=None, align=None):
+    def deconvolve(self, twin=60., vp=None, vs=None,
+                   align=None, method='wiener'):
         """
         Deconvolves three-compoent data using one component as the source wavelet.
         The source component is always taken as the dominant compressional 
@@ -589,6 +593,9 @@ class RFData(object):
         align : str
             Alignment of coordinate system for rotation
             ('ZRT', 'LQT', or 'PVH')
+        method : str
+            Method for deconvolution. Options are 'wiener' or 
+            'multitaper'
 
         Attributes
         ----------
@@ -646,71 +653,130 @@ class RFData(object):
         trNq.trim(self.meta.time+self.meta.ttime-120.,
                   self.meta.time+self.meta.ttime-5.)
 
-        # Taper trS
-        window = np.zeros(len(trS.data))
-        tap = _taper(int(twin/trS.stats.delta), int(2./trS.stats.delta))
-        window[0:int(twin/trS.stats.delta)] = tap
-        trS.data *= window
+        # Wiener deconvolution
+        if method == 'wiener':
 
-        # Taper other traces
-        window = np.zeros(len(trL.data))
-        tap = _taper(len(trL.data), int(2./trL.stats.delta))
-        window[0:len(trL.data)] = tap
+            # Taper trS
+            window = np.zeros(len(trS.data))
+            tap = _taper(int(twin/trS.stats.delta), int(2./trS.stats.delta))
+            window[0:int(twin/trS.stats.delta)] = tap
+            trS.data *= window
 
-        # Some checks
-        lwin = len(window)
-        if not (lwin == len(trL.data) and lwin == len(trQ.data)
-                and lwin == len(trT.data) and lwin == len(trNl.data)
-                and lwin == len(trNq.data)):
-            print('problem with lwin')
-            print(lwin, len(trL.data), len(trQ.data), len(trT.data),
-                len(trNl.data), lwin == len(trNq.data))
-            self.rf = Stream(traces=[Trace(), Trace(), Trace()])
-            return
+            # Taper other traces
+            window = np.zeros(len(trL.data))
+            tap = _taper(len(trL.data), int(2./trL.stats.delta))
+            window[0:len(trL.data)] = tap
 
-        # Apply taper
-        trL.data *= window
-        trQ.data *= window
-        trT.data *= window
-        trNl.data *= window
-        trNq.data *= window
+            # Some checks
+            lwin = len(window)
+            if not (lwin == len(trL.data) and lwin == len(trQ.data)
+                    and lwin == len(trT.data) and lwin == len(trNl.data)
+                    and lwin == len(trNq.data)):
+                print('problem with lwin')
+                print(lwin, len(trL.data), len(trQ.data), len(trT.data),
+                      len(trNl.data), lwin == len(trNq.data))
+                self.rf = Stream(traces=[Trace(), Trace(), Trace()])
+                return
 
-        # Fourier transform
-        Fl = np.fft.fft(trL.data)
-        Fq = np.fft.fft(trQ.data)
-        Ft = np.fft.fft(trT.data)
-        Fs = np.fft.fft(trS.data)
-        Fnl = np.fft.fft(trNl.data)
-        Fnq = np.fft.fft(trNq.data)
+            # Apply taper
+            trL.data *= window
+            trQ.data *= window
+            trT.data *= window
+            trNl.data *= window
+            trNq.data *= window
 
-        # Auto and cross spectra
-        Sl = Fl*np.conjugate(Fs)
-        Sq = Fq*np.conjugate(Fs)
-        St = Ft*np.conjugate(Fs)
-        Ss = Fs*np.conjugate(Fs)
-        Snl = Fnl*np.conjugate(Fnl)
-        Snq = Fnq*np.conjugate(Fnq)
-        Snlq = Fnq*np.conjugate(Fnl)
+            # Fourier transform
+            Fl = np.fft.fft(trL.data)
+            Fq = np.fft.fft(trQ.data)
+            Ft = np.fft.fft(trT.data)
+            Fs = np.fft.fft(trS.data)
+            Fnl = np.fft.fft(trNl.data)
+            Fnq = np.fft.fft(trNq.data)
 
-        # Denominator
-        Sdenom = 0.25*(Snl+Snq)+0.5*Snlq
+            # Auto and cross spectra
+            Sl = Fl*np.conjugate(Fs)
+            Sq = Fq*np.conjugate(Fs)
+            St = Ft*np.conjugate(Fs)
+            Ss = Fs*np.conjugate(Fs)
+            Snl = Fnl*np.conjugate(Fnl)
+            Snq = Fnq*np.conjugate(Fnq)
+            Snlq = Fnq*np.conjugate(Fnl)
 
-        # Copy traces
-        rfL = trL.copy()
-        rfQ = trQ.copy()
-        rfT = trT.copy()
+            # Denominator
+            # Sdenom = 0.25*(Snl+Snq)+0.5*Snlq
+            Sdenom = Snl
 
-        # Spectral division and inverse transform
-        rfL.data = np.real(np.fft.ifft(Sl/(Ss+Sdenom)))
-        rfQ.data = np.real(np.fft.ifft(Sq/(Ss+Sdenom))/np.amax(rfL.data))
-        rfT.data = np.real(np.fft.ifft(St/(Ss+Sdenom))/np.amax(rfL.data))
+            # Copy traces
+            rfL = trL.copy()
+            rfQ = trQ.copy()
+            rfT = trT.copy()
 
-        # Update stats of streams
-        rfL.stats.channel = 'RF' + self.meta.align[0]
-        rfQ.stats.channel = 'RF' + self.meta.align[1]
-        rfT.stats.channel = 'RF' + self.meta.align[2]
+            # Spectral division and inverse transform
+            rfL.data = np.real(np.fft.ifft(Sl/(Ss+Sdenom)))
+            rfQ.data = np.real(np.fft.ifft(Sq/(Ss+Sdenom))/np.amax(rfL.data))
+            rfT.data = np.real(np.fft.ifft(St/(Ss+Sdenom))/np.amax(rfL.data))
 
-        self.rf = Stream(traces=[rfL, rfQ, rfT])
+            # Update stats of streams
+            rfL.stats.channel = 'RF' + self.meta.align[0]
+            rfQ.stats.channel = 'RF' + self.meta.align[1]
+            rfT.stats.channel = 'RF' + self.meta.align[2]
+
+            self.rf = Stream(traces=[rfL, rfQ, rfT])
+
+        elif method == 'multitaper':
+            from spectrum import dpss
+
+            NW = 2.5
+            Kmax = int(NW*2-2)
+            [tapers, eigenvalues] = dpss(len(trL.data), NW, Kmax)
+            nwin = len(eigenvalues)
+            weights = np.array([_x/float(i+1) for i,_x in enumerate(eigenvalues)])
+            weights = weights.reshape(nwin,1)
+
+            # Get multitaper spectrum of data
+            Fl = np.mean(np.fft.fft(np.multiply(
+                tapers.transpose(), trL.data))*weights, axis=0)
+            Fq = np.mean(np.fft.fft(np.multiply(
+                tapers.transpose(), trQ.data))*weights, axis=0)
+            Ft = np.mean(np.fft.fft(np.multiply(
+                tapers.transpose(), trT.data))*weights, axis=0)
+            Fnl = np.mean(np.fft.fft(np.multiply(
+                tapers.transpose(), trNl.data))*weights, axis=0)
+            Fnq = np.mean(np.fft.fft(np.multiply(
+                tapers.transpose(), trNq.data))*weights, axis=0)
+
+            # Auto and cross spectra
+            Sl = Fl*np.conjugate(Fl)
+            Sq = Fq*np.conjugate(Fl)
+            St = Ft*np.conjugate(Fl)
+            Snl = Fnl*np.conjugate(Fnl)
+            Snq = Fnq*np.conjugate(Fnq)
+            Snlq = Fnq*np.conjugate(Fnl)
+
+            # Denominator
+            # Sdenom = 0.25*(Snl+Snq)+0.5*abs(Snlq)
+            Sdenom = Snl
+
+            # Copy traces
+            rfL = trL.copy()
+            rfQ = trQ.copy()
+            rfT = trT.copy()
+
+            # Spectral division and inverse transform
+            rfL.data = np.real(np.fft.ifft(Sl/(Sl+Sdenom)))
+            rfQ.data = np.real(np.fft.ifft(Sq/(Sl+Sdenom))/np.amax(rfL.data))
+            rfT.data = np.real(np.fft.ifft(St/(Sl+Sdenom))/np.amax(rfL.data))
+
+            # Update stats of streams
+            rfL.stats.channel = 'RF' + self.meta.align[0]
+            rfQ.stats.channel = 'RF' + self.meta.align[1]
+            rfT.stats.channel = 'RF' + self.meta.align[2]
+
+            self.rf = Stream(traces=[rfL, rfQ, rfT])
+
+        else:
+            print("Method not implemented")
+            pass
 
     def to_stream(self):
         """
