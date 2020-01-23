@@ -112,6 +112,20 @@ def main():
                         if rfdata[1].stats.snr > opts.snr:
                             rfRstream.append(rfdata[1])
                         file.close()
+
+                # Remove outliers wrt variance
+                # Calculate variance over 30. sec
+                nt = int(30./rfRstream[0].stats.delta)
+                var = np.array([np.var(tr.data[0:nt]) for tr in rfRstream])
+
+                # Calculate outliers
+                medvar = np.median(var)
+                madvar = 1.4826*np.median(np.abs(var-medvar))
+                robust = np.abs((var-medvar)/madvar)
+                outliers = np.arange(len(rfRstream))[robust>2.]
+                for i in outliers[::-1]:
+                    rfRstream.remove(rfRstream[i])      
+
                 print("Station: {0:>2s}.{1:5s} -  {2} traces loaded".format(
                     sta.network, sta.station, len(rfRstream)))
                 if len(rfRstream)==0:
@@ -201,11 +215,18 @@ def main():
             if not os.path.isfile(prestack_file):
                 raise(Exception("No CCP_prestack.pkl file available - aborting"))
             else:
-                print()
-                print("|-----------------------------------------------|")
-                print("|  Linear CCP stack - all phases                |")
-                print("|-----------------------------------------------|")
-                print()
+                if opts.line:
+                    print()
+                    print("|-----------------------------------------------|")
+                    print("|  Linear CCP stack - all phases                |")
+                    print("|-----------------------------------------------|")
+                    print()
+                elif opts.phase:
+                    print()
+                    print("|-----------------------------------------------|")
+                    print("|  Phase-weighted CCP stack - all phases        |")
+                    print("|-----------------------------------------------|")
+                    print()
 
                 ccpimage = pickle.load(open(prestack_file, "rb"))
                 ccpimage.ccp()
@@ -233,11 +254,18 @@ def main():
             if not os.path.isfile(prestack_file):
                 raise(Exception("No CCP_prestack.pkl file available - aborting"))
             else:
-                print()
-                print("|-----------------------------------------------|")
-                print("|  Phase-weighted GCCP stack - all phases       |")
-                print("|-----------------------------------------------|")
-                print()
+                if opts.line:
+                    print()
+                    print("|-----------------------------------------------|")
+                    print("|  Linear GCCP stack - all phases               |")
+                    print("|-----------------------------------------------|")
+                    print()
+                elif opts.phase:
+                    print()
+                    print("|-----------------------------------------------|")
+                    print("|  Phase-weighted GCCP stack - all phases       |")
+                    print("|-----------------------------------------------|")
+                    print()
 
                 ccpimage = pickle.load(open(prestack_file, "rb"))
                 ccpimage.weights = [1., 3., -3.]

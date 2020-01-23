@@ -108,6 +108,30 @@ def main():
         if len(rfRstream)==0:
             continue
             
+        # Remove outliers wrt variance
+        # Calculate variance over 30. sec
+        nt = int(30./rfRstream[0].stats.delta)
+        varR = np.array([np.var(tr.data[0:nt]) for tr in rfRstream])
+
+        # Calculate outliers
+        medvarR = np.median(varR)
+        madvarR = 1.4826*np.median(np.abs(varR-medvarR))
+        robustR = np.abs((varR-medvarR)/madvarR)
+        outliersR = np.arange(len(rfRstream))[robustR>2.]
+        for i in outliersR[::-1]:
+            rfRstream.remove(rfRstream[i])      
+            rfTstream.remove(rfTstream[i])    
+
+        # Do the same for transverse
+        varT = np.array([np.var(tr.data[0:nt]) for tr in rfTstream])
+        medvarT = np.median(varT)
+        madvarT = 1.4826*np.median(np.abs(varT-medvarT))
+        robustT = np.abs((varT-medvarT)/madvarT)
+        outliersT = np.arange(len(rfTstream))[robustT>2.]
+        for i in outliersT[::-1]:
+            rfRstream.remove(rfRstream[i])      
+            rfTstream.remove(rfTstream[i])       
+
         rfRstream.filter('bandpass', freqmin=opts.fmin,
                          freqmax=opts.fmax, corners=2,
                          zerophase=True)
