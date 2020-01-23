@@ -1854,7 +1854,7 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
 
         for loc in sta.location:
             tloc = loc
-            # Constract location name
+            # Construct location name
             if len(tloc) == 0:
                 tloc = "--"
             # Construct Channel List
@@ -1862,6 +1862,7 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
                 'N,' + sta.channel.upper() + 'E'
             print(("*          {1:2s}[ZNE].{2:2s} - Checking Network".format(
                 sta.station, sta.channel.upper(), tloc)))
+
             try:
                 st = client.get_waveforms(
                     network=sta.network,
@@ -1869,11 +1870,10 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
                     channel=channelsZNE, starttime=start,
                     endtime=end, attach_response=False)
                 if len(st) == 3:
-                    erd = False
                     print("*              - ZNE Data Downloaded")
+
+                # it's possible if len(st)==1 that data is Z12
                 else:
-                    # it's possible if len(st)==1 that data is Z12
-                    # print("*              - ZNE Data Unavailable")
                     # Construct Channel List
                     channelsZ12 = sta.channel.upper() + 'Z,' + \
                         sta.channel.upper() + '1,' + \
@@ -1888,19 +1888,14 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
                             channel=channelsZ12, starttime=start,
                             endtime=end, attach_response=False)
                         if len(st) == 3:
-                            erd = False
+                            # Make sure all traces have the same time stats
                             print("*              - Z12 Data Downloaded")
                         else:
-                            erd = True
                             st = None
-                            # print("*              - Z12 Data Unavailable")
                     except:
-                        erd = True
                         st = None
-                        # print("*              - Data Unavailable")
 
             except:
-                erd = True
                 st = None
 
             # Break if we successfully obtained 3 components in st
@@ -1917,6 +1912,11 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
     # Three components successfully retrieved
     else:
 
+        try:
+            st.trim(start, end)
+        except:
+            return True, None
+
         trA = st[0].copy()
         trB = st[1].copy()
         trC = st[2].copy()
@@ -1928,69 +1928,10 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
 
         if not (lenA == lenB and lenA == lenC):
             print("* Lengths are incompatible: ", lenA, lenB, lenC)
-            print("* Lengths should be: "+str(int((end-start)/trA.stats.delta)))
-            print("*    Trying to trim...")
-
-            # Try trimming?
-            try:
-                trA.trim(start, end)
-                trB.trim(start, end)
-                trC.trim(start, end)
-
-                # Check trace lengths again
-                lenA = len(trA.data)
-                lenB = len(trB.data)
-                lenC = len(trC.data)
-
-                # Check start times
-                startA = trA.stats.starttime
-                startB = trB.stats.starttime
-                startC = trB.stats.starttime
-
-                if not (lenA == lenB and lenA == lenC):
-                    print("*    Trimmed lengths still incompatible: ",
-                          lenA, lenB, lenC)
-                    print("*    Aborting")
-                    print("**************************************************")
-                    return True, None
-                elif not (startA == startB and startA == startC):
-                    print("*    Start times incompatible: ",
-                          startA, startB, startC)
-                    print("*    Aborting")
-                    print("**************************************************")
-                    return True, None
-
-                else:
-                    print("* Waveforms Trimmed and Retrieved...")
-                    print("**************************************************")
-                    st = Stream(traces=[trA, trB, trC])
-                    return False, st
-            except:
-                print("*    Trimming cannot be performed - aborting")
-                print("**************************************************")
-                return True, None
+            print("* -> Aborting")
+            print("**************************************************")
+            return True, None
 
         else:
-
-            trA = st[0].copy()
-            trB = st[1].copy()
-            trC = st[2].copy()
-
-            # Check start times
-            startA = trA.stats.starttime
-            startB = trB.stats.starttime
-            startC = trB.stats.starttime
-
-            if not (startA == startB and startA == startC):
-                print("*    Start times incompatible: ")
-                print("*      "+str(startA))
-                print("*      "+str(startB))
-                print("*      "+str(startC))
-                print("*    Aborting")
-                print("**************************************************")
-                return True, None
-
-            else:
-                print("* Waveforms Retrieved...")
-                print("**************************************************")
-                return False, st
+            print("* Waveforms Retrieved...")
+            return False, st
