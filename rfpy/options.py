@@ -1888,13 +1888,11 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
                             channel=channelsZ12, starttime=start,
                             endtime=end, attach_response=False)
                         if len(st) == 3:
-                            # Make sure all traces have the same time stats
                             print("*              - Z12 Data Downloaded")
                         else:
                             st = None
                     except:
                         st = None
-
             except:
                 st = None
 
