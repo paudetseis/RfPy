@@ -132,7 +132,18 @@ def main():
             else:
                 continue
 
-        # plotting.wiggle(rfRstream, sort='baz')
+        # Remove outliers wrt variance
+        # Calculate variance over 30. sec
+        nt = int(30./rfRstream[0].stats.delta)
+        varR = np.array([np.var(tr.data[0:nt]) for tr in rfRstream])
+
+        # Calculate outliers
+        medvarR = np.median(varR)
+        madvarR = 1.4826*np.median(np.abs(varR-medvarR))
+        robustR = np.abs((varR-medvarR)/madvarR)
+        outliersR = np.arange(len(rfRstream))[robustR>2.]
+        for i in outliersR[::-1]:
+            rfRstream.remove(rfRstream[i])      
 
         # Try binning if specified
         if opts.nbin is not None:
