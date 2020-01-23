@@ -242,14 +242,16 @@ def get_calc_options():
         type=float,
         dest="vp",
         default=6.0,
-        help="Specify near-surface Vp (km/s). [Default 6.0]")
+        help="Specify near-surface Vp to use with --align=PVH (km/s). "+
+        "[Default 6.0]")
     ConstGroup.add_option(
         "--vs",
         action="store",
         type=float,
         dest="vs",
         default=3.5,
-        help="Specify near-surface Vs (km/s). [Default 3.5]")
+        help="Specify near-surface Vs to use with --align=PVH (km/s). "+
+        "[Default 3.5]")
     ConstGroup.add_option(
         "--dt_snr",
         action="store",
@@ -432,14 +434,16 @@ def get_recalc_options():
         type=float,
         dest="vp",
         default=6.0,
-        help="Specify near-surface Vp (km/s). [Default 6.0]")
+        help="Specify near-surface Vp to use with --align=PVH (km/s). "+
+        "[Default 6.0]")
     ConstGroup.add_option(
         "--vs",
         action="store",
         type=float,
         dest="vs",
         default=3.5,
-        help="Specify near-surface Vs (km/s). [Default 3.5]")
+        help="Specify near-surface Vs to use with --align=PVH (km/s). "+
+        "[Default 3.5]")
     ConstGroup.add_option(
         "--method",
         action="store",
@@ -1938,20 +1942,55 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
                 lenB = len(trB.data)
                 lenC = len(trC.data)
 
+                # Check start times
+                startA = trA.stats.starttime
+                startB = trB.stats.starttime
+                startC = trB.stats.starttime
+
                 if not (lenA == lenB and lenA == lenC):
                     print("*    Trimmed lengths still incompatible: ",
                           lenA, lenB, lenC)
                     print("*    Aborting")
+                    print("**************************************************")
                     return True, None
+                elif not (startA == startB and startA == startC):
+                    print("*    Start times incompatible: ",
+                          startA, startB, startC)
+                    print("*    Aborting")
+                    print("**************************************************")
+                    return True, None
+
                 else:
                     print("* Waveforms Trimmed and Retrieved...")
+                    print("**************************************************")
                     st = Stream(traces=[trA, trB, trC])
                     return False, st
             except:
                 print("*    Trimming cannot be performed - aborting")
+                print("**************************************************")
                 return True, None
 
         else:
-            print("* Waveforms Retrieved...")
-            # Return Flag and Data
-            return False, st
+
+            trA = st[0].copy()
+            trB = st[1].copy()
+            trC = st[2].copy()
+
+            # Check start times
+            startA = trA.stats.starttime
+            startB = trB.stats.starttime
+            startC = trB.stats.starttime
+
+            if not (startA == startB and startA == startC):
+                print("*    Start times incompatible: ")
+                print("*      "+str(startA))
+                print("*      "+str(startB))
+                print("*      "+str(startC))
+                print("*    Aborting")
+                print("**************************************************")
+                return True, None
+
+            else:
+                print("* Waveforms Retrieved...")
+                print("**************************************************")
+                return False, st
