@@ -1448,6 +1448,13 @@ def get_plot_options():
         title='Plotting Settings',
         description="Options for plot format")
     PlotGroup.add_option(
+        "--stacked",
+        action="store_true",
+        dest="stacked",
+        default=False,
+        help="Set this option to plot a stack of all traces in top panel. "+
+        "[Default does not plot stacked traces]")
+    PlotGroup.add_option(
         "--save",
         action="store_true",
         dest="saveplot",
