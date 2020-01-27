@@ -576,6 +576,14 @@ def get_hk_options():
         "Use realistic bin number around 20 to start. " +
         "[Default does not bin data]")
     PreGroup.add_option(
+        "--snr",
+        action="store",
+        type=float,
+        dest="snr",
+        default=5.,
+        help="Specify the SNR threshold for extracting receiver functions. " +
+        "[Default 5.]")
+    PreGroup.add_option(
         "--copy",
         action="store_true",
         dest="copy",
