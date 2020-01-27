@@ -907,6 +907,14 @@ def get_harmonics_options():
         default=None,
         help="Specify integer number of back-azimuth bins to consider " +
         "(typically 36 or 72). [Default does not bin data]")
+    PreGroup.add_option(
+        "--snr",
+        action="store",
+        type=float,
+        dest="snr",
+        default=5.,
+        help="Specify the SNR threshold for extracting receiver functions. " +
+        "[Default 5.]")
 
     HarmonicGroup = OptionGroup(
         parser,
