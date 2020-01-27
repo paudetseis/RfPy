@@ -126,12 +126,18 @@ def main():
 
                 file = open(datapath+"/"+folder+"/RF_Data.pkl", "rb")
                 rfdata = pickle.load(file)
-                rfRstream.append(rfdata[1])
+                if rfdata[0].stats.snr > opts.snr:
+                    if np.std(rfdata[1].data) < 0.2 and \
+                            np.std(rfdata[2].data) < 0.2:
+                        rfRstream.append(rfdata[1])
                 file.close()
 
             else:
                 continue
 
+        if len(rfRstream)==0:
+            continue
+            
         # Remove outliers wrt variance
         # Calculate variance over 30. sec
         nt = int(30./rfRstream[0].stats.delta)
