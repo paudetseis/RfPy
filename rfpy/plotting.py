@@ -193,7 +193,7 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
     fig = plt.figure()
     plt.clf()
 
-    if stream2 and (tr1 or tr2):
+    if stream2 and tr1 and tr2:
         # Get more control on subplots
         ax1 = fig.add_axes([0.1, 0.825, 0.3, 0.05])
         ax2 = fig.add_axes([0.1, 0.1, 0.3, 0.7])
