@@ -644,6 +644,13 @@ def get_hk_options():
         help="Specify type of final stacking. Options are: 'sum' for " +
         "a weighted average (using weights), or 'prod' for the product " +
         "of positive values in stacks. [Default 'sum']")
+    HKGroup.add_option(
+        "--save",
+        action="store_true",
+        dest="save",
+        default=False,
+        help="Set this option to save the HkStack object to file. "+
+        "[Default doesn't save]")
 
     # Constants Settings
     ModelGroup = OptionGroup(
