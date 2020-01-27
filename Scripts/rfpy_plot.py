@@ -142,16 +142,24 @@ def main():
         if opts.saveplot and not os.path.isdir('RF_PLOTS'):
             os.makedirs('RF_PLOTS')
 
+        if opts.stacked:
+            st_tmp = binning.bin_all(rfRstream, rfTstream)
+            tr1 = st_tmp[0]
+            tr2 = st_tmp[1]
+        else:
+            tr1 = None
+            tr2 = None
+
         if opts.nbaz:
             rf_tmp = binning.bin(rfRstream, rfTstream,
                                  typ='baz', nbin=opts.nbaz+1)
-            plotting.wiggle_bins(rf_tmp[0], rf_tmp[1],
+            plotting.wiggle_bins(rf_tmp[0], rf_tmp[1], tr1=tr1, tr2=tr2,
                                  btyp='baz', save=opts.saveplot,
                                  title=opts.titleplot, form=opts.form)
         elif opts.nslow:
             rf_tmp = binning.bin(rfRstream, rfTstream,
                                  typ='slow', nbin=opts.nslow+1)
-            plotting.wiggle_bins(rf_tmp[0], rf_tmp[1],
+            plotting.wiggle_bins(rf_tmp[0], rf_tmp[1], tr1=tr1, tr2=tr2,
                                  btyp='slow', save=opts.saveplot,
                                  title=opts.titleplot, form=opts.form)
 
