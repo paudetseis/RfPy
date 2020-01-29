@@ -215,7 +215,7 @@ def main():
             if not os.path.isfile(prestack_file):
                 raise(Exception("No CCP_prestack.pkl file available - aborting"))
             else:
-                if opts.line:
+                if opts.linear:
                     print()
                     print("|-----------------------------------------------|")
                     print("|  Linear CCP stack - all phases                |")
@@ -254,7 +254,7 @@ def main():
             if not os.path.isfile(prestack_file):
                 raise(Exception("No CCP_prestack.pkl file available - aborting"))
             else:
-                if opts.line:
+                if opts.linear:
                     print()
                     print("|-----------------------------------------------|")
                     print("|  Linear GCCP stack - all phases               |")

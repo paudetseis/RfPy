@@ -298,7 +298,7 @@ class RFData(object):
         if returned:
             return self.meta.accept
 
-    def download_data(self, client, ndval=np.nan, new_sr=5.,
+    def download_data(self, client, stdata=[], ndval=np.nan, new_sr=5.,
                       dts=120., returned=False):
         """
         Downloads seismograms based on event origin time and
@@ -314,6 +314,8 @@ class RFData(object):
             New sampling rate (Hz)
         dts : float
             Time duration (sec)
+        stdata : List
+            Station list
         returned : bool
             Whether or not to return the ``accept`` attribute
 
@@ -346,7 +348,7 @@ class RFData(object):
 
         err, stream = options.download_data(
             client=client, sta=self.sta, start=tstart, end=tend,
-            stdata=self.sta.station, ndval=ndval, new_sr=new_sr)
+            stdata=stdata, ndval=ndval, new_sr=new_sr)
 
         # Store as attributes with traces in dictionary
         try:

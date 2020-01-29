@@ -29,7 +29,7 @@ that accompany this package.
 # -*- coding: utf-8 -*-
 from obspy import UTCDateTime
 from numpy import nan, isnan
-from obspy.core import Stream
+from obspy.core import Stream, read
 
 
 def get_calc_options():
@@ -134,6 +134,15 @@ def get_calc_options():
         default=False,
         help="Specify to force missing data to be set as zero, rather " +
         "than default behaviour which sets to nan.")
+    DataGroup.add_option(
+        "--no-local-net",
+        action="store_false",
+        dest="useNet",
+        default=True,
+        help="Specify to prevent using the Network code in the " +
+        "search for local data (sometimes for CN stations " +
+        "the dictionary name for a station may disagree with that " +
+        "in the filename. [Default Network used]")
 
     # Event Selection Criteria
     EventGroup = OptionGroup(
@@ -1290,13 +1299,28 @@ def get_ccp_options():
         default=False,
         help="Step 5b. Set this option to produce a phase weighted stack "+
         "for the final CCP image. [Default False]")
-    CCPGroup.add_option(
+
+    FigGroup = OptionGroup(
+        parser,
+        title='Figure Settings',
+        description="Options for specifying the settings for the final figure")
+    FigGroup.add_option(
         "--figure",
         action="store_true",
         dest="ccp_figure",
         default=False,
         help="Set this option to plot the final [G]CCP figure. " +
         "[Default False]")
+    FigGroup.add_option(
+        "--save-fig",
+        action="store_true",
+        dest="save_figure",
+        default=False,
+        help="Set this option to save the final [G]CCP figure. "+
+        "This option can only be set if --figure is also set." +
+        "[Default False]")
+    FigGroup.add_option(
+        "")
 
     parser.add_option_group(LineGroup)
     parser.add_option_group(PreGroup)
@@ -1500,7 +1524,59 @@ def get_plot_options():
     return (opts, indb)
 
 
-def parse_localdata_for_comp(comp='Z', stdata=list, sta=None,
+def list_local_data_stn(lcldrs=list, sta=None, net=None, altnet=[]):
+    """
+    Function to take the list of local directories and recursively 
+    find all data that matches the station name
+
+    Parameters
+    ----------
+    lcldrs : List
+        List of local directories
+    sta : Dict
+        Station metadata from :mod:`~StDb`
+    net : str
+        Network name
+    altnet : List
+        List of alternative networks
+
+    Returns
+    -------
+    fpathmatch : List
+        Sorted list of matched directories
+
+    """
+    from fnmatch import filter
+    from os import walk
+    from os.path import join
+
+    if sta is None:
+        return []
+    else:
+        if net is None:
+            sstrings = ['*.{0:s}.*.SAC'.format(sta)]
+        else:
+            sstrings = ['*.{0:s}.{1:s}.*.SAC'.format(net, sta)]
+            if len(altnet) > 0:
+                for anet in altnet:
+                    sstrings.append('*.{0:s}.{1:s}.*.SAC'.format(anet, sta))
+
+    fpathmatch = []
+    # Loop over all local data directories
+    for lcldr in lcldrs:
+        # Recursiely walk through directory
+        for root, dirnames, filenames in walk(lcldr):
+            # Keep paths only for those matching the station
+            for sstring in sstrings:
+                for filename in filter(filenames, sstring):
+                    fpathmatch.append(join(root, filename))
+
+    fpathmatch.sort()
+
+    return fpathmatch
+
+
+def parse_localdata_for_comp(comp='Z', stdata=[], sta=None,
                              start=UTCDateTime, end=UTCDateTime, ndval=nan):
     """
     Function to determine the path to data for a given component and alternate network
@@ -1530,7 +1606,6 @@ def parse_localdata_for_comp(comp='Z', stdata=list, sta=None,
     """
 
     from fnmatch import filter
-    from obspy import read
 
     # Get start and end parameters
     styr = start.strftime("%Y")
@@ -1561,6 +1636,7 @@ def parse_localdata_for_comp(comp='Z', stdata=list, sta=None,
                 '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*{4:1s}.SAC'.format(
                     styr, stjd, sta.network.upper(), sta.station.upper(),
                     comp.upper())))
+
         # Alternate Nets (for CN/PO issues) Format 1
         if len(lclfiles) == 0:
             lclfiles = []
@@ -1596,7 +1672,8 @@ def parse_localdata_for_comp(comp='Z', stdata=list, sta=None,
         # Process the local Files
         for sacfile in lclfiles:
             # Read File
-            st = read(sacfile, format="SAC")
+            st = read(sacfile)
+            # st = read(sacfile, format="SAC")
 
             # Should only be one component, otherwise keep reading If more
             # than 1 component, error
@@ -1807,7 +1884,7 @@ def parse_localdata_for_comp(comp='Z', stdata=list, sta=None,
 
 
 def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
-                  stdata=list, ndval=nan, new_sr=0.):
+                  stdata=[], ndval=nan, new_sr=0.):
     """
     Function to build a stream object for a seismogram in a given time window either
     by downloading data from the client object or alternatively first checking if the
@@ -1851,7 +1928,7 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
     from numpy import any
 
     # Output
-    print(("*     {0:s}.{1:2s} - NEZ:".format(sta.station,
+    print(("*     {0:s}.{1:2s} - ZNE:".format(sta.station,
                                               sta.channel.upper())))
 
     # Set Error Default to True

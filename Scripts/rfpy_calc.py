@@ -156,14 +156,15 @@ def main():
             print("|-----------------------------------------------|")
             print("| Cataloging Local Data...                      |")
             if opts.useNet:
-                stalcllist = rfdata.io.list_local_data_stn(
+                stalcllist = options.list_local_data_stn(
                     lcldrs=opts.localdata, sta=sta.station,
                     net=sta.network, altnet=sta.altnet)
-                print("|   {0:>2s}.{1:5s}: {2:6d} files        " +
-                      "              |".format(
-                          sta.network, sta.station, len(stalcllist)))
+                print("|   {0:>2s}.{1:5s}: {2:6d}".format(
+                    sta.network, sta.station, len(stalcllist)) +
+                    " files                      |")
+                print(stalcllist[0:10])
             else:
-                stalcllist = rfdata.io.list_local_data_stn(
+                stalcllist = options.list_local_data_stn(
                     lcldrs=opts.localdata, sta=sta.station)
                 print("|   {0:5s}: {1:6d} files                " +
                       "        |".format(
@@ -219,9 +220,9 @@ def main():
                     "*   Dep: {0:6.2f} km;     Mag: {1:3.1f}".format(
                         rfdata.meta.dep, rfdata.meta.mag))
                 print("*   Dist: {0:7.2f} km;".format(rfdata.meta.epi_dist) +
-                    "   Epi dist: {0:6.2f} deg\n".format(rfdata.meta.gac) +
-                    "*   Baz:  {0:6.2f} deg;".format(rfdata.meta.baz) +
-                    "   Az: {0:6.2f} deg".format(rfdata.meta.az))
+                      "   Epi dist: {0:6.2f} deg\n".format(rfdata.meta.gac) +
+                      "*   Baz:  {0:6.2f} deg;".format(rfdata.meta.baz) +
+                      "   Az: {0:6.2f} deg".format(rfdata.meta.az))
 
                 # Event Folder
                 timekey = rfdata.meta.time.strftime("%Y%m%d_%H%M%S")
@@ -233,9 +234,9 @@ def main():
                         if not opts.ovr:
                             continue
 
-                    # Get data
+                # Get data
                 has_data = rfdata.download_data(
-                    client=data_client, dts=opts.dts,
+                    client=data_client, dts=opts.dts, stdata=stalcllist,
                     ndval=opts.ndval, new_sr=opts.new_sampling_rate,
                     returned=True)
 
@@ -266,7 +267,7 @@ def main():
 
                 # Deconvolve data
                 rfdata.deconvolve(
-                    twin=opts.twin, vp=opts.vp, vs=opts.vs, 
+                    twin=opts.twin, vp=opts.vp, vs=opts.vs,
                     align=opts.align, method=opts.method)
 
                 # Convert to Stream
