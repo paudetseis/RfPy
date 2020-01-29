@@ -1246,50 +1246,50 @@ def get_ccp_options():
         action="store_true",
         dest="load",
         default=False,
-        help="Set this option to load rfstreams into CCPimage object. " +
-        "[Default False]")
+        help="Step 1. Set this option to load rfstreams into CCPimage "+
+        "object. [Default False]")
     CCPGroup.add_option(
         "--prep",
         action="store_true",
         dest="prep",
         default=False,
-        help="Set this option to prepare CCPimage before pre-stacking. " +
-        "[Default False]")
+        help="Step 2. Set this option to prepare CCPimage before "+
+        "pre-stacking. [Default False]")
     CCPGroup.add_option(
         "--prestack",
         action="store_true",
         dest="prestack",
         default=False,
-        help="Set this option to prestack all phases before CCP averaging. " +
-        "[Default False]")
+        help="Step 3. Set this option to prestack all phases before "+
+        "CCP averaging. [Default False]")
     CCPGroup.add_option(
         "--ccp",
         action="store_true",
         dest="ccp",
         default=False,
-        help="Set this option for standard CCP stacking with multiples. " +
-        "[Default False]")
+        help="Step 4a. Set this option for standard CCP stacking with "+
+        "multiples. [Default False]")
     CCPGroup.add_option(
         "--gccp",
         action="store_true",
         dest="gccp",
         default=False,
-        help="Set this option for Gaussian-weighted, phase-weighted CCP " +
-        "stacking with multiples. [Default False]")
+        help="Step 4b. Set this option for Gaussian-weighted, "+
+        "phase-weighted CCP stacking with multiples. [Default False]")
     CCPGroup.add_option(
         "--linear",
         action="store_true",
         dest="linear",
         default=False,
-        help="Set this option to produce a linear, weighted stack for the " +
-        "final CCP image. [Default True unless --phase is set]")
+        help="Step 5a. Set this option to produce a linear, weighted "+
+        "stack for the final CCP image. [Default True unless --phase is set]")
     CCPGroup.add_option(
         "--phase",
         action="store_true",
         dest="phase",
         default=False,
-        help="Set this option to produce a phase weighted stack for the " +
-        "final CCP image. [Default False]")
+        help="Step 5b. Set this option to produce a phase weighted stack "+
+        "for the final CCP image. [Default False]")
     CCPGroup.add_option(
         "--figure",
         action="store_true",

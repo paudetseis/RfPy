@@ -277,3 +277,104 @@ Usage
                          maximumbounds on time range for finding the optimal
                          azimuth (sec). [Default [0., 10.] when '--find-azim' is
                          set]
+
+
+``rfpy_ccp.py``
++++++++++++++++++++++
+
+Description
+-----------
+
+Loads radial component receiver function data available on disk
+and processes them for Common Conversion Point stacking along a linear
+profile. The three CCP phase stacks (Ps, Pps and Pss) are averaged
+using a weighted sum, or using phase-weighted stacking to downweight
+incoherent signal across all stacks. The phase stacks can be further 
+smoothed using a Gaussian kernel that simulates P-wave sensitivity.
+Station selection is specified by a network and station code. 
+The database is provided as a :class:`~stdb.StDb` dictionary.
+
+.. note::
+
+    The start and end coordinates (latitude, longitude) of the profile 
+    must be supplied as '--start=' and '--end=' parameters. The CCP
+    stacks will be projected along the line, regardless of station distance
+    normal to the line. 
+
+Usage
+-----
+
+.. code-block::
+
+    $ rfpy_harmonics.py -h
+    Usage: rfpy_ccp.py [options] <station database>
+
+    Script used to process receiver function data for common-conversion-point
+    (CCP) imaging.
+
+    Options:
+      -h, --help            show this help message and exit
+      --keys=STKEYS         Specify a comma separated list of station keys for
+                            which to perform the analysis. These must be contained
+                            within the station database. Partial keys will be used
+                            to match against those in the dictionary. For
+                            instance, providing IU will match with all stations in
+                            the IU network [Default processes all stations in the
+                            database]
+      -v, -V, --verbose     Specify to increase verbosity.
+      -O, --overwrite       Force the overwriting of pre-existing data. [Default
+                            False]
+
+      Line Geometry Settings:
+        Options for defining the line along which to produce the CCP image
+
+        --start=COORD_START
+                            Specify a list of two floats with the latitude and
+                            longitude of the start point, in this respective
+                            order. [Exception raised if not specified]
+        --end=COORD_END     Specify a list of two floats with the latitude and
+                            longitudeof the end point, in this respective order.
+                            [Exception raised if not specified]
+        --dz=DZ             Specify vertical cell size in km. [Default 1.]
+        --dx=DX             Specify horizontal cell size in km. [Default 2.5]
+
+      Pre-processing Settings:
+        Options for pre-processing of receiver function data for CCP stacking
+
+        --snr=SNR           Specify the SNR threshold for extracting receiver
+                            functions. [Default 5.]
+        --f1=F1             Specify the low frequency corner for the bandpass
+                            filter for all phases (Hz). [Default [0.05]]
+        --f2ps=F2PS         Specify the high frequency corner for the bandpass
+                            filter for the Ps phase (Hz). [Default [0.75]]
+        --f2pps=F2PPS       Specify the high frequency corner for the bandpass
+                            filter for the Pps phase (Hz). [Default [0.36]]
+        --f2pss=F2PSS       Specify the high frequency corner for the bandpass
+                            filter for the Pss phase (Hz). [Default [0.3]]
+        --nbaz=NBAZ         Specify integer number of back-azimuth bins to
+                            consider. [Default 36]
+        --nslow=NSLOW       Specify integer number of slowness bins to consider.
+                            [Default 40]
+        --wlen=WLEN         Specify wavelength of P-wave as sensitivity (km).
+                            [Default 35.]
+
+      CCP Settings:
+        Options for specifying the type of CCP stacking to perform
+
+        --load              Step 1. Set this option to load rfstreams into CCPimage
+                            object. [Default False]
+        --prep              Step 2. Set this option to prepare CCPimage before pre-
+                            stacking. [Default False]
+        --prestack          Step 3. Set this option to prestack all phases before CCP
+                            averaging. [Default False]
+        --ccp               Step 4a. Set this option for standard CCP stacking with
+                            multiples. [Default False]
+        --gccp              Step 4b. Set this option for Gaussian-weighted, phase-weighted
+                            CCP stacking with multiples. [Default False]
+        --linear            Step 5a. Set this option to produce a linear, weighted stack
+                            for the final CCP image. [Default True unless --phase
+                            is set]
+        --phase             Step 5b. Set this option to produce a phase weighted stack for
+                            the final CCP image. [Default False]
+        --figure            Set this option to plot the final [G]CCP figure.
+                            [Default False]
