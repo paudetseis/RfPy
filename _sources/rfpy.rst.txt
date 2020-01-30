@@ -35,6 +35,7 @@ The current version has been tested using **Python3.6 and 3.7** \
 Also, the following packages are required:
 
 - `stdb <https://github.com/paudetseis/StDb>`_
+- `spectrum <https://github.com/cokelaer/spectrum>`_
 
 Other required packages (e.g., ``obspy``)
 will be automatically installed by ``stdb``.
@@ -60,6 +61,7 @@ Install remaining dependencies using ``pip`` inside the ``rfpy`` environment:
 .. sourcecode:: bash
 
    pip install stdb
+   pip install spectrum
 
 Installing from Pypi
 --------------------
@@ -80,7 +82,6 @@ Installing from source
 
 .. sourcecode:: bash
 
-   pip install stdb
    pip install .
 
 Basic Usage
