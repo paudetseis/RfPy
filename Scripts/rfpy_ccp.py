@@ -239,9 +239,8 @@ def main():
                 print("CCPimage saved to {0}".format(ccp_file))
 
         if opts.ccp_figure:
-            xlength = ccpimage.dx*ccpimage.nx
             ccpimage.plot_ccp(save=opts.save_figure, fmt=opts.fmt,
-                vmin=-1.*opts.cbound, vmax=opts.cbound, xlen=xlength)
+                vmin=-1.*opts.cbound, vmax=opts.cbound)
 
     else:
         pass
@@ -281,9 +280,8 @@ def main():
                 print("CCPimage saved to {0}".format(gccp_file))
 
         if opts.ccp_figure:
-            xlength = ccpimage.dx*ccpimage.nx
             ccpimage.plot_gccp(save=opts.save_figure, fmt=opts.fmt,
-                vmin=-1.*opts.cbound, vmax=opts.cbound, xlen=xlength)
+                vmin=-1.*opts.cbound, vmax=opts.cbound)
 
     else:
         pass
