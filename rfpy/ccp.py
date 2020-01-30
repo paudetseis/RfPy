@@ -405,11 +405,11 @@ class CCPimage(object):
         self.is_ready_for_ccp = True
         self.is_ready_for_gccp = True
 
-        del amp_ps_depth
-        del amp_pps_depth
-        del amp_pss_depth
-        del lon_depth
-        del lat_depth
+        del self.amp_ps_depth
+        del self.amp_pps_depth
+        del self.amp_pss_depth
+        del self.lon_depth
+        del self.lat_depth
 
     def ccp(self):
         """
@@ -461,9 +461,9 @@ class CCPimage(object):
         self.xs_pps_avg = xs_pps_avg*self.weights[1]
         self.xs_pss_avg = xs_pss_avg*self.weights[2]
 
-        del xs_amps_ps
-        del xs_amps_pps
-        del xs_amps_pss
+        del self.xs_amps_ps
+        del self.xs_amps_pps
+        del self.xs_amps_pss
 
     def gccp(self, wlen=15.):
         """
