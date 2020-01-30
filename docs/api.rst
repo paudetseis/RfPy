@@ -10,6 +10,7 @@ Classes
 - :class:`~rfpy.rfdata.RFData`
 - :class:`~rfpy.hk.HkStack`
 - :class:`~rfpy.harmonics.Harmonics`
+- :class:`~rfpy.ccp.CCPimage`
 
 RFData
 ------
