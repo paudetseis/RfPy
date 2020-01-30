@@ -8,6 +8,11 @@ GitHub Repositories
 * `RfPy <https://github.com/paudetseis/RfPy>`_
 * `StDb <https://github.com/schaefferaj/StDb>`_
 
+See also
+~~~~~~~~
+
+* `rf <https://github.com/trichter/rf>`_
+
 References
 ----------
 
