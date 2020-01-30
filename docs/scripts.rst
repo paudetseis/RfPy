@@ -306,7 +306,7 @@ Usage
 
 .. code-block::
 
-    $ rfpy_harmonics.py -h
+    $ rfpy_ccp.py -h
     Usage: rfpy_ccp.py [options] <station database>
 
     Script used to process receiver function data for common-conversion-point
@@ -361,20 +361,31 @@ Usage
       CCP Settings:
         Options for specifying the type of CCP stacking to perform
 
-        --load              Step 1. Set this option to load rfstreams into CCPimage
-                            object. [Default False]
-        --prep              Step 2. Set this option to prepare CCPimage before pre-
-                            stacking. [Default False]
-        --prestack          Step 3. Set this option to prestack all phases before CCP
-                            averaging. [Default False]
-        --ccp               Step 4a. Set this option for standard CCP stacking with
-                            multiples. [Default False]
-        --gccp              Step 4b. Set this option for Gaussian-weighted, phase-weighted
-                            CCP stacking with multiples. [Default False]
-        --linear            Step 5a. Set this option to produce a linear, weighted stack
-                            for the final CCP image. [Default True unless --phase
-                            is set]
-        --phase             Step 5b. Set this option to produce a phase weighted stack for
-                            the final CCP image. [Default False]
+        --load              Step 1. Set this option to load rfstreams into
+                            CCPimage object. [Default False]
+        --prep              Step 2. Set this option to prepare CCPimage before
+                            pre-stacking. [Default False]
+        --prestack          Step 3. Set this option to prestack all phases before
+                            CCP averaging. [Default False]
+        --ccp               Step 4a. Set this option for standard CCP stacking
+                            with multiples. [Default False]
+        --gccp              Step 4b. Set this option for Gaussian-weighted CCP
+                            stacking with multiples. [Default False]
+        --linear            Step 5a. Set this option to produce a linear, weighted
+                            stack for the final [G]CCP image. [Default True unless
+                            --phase is set]
+        --phase             Step 5b. Set this option to produce a phase weighted
+                            stack for the final [G]CCP image. [Default False]
+
+      Figure Settings:
+        Options for specifying the settings for the final figure
+
         --figure            Set this option to plot the final [G]CCP figure.
                             [Default False]
+        --save-fig          Set this option to save the final [G]CCP figure. This
+                            option can only be set if --figure is also
+                            set.[Default False]
+        --cbound=CBOUND     Set the maximum value for the color palette. [Default
+                            0.05 for --ccp or 0.015 for --gccp]
+        --format=FMT        Set format of figure. You can choose among 'png',
+                            'jpg', 'eps', 'pdf'. [Default 'png']
