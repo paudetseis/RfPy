@@ -270,7 +270,7 @@ of P wave.</p>
 
 <dl class="method">
 <dt id="rfpy.rfdata.RFData.download_data">
-<code class="sig-name descname">download_data</code><span class="sig-paren">(</span><em class="sig-param">client</em>, <em class="sig-param">ndval=nan</em>, <em class="sig-param">new_sr=5.0</em>, <em class="sig-param">dts=120.0</em>, <em class="sig-param">returned=False</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.download_data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">download_data</code><span class="sig-paren">(</span><em class="sig-param">client</em>, <em class="sig-param">stdata=[]</em>, <em class="sig-param">ndval=nan</em>, <em class="sig-param">new_sr=5.0</em>, <em class="sig-param">dts=120.0</em>, <em class="sig-param">returned=False</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.download_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Downloads seismograms based on event origin time and
 P phase arrival.</p>
 <dl class="field-list simple">
@@ -280,6 +280,7 @@ P phase arrival.</p>
 <li><p><strong>ndval</strong> (<em>float</em>) – Fill in value for missing data</p></li>
 <li><p><strong>new_sr</strong> (<em>float</em>) – New sampling rate (Hz)</p></li>
 <li><p><strong>dts</strong> (<em>float</em>) – Time duration (sec)</p></li>
+<li><p><strong>stdata</strong> (<em>List</em>) – Station list</p></li>
 <li><p><strong>returned</strong> (<em>bool</em>) – Whether or not to return the <code class="docutils literal notranslate"><span class="pre">accept</span></code> attribute</p></li>
 </ul>
 </dd>
