@@ -868,12 +868,13 @@ or a phase-weighted sum. Methods should be used in the appropriate
 sequence (see <code class="docutils literal notranslate"><span class="pre">rfpy_ccp.py</span></code> for details).</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The object initially does not have defined coordinate locations for
-the profile. If not initialized with these values specified, make sure
-they are specified lated, before the other methods are used, e.g.
+<p>By default, the object initializes with un-defined coordinate locations for
+the profile. If not specified during initialization, make sure
+they are specified later, before the other methods are used, e.g.
 <code class="docutils literal notranslate"><span class="pre">ccpimage.xs_lat1</span> <span class="pre">=</span> <span class="pre">10.;</span> <span class="pre">ccpimage.xs_lon1</span> <span class="pre">=</span> <span class="pre">110.</span></code>, etc. Note also that the
 default 1D velocity model may not be applicable to your region of
-interest.</p>
+interest and a different model can be implemented during initialization
+or later during processing.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -945,6 +946,18 @@ method <code class="docutils literal notranslate"><span class="pre">prestack</sp
 <li><p><strong>f2pss</strong> (<em>float</em>) – High-frequency corner of the bandpass filter used for the Pss phase (Hz)</p></li>
 <li><p><strong>nbaz</strong> (<em>int</em>) – Number of increments in the back-azimuth bins</p></li>
 <li><p><strong>nslow</strong> (<em>int</em>) – Number of increments in the slowness bins</p></li>
+<li><p><strong>following attributes are added to the object</strong> (<em>The</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Other Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>amp_ps_depth</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – 2D array of amplitudes as a function of depth for the Ps phase</p></li>
+<li><p><strong>amp_pps_depth</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – 2D array of amplitudes as a function of depth for the Pps phase</p></li>
+<li><p><strong>amp_pss_depth</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – 2D array of amplitudes as a function of depth for the Pss phase</p></li>
+<li><p><strong>lon_depth</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – 2D array of longitude as a function of depth (i.e., piercing points)</p></li>
+<li><p><strong>lat_depth</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – 2D array of latitude as a function of depth (i.e., piercing points)</p></li>
+<li><p><strong>is_ready_for_presstack</strong> (<em>boolean</em>) – Flag specifying that the object is ready for the presstack() method</p></li>
+<li><p><strong>n_traces</strong> (<em>float</em>) – Total number of traces used in creating the CCP image.</p></li>
 </ul>
 </dd>
 </dl>
@@ -960,9 +973,19 @@ the profile. At the end of this step, the object contains the set of
 amplitudes at each of the 2D grid points, for each of the three phases.
 The object is now ready for the methods <code class="docutils literal notranslate"><span class="pre">ccp</span></code> and/or <code class="docutils literal notranslate"><span class="pre">gccp</span></code>, with
 the corresponding flag updated.</p>
+<p>The following attributes are added to the object:</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dx</strong> (<em>float</em>) – Horizontal distance sampling for the final 2D grid.</p>
+<dt class="field-odd">Other Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xs_amps_ps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – 3D array of amplitudes (1D array of amplitudes at each grid cell)
+for the Ps phase</p></li>
+<li><p><strong>xs_amps_pps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – 3D array of amplitudes (1D array of amplitudes at each grid cell)
+for the Pps phase</p></li>
+<li><p><strong>xs_amps_pss</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – 3D array of amplitudes (1D array of amplitudes at each grid cell)
+for the Pss phase</p></li>
+<li><p><strong>is_ready_for_ccp</strong> (<em>boolean</em>) – Flag specifying that the object is ready for the ccp() method</p></li>
+<li><p><strong>is_ready_for_gccp</strong> (<em>boolean</em>) – Flag specifying that the object is ready for the gccp() method</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -974,6 +997,16 @@ the corresponding flag updated.</p>
 for each of the three phases. At the end of this step, the object
 contains the three 2D arrays that can be further averaged into a single
 final image.</p>
+<p>The following attributes are added to the object:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Other Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xs_ps_avg</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – 2D array of stacked amplitudes for the Ps phase</p></li>
+<li><p><strong>xs_pps_avg</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – 2D array of stacked amplitudes for the Pps phase</p></li>
+<li><p><strong>xs_pss_avg</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – 2D array of stacked amplitudes for the Pss phase</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -987,7 +1020,17 @@ contains the three 2D smoothed arrays that can be further averaged into a
 single final image.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>wlen</strong> (<em>float</em>) – Wavelength of the P-wave for smoothing (km).</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wlen</strong> (<em>float</em>) – Wavelength of the P-wave for smoothing (km).</p></li>
+<li><p><strong>following attributes are added to the object</strong> (<em>The</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Other Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>xs_gauss_ps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – 2D array of stacked and Gaussian-filtered amplitudes for the Ps phase</p></li>
+<li><p><strong>xs_gauss_pps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – 2D array of stacked and Gaussian-filtered amplitudes for the Pps phase</p></li>
+<li><p><strong>xs_gauss_pss</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – 2D array of stacked and Gaussian-filtered amplitudes for the Pss phase</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -997,6 +1040,17 @@ single final image.</p>
 <code class="sig-name descname">linear_stack</code><span class="sig-paren">(</span><em class="sig-param">typ='ccp'</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.linear_stack" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to average the three 2D images into a final, weighted CCP image
 using the weights defined in the attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>typ</strong> (<em>str</em>) – Type of phase stacks to use (either <cite>ccp</cite> or <cite>gccp</cite>)</p></li>
+<li><p><strong>following attributes are added to the object</strong> (<em>The</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Other Parameters</dt>
+<dd class="field-even"><p><strong>tot_trace</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – 2D array of amplitudes for the linearly combined Ps, Pps and Pss phases</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1004,6 +1058,63 @@ using the weights defined in the attribute.</p>
 <code class="sig-name descname">phase_weighted_stack</code><span class="sig-paren">(</span><em class="sig-param">typ='gccp'</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.phase_weighted_stack" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to average the three 2D smoothed images into a final,
 phase-weighted CCP image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>typ</strong> (<em>str</em>) – Type of phase stacks to use (either <cite>ccp</cite> or <cite>gccp</cite>)</p></li>
+<li><p><strong>following attributes are added to the object</strong> (<em>The</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Other Parameters</dt>
+<dd class="field-even"><p><strong>tot_trace</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – 2D array of amplitudes for the phase-weighted, combined
+Ps, Pps and Pss phases</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="rfpy.ccp.CCPimage.save">
+<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param">title</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to save the <cite>ccpimage</cite> object to file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>title</strong> (<em>str</em>) – File name for the saved object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="rfpy.ccp.CCPimage.plot_ccp">
+<code class="sig-name descname">plot_ccp</code><span class="sig-paren">(</span><em class="sig-param">vmin=-0.05</em>, <em class="sig-param">vmax=0.05</em>, <em class="sig-param">save=False</em>, <em class="sig-param">fmt='png'</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.plot_ccp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to plot the final CCP stacks along the line.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vmin</strong> (<em>float</em>) – Maximum negative value for the color scale</p></li>
+<li><p><strong>vmax</strong> (<em>float</em>) – Maximum positive value for the color scale</p></li>
+<li><p><strong>save</strong> (<em>boolean</em>) – Whether or not to save the figure.</p></li>
+<li><p><strong>fmt</strong> (<em>str</em>) – Format of saved figure</p></li>
+<li><p><strong>xlen</strong> (<em>float</em>) – Total length of profile</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="rfpy.ccp.CCPimage.plot_gccp">
+<code class="sig-name descname">plot_gccp</code><span class="sig-paren">(</span><em class="sig-param">vmin=-0.015</em>, <em class="sig-param">vmax=0.015</em>, <em class="sig-param">save=False</em>, <em class="sig-param">fmt='png'</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.plot_gccp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to plot the final GCCP stacks along the line.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>vmin</strong> (<em>float</em>) – Maximum negative value for the color scale</p></li>
+<li><p><strong>vmax</strong> (<em>float</em>) – Maximum positive value for the color scale</p></li>
+<li><p><strong>save</strong> (<em>boolean</em>) – Whether or not to save the figure.</p></li>
+<li><p><strong>fmt</strong> (<em>str</em>) – Format of saved figure</p></li>
+<li><p><strong>xlen</strong> (<em>float</em>) – Total length of profile</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
