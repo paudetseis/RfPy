@@ -7,8 +7,9 @@ Documentation
 
 ``RfPy`` is a package containing Python tools for calculating teleseismic
 receiver functions. Methods are available to plot and post-process 
-receiver function data. Post processing includes: H-k method,
-Harmonic decomposition and CCP stacking. The code uses 
+receiver function data for use in crustal and upper mantle studies. 
+Current post processing methods include: H-k stacking,
+Harmonic decomposition and CCP imaging. The code uses 
 the ``StDb`` package for querying and building a station database 
 used in command-line scripts.
 
@@ -26,8 +27,8 @@ used in command-line scripts.
 
    * ``RfPy`` only calculates `P` receiver functions, whereas ``rf`` can also calculate
      `S` receiver functions. 
-   * ``RfPy`` uses a Wiener spectral deconvolution technique that minimizes noise based on
-     observed seismic noise on all components, whereas ``rf`` uses either a water-level 
+   * ``RfPy`` employs either a Wiener or multitaper spectral deconvolution 
+     technique, whereas ``rf`` uses either a water-level 
      spectral deconvolution or a time-domain deconvolution.
    * ``RfData`` objects are used to calculate single-station and single-event receiver 
      functions, whereas ``rf`` can handle multiple stations at once. 
