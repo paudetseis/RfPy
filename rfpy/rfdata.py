@@ -541,7 +541,9 @@ class RFData(object):
         Attributes
         ----------
         snr : float
-            Signal-to-noise ratio  (dB)
+            Signal-to-noise ratio on vertical component (dB)
+        snrh : float
+            Signal-to-noise ratio on radial component (dB)
 
         """
 
@@ -554,6 +556,7 @@ class RFData(object):
 
         t1 = self.meta.time + self.meta.ttime
 
+        # SNR for dominant component ('Z', 'L' or 'P')
         comp = self.meta.align[0]
 
         # Copy trace to signal and noise traces
@@ -576,6 +579,30 @@ class RFData(object):
 
         # Calculate signal/noise ratio in dB
         self.meta.snr = 10*np.log10(srms*srms/nrms/nrms)
+
+        # SNR for radial component ('R', 'Q' or 'V')
+        comp = self.meta.align[1]
+
+        # Copy trace to signal and noise traces
+        trSig = self.data.select(component=comp)[0].copy()
+        trNze = self.data.select(component=comp)[0].copy()
+
+        # Filter between 0.1 and 1.0 (dominant P wave frequencies)
+        trSig.filter('bandpass', freqmin=fmin, freqmax=fmax,
+                     corners=2, zerophase=True)
+        trNze.filter('bandpass', freqmin=fmin, freqmax=fmax,
+                     corners=2, zerophase=True)
+
+        # Trim 'twin' seconds around P-wave arrival
+        trSig.trim(t1, t1 + dt)
+        trNze.trim(t1 - dt, t1)
+
+        # Calculate root mean square (RMS)
+        srms = np.sqrt(np.mean(np.square(trSig.data)))
+        nrms = np.sqrt(np.mean(np.square(trNze.data)))
+
+        # Calculate signal/noise ratio in dB
+        self.meta.snrh = 10*np.log10(srms*srms/nrms/nrms)
 
     def deconvolve(self, twin=60., vp=None, vs=None,
                    align=None, method='wiener'):
@@ -797,6 +824,7 @@ class RFData(object):
 
         def _add_rfstats(trace):
             trace.stats.snr = self.meta.snr
+            trace.stats.snrh = self.meta.snrh
             trace.stats.slow = self.meta.slow
             trace.stats.baz = self.meta.baz
             trace.stats.stlo = self.sta.longitude
