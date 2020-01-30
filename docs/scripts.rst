@@ -297,7 +297,7 @@ The database is provided as a :class:`~stdb.StDb` dictionary.
 .. note::
 
     The start and end coordinates (latitude, longitude) of the profile 
-    must be supplied as '--start=' and '--end=' parameters. The CCP
+    must be supplied as `--start=` and `--end=` parameters. The CCP
     stacks will be projected along the line, regardless of station distance
     normal to the line. 
 
