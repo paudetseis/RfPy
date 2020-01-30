@@ -51,12 +51,13 @@ class CCPimage(object):
 
     Note
     ----
-    The object initially does not have defined coordinate locations for 
-    the profile. If not initialized with these values specified, make sure
-    they are specified lated, before the other methods are used, e.g.
+    By default, the object initializes with un-defined coordinate locations for 
+    the profile. If not specified during initialization, make sure
+    they are specified later, before the other methods are used, e.g.
     ``ccpimage.xs_lat1 = 10.; ccpimage.xs_lon1 = 110.``, etc. Note also that the 
     default 1D velocity model may not be applicable to your region of 
-    interest. 
+    interest and a different model can be implemented during initialization
+    or later during processing. 
 
     Parameters
     ----------
@@ -152,7 +153,6 @@ class CCPimage(object):
 
         Parameters
         ----------
-
         rfstream : :class:`~obspy.core.Stream`
             Stream object containing radial receiver functions for one station
 
@@ -178,7 +178,6 @@ class CCPimage(object):
 
         Parameters
         ----------
-
         f1 : float
             Low-frequency corner of the bandpass filter used for all phases (Hz)
         f2ps : float
@@ -191,6 +190,25 @@ class CCPimage(object):
             Number of increments in the back-azimuth bins
         nslow : int
             Number of increments in the slowness bins
+
+        The following attributes are added to the object:
+
+        Other Parameters
+        ----------------
+        amp_ps_depth : :class:`numpy.ndarray`
+            2D array of amplitudes as a function of depth for the Ps phase
+        amp_pps_depth : :class:`numpy.ndarray`
+            2D array of amplitudes as a function of depth for the Pps phase
+        amp_pss_depth : :class:`numpy.ndarray`
+            2D array of amplitudes as a function of depth for the Pss phase
+        lon_depth : :class:`numpy.ndarray`
+            2D array of longitude as a function of depth (i.e., piercing points)
+        lat_depth : :class:`numpy.ndarray`
+            2D array of latitude as a function of depth (i.e., piercing points)
+        is_ready_for_presstack : boolean
+            Flag specifying that the object is ready for the presstack() method
+        n_traces : float
+            Total number of traces used in creating the CCP image.
 
         """
 
@@ -307,11 +325,23 @@ class CCPimage(object):
         The object is now ready for the methods ``ccp`` and/or ``gccp``, with 
         the corresponding flag updated.
 
-        Parameters
-        ----------
+        The following attributes are added to the object:
 
-        dx : float
-            Horizontal distance sampling for the final 2D grid. 
+        Other Parameters
+        ----------------
+        xs_amps_ps : :class:`numpy.ndarray`
+            3D array of amplitudes (1D array of amplitudes at each grid cell)
+            for the Ps phase
+        xs_amps_pps : :class:`numpy.ndarray`
+            3D array of amplitudes (1D array of amplitudes at each grid cell)
+            for the Pps phase
+        xs_amps_pss : :class:`numpy.ndarray`
+            3D array of amplitudes (1D array of amplitudes at each grid cell)
+            for the Pss phase
+        is_ready_for_ccp : boolean
+            Flag specifying that the object is ready for the ccp() method
+        is_ready_for_gccp : boolean
+            Flag specifying that the object is ready for the gccp() method
 
         """
 
@@ -375,12 +405,29 @@ class CCPimage(object):
         self.is_ready_for_ccp = True
         self.is_ready_for_gccp = True
 
+        del amp_ps_depth
+        del amp_pps_depth
+        del amp_pss_depth
+        del lon_depth
+        del lat_depth
+
     def ccp(self):
         """
         Method to average the amplitudes at each grid point to produce 2D images
         for each of the three phases. At the end of this step, the object
         contains the three 2D arrays that can be further averaged into a single
         final image. 
+
+        The following attributes are added to the object:
+
+        Other Parameters
+        ----------------
+        xs_ps_avg : :class:`numpy.ndarray`
+            2D array of stacked amplitudes for the Ps phase
+        xs_pps_avg : :class:`numpy.ndarray`
+            2D array of stacked amplitudes for the Pps phase
+        xs_pss_avg : :class:`numpy.ndarray`
+            2D array of stacked amplitudes for the Pss phase
 
         """
 
@@ -414,6 +461,10 @@ class CCPimage(object):
         self.xs_pps_avg = xs_pps_avg*self.weights[1]
         self.xs_pss_avg = xs_pss_avg*self.weights[2]
 
+        del xs_amps_ps
+        del xs_amps_pps
+        del xs_amps_pss
+
     def gccp(self, wlen=15.):
         """
         Method to average the amplitudes at each grid point to produce 2D images
@@ -425,9 +476,19 @@ class CCPimage(object):
 
         Parameters
         ----------
-
         wlen : float
             Wavelength of the P-wave for smoothing (km).
+
+        The following attributes are added to the object:
+
+        Other Parameters
+        ----------------
+        xs_gauss_ps : :class:`numpy.ndarray`
+            2D array of stacked and Gaussian-filtered amplitudes for the Ps phase
+        xs_gauss_pps : :class:`numpy.ndarray`
+            2D array of stacked and Gaussian-filtered amplitudes for the Pps phase
+        xs_gauss_pss : :class:`numpy.ndarray`
+            2D array of stacked and Gaussian-filtered amplitudes for the Pss phase
 
         """
 
@@ -451,6 +512,18 @@ class CCPimage(object):
         """
         Method to average the three 2D images into a final, weighted CCP image
         using the weights defined in the attribute.
+
+        Parameters
+        ----------
+        typ : str
+            Type of phase stacks to use (either `ccp` or `gccp`)
+
+        The following attributes are added to the object:
+
+        Other Parameters
+        ----------------
+        tot_trace : :class:`numpy.ndarray`
+            2D array of amplitudes for the linearly combined Ps, Pps and Pss phases
 
         """
 
@@ -481,6 +554,19 @@ class CCPimage(object):
         """
         Method to average the three 2D smoothed images into a final, 
         phase-weighted CCP image.
+
+        Parameters
+        ----------
+        typ : str
+            Type of phase stacks to use (either `ccp` or `gccp`)
+
+        The following attributes are added to the object:
+
+        Other Parameters
+        ----------------
+        tot_trace : :class:`numpy.ndarray`
+            2D array of amplitudes for the phase-weighted, combined 
+            Ps, Pps and Pss phases
 
         """
 
@@ -525,6 +611,15 @@ class CCPimage(object):
 
 
     def save(self, title):
+        """
+        Method to save the `ccpimage` object to file.
+
+        Parameters
+        ----------
+        title : str
+            File name for the saved object
+
+        """
 
         if title is None:
             title = "CCP_image.pkl"
@@ -538,8 +633,26 @@ class CCPimage(object):
 
 
     def plot_ccp(self, vmin=-0.05, vmax=0.05, 
-        save=False, fmt='png', xlen=1000.):
+        save=False, fmt='png'):
+        """
+        Method to plot the final CCP stacks along the line.
 
+        Parameters
+        ----------
+        vmin : float
+            Maximum negative value for the color scale
+        vmax : float
+            Maximum positive value for the color scale
+        save : boolean
+            Whether or not to save the figure.
+        fmt : str
+            Format of saved figure
+        xlen : float
+            Total length of profile
+
+        """
+
+        xlen = self.nx*self.dx
         xm = 1.5 + 0.0065*xlen
         fig, (ax1, ax2, ax3, ax4) = plt.subplots(
             4, 1, figsize=(xm, 8))
@@ -607,9 +720,27 @@ class CCPimage(object):
         plt.show()
 
     def plot_gccp(self, vmin=-0.015, vmax=0.015, 
-        save=False, fmt='png', xlen=1000.):
+        save=False, fmt='png'):
+        """
+        Method to plot the final GCCP stacks along the line.
 
-        xm = 1.5 + 0.007*xlen
+        Parameters
+        ----------
+        vmin : float
+            Maximum negative value for the color scale
+        vmax : float
+            Maximum positive value for the color scale
+        save : boolean
+            Whether or not to save the figure.
+        fmt : str
+            Format of saved figure
+        xlen : float
+            Total length of profile
+
+        """
+
+        xlen = self.nx*self.dx
+        xm = 1.5 + 0.0065*xlen
         fig, (ax1, ax2, ax3, ax4) = plt.subplots(
             4, 1, figsize=(xm, 8))
 
