@@ -537,10 +537,12 @@ class CCPimage(object):
         file.close()
 
 
-    def plot_ccp(self, vmin=-0.05, vmax=0.05, save=False, form='png'):
+    def plot_ccp(self, vmin=-0.05, vmax=0.05, 
+        save=False, fmt='png', xlen=1000.):
 
+        xm = 1.5 + 0.0065*xlen
         fig, (ax1, ax2, ax3, ax4) = plt.subplots(
-            4, 1, figsize=(8.5, 8))
+            4, 1, figsize=(xm, 8))
 
         # plt.pcolormesh(xarray,zarray,xs_ps_avg,cmap=cm.coolwarm,vmin=vmin,vmax=vmax)
         im1 = ax1.pcolormesh(self.xarray, self.zarray,
@@ -595,19 +597,21 @@ class CCPimage(object):
         ax4.set_ylabel('Depth (km)', size=10)
         ax4.set_title('Weighted CCP image', size=10)
         ax4.invert_yaxis()
+        plt.tight_layout()
 
         if save:
             if not os.path.isdir("FIGURES"):
                 os.makedirs("FIGURES")
-            plt.savefig('FIGURES/ccp.' + form)
+            plt.savefig('FIGURES/ccp.' + fmt)
 
-        plt.tight_layout()
         plt.show()
 
-    def plot_gccp(self, vmin=-0.015, vmax=0.015, save=False, form='png'):
+    def plot_gccp(self, vmin=-0.015, vmax=0.015, 
+        save=False, fmt='png', xlen=1000.):
 
+        xm = 1.5 + 0.007*xlen
         fig, (ax1, ax2, ax3, ax4) = plt.subplots(
-            4, 1, figsize=(8.5, 8))
+            4, 1, figsize=(xm, 8))
 
         # plt.pcolormesh(xarray,zarray,xs_ps_avg,cmap=cm.coolwarm,vmin=vmin,vmax=vmax)
         im1 = ax1.pcolormesh(self.xarray, self.zarray,
@@ -666,13 +670,13 @@ class CCPimage(object):
         ax4.set_ylabel('Depth (km)', size=10)
         ax4.set_title('Phase-weighted GCCP image', size=10)
         ax4.invert_yaxis()
+        plt.tight_layout()
 
         if save:
             if not os.path.isdir("FIGURES"):
                 os.makedirs("FIGURES")
-            plt.savefig('FIGURES/gccp.' + form)
+            plt.savefig('FIGURES/gccp.' + fmt)
 
-        plt.tight_layout()
         plt.show()
 
 

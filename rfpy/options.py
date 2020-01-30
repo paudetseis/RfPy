@@ -1283,22 +1283,23 @@ def get_ccp_options():
         action="store_true",
         dest="gccp",
         default=False,
-        help="Step 4b. Set this option for Gaussian-weighted, "+
-        "phase-weighted CCP stacking with multiples. [Default False]")
+        help="Step 4b. Set this option for Gaussian-weighted "+
+        "CCP stacking with multiples. [Default False]")
     CCPGroup.add_option(
         "--linear",
         action="store_true",
         dest="linear",
         default=False,
         help="Step 5a. Set this option to produce a linear, weighted "+
-        "stack for the final CCP image. [Default True unless --phase is set]")
+        "stack for the final [G]CCP image. [Default True unless "+
+        "--phase is set]")
     CCPGroup.add_option(
         "--phase",
         action="store_true",
         dest="phase",
         default=False,
         help="Step 5b. Set this option to produce a phase weighted stack "+
-        "for the final CCP image. [Default False]")
+        "for the final [G]CCP image. [Default False]")
 
     FigGroup = OptionGroup(
         parser,
@@ -1320,11 +1321,26 @@ def get_ccp_options():
         "This option can only be set if --figure is also set." +
         "[Default False]")
     FigGroup.add_option(
-        "")
+        "--cbound",
+        action="store",
+        dest="cbound",
+        type=float,
+        default=None,
+        help="Set the maximum value for the color palette. "+
+        "[Default 0.05 for --ccp or 0.015 for --gccp]")
+    FigGroup.add_option(
+        "--format",
+        action="store",
+        dest="fmt",
+        type=str,
+        default=None,
+        help="Set format of figure. You can choose among "+
+        "'png', 'jpg', 'eps', 'pdf'. [Default 'png']")
 
     parser.add_option_group(LineGroup)
     parser.add_option_group(PreGroup)
     parser.add_option_group(CCPGroup)
+    parser.add_option_group(FigGroup)
 
     (opts, args) = parser.parse_args()
 
@@ -1371,6 +1387,20 @@ def get_ccp_options():
         opts.linear = True
     if opts.gccp and not opts.linear and not opts.phase:
         opts.phase = True
+
+    if (opts.save_figure or opts.cbound or opts.fmt) and not opts.ccp_figure:
+        print("Warning: Figure will not be produced since --figure "+
+            "has not been set.")
+
+    if opts.ccp_figure and not (opts.ccp or opts.gccp):
+        parser.error(
+            "Error: Cannot produce Figure without specifying the "+
+            "type of stacking [--ccp or --gccp].")
+
+    if not opts.cbound and opts.gccp:
+        opts.cbound = 0.015
+    elif not opts.cbound and opts.ccp:
+        opts.cbound = 0.05
 
     return (opts, indb)
 
