@@ -107,11 +107,15 @@ def main():
             rfdata.data = pickle.load(open(
                 datapath+"/"+folder+"/ZNE_Data.pkl",'rb'))
 
-            # Remove rotated flag
+            # Remove rotated flag and snr flag
             rfdata.meta.rotated = False
+            rfdata.meta.snr = None
 
             # Rotate from ZNE to 'align' ('ZRT', 'LQT', or 'PVH')
             rfdata.rotate(vp=opts.vp, vs=opts.vs, align=opts.align)
+
+            # Calculate SNR
+            rfdata.calc_snr(dt=opts.dt_snr, fmin=opts.fmin, fmax=opts.fmax)
 
             # Deconvolve data
             rfdata.deconvolve(

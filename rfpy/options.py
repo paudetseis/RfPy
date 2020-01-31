@@ -262,7 +262,7 @@ def get_calc_options():
         help="Specify near-surface Vs to use with --align=PVH (km/s). "+
         "[Default 3.5]")
     ConstGroup.add_option(
-        "--dt_snr",
+        "--dt-snr",
         action="store",
         type=float,
         dest="dt_snr",
@@ -461,6 +461,30 @@ def get_recalc_options():
         default="wiener",
         help="Specify the deconvolution method. Available methods " +
         "include 'wiener' and 'multitaper'. [Default 'wiener']")
+    ConstGroup.add_option(
+        "--dt-snr",
+        action="store",
+        type=float,
+        dest="dt_snr",
+        default=30.,
+        help="Specify the window length over which to calculate " +
+        "the SNR in sec. [Default 30.]")
+    ConstGroup.add_option(
+        "--fmin",
+        action="store",
+        type=float,
+        dest="fmin",
+        default=0.05,
+        help="Specify the minimum frequency corner for SNR " +
+        "filter (Hz). [Default 0.05]")
+    ConstGroup.add_option(
+        "--fmax",
+        action="store",
+        type=float,
+        dest="fmax",
+        default=1.0,
+        help="Specify the maximum frequency corner for SNR " +
+        "filter (Hz). [Default 1.0]")
 
     parser.add_option_group(ConstGroup)
 
@@ -1501,6 +1525,15 @@ def get_plot_options():
         parser,
         title='Plotting Settings',
         description="Options for plot format")
+    PlotGroup.add_option(
+        "--scale",
+        action="store",
+        dest="scale",
+        default=None,
+        type=float,
+        help="Specify the scaling factor for the amplitude of the "+
+        "receiver functions in the wiggle plots. [Default 100. for "+
+        "a back-azimuth plot, 0.02 for a slowness plot]")
     PlotGroup.add_option(
         "--stacked",
         action="store_true",
