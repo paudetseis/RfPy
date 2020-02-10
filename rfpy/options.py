@@ -1364,7 +1364,7 @@ def get_ccp_options():
         action="store",
         dest="fmt",
         type=str,
-        default=None,
+        default='png',
         help="Set format of figure. You can choose among "+
         "'png', 'jpg', 'eps', 'pdf'. [Default 'png']")
 
