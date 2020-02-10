@@ -767,16 +767,6 @@ class RFData(object):
             weights = weights.reshape(nwin,1)
 
             # Get multitaper spectrum of data
-            # Fl = np.sum(np.fft.fft(np.multiply(
-            #     tapers.transpose(), trL.data))*weights, axis=0)
-            # Fq = np.sum(np.fft.fft(np.multiply(
-            #     tapers.transpose(), trQ.data))*weights, axis=0)
-            # Ft = np.sum(np.fft.fft(np.multiply(
-            #     tapers.transpose(), trT.data))*weights, axis=0)
-            # Fnl = np.sum(np.fft.fft(np.multiply(
-            #     tapers.transpose(), trNl.data))*weights, axis=0)
-            # Fnq = np.sum(np.fft.fft(np.multiply(
-            #     tapers.transpose(), trNq.data))*weights, axis=0)
             Fl = np.fft.fft(np.multiply(tapers.transpose(), trL.data))
             Fq = np.fft.fft(np.multiply(tapers.transpose(), trQ.data))
             Ft = np.fft.fft(np.multiply(tapers.transpose(), trT.data))
