@@ -633,7 +633,7 @@ class CCPimage(object):
 
 
     def plot_ccp(self, vmin=-0.05, vmax=0.05, 
-        save=False, fmt='png'):
+        save=False, title='', fmt='png'):
         """
         Method to plot the final CCP stacks along the line.
 
@@ -715,12 +715,12 @@ class CCPimage(object):
         if save:
             if not os.path.isdir("FIGURES"):
                 os.makedirs("FIGURES")
-            plt.savefig('FIGURES/ccp.' + fmt)
+            plt.savefig('FIGURES/ccp.' + title + '.' + fmt)
 
         plt.show()
 
     def plot_gccp(self, vmin=-0.015, vmax=0.015, 
-        save=False, fmt='png'):
+        save=False, title='', fmt='png'):
         """
         Method to plot the final GCCP stacks along the line.
 
@@ -806,7 +806,7 @@ class CCPimage(object):
         if save:
             if not os.path.isdir("FIGURES"):
                 os.makedirs("FIGURES")
-            plt.savefig('FIGURES/gccp.' + fmt)
+            plt.savefig('FIGURES/gccp.' + title + '.' + fmt)
 
         plt.show()
 
