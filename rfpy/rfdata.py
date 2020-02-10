@@ -767,24 +767,29 @@ class RFData(object):
             weights = weights.reshape(nwin,1)
 
             # Get multitaper spectrum of data
-            Fl = np.mean(np.fft.fft(np.multiply(
-                tapers.transpose(), trL.data))*weights, axis=0)
-            Fq = np.mean(np.fft.fft(np.multiply(
-                tapers.transpose(), trQ.data))*weights, axis=0)
-            Ft = np.mean(np.fft.fft(np.multiply(
-                tapers.transpose(), trT.data))*weights, axis=0)
-            Fnl = np.mean(np.fft.fft(np.multiply(
-                tapers.transpose(), trNl.data))*weights, axis=0)
-            Fnq = np.mean(np.fft.fft(np.multiply(
-                tapers.transpose(), trNq.data))*weights, axis=0)
+            # Fl = np.sum(np.fft.fft(np.multiply(
+            #     tapers.transpose(), trL.data))*weights, axis=0)
+            # Fq = np.sum(np.fft.fft(np.multiply(
+            #     tapers.transpose(), trQ.data))*weights, axis=0)
+            # Ft = np.sum(np.fft.fft(np.multiply(
+            #     tapers.transpose(), trT.data))*weights, axis=0)
+            # Fnl = np.sum(np.fft.fft(np.multiply(
+            #     tapers.transpose(), trNl.data))*weights, axis=0)
+            # Fnq = np.sum(np.fft.fft(np.multiply(
+            #     tapers.transpose(), trNq.data))*weights, axis=0)
+            Fl = np.fft.fft(np.multiply(tapers.transpose(), trL.data))
+            Fq = np.fft.fft(np.multiply(tapers.transpose(), trQ.data))
+            Ft = np.fft.fft(np.multiply(tapers.transpose(), trT.data))
+            Fnl = np.fft.fft(np.multiply(tapers.transpose(), trNl.data))
+            Fnq = np.fft.fft(np.multiply(tapers.transpose(), trNq.data))
 
             # Auto and cross spectra
-            Sl = Fl*np.conjugate(Fl)
-            Sq = Fq*np.conjugate(Fl)
-            St = Ft*np.conjugate(Fl)
-            Snl = Fnl*np.conjugate(Fnl)
-            Snq = Fnq*np.conjugate(Fnq)
-            Snlq = Fnq*np.conjugate(Fnl)
+            Sl = np.sum(Fl*np.conjugate(Fl), axis=0)
+            Sq = np.sum(Fq*np.conjugate(Fl), axis=0)
+            St = np.sum(Ft*np.conjugate(Fl), axis=0)
+            Snl = np.sum(Fnl*np.conjugate(Fnl), axis=0)
+            Snq = np.sum(Fnq*np.conjugate(Fnq), axis=0)
+            Snlq = np.sum(Fnq*np.conjugate(Fnl), axis=0)
 
             # Denominator
             # Sdenom = 0.25*(Snl+Snq)+0.5*abs(Snlq)
