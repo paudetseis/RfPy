@@ -198,9 +198,9 @@ def get_calc_options():
         action="store",
         type=float,
         dest="dts",
-        default=120.,
+        default=150.,
         help="Specify the window length in sec (symmetric about arrival " +
-        "time). [Default 120.]")
+        "time). [Default 150.]")
 
     # Geometry Settings
     GeomGroup = OptionGroup(
@@ -1337,6 +1337,14 @@ def get_ccp_options():
         help="Set this option to plot the final [G]CCP figure. " +
         "[Default False]")
     FigGroup.add_option(
+        "--cbound",
+        action="store",
+        dest="cbound",
+        type=float,
+        default=None,
+        help="Set the maximum value for the color palette. "+
+        "[Default 0.05 for --ccp or 0.015 for --gccp]")
+    FigGroup.add_option(
         "--save-fig",
         action="store_true",
         dest="save_figure",
@@ -1345,13 +1353,12 @@ def get_ccp_options():
         "This option can only be set if --figure is also set." +
         "[Default False]")
     FigGroup.add_option(
-        "--cbound",
+        "--title",
         action="store",
-        dest="cbound",
-        type=float,
-        default=None,
-        help="Set the maximum value for the color palette. "+
-        "[Default 0.05 for --ccp or 0.015 for --gccp]")
+        dest="title",
+        type=str,
+        default="",
+        help="Set Figure title. [Default None]")
     FigGroup.add_option(
         "--format",
         action="store",
