@@ -760,7 +760,7 @@ class RFData(object):
             from spectrum import dpss
 
             NW = 2.5
-            Kmax = int(NW*2-2)
+            Kmax = int(NW*2-1)
             [tapers, eigenvalues] = dpss(len(trL.data), NW, Kmax)
             nwin = len(eigenvalues)
             weights = np.array([_x/float(i+1) for i,_x in enumerate(eigenvalues)])

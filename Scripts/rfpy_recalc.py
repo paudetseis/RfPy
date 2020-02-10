@@ -101,7 +101,7 @@ def main():
                 continue
             rfdata.meta = pickle.load(open(
                 datapath+"/"+folder+"/Meta_Data.pkl",'rb'))
-            print("* Station: {}".format(stkey))
+            print("* Station: {0}; folder: {1}".format(stkey,folder))
             print("* SNR: {}".format(rfdata.meta.snr))
 
             # Load ZNE data
@@ -131,8 +131,7 @@ def main():
                 datapath+"/"+folder+"/RF_Data.pkl", "wb"))
 
             # Update
-            print("* Wrote Output Files to: ")
-            print("*     "+folder)
+            print("* Output files written")
             print("**************************************************")
 
 
