@@ -1523,7 +1523,7 @@ def get_plot_options():
 
     PlotGroup = OptionGroup(
         parser,
-        title='Plotting Settings',
+        title='Plot Settings',
         description="Options for plot format")
     PlotGroup.add_option(
         "--scale",
@@ -1565,6 +1565,7 @@ def get_plot_options():
         "matplotlib formats: 'png', 'jpg', 'eps', 'pdf'. [Default 'png']")
 
     parser.add_option_group(PreGroup)
+    parser.add_option_group(PlotGroup)
 
     (opts, args) = parser.parse_args()
 
