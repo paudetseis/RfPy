@@ -240,7 +240,7 @@ def main():
 
         if opts.ccp_figure:
             ccpimage.plot_ccp(save=opts.save_figure, fmt=opts.fmt,
-                vmin=-1.*opts.cbound, vmax=opts.cbound)
+                vmin=-1.*opts.cbound, vmax=opts.cbound, title=opts.title)
 
     else:
         pass
@@ -281,7 +281,7 @@ def main():
 
         if opts.ccp_figure:
             ccpimage.plot_gccp(save=opts.save_figure, fmt=opts.fmt,
-                vmin=-1.*opts.cbound, vmax=opts.cbound)
+                vmin=-1.*opts.cbound, vmax=opts.cbound, title=opts.title)
 
     else:
         pass
