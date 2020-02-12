@@ -21,10 +21,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -1097,7 +1097,7 @@ Ps, Pps and Pss phases</p>
 
 <dl class="method">
 <dt id="rfpy.ccp.CCPimage.plot_ccp">
-<code class="sig-name descname">plot_ccp</code><span class="sig-paren">(</span><em class="sig-param">vmin=-0.05</em>, <em class="sig-param">vmax=0.05</em>, <em class="sig-param">save=False</em>, <em class="sig-param">fmt='png'</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.plot_ccp" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_ccp</code><span class="sig-paren">(</span><em class="sig-param">vmin=-0.05</em>, <em class="sig-param">vmax=0.05</em>, <em class="sig-param">save=False</em>, <em class="sig-param">title=''</em>, <em class="sig-param">fmt='png'</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.plot_ccp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to plot the final CCP stacks along the line.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1114,7 +1114,7 @@ Ps, Pps and Pss phases</p>
 
 <dl class="method">
 <dt id="rfpy.ccp.CCPimage.plot_gccp">
-<code class="sig-name descname">plot_gccp</code><span class="sig-paren">(</span><em class="sig-param">vmin=-0.015</em>, <em class="sig-param">vmax=0.015</em>, <em class="sig-param">save=False</em>, <em class="sig-param">fmt='png'</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.plot_gccp" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">plot_gccp</code><span class="sig-paren">(</span><em class="sig-param">vmin=-0.015</em>, <em class="sig-param">vmax=0.015</em>, <em class="sig-param">save=False</em>, <em class="sig-param">title=''</em>, <em class="sig-param">fmt='png'</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.plot_gccp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to plot the final GCCP stacks along the line.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1251,7 +1251,7 @@ in <code class="docutils literal notranslate"><span class="pre">stream1</span></
 
 <dl class="function">
 <dt id="rfpy.plotting.wiggle_bins">
-<code class="sig-prename descclassname">rfpy.plotting.</code><code class="sig-name descname">wiggle_bins</code><span class="sig-paren">(</span><em class="sig-param">stream1</em>, <em class="sig-param">stream2=None</em>, <em class="sig-param">tr1=None</em>, <em class="sig-param">tr2=None</em>, <em class="sig-param">btyp='baz'</em>, <em class="sig-param">xmax=30</em>, <em class="sig-param">xtyp='time'</em>, <em class="sig-param">scale=None</em>, <em class="sig-param">save=False</em>, <em class="sig-param">title=None</em>, <em class="sig-param">form='png'</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.plotting.wiggle_bins" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">rfpy.plotting.</code><code class="sig-name descname">wiggle_bins</code><span class="sig-paren">(</span><em class="sig-param">stream1</em>, <em class="sig-param">stream2=None</em>, <em class="sig-param">tr1=None</em>, <em class="sig-param">tr2=None</em>, <em class="sig-param">btyp='baz'</em>, <em class="sig-param">tmax=30.0</em>, <em class="sig-param">xtyp='time'</em>, <em class="sig-param">scale=None</em>, <em class="sig-param">save=False</em>, <em class="sig-param">title=None</em>, <em class="sig-param">form='png'</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.plotting.wiggle_bins" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to plot receiver function according to either baz or
 slowness bins. By default,
 only one stream is required, which produces a Figure with a single panel.
@@ -1265,7 +1265,7 @@ If the single trace arguments are present, they will be plotted at the top.</p>
 <li><p><strong>tr1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code>) – Trace to plot at the top of <code class="docutils literal notranslate"><span class="pre">stream1</span></code></p></li>
 <li><p><strong>tr2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code>) – Trace to plot at the top of <code class="docutils literal notranslate"><span class="pre">stream2</span></code></p></li>
 <li><p><strong>btyp</strong> (<em>str</em>) – Type of plot to produce (either ‘baz’, ‘slow’, or ‘dist’)</p></li>
-<li><p><strong>xmax</strong> (<em>float</em>) – Maximum x-axis value displayed in the Figure.</p></li>
+<li><p><strong>tmax</strong> (<em>float</em>) – Maximum x-axis value displayed in the Figure.</p></li>
 <li><p><strong>xtyp</strong> (<em>str</em>) – Type of x-axis label (either ‘time’ or ‘depth’)</p></li>
 <li><p><strong>scale</strong> (<em>float</em>) – Scale factor applied to trace amplitudes for plotting</p></li>
 <li><p><strong>save</strong> (<em>bool</em>) – Whether or not to save the Figure</p></li>
