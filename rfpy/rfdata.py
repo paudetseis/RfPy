@@ -72,7 +72,7 @@ class Meta(object):
 
     """
 
-    def __init__(self, sta, event, gacmin=30., gacmax=90.):
+    def __init__(self, sta, event, gacmin=30., gacmax=90., phase='P'):
 
         from obspy.geodetics.base import gps2dist_azimuth as epi
         from obspy.geodetics import kilometer2degrees as k2d
@@ -111,7 +111,7 @@ class Meta(object):
             arrivals = tpmodel.get_travel_times(
                 distance_in_degree=self.gac,
                 source_depth_in_km=self.dep,
-                phase_list=["P"])
+                phase_list=[phase])
             if len(arrivals) > 1:
                 print("arrival has many entries:" + len(arrivals))
             elif len(arrivals)==0:
@@ -126,12 +126,14 @@ class Meta(object):
             self.ph = arrival.name
             self.slow = arrival.ray_param_sec_degree/111.
             self.inc = arrival.incident_angle
+            self.phase = phase
             self.accept = True
         else:
             self.ttime = None
             self.ph = None
             self.slow = None
             self.inc = None
+            self.phase = None
             self.accept = False
 
         # Defaults for non - station-event geometry attributes

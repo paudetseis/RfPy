@@ -149,7 +149,7 @@ def get_calc_options():
         parser,
         title="Event Settings",
         description="Settings associated with refining " +
-        "the events to include in matching station pairs")
+        "the events to include in matching event-station pairs")
     EventGroup.add_option(
         "--start",
         action="store",
@@ -193,14 +193,6 @@ def get_calc_options():
         default=9.0,
         help="Specify the maximum magnitude of event for which to search. " +
         "[Default None, i.e. no limit]")
-    EventGroup.add_option(
-        "--dts",
-        action="store",
-        type=float,
-        dest="dts",
-        default=150.,
-        help="Specify the window length in sec (symmetric about arrival " +
-        "time). [Default 150.]")
 
     # Geometry Settings
     GeomGroup = OptionGroup(
@@ -224,6 +216,15 @@ def get_calc_options():
         default=90.,
         help="Specify the maximum great circle distance (degrees) between " +
         "the station and event. [Default 90.]")
+    GeomGroup.add_option(
+        "--phase",
+        action="store",
+        type=str,
+        dest="phase",
+        default='P',
+        help="Specify the phase name to use. This setting goes "+
+        "hand in hand with the '--mindist' and '--maxdist' settings. "+
+        "Options are 'P' or 'PP'. [Default 'P']")
 
     # Constants Settings
     ConstGroup = OptionGroup(
@@ -237,6 +238,14 @@ def get_calc_options():
         dest="new_sampling_rate",
         default=5.,
         help="Specify new sampling rate in Hz. [Default 5.]")
+    ConstGroup.add_option(
+        "--dts",
+        action="store",
+        type=float,
+        dest="dts",
+        default=150.,
+        help="Specify the window length in sec (symmetric about arrival " +
+        "time). [Default 150.]")
     ConstGroup.add_option(
         "--align",
         action="store",
@@ -367,6 +376,22 @@ def get_calc_options():
     else:
         opts.ndval = nan
 
+    # Check distances for selected phase
+    if opts.phase not in ['P', 'PP']:
+        parser.error(
+            "Error: choose between 'P' and 'PP'.")
+    if opts.phase == 'P':
+        if opts.mindist < 30. or opts.maxdist > 100.:
+            parser.error(
+                "Distances should be between 30 and 100 deg. for "+
+                "teleseismic 'P' waves.")
+    elif opts.phase == 'PP':
+        if opts.mindist < 100. or opts.maxdist > 180.:
+            parser.error(
+                "Distances should be between 100 and 180 deg. for "+
+                "teleseismic 'PP' waves.")
+
+    # Check alignment options
     if opts.align is None:
         opts.align = 'ZRT'
     elif opts.align not in ['ZRT', 'LQT', 'PVH']:
