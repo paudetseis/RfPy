@@ -102,7 +102,6 @@ def main():
             rfdata.meta = pickle.load(open(
                 datapath+"/"+folder+"/Meta_Data.pkl",'rb'))
             print("* Station: {0}; folder: {1}".format(stkey,folder))
-            print("* SNR: {}".format(rfdata.meta.snr))
 
             # Load ZNE data
             rfdata.data = pickle.load(open(
@@ -117,11 +116,16 @@ def main():
 
             # Calculate SNR
             rfdata.calc_snr(dt=opts.dt_snr, fmin=opts.fmin, fmax=opts.fmax)
+            print("* SNR: {}".format(rfdata.meta.snr))
 
             # Deconvolve data
             rfdata.deconvolve(
                 vp=opts.vp, vs=opts.vs, 
                 align=opts.align, method=opts.method)
+
+            # Get cross-correlation QC
+            rfdata.get_QC()
+            print("* CC: {}".format(rfdata.meta.cc))
 
             # Convert to Stream
             rfstream = rfdata.to_stream()

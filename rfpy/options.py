@@ -1494,6 +1494,14 @@ def get_plot_options():
         help="Specify the SNR threshold for extracting receiver functions. " +
         "[Default 5.]")
     PreGroup.add_option(
+        "--cc",
+        action="store",
+        type=float,
+        dest="cc",
+        default=0.5,
+        help="Specify the CC threshold for extracting receiver functions. " +
+        "[Default 0.5]")
+    PreGroup.add_option(
         "--fmin",
         action="store",
         type=float,

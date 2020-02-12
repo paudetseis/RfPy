@@ -270,6 +270,10 @@ def main():
                     twin=opts.twin, vp=opts.vp, vs=opts.vs,
                     align=opts.align, method=opts.method)
 
+                # Get cross-correlation QC
+                rfdata.get_QC()
+                print("* CC: {}".format(rfdata.meta.cc))
+
                 # Convert to Stream
                 rfstream = rfdata.to_stream()
 

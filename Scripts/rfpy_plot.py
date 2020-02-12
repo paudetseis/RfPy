@@ -98,16 +98,18 @@ def main():
             if os.path.isfile(filename):
                 file = open(filename, "rb")
                 rfdata = pickle.load(file)
-                if rfdata[0].stats.snr > opts.snr:
-                    if np.std(rfdata[1].data) < 0.2 and \
-                            np.std(rfdata[2].data) < 0.2:
-                        rfRstream.append(rfdata[1])
-                        rfTstream.append(rfdata[2])
+                if rfdata[0].stats.snr > opts.snr and \
+                        rfdata[0].stats.cc > opts.cc:
+                    # if np.std(rfdata[1].data) < 0.2 and \
+                    #         np.std(rfdata[2].data) < 0.2:
+
+                    rfRstream.append(rfdata[1])
+                    rfTstream.append(rfdata[2])
                 file.close()
 
-        if len(rfRstream)==0:
+        if len(rfRstream) == 0:
             continue
-            
+
         # Remove outliers wrt variance
         # Calculate variance over 30. sec
         nt = int(30./rfRstream[0].stats.delta)
@@ -117,20 +119,20 @@ def main():
         medvarR = np.median(varR)
         madvarR = 1.4826*np.median(np.abs(varR-medvarR))
         robustR = np.abs((varR-medvarR)/madvarR)
-        outliersR = np.arange(len(rfRstream))[robustR>2.]
+        outliersR = np.arange(len(rfRstream))[robustR > 2.]
         for i in outliersR[::-1]:
-            rfRstream.remove(rfRstream[i])      
-            rfTstream.remove(rfTstream[i])    
+            rfRstream.remove(rfRstream[i])
+            rfTstream.remove(rfTstream[i])
 
         # Do the same for transverse
         varT = np.array([np.var(tr.data[0:nt]) for tr in rfTstream])
         medvarT = np.median(varT)
         madvarT = 1.4826*np.median(np.abs(varT-medvarT))
         robustT = np.abs((varT-medvarT)/madvarT)
-        outliersT = np.arange(len(rfTstream))[robustT>2.]
+        outliersT = np.arange(len(rfTstream))[robustT > 2.]
         for i in outliersT[::-1]:
-            rfRstream.remove(rfRstream[i])      
-            rfTstream.remove(rfTstream[i])       
+            rfRstream.remove(rfRstream[i])
+            rfTstream.remove(rfTstream[i])
 
         rfRstream.filter('bandpass', freqmin=opts.fmin,
                          freqmax=opts.fmax, corners=2,
@@ -154,7 +156,7 @@ def main():
             rf_tmp = binning.bin(rfRstream, rfTstream,
                                  typ='baz', nbin=opts.nbaz+1)
             plotting.wiggle_bins(rf_tmp[0], rf_tmp[1], tr1=tr1, tr2=tr2,
-                                 btyp='baz', scale=opts.scale, 
+                                 btyp='baz', scale=opts.scale,
                                  tmax=opts.tmax, save=opts.saveplot,
                                  title=opts.titleplot, form=opts.form)
         elif opts.nslow:

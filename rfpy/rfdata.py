@@ -142,6 +142,8 @@ class Meta(object):
         # Attributes that get updated as analysis progresses
         self.rotated = False
         self.snr = None
+        self.snrh = None
+        self.cc = None
 
 
 class RFData(object):
@@ -812,7 +814,7 @@ class RFData(object):
             pass
 
 
-    def get_QC(self, threshold=0.5):
+    def get_QC(self):
 
         if not self.meta.accept:
             return
@@ -820,18 +822,31 @@ class RFData(object):
         if not hasattr(self, 'rf'):
             raise(Exception("Warning: Receiver functions are not available"))
 
-        obs_L = self.data[0]
-        obs_Q = self.data[1]
-        obs_rfQ = self.rf[1]
+        obs_L = self.data[0].copy()
+        obs_Q = self.data[1].copy()
+        obs_rfQ = self.rf[1].copy()
+        
+        # Filter using SNR bandpass
+        obs_L.filter('bandpass', freqmin=0.05, freqmax=1.)
+        obs_Q.filter('bandpass', freqmin=0.05, freqmax=1.)
+        obs_rfQ.filter('bandpass', freqmin=0.05, freqmax=1.)
 
         # Convolve L with rfQ to obtain predicted Q
-        pred_Q = np.convolve(obs_L, obs_rfQ, mode='same')
+        pred_Q = obs_Q.copy()
+        pred_Q.stats.channel = 'PRR'
+        pred_Q.data = np.convolve(
+            obs_L.data, obs_rfQ.data, mode='full')[0:len(obs_L.data)]
 
-        # Cross correlate observed with predicted Q
-        cc_Q = np.correlate(obs_Q, pred_Q, mode='full')
+        # trim all traces from 0 to 20. sec following P-wave (fftshift first)
+        obs_L.data = np.fft.fftshift(obs_L.data)[0:int(5.*20.)]
+        obs_Q.data = np.fft.fftshift(obs_Q.data)[0:int(5.*20.)]
+        pred_Q.data = np.fft.fftshift(pred_Q.data)[0:int(5.*20.)]
 
-        # Get zero lag CC coefficient
-        self.cc = np.fft.fftshift(cc_Q)[0]
+        # Get cross correlation coefficient between observed and predicted Q
+        self.meta.cc = np.corrcoef(obs_Q.data, pred_Q.data)[0][1]
+
+        # test = Stream(traces=[obs_L, obs_Q, pred_Q])
+        # test.plot()
 
 
     def to_stream(self):
@@ -848,6 +863,7 @@ class RFData(object):
         def _add_rfstats(trace):
             trace.stats.snr = self.meta.snr
             trace.stats.snrh = self.meta.snrh
+            trace.stats.cc = self.meta.cc
             trace.stats.slow = self.meta.slow
             trace.stats.baz = self.meta.baz
             trace.stats.stlo = self.sta.longitude
