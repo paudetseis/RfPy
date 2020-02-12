@@ -1542,6 +1542,14 @@ def get_plot_options():
         "receiver functions in the wiggle plots. [Default 100. for "+
         "a back-azimuth plot, 0.02 for a slowness plot]")
     PlotGroup.add_option(
+        "--tmax",
+        action="store",
+        default=30.,
+        type=float,
+        dest="tmax",
+        help="Specify the maximum time on the x-axis for plotting (sec). "+
+        "[Default 30.]")
+    PlotGroup.add_option(
         "--stacked",
         action="store_true",
         dest="stacked",
