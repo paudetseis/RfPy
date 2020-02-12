@@ -143,7 +143,7 @@ def wiggle(stream1, stream2=None, sort=None, tmax=30, normalize=True,
 
 # PLot wiggles according to either baz or slowness
 def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
-                btyp='baz', xmax=30, xtyp='time', scale=None,
+                btyp='baz', tmax=30, xtyp='time', scale=None,
                 save=False, title=None, form='png'):
     """
     Function to plot receiver function according to either baz or
@@ -164,7 +164,7 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
         Trace to plot at the top of ``stream2``
     btyp : str
         Type of plot to produce (either 'baz', 'slow', or 'dist')
-    xmax : float
+    tmax : float
         Maximum x-axis value displayed in the Figure.
     xtyp : str
         Type of x-axis label (either 'time' or 'depth')
@@ -226,7 +226,7 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
         ax1.set_yticks(())
         ax1.set_xticks(())
         ax1.set_title('Radial')
-        ax1.set_xlim(0, xmax)
+        ax1.set_xlim(0, tmax)
 
     # Plot binned SV traces in back-azimuth on bottom left
     for tr in stream1:
@@ -264,7 +264,7 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
             facecolor='red',
             linewidth=0)
 
-    ax2.set_xlim(0, xmax)
+    ax2.set_xlim(0, tmax)
 
     if btyp == 'baz':
         ax2.set_ylim(-5, 370)
@@ -296,7 +296,7 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
             where=tr2.data+1e-6 >= 0.,
             facecolor='red',
             linewidth=0)
-        ax3.set_xlim(0, xmax)
+        ax3.set_xlim(0, tmax)
         ax3.set_ylim(-np.max(np.abs(tr1.data)), np.max(np.abs(tr1.data)))
         ax3.set_yticks(())
         ax3.set_xticks(())
@@ -339,7 +339,7 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
                 facecolor='red',
                 linewidth=0)
 
-        ax4.set_xlim(0, xmax)
+        ax4.set_xlim(0, tmax)
 
         if btyp == 'baz':
             ax4.set_ylim(-5, 370)
