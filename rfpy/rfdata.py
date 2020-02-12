@@ -114,6 +114,11 @@ class Meta(object):
                 phase_list=["P"])
             if len(arrivals) > 1:
                 print("arrival has many entries:" + len(arrivals))
+            elif len(arrivals)==0:
+                print("no arrival found")
+                self.accept = False
+                return
+
             arrival = arrivals[0]
 
             # Attributes from parameters
@@ -805,6 +810,29 @@ class RFData(object):
         else:
             print("Method not implemented")
             pass
+
+
+    def get_QC(self, threshold=0.5):
+
+        if not self.meta.accept:
+            return
+
+        if not hasattr(self, 'rf'):
+            raise(Exception("Warning: Receiver functions are not available"))
+
+        obs_L = self.data[0]
+        obs_Q = self.data[1]
+        obs_rfQ = self.rf[1]
+
+        # Convolve L with rfQ to obtain predicted Q
+        pred_Q = np.convolve(obs_L, obs_rfQ, mode='same')
+
+        # Cross correlate observed with predicted Q
+        cc_Q = np.correlate(obs_Q, pred_Q, mode='full')
+
+        # Get zero lag CC coefficient
+        self.cc = np.fft.fftshift(cc_Q)[0]
+
 
     def to_stream(self):
         """
