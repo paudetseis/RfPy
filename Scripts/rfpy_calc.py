@@ -35,7 +35,6 @@ from rfpy import RFData
 
 # Main function
 
-
 def main():
 
     # Run Input Parser
@@ -188,9 +187,10 @@ def main():
             # Initialize RF object with station info
             rfdata = RFData(sta)
 
-            # Add event to Split object
+            # Add event to rfdata object
             accept = rfdata.add_event(
-                ev, gacmin=opts.mindist, gacmax=opts.maxdist, returned=True)
+                ev, gacmin=opts.mindist, gacmax=opts.maxdist, 
+                phase=opts.phase, returned=True)
 
             # Define time stamp
             yr = str(rfdata.meta.time.year).zfill(4)
