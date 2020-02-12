@@ -195,12 +195,20 @@ def get_calc_options():
         "[Default None, i.e. no limit]")
 
     # Geometry Settings
-    GeomGroup = OptionGroup(
+    PhaseGroup = OptionGroup(
         parser,
         title="Geometry Settings",
         description="Settings associatd with the "
-        "event-station geometries")
-    GeomGroup.add_option(
+        "event-station geometries for the specified phase")
+    PhaseGroup.add_option(
+        "--phase",
+        action="store",
+        type=str,
+        dest="phase",
+        default='P',
+        help="Specify the phase name to use. Be careful with the distance. "+
+        "setting. Options are 'P' or 'PP'. [Default 'P']")
+    PhaseGroup.add_option(
         "--mindist",
         action="store",
         type=float,
@@ -208,7 +216,7 @@ def get_calc_options():
         default=30.,
         help="Specify the minimum great circle distance (degrees) between " +
         "the station and event. [Default 30.]")
-    GeomGroup.add_option(
+    PhaseGroup.add_option(
         "--maxdist",
         action="store",
         type=float,
@@ -216,15 +224,6 @@ def get_calc_options():
         default=90.,
         help="Specify the maximum great circle distance (degrees) between " +
         "the station and event. [Default 90.]")
-    GeomGroup.add_option(
-        "--phase",
-        action="store",
-        type=str,
-        dest="phase",
-        default='P',
-        help="Specify the phase name to use. This setting goes "+
-        "hand in hand with the '--mindist' and '--maxdist' settings. "+
-        "Options are 'P' or 'PP'. [Default 'P']")
 
     # Constants Settings
     ConstGroup = OptionGroup(
@@ -314,7 +313,7 @@ def get_calc_options():
     parser.add_option_group(ServerGroup)
     parser.add_option_group(DataGroup)
     parser.add_option_group(EventGroup)
-    parser.add_option_group(GeomGroup)
+    parser.add_option_group(PhaseGroup)
     parser.add_option_group(ConstGroup)
 
     (opts, args) = parser.parse_args()

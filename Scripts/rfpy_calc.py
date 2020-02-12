@@ -211,6 +211,7 @@ def main():
                 print("* #{0:d} ({1:d}/{2:d}):  {3:13s}".format(
                     nevK, inum, nevtT, rfdata.meta.time.strftime(
                         "%Y%m%d_%H%M%S")))
+                print("*   Phase: {}".format(opts.phase))
                 print("*   Origin Time: " +
                       rfdata.meta.time.strftime("%Y-%m-%d %H:%M:%S"))
                 print(
