@@ -72,7 +72,7 @@ class Meta(object):
 
     """
 
-    def __init__(self, sta, event, gacmin=30., gacmax=90.):
+    def __init__(self, sta, event, gacmin=30., gacmax=90., phase='P'):
 
         from obspy.geodetics.base import gps2dist_azimuth as epi
         from obspy.geodetics import kilometer2degrees as k2d
@@ -111,10 +111,10 @@ class Meta(object):
             arrivals = tpmodel.get_travel_times(
                 distance_in_degree=self.gac,
                 source_depth_in_km=self.dep,
-                phase_list=["P"])
+                phase_list=[phase])
             if len(arrivals) > 1:
                 print("arrival has many entries:" + len(arrivals))
-            elif len(arrivals)==0:
+            elif len(arrivals) == 0:
                 print("no arrival found")
                 self.accept = False
                 return
@@ -126,12 +126,14 @@ class Meta(object):
             self.ph = arrival.name
             self.slow = arrival.ray_param_sec_degree/111.
             self.inc = arrival.incident_angle
+            self.phase = phase
             self.accept = True
         else:
             self.ttime = None
             self.ph = None
             self.slow = None
             self.inc = None
+            self.phase = None
             self.accept = False
 
         # Defaults for non - station-event geometry attributes
@@ -189,7 +191,8 @@ class RFData(object):
         self.meta = None
         self.data = None
 
-    def add_event(self, event, gacmin=30., gacmax=90., returned=False):
+    def add_event(self, event, gacmin=30., gacmax=90., phase='P',
+                  returned=False):
         """
         Adds event metadata to RFData object, including travel time info 
         of P wave. 
@@ -229,7 +232,8 @@ class RFData(object):
 
         # Store as object attributes
         self.meta = Meta(sta=self.sta, event=event,
-                         gacmin=gacmin, gacmax=gacmax)
+                         gacmin=gacmin, gacmax=gacmax,
+                         phase=phase)
 
         if returned:
             return self.meta.accept
@@ -770,8 +774,9 @@ class RFData(object):
             Kmax = int(NW*2-1)
             [tapers, eigenvalues] = dpss(len(trL.data), NW, Kmax)
             nwin = len(eigenvalues)
-            weights = np.array([_x/float(i+1) for i,_x in enumerate(eigenvalues)])
-            weights = weights.reshape(nwin,1)
+            weights = np.array([_x/float(i+1)
+                                for i, _x in enumerate(eigenvalues)])
+            weights = weights.reshape(nwin, 1)
 
             # Get multitaper spectrum of data
             Fl = np.fft.fft(np.multiply(tapers.transpose(), trL.data))
@@ -813,7 +818,6 @@ class RFData(object):
             print("Method not implemented")
             pass
 
-
     def get_QC(self):
 
         if not self.meta.accept:
@@ -825,7 +829,7 @@ class RFData(object):
         obs_L = self.data[0].copy()
         obs_Q = self.data[1].copy()
         obs_rfQ = self.rf[1].copy()
-        
+
         # Filter using SNR bandpass
         obs_L.filter('bandpass', freqmin=0.05, freqmax=1.)
         obs_Q.filter('bandpass', freqmin=0.05, freqmax=1.)
@@ -847,7 +851,6 @@ class RFData(object):
 
         # test = Stream(traces=[obs_L, obs_Q, pred_Q])
         # test.plot()
-
 
     def to_stream(self):
         """
