@@ -143,7 +143,7 @@ def wiggle(stream1, stream2=None, sort=None, tmax=30, normalize=True,
 
 # PLot wiggles according to either baz or slowness
 def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
-                btyp='baz', tmax=30, xtyp='time', scale=None,
+                btyp='baz', tmax=30., xtyp='time', scale=None,
                 save=False, title=None, form='png'):
     """
     Function to plot receiver function according to either baz or

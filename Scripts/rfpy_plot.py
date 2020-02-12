@@ -152,16 +152,14 @@ def main():
 
         if opts.nbaz:
             rf_tmp = binning.bin(rfRstream, rfTstream,
-                                 typ='baz', nbin=opts.nbaz+1,
-                                 tmax=opts.tmax)
+                                 typ='baz', nbin=opts.nbaz+1)
             plotting.wiggle_bins(rf_tmp[0], rf_tmp[1], tr1=tr1, tr2=tr2,
                                  btyp='baz', scale=opts.scale, 
                                  tmax=opts.tmax, save=opts.saveplot,
                                  title=opts.titleplot, form=opts.form)
         elif opts.nslow:
             rf_tmp = binning.bin(rfRstream, rfTstream,
-                                 typ='slow', nbin=opts.nslow+1, 
-                                 tmax=opts.tmax)
+                                 typ='slow', nbin=opts.nslow+1)
             plotting.wiggle_bins(rf_tmp[0], rf_tmp[1], tr1=tr1, tr2=tr2,
                                  btyp='slow', scale=opts.scale,
                                  tmax=opts.tmax, save=opts.saveplot,
