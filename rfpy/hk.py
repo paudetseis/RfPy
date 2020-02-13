@@ -271,8 +271,7 @@ class HkStack(object):
 
                         # Calculate move out for each phase and get
                         # median value, weighted by instantaneous phase (pws)
-                        tt = _dtime_dip_(
-                            rfV, H[ih], kk, vp, ph, self.strike, self.dip)
+                        tt = _dtime_dip_(rfV, H[ih], kk, vp, ph, self.strike, self.dip)
                         trace = _timeshift_(rfV, tt)
                         thilb = hilbert(trace)
                         tphase = np.arctan2(thilb.imag, thilb.real)
@@ -529,7 +528,11 @@ class HkStack(object):
                         '.' + title+'.'+form, format=form)
         plt.show()
 
-    def save(self):
+## JMG ##
+    #def save(self):
+    def save(self,file):
+## JMG ##
+
         """
         Saves HkStack object to file
 
