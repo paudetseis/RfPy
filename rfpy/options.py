@@ -300,7 +300,7 @@ def get_calc_options():
         dest="twin",
         default=60.,
         help="Specify the source time duration for deconvolution " +
-        "(sec). [Default 30.]")
+        "(sec). [Default 60.]")
     ConstGroup.add_option(
         "--method",
         action="store",
@@ -509,6 +509,14 @@ def get_recalc_options():
         default=1.0,
         help="Specify the maximum frequency corner for SNR " +
         "filter (Hz). [Default 1.0]")
+    ConstGroup.add_option(
+        "--twin",
+        action="store",
+        type=float,
+        dest="twin",
+        default=60.,
+        help="Specify the source time duration for deconvolution " +
+        "(sec). [Default 30.]")
 
     parser.add_option_group(ConstGroup)
 

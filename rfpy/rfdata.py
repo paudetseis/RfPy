@@ -740,10 +740,10 @@ class RFData(object):
             Sl = Fl*np.conjugate(Fs)
             Sq = Fq*np.conjugate(Fs)
             St = Ft*np.conjugate(Fs)
-            Ss = Fs*np.conjugate(Fs)
-            Snl = Fnl*np.conjugate(Fnl)
-            Snq = Fnq*np.conjugate(Fnq)
-            Snlq = Fnq*np.conjugate(Fnl)
+            Ss = np.abs(Fs*np.conjugate(Fs))
+            Snl = np.abs(Fnl*np.conjugate(Fnl))
+            Snq = np.abs(Fnq*np.conjugate(Fnq))
+            Snlq = np.abs(Fnq*np.conjugate(Fnl))
 
             # Denominator
             Sdenom = 0.25*(Snl+Snq)+0.5*Snlq
@@ -770,35 +770,35 @@ class RFData(object):
             from spectrum import dpss
 
             NW = 2.5
-            Kmax = int(NW*2-1)
+            Kmax = int(NW*2-2)
             [tapers, eigenvalues] = dpss(len(trL.data), NW, Kmax)
-            nwin = len(eigenvalues)
-            weights = np.array([_x/float(i+1)
-                                for i, _x in enumerate(eigenvalues)])
-            weights = weights.reshape(nwin, 1)
+            # nwin = len(eigenvalues)
+            # weights = np.array([_x/float(i+1)
+            #                     for i, _x in enumerate(eigenvalues)])
+            # weights = weights.reshape(nwin, 1)
 
-            # Taper trS
-            window = np.zeros(len(trS.data))
-            tap = _taper(int(twin/trS.stats.delta), int(2./trS.stats.delta))
-            window[0:int(twin/trS.stats.delta)] = tap
-            trS.data *= window
+            # # Taper trS
+            # window = np.zeros(len(trS.data))
+            # tap = _taper(int(twin/trS.stats.delta), int(2./trS.stats.delta))
+            # window[0:int(twin/trS.stats.delta)] = tap
+            # trS.data *= window
 
             # Get multitaper spectrum of data
             Fl = np.fft.fft(np.multiply(tapers.transpose(), trL.data))
             Fq = np.fft.fft(np.multiply(tapers.transpose(), trQ.data))
             Ft = np.fft.fft(np.multiply(tapers.transpose(), trT.data))
-            Fs = np.fft.fft(np.multiply(tapers.transpose(), trS.data))
+            # Fs = np.fft.fft(np.multiply(tapers.transpose(), trS.data))
             Fnl = np.fft.fft(np.multiply(tapers.transpose(), trNl.data))
-            Fnq = np.fft.fft(np.multiply(tapers.transpose(), trNq.data))
+            # Fnq = np.fft.fft(np.multiply(tapers.transpose(), trNq.data))
 
             # Auto and cross spectra
-            Sl = np.sum(Fl*np.conjugate(Fl), axis=0)
+            Sl = np.sum(np.abs(Fl*np.conjugate(Fl)), axis=0)
             Sq = np.sum(Fq*np.conjugate(Fl), axis=0)
             St = np.sum(Ft*np.conjugate(Fl), axis=0)
-            Ss = np.sum(Fs*np.conjugate(Fs), axis=0)
-            Snl = np.sum(Fnl*np.conjugate(Fnl), axis=0)
-            Snq = np.sum(Fnq*np.conjugate(Fnq), axis=0)
-            Snlq = np.sum(Fnq*np.conjugate(Fnl), axis=0)
+            # Ss = np.sum(np.abs(Fs*np.conjugate(Fs)), axis=0)
+            Snl = np.sum(np.abs(Fnl*np.conjugate(Fnl)), axis=0)
+            # Snq = np.abs(np.sum(Fnq*np.conjugate(Fnq)), axis=0)
+            # Snlq = np.sum(Fnq*np.conjugate(Fnl), axis=0)
 
             # Denominator
             # Sdenom = 0.25*(Snl+Snq)+0.5*abs(Snlq)
@@ -810,9 +810,9 @@ class RFData(object):
             rfT = trT.copy()
 
             # Spectral division and inverse transform
-            rfL.data = np.real(np.fft.ifft(Sl/(Ss+Sdenom)))
-            rfQ.data = np.real(np.fft.ifft(Sq/(Ss+Sdenom))/np.amax(rfL.data))
-            rfT.data = np.real(np.fft.ifft(St/(Ss+Sdenom))/np.amax(rfL.data))
+            rfL.data = np.real(np.fft.ifft(Sl/(Sl+Sdenom)))
+            rfQ.data = np.real(np.fft.ifft(Sq/(Sl+Sdenom))/np.amax(rfL.data))
+            rfT.data = np.real(np.fft.ifft(St/(Sl+Sdenom))/np.amax(rfL.data))
 
             # Update stats of streams
             rfL.stats.channel = 'RF' + self.meta.align[0]
