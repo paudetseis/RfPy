@@ -135,9 +135,9 @@ def main():
             else:
                 continue
 
-        if len(rfRstream)==0:
+        if len(rfRstream) == 0:
             continue
-            
+
         # Remove outliers wrt variance
         # Calculate variance over 30. sec
         nt = int(30./rfRstream[0].stats.delta)
@@ -147,13 +147,18 @@ def main():
         medvarR = np.median(varR)
         madvarR = 1.4826*np.median(np.abs(varR-medvarR))
         robustR = np.abs((varR-medvarR)/madvarR)
-        outliersR = np.arange(len(rfRstream))[robustR>2.]
+        outliersR = np.arange(len(rfRstream))[robustR > 2.]
         for i in outliersR[::-1]:
-            rfRstream.remove(rfRstream[i])      
+            rfRstream.remove(rfRstream[i])
 
         # Try binning if specified
-        if opts.nbin is not None:
-            rf_tmp = binning.bin(rfRstream, typ='slow', nbin=opts.nbin+1)
+        if opts.calc_dip:
+            rf_tmp = binning.bin_baz_slow(
+                rfRstream, nbaz=opts.nbaz+1, nslow=opts.nslow+1)
+            rfRstream = rf_tmp[0]
+        else:
+            rf_tmp = binning.bin(
+                rfRstream, typ='slow', nbin=opts.nslow+1)
             rfRstream = rf_tmp[0]
 
         # Get a copy of the radial component and filter

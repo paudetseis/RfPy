@@ -632,14 +632,21 @@ def get_hk_options():
         help="Specify a list of two floats with the minimum and maximum " +
         "frequency corner for the bandpass filter (Hz). [Default [0.05, 0.5]]")
     PreGroup.add_option(
-        "--bin",
+        "--nbaz",
         action="store",
-        dest="nbin",
+        dest="nbaz",
         type=int,
-        default=None,
+        default=36,
+        help="Specify integer number of back-azimuth bins to consider. " +
+        "[Default 36]")
+    PreGroup.add_option(
+        "--nslow",
+        action="store",
+        dest="nslow",
+        type=int,
+        default=40,
         help="Specify integer number of slowness bins to consider. " +
-        "Use realistic bin number around 20 to start. " +
-        "[Default does not bin data]")
+        "[Default 40]")
     PreGroup.add_option(
         "--snr",
         action="store",
@@ -677,14 +684,14 @@ def get_hk_options():
         dest="hbound",
         default=None,
         help="Specify a list of two floats with minimum and maximum" +
-        "bounds on Moho depth (H; km). [Default [20., 50.]]")
+        "bounds on Moho depth (H, in km). [Default [20., 50.]]")
     HKGroup.add_option(
         "--dh",
         action="store",
         type=float,
         dest="dh",
         default=0.5,
-        help="Specify interval in H for search (km). [Default 0.5]")
+        help="Specify search interval for H (km). [Default 0.5]")
     HKGroup.add_option(
         "--kbound",
         action="store",
@@ -692,14 +699,14 @@ def get_hk_options():
         dest="kbound",
         default=None,
         help="Specify a list of two floats with minimum and maximum" +
-        "bounds on Moho depth (H; km). [Default [1.56, 2.1]]")
+        "bounds on Vp/Vs (k). [Default [1.56, 2.1]]")
     HKGroup.add_option(
         "--dk",
         action="store",
         type=float,
         dest="dk",
         default=0.02,
-        help="Specify interval in k for search. [Default 0.02]")
+        help="Specify search interval for k. [Default 0.02]")
     HKGroup.add_option(
         "--weights",
         action="store",
@@ -828,6 +835,7 @@ def get_hk_options():
 
     if opts.strike is None and opts.dip is None:
         opts.calc_dip = False
+        opts.nbaz = None
     elif opts.strike is None or opts.dip is None:
         parser.error("Specify both strike and dip for this type " +
                      "of analysis")
