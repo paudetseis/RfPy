@@ -113,7 +113,7 @@ class Meta(object):
                 source_depth_in_km=self.dep,
                 phase_list=[phase])
             if len(arrivals) > 1:
-                print("arrival has many entries:" + len(arrivals))
+                print("arrival has many entries: ",len(arrivals))
             elif len(arrivals) == 0:
                 print("no arrival found")
                 self.accept = False
@@ -679,18 +679,21 @@ class RFData(object):
         trNl = self.data.select(component=cL)[0].copy()  # Noise on L
         trNq = self.data.select(component=cQ)[0].copy()  # Noise on Q
 
-        # trim traces 115 sec in each direction
+        # Get dts from trace length
+        dts = len(trL.data)*trL.stats.delta/2.
+
+        # Trim traces in each direction
         trL.trim(self.meta.time+self.meta.ttime-5.,
-                 self.meta.time+self.meta.ttime+110.)
+                 self.meta.time+self.meta.ttime+dts-10.)
         trQ.trim(self.meta.time+self.meta.ttime-5.,
-                 self.meta.time+self.meta.ttime+110.)
+                 self.meta.time+self.meta.ttime+dts-10.)
         trT.trim(self.meta.time+self.meta.ttime-5.,
-                 self.meta.time+self.meta.ttime+110.)
+                 self.meta.time+self.meta.ttime+dts-10.)
         trS.trim(self.meta.time+self.meta.ttime-5.,
-                 self.meta.time+self.meta.ttime+110.)
-        trNl.trim(self.meta.time+self.meta.ttime-120.,
+                 self.meta.time+self.meta.ttime+dts-10.)
+        trNl.trim(self.meta.time+self.meta.ttime-dts,
                   self.meta.time+self.meta.ttime-5.)
-        trNq.trim(self.meta.time+self.meta.ttime-120.,
+        trNq.trim(self.meta.time+self.meta.ttime-dts,
                   self.meta.time+self.meta.ttime-5.)
 
         # Wiener deconvolution
@@ -778,10 +781,17 @@ class RFData(object):
                                 for i, _x in enumerate(eigenvalues)])
             weights = weights.reshape(nwin, 1)
 
+            # Taper trS
+            window = np.zeros(len(trS.data))
+            tap = _taper(int(twin/trS.stats.delta), int(2./trS.stats.delta))
+            window[0:int(twin/trS.stats.delta)] = tap
+            trS.data *= window
+
             # Get multitaper spectrum of data
             Fl = np.fft.fft(np.multiply(tapers.transpose(), trL.data))
             Fq = np.fft.fft(np.multiply(tapers.transpose(), trQ.data))
             Ft = np.fft.fft(np.multiply(tapers.transpose(), trT.data))
+            Fs = np.fft.fft(np.multiply(tapers.transpose(), trS.data))
             Fnl = np.fft.fft(np.multiply(tapers.transpose(), trNl.data))
             Fnq = np.fft.fft(np.multiply(tapers.transpose(), trNq.data))
 
@@ -789,6 +799,7 @@ class RFData(object):
             Sl = np.sum(Fl*np.conjugate(Fl), axis=0)
             Sq = np.sum(Fq*np.conjugate(Fl), axis=0)
             St = np.sum(Ft*np.conjugate(Fl), axis=0)
+            Ss = np.sum(Fs*np.conjugate(Fs), axis=0)
             Snl = np.sum(Fnl*np.conjugate(Fnl), axis=0)
             Snq = np.sum(Fnq*np.conjugate(Fnq), axis=0)
             Snlq = np.sum(Fnq*np.conjugate(Fnl), axis=0)
@@ -803,9 +814,9 @@ class RFData(object):
             rfT = trT.copy()
 
             # Spectral division and inverse transform
-            rfL.data = np.real(np.fft.ifft(Sl/(Sl+Sdenom)))
-            rfQ.data = np.real(np.fft.ifft(Sq/(Sl+Sdenom))/np.amax(rfL.data))
-            rfT.data = np.real(np.fft.ifft(St/(Sl+Sdenom))/np.amax(rfL.data))
+            rfL.data = np.real(np.fft.ifft(Sl/(Ss+Sdenom)))
+            rfQ.data = np.real(np.fft.ifft(Sq/(Ss+Sdenom))/np.amax(rfL.data))
+            rfT.data = np.real(np.fft.ifft(St/(Ss+Sdenom))/np.amax(rfL.data))
 
             # Update stats of streams
             rfL.stats.channel = 'RF' + self.meta.align[0]
