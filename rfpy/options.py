@@ -149,7 +149,7 @@ def get_calc_options():
         parser,
         title="Event Settings",
         description="Settings associated with refining " +
-        "the events to include in matching station pairs")
+        "the events to include in matching event-station pairs")
     EventGroup.add_option(
         "--start",
         action="store",
@@ -193,22 +193,22 @@ def get_calc_options():
         default=9.0,
         help="Specify the maximum magnitude of event for which to search. " +
         "[Default None, i.e. no limit]")
-    EventGroup.add_option(
-        "--dts",
-        action="store",
-        type=float,
-        dest="dts",
-        default=150.,
-        help="Specify the window length in sec (symmetric about arrival " +
-        "time). [Default 150.]")
 
     # Geometry Settings
-    GeomGroup = OptionGroup(
+    PhaseGroup = OptionGroup(
         parser,
         title="Geometry Settings",
         description="Settings associatd with the "
-        "event-station geometries")
-    GeomGroup.add_option(
+        "event-station geometries for the specified phase")
+    PhaseGroup.add_option(
+        "--phase",
+        action="store",
+        type=str,
+        dest="phase",
+        default='P',
+        help="Specify the phase name to use. Be careful with the distance. "+
+        "setting. Options are 'P' or 'PP'. [Default 'P']")
+    PhaseGroup.add_option(
         "--mindist",
         action="store",
         type=float,
@@ -216,7 +216,7 @@ def get_calc_options():
         default=30.,
         help="Specify the minimum great circle distance (degrees) between " +
         "the station and event. [Default 30.]")
-    GeomGroup.add_option(
+    PhaseGroup.add_option(
         "--maxdist",
         action="store",
         type=float,
@@ -237,6 +237,14 @@ def get_calc_options():
         dest="new_sampling_rate",
         default=5.,
         help="Specify new sampling rate in Hz. [Default 5.]")
+    ConstGroup.add_option(
+        "--dts",
+        action="store",
+        type=float,
+        dest="dts",
+        default=150.,
+        help="Specify the window length in sec (symmetric about arrival " +
+        "time). [Default 150.]")
     ConstGroup.add_option(
         "--align",
         action="store",
@@ -292,7 +300,7 @@ def get_calc_options():
         dest="twin",
         default=60.,
         help="Specify the source time duration for deconvolution " +
-        "(sec). [Default 30.]")
+        "(sec). [Default 60.]")
     ConstGroup.add_option(
         "--method",
         action="store",
@@ -305,7 +313,7 @@ def get_calc_options():
     parser.add_option_group(ServerGroup)
     parser.add_option_group(DataGroup)
     parser.add_option_group(EventGroup)
-    parser.add_option_group(GeomGroup)
+    parser.add_option_group(PhaseGroup)
     parser.add_option_group(ConstGroup)
 
     (opts, args) = parser.parse_args()
@@ -367,6 +375,22 @@ def get_calc_options():
     else:
         opts.ndval = nan
 
+    # Check distances for selected phase
+    if opts.phase not in ['P', 'PP']:
+        parser.error(
+            "Error: choose between 'P' and 'PP'.")
+    if opts.phase == 'P':
+        if opts.mindist < 30. or opts.maxdist > 100.:
+            parser.error(
+                "Distances should be between 30 and 100 deg. for "+
+                "teleseismic 'P' waves.")
+    elif opts.phase == 'PP':
+        if opts.mindist < 100. or opts.maxdist > 180.:
+            parser.error(
+                "Distances should be between 100 and 180 deg. for "+
+                "teleseismic 'PP' waves.")
+
+    # Check alignment options
     if opts.align is None:
         opts.align = 'ZRT'
     elif opts.align not in ['ZRT', 'LQT', 'PVH']:
@@ -485,6 +509,14 @@ def get_recalc_options():
         default=1.0,
         help="Specify the maximum frequency corner for SNR " +
         "filter (Hz). [Default 1.0]")
+    ConstGroup.add_option(
+        "--twin",
+        action="store",
+        type=float,
+        dest="twin",
+        default=60.,
+        help="Specify the source time duration for deconvolution " +
+        "(sec). [Default 30.]")
 
     parser.add_option_group(ConstGroup)
 

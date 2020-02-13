@@ -35,7 +35,6 @@ from rfpy import RFData
 
 # Main function
 
-
 def main():
 
     # Run Input Parser
@@ -188,9 +187,10 @@ def main():
             # Initialize RF object with station info
             rfdata = RFData(sta)
 
-            # Add event to Split object
+            # Add event to rfdata object
             accept = rfdata.add_event(
-                ev, gacmin=opts.mindist, gacmax=opts.maxdist, returned=True)
+                ev, gacmin=opts.mindist, gacmax=opts.maxdist, 
+                phase=opts.phase, returned=True)
 
             # Define time stamp
             yr = str(rfdata.meta.time.year).zfill(4)
@@ -211,6 +211,7 @@ def main():
                 print("* #{0:d} ({1:d}/{2:d}):  {3:13s}".format(
                     nevK, inum, nevtT, rfdata.meta.time.strftime(
                         "%Y%m%d_%H%M%S")))
+                print("*   Phase: {}".format(opts.phase))
                 print("*   Origin Time: " +
                       rfdata.meta.time.strftime("%Y-%m-%d %H:%M:%S"))
                 print(
@@ -271,7 +272,7 @@ def main():
                     align=opts.align, method=opts.method)
 
                 # Get cross-correlation QC
-                rfdata.get_QC()
+                rfdata.calc_cc()
                 print("* CC: {}".format(rfdata.meta.cc))
 
                 # Convert to Stream

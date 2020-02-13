@@ -72,7 +72,7 @@ class Meta(object):
 
     """
 
-    def __init__(self, sta, event, gacmin=30., gacmax=90.):
+    def __init__(self, sta, event, gacmin=30., gacmax=90., phase='P'):
 
         from obspy.geodetics.base import gps2dist_azimuth as epi
         from obspy.geodetics import kilometer2degrees as k2d
@@ -111,10 +111,10 @@ class Meta(object):
             arrivals = tpmodel.get_travel_times(
                 distance_in_degree=self.gac,
                 source_depth_in_km=self.dep,
-                phase_list=["P"])
+                phase_list=[phase])
             if len(arrivals) > 1:
-                print("arrival has many entries:" + len(arrivals))
-            elif len(arrivals)==0:
+                print("arrival has many entries: ",len(arrivals))
+            elif len(arrivals) == 0:
                 print("no arrival found")
                 self.accept = False
                 return
@@ -126,12 +126,14 @@ class Meta(object):
             self.ph = arrival.name
             self.slow = arrival.ray_param_sec_degree/111.
             self.inc = arrival.incident_angle
+            self.phase = phase
             self.accept = True
         else:
             self.ttime = None
             self.ph = None
             self.slow = None
             self.inc = None
+            self.phase = None
             self.accept = False
 
         # Defaults for non - station-event geometry attributes
@@ -189,7 +191,8 @@ class RFData(object):
         self.meta = None
         self.data = None
 
-    def add_event(self, event, gacmin=30., gacmax=90., returned=False):
+    def add_event(self, event, gacmin=30., gacmax=90., phase='P',
+                  returned=False):
         """
         Adds event metadata to RFData object, including travel time info 
         of P wave. 
@@ -229,7 +232,8 @@ class RFData(object):
 
         # Store as object attributes
         self.meta = Meta(sta=self.sta, event=event,
-                         gacmin=gacmin, gacmax=gacmax)
+                         gacmin=gacmin, gacmax=gacmax,
+                         phase=phase)
 
         if returned:
             return self.meta.accept
@@ -675,18 +679,21 @@ class RFData(object):
         trNl = self.data.select(component=cL)[0].copy()  # Noise on L
         trNq = self.data.select(component=cQ)[0].copy()  # Noise on Q
 
-        # trim traces 115 sec in each direction
+        # Get dts from trace length
+        dts = len(trL.data)*trL.stats.delta/2.
+
+        # Trim traces in each direction
         trL.trim(self.meta.time+self.meta.ttime-5.,
-                 self.meta.time+self.meta.ttime+110.)
+                 self.meta.time+self.meta.ttime+dts-10.)
         trQ.trim(self.meta.time+self.meta.ttime-5.,
-                 self.meta.time+self.meta.ttime+110.)
+                 self.meta.time+self.meta.ttime+dts-10.)
         trT.trim(self.meta.time+self.meta.ttime-5.,
-                 self.meta.time+self.meta.ttime+110.)
+                 self.meta.time+self.meta.ttime+dts-10.)
         trS.trim(self.meta.time+self.meta.ttime-5.,
-                 self.meta.time+self.meta.ttime+110.)
-        trNl.trim(self.meta.time+self.meta.ttime-120.,
+                 self.meta.time+self.meta.ttime+dts-10.)
+        trNl.trim(self.meta.time+self.meta.ttime-dts,
                   self.meta.time+self.meta.ttime-5.)
-        trNq.trim(self.meta.time+self.meta.ttime-120.,
+        trNq.trim(self.meta.time+self.meta.ttime-dts,
                   self.meta.time+self.meta.ttime-5.)
 
         # Wiener deconvolution
@@ -733,10 +740,10 @@ class RFData(object):
             Sl = Fl*np.conjugate(Fs)
             Sq = Fq*np.conjugate(Fs)
             St = Ft*np.conjugate(Fs)
-            Ss = Fs*np.conjugate(Fs)
-            Snl = Fnl*np.conjugate(Fnl)
-            Snq = Fnq*np.conjugate(Fnq)
-            Snlq = Fnq*np.conjugate(Fnl)
+            Ss = np.abs(Fs*np.conjugate(Fs))
+            Snl = np.abs(Fnl*np.conjugate(Fnl))
+            Snq = np.abs(Fnq*np.conjugate(Fnq))
+            Snlq = np.abs(Fnq*np.conjugate(Fnl))
 
             # Denominator
             Sdenom = 0.25*(Snl+Snq)+0.5*Snlq
@@ -751,10 +758,6 @@ class RFData(object):
             rfL.data = np.real(np.fft.ifft(Sl/(Ss+Sdenom)))
             rfQ.data = np.real(np.fft.ifft(Sq/(Ss+Sdenom))/np.amax(rfL.data))
             rfT.data = np.real(np.fft.ifft(St/(Ss+Sdenom))/np.amax(rfL.data))
-            # # Spectral division and inverse transform
-            # rfL.data = np.real(np.fft.ifft(Sl/(Sl+Sdenom)))
-            # rfQ.data = np.real(np.fft.ifft(Sq/(Sl+Sdenom))/np.amax(rfL.data))
-            # rfT.data = np.real(np.fft.ifft(St/(Sl+Sdenom))/np.amax(rfL.data))
 
             # Update stats of streams
             rfL.stats.channel = 'RF' + self.meta.align[0]
@@ -767,26 +770,35 @@ class RFData(object):
             from spectrum import dpss
 
             NW = 2.5
-            Kmax = int(NW*2-1)
+            Kmax = int(NW*2-2)
             [tapers, eigenvalues] = dpss(len(trL.data), NW, Kmax)
-            nwin = len(eigenvalues)
-            weights = np.array([_x/float(i+1) for i,_x in enumerate(eigenvalues)])
-            weights = weights.reshape(nwin,1)
+            # nwin = len(eigenvalues)
+            # weights = np.array([_x/float(i+1)
+            #                     for i, _x in enumerate(eigenvalues)])
+            # weights = weights.reshape(nwin, 1)
+
+            # # Taper trS
+            # window = np.zeros(len(trS.data))
+            # tap = _taper(int(twin/trS.stats.delta), int(2./trS.stats.delta))
+            # window[0:int(twin/trS.stats.delta)] = tap
+            # trS.data *= window
 
             # Get multitaper spectrum of data
             Fl = np.fft.fft(np.multiply(tapers.transpose(), trL.data))
             Fq = np.fft.fft(np.multiply(tapers.transpose(), trQ.data))
             Ft = np.fft.fft(np.multiply(tapers.transpose(), trT.data))
+            # Fs = np.fft.fft(np.multiply(tapers.transpose(), trS.data))
             Fnl = np.fft.fft(np.multiply(tapers.transpose(), trNl.data))
-            Fnq = np.fft.fft(np.multiply(tapers.transpose(), trNq.data))
+            # Fnq = np.fft.fft(np.multiply(tapers.transpose(), trNq.data))
 
             # Auto and cross spectra
-            Sl = np.sum(Fl*np.conjugate(Fl), axis=0)
+            Sl = np.sum(np.abs(Fl*np.conjugate(Fl)), axis=0)
             Sq = np.sum(Fq*np.conjugate(Fl), axis=0)
             St = np.sum(Ft*np.conjugate(Fl), axis=0)
-            Snl = np.sum(Fnl*np.conjugate(Fnl), axis=0)
-            Snq = np.sum(Fnq*np.conjugate(Fnq), axis=0)
-            Snlq = np.sum(Fnq*np.conjugate(Fnl), axis=0)
+            # Ss = np.sum(np.abs(Fs*np.conjugate(Fs)), axis=0)
+            Snl = np.sum(np.abs(Fnl*np.conjugate(Fnl)), axis=0)
+            # Snq = np.abs(np.sum(Fnq*np.conjugate(Fnq)), axis=0)
+            # Snlq = np.sum(Fnq*np.conjugate(Fnl), axis=0)
 
             # Denominator
             # Sdenom = 0.25*(Snl+Snq)+0.5*abs(Snlq)
@@ -813,8 +825,7 @@ class RFData(object):
             print("Method not implemented")
             pass
 
-
-    def get_QC(self):
+    def calc_cc(self):
 
         if not self.meta.accept:
             return
@@ -825,7 +836,7 @@ class RFData(object):
         obs_L = self.data[0].copy()
         obs_Q = self.data[1].copy()
         obs_rfQ = self.rf[1].copy()
-        
+
         # Filter using SNR bandpass
         obs_L.filter('bandpass', freqmin=0.05, freqmax=1.)
         obs_Q.filter('bandpass', freqmin=0.05, freqmax=1.)
@@ -847,7 +858,6 @@ class RFData(object):
 
         # test = Stream(traces=[obs_L, obs_Q, pred_Q])
         # test.plot()
-
 
     def to_stream(self):
         """
