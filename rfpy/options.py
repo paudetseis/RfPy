@@ -1535,6 +1535,25 @@ def get_plot_options():
         help="Specify integer number of slowness bins to consider " +
         "(typically 20 or 40). If not None, the plot will show receiver " +
         "functions sorted by slowness values. [Default None]")
+## JMG ##
+    PreGroup.add_option(
+        "--slowbound",
+        action="store",
+        dest="slowbound",
+        type=str,
+        default=None,
+        help="Specify a list of two floats with minimum and maximum" +
+        "bounds on slowness (s/km). [Default [0.04, 0.08]]")
+    PreGroup.add_option(
+        "--bazbound",
+        action="store",
+        dest="bazbound",
+        type=str,
+        default=None,
+        help="Specify a list of two floats with minimum and maximum" +
+        "bounds on back azimuth (degrees). [Default [0, 360]]")
+## JMG ##
+
 
     PlotGroup = OptionGroup(
         parser,
@@ -1598,6 +1617,30 @@ def get_plot_options():
     indb = args[0]
     if not exist(indb):
         parser.error("Input file " + indb + " does not exist")
+
+
+## JMG ##
+    if opts.slowbound is None:
+        opts.slowbound = [0.04, 0.08]
+    else:
+        opts.slowbound = [float(val) for val in opts.slowbound.split(',')]
+        opts.slowbound = sorted(opts.slowbound)
+        if (len(opts.slowbound)) != 2:
+            parser.error(
+                "Error: --slowbound should contain 2 " +
+                "comma-separated floats")
+    
+    if opts.bazbound is None:
+        opts.bazbound = [0.0, 360.0]
+    else:
+        opts.bazbound = [float(val) for val in opts.bazbound.split(',')]
+        opts.bazbound = sorted(opts.bazbound)
+        if (len(opts.bazbound)) != 2:
+            parser.error(
+                "Error: --bazbound should contain 2 " +
+                "comma-separated floats")
+## JMG ##
+
 
     # create station key list
     if len(opts.stkeys) > 0:

@@ -100,11 +100,20 @@ def main():
                 rfdata = pickle.load(file)
                 if rfdata[0].stats.snr > opts.snr and \
                         rfdata[0].stats.cc > opts.cc:
+
+                    ## JMG ##
+                    if ( (rfdata[0].stats.slow > opts.slowbound[0]) and \
+                         (rfdata[0].stats.slow < opts.slowbound[1]) and \
+                         (rfdata[0].stats.baz > opts.bazbound[0]) and \
+                         (rfdata[0].stats.baz < opts.bazbound[1]) ):
+                    ## JMG ##
+
                     # if np.std(rfdata[1].data) < 0.2 and \
                     #         np.std(rfdata[2].data) < 0.2:
 
-                    rfRstream.append(rfdata[1])
-                    rfTstream.append(rfdata[2])
+                        rfRstream.append(rfdata[1])
+                        rfTstream.append(rfdata[2])
+
                 file.close()
 
         if len(rfRstream) == 0:
