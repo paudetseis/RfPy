@@ -79,6 +79,8 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=True):
         except:
             raise(Exception("No 'dist' attribute in stats"))
 
+
+
     # Define bins
     bins = np.linspace(bmin, bmax, nbin)
 
@@ -104,6 +106,9 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=True):
 
                     # If index of bins is equal to ind
                     if i == ind[j]:
+
+                        if ((i == 16) and (j == 201)):
+                            tr.plot()
 
                         nb += 1
                         array += tr.data
