@@ -758,10 +758,6 @@ class RFData(object):
             rfL.data = np.real(np.fft.ifft(Sl/(Ss+Sdenom)))
             rfQ.data = np.real(np.fft.ifft(Sq/(Ss+Sdenom))/np.amax(rfL.data))
             rfT.data = np.real(np.fft.ifft(St/(Ss+Sdenom))/np.amax(rfL.data))
-            # # Spectral division and inverse transform
-            # rfL.data = np.real(np.fft.ifft(Sl/(Sl+Sdenom)))
-            # rfQ.data = np.real(np.fft.ifft(Sq/(Sl+Sdenom))/np.amax(rfL.data))
-            # rfT.data = np.real(np.fft.ifft(St/(Sl+Sdenom))/np.amax(rfL.data))
 
             # Update stats of streams
             rfL.stats.channel = 'RF' + self.meta.align[0]
@@ -829,7 +825,7 @@ class RFData(object):
             print("Method not implemented")
             pass
 
-    def get_QC(self):
+    def calc_cc(self):
 
         if not self.meta.accept:
             return

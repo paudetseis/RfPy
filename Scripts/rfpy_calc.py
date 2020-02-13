@@ -272,7 +272,7 @@ def main():
                     align=opts.align, method=opts.method)
 
                 # Get cross-correlation QC
-                rfdata.get_QC()
+                rfdata.calc_cc()
                 print("* CC: {}".format(rfdata.meta.cc))
 
                 # Convert to Stream
