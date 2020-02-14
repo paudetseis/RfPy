@@ -1604,8 +1604,15 @@ def get_plot_options():
         default=None,
         help="Specify a list of two floats with minimum and maximum" +
         "bounds on back azimuth (degrees). [Default [0, 360]]")
+    PreGroup.add_option(
+        "--phase",
+        action="store",
+        type=str,
+        dest="phase",
+        default=None,
+        help="Specify the phase name to plot.  "+
+        "Options are 'P' or 'PP'. [Default Both]")
 ## JMG ##
-
 
     PlotGroup = OptionGroup(
         parser,

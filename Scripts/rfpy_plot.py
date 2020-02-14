@@ -106,13 +106,22 @@ def main():
                          (rfdata[0].stats.slow < opts.slowbound[1]) and \
                          (rfdata[0].stats.baz > opts.bazbound[0]) and \
                          (rfdata[0].stats.baz < opts.bazbound[1]) ):
-                    ## JMG ##
+
 
                     # if np.std(rfdata[1].data) < 0.2 and \
                     #         np.std(rfdata[2].data) < 0.2:
 
-                        rfRstream.append(rfdata[1])
-                        rfTstream.append(rfdata[2])
+
+                        if opts.phase:
+                            if (rfdata[0].stats.phase == opts.phase):
+                                rfRstream.append(rfdata[1])
+                                rfTstream.append(rfdata[2])
+                        else:
+                            rfRstream.append(rfdata[1])
+                            rfTstream.append(rfdata[2])
+
+                    ## JMG ##
+
 
                 file.close()
 

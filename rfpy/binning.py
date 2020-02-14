@@ -108,7 +108,6 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=True):
                     if i == ind[j]:
 
                         nb += 1
-                        print(i,j,len(tr.data),tr.stats.phase)
 
                         #if ((i == 16) and (j == 201)):
 
