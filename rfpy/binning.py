@@ -107,14 +107,19 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=True):
                     # If index of bins is equal to ind
                     if i == ind[j]:
 
-                        if ((i == 16) and (j == 201)):
-                            tr.plot()
-
                         nb += 1
+                        print(i,j,len(tr.data),tr.stats.phase)
+
+                        #if ((i == 16) and (j == 201)):
+
+                            
                         array += tr.data
                         hilb = hilbert(tr.data)
                         phase = np.arctan2(hilb.imag, hilb.real)
                         weight += np.exp(1j*phase)
+                        
+
+
                         break
 
                 if nb > 0:
