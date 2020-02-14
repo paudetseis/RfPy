@@ -172,8 +172,6 @@ def main():
             rf_tmp = binning.bin(rfRstream, rfTstream,
                                  typ='baz', nbin=opts.nbaz+1)
 
-            print(len(rf_tmp))
-
             plotting.wiggle_bins(rf_tmp[0], rf_tmp[1], tr1=tr1, tr2=tr2,
                                  btyp='baz', scale=opts.scale,
                                  tmax=opts.tmax, save=opts.saveplot,
