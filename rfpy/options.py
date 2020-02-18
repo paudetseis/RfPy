@@ -658,6 +658,15 @@ def get_hk_options():
 
 ## JMG ##
     PreGroup.add_option(
+        "--snrh",
+        action="store",
+        type=float,
+        dest="snrh",
+        default=5.,
+        help="Specify the horizontal component SNR threshold for extracting receiver functions. " +
+        "[Default 5.]")
+
+    PreGroup.add_option(
         "--cc",
         action="store",
         type=float,
@@ -1545,6 +1554,18 @@ def get_plot_options():
         default=5.,
         help="Specify the SNR threshold for extracting receiver functions. " +
         "[Default 5.]")
+
+## JMG
+    PreGroup.add_option(
+        "--snrh",
+        action="store",
+        type=float,
+        dest="snrh",
+        default=5.,
+        help="Specify the horizontal component SNR threshold for extracting receiver functions. " +
+        "[Default 5.]")
+## JMG
+
     PreGroup.add_option(
         "--cc",
         action="store",

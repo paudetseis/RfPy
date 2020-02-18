@@ -159,7 +159,7 @@ def main():
                 if os.path.isfile(filename):
                     file = open(filename, "rb")
                     rfdata = pickle.load(file)
-                    if rfdata[0].stats.snr > opts.snr and \
+                    if rfdata[0].stats.snrh > opts.snrh and rfdata[0].stats.snr and \
                             rfdata[0].stats.cc > opts.cc:
 
                         rfRstream.append(rfdata[1])
