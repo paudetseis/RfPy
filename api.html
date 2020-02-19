@@ -372,7 +372,7 @@ due to different conventions.</p>
 
 <dl class="method">
 <dt id="rfpy.rfdata.RFData.deconvolve">
-<code class="sig-name descname">deconvolve</code><span class="sig-paren">(</span><em class="sig-param">twin=60.0</em>, <em class="sig-param">vp=None</em>, <em class="sig-param">vs=None</em>, <em class="sig-param">align=None</em>, <em class="sig-param">method='wiener'</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.deconvolve" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">deconvolve</code><span class="sig-paren">(</span><em class="sig-param">twin=60.0</em>, <em class="sig-param">vp=None</em>, <em class="sig-param">vs=None</em>, <em class="sig-param">align=None</em>, <em class="sig-param">method='wiener'</em>, <em class="sig-param">gfilt=None</em>, <em class="sig-param">wlevel=0.01</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.deconvolve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deconvolves three-compoent data using one component as the source wavelet.
 The source component is always taken as the dominant compressional
 component, which can be either ‘Z’, ‘L’, or ‘P’.</p>
@@ -386,6 +386,8 @@ component, which can be either ‘Z’, ‘L’, or ‘P’.</p>
 (‘ZRT’, ‘LQT’, or ‘PVH’)</p></li>
 <li><p><strong>method</strong> (<em>str</em>) – Method for deconvolution. Options are ‘wiener’ or
 ‘multitaper’</p></li>
+<li><p><strong>gfilt</strong> (<em>float</em>) – Center frequency of Gaussian filter (Hz).</p></li>
+<li><p><strong>wlevel</strong> (<em>float</em>) – Water level used in <code class="docutils literal notranslate"><span class="pre">method='water'</span></code>.</p></li>
 </ul>
 </dd>
 </dl>
