@@ -706,6 +706,23 @@ def get_hk_options():
         default=0.5,
         help="Specify the CC threshold for extracting receiver functions. " +
         "[Default 0.5]")
+
+    PreGroup.add_option(
+        "--slowbound",
+        action="store",
+        dest="slowbound",
+        type=str,
+        default=None,
+        help="Specify a list of two floats with minimum and maximum" +
+        "bounds on slowness (s/km). [Default [0.04, 0.08]]")
+    PreGroup.add_option(
+        "--bazbound",
+        action="store",
+        dest="bazbound",
+        type=str,
+        default=None,
+        help="Specify a list of two floats with minimum and maximum" +
+        "bounds on back azimuth (degrees). [Default [0, 360]]")
 ## JMG ##
 
     PreGroup.add_option(
@@ -936,6 +953,29 @@ def get_hk_options():
             parser.error(
                 "Error: --kbound should contain 2 " +
                 "comma-separated floats")
+
+## JMG ##
+    if opts.slowbound is None:
+        opts.slowbound = [0.04, 0.08]
+    else:
+        opts.slowbound = [float(val) for val in opts.slowbound.split(',')]
+        opts.slowbound = sorted(opts.slowbound)
+        if (len(opts.slowbound)) != 2:
+            parser.error(
+                "Error: --slowbound should contain 2 " +
+                "comma-separated floats")
+    
+    if opts.bazbound is None:
+        opts.bazbound = [0.0, 360.0]
+    else:
+        opts.bazbound = [float(val) for val in opts.bazbound.split(',')]
+        opts.bazbound = sorted(opts.bazbound)
+        if (len(opts.bazbound)) != 2:
+            parser.error(
+                "Error: --bazbound should contain 2 " +
+                "comma-separated floats")
+## JMG ##
+
 
     if opts.weights is None:
         opts.weights = [0.5, 2.0, -1.0]

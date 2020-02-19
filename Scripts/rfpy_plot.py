@@ -162,8 +162,14 @@ def main():
                          freqmax=opts.fmax, corners=2,
                          zerophase=True)
 
-        if opts.saveplot and not os.path.isdir('RF_PLOTS'):
-            os.makedirs('RF_PLOTS')
+        ## JMG ##
+        #if opts.saveplot and not os.path.isdir('RF_PLOTS'):
+        #    os.makedirs('RF_PLOTS')
+
+        if opts.saveplot and not os.path.isdir('RF_PLOTS/'+ sta.station):
+            os.makedirs('RF_PLOTS/'+ sta.station)
+        ## JMG ##
+
 
         if opts.stacked:
             st_tmp = binning.bin_all(rfRstream, rfTstream)

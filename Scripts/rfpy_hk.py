@@ -162,7 +162,12 @@ def main():
                     if rfdata[0].stats.snrh > opts.snrh and rfdata[0].stats.snr and \
                             rfdata[0].stats.cc > opts.cc:
 
-                        rfRstream.append(rfdata[1])
+                        if ( (rfdata[0].stats.slow > opts.slowbound[0]) and \
+                             (rfdata[0].stats.slow < opts.slowbound[1]) and \
+                             (rfdata[0].stats.baz > opts.bazbound[0]) and \
+                             (rfdata[0].stats.baz < opts.bazbound[1]) ):
+
+                            rfRstream.append(rfdata[1])
 
                     file.close()
 

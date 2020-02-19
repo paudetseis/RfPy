@@ -360,7 +360,13 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
     if title:
         plt.suptitle(title)
 
+    # JMG #
     if save:
-        plt.savefig('RF_PLOTS/' + stream1[0].stats.station +
+        plt.savefig('RF_PLOTS/' + stream1[0].stats.station + '/' \
+                     + stream1[0].stats.station + \
                     '.' + title + '.' + form, format=form)
+    # JMG #
+    #if save:
+    #    plt.savefig('RF_PLOTS/' + stream1[0].stats.station +
+    #                '.' + title + '.' + form, format=form)
     plt.show()
