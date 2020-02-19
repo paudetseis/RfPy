@@ -98,13 +98,34 @@ def main():
             if os.path.isfile(filename):
                 file = open(filename, "rb")
                 rfdata = pickle.load(file)
-                if rfdata[0].stats.snr > opts.snr and \
+                #if rfdata[0].stats.snr > opts.snr and \
+                #        rfdata[0].stats.cc > opts.cc:
+
+                ## JMG ##
+                if rfdata[0].stats.snrh > opts.snrh and rfdata[0].stats.snr and \
                         rfdata[0].stats.cc > opts.cc:
+
+                    if ( (rfdata[0].stats.slow > opts.slowbound[0]) and \
+                         (rfdata[0].stats.slow < opts.slowbound[1]) and \
+                         (rfdata[0].stats.baz > opts.bazbound[0]) and \
+                         (rfdata[0].stats.baz < opts.bazbound[1]) ):
+
+
                     # if np.std(rfdata[1].data) < 0.2 and \
                     #         np.std(rfdata[2].data) < 0.2:
 
-                    rfRstream.append(rfdata[1])
-                    rfTstream.append(rfdata[2])
+
+                        if opts.phase:
+                            if (rfdata[0].stats.phase == opts.phase):
+                                rfRstream.append(rfdata[1])
+                                rfTstream.append(rfdata[2])
+                        else:
+                            rfRstream.append(rfdata[1])
+                            rfTstream.append(rfdata[2])
+
+                    ## JMG ##
+
+
                 file.close()
 
         if len(rfRstream) == 0:
@@ -152,9 +173,17 @@ def main():
             tr1 = None
             tr2 = None
 
+        ## JMG ##
+        print('')
+        print("Number of radial RF data: " + str(len(rfRstream)))
+        print("Number of transverse RF data: " + str(len(rfTstream)))
+        print('')
+        ## JMG ##
+
         if opts.nbaz:
             rf_tmp = binning.bin(rfRstream, rfTstream,
                                  typ='baz', nbin=opts.nbaz+1)
+
             plotting.wiggle_bins(rf_tmp[0], rf_tmp[1], tr1=tr1, tr2=tr2,
                                  btyp='baz', scale=opts.scale,
                                  tmax=opts.tmax, save=opts.saveplot,

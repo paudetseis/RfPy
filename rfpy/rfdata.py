@@ -881,6 +881,7 @@ class RFData(object):
             trace.stats.vp = self.meta.vp
             trace.stats.vs = self.meta.vs
             trace.stats.is_rf = True
+            trace.stats.phase = self.meta.phase
             return trace
 
         if not hasattr(self, 'rf'):

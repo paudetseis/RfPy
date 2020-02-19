@@ -79,6 +79,8 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=True):
         except:
             raise(Exception("No 'dist' attribute in stats"))
 
+
+
     # Define bins
     bins = np.linspace(bmin, bmax, nbin)
 
@@ -106,10 +108,17 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=True):
                     if i == ind[j]:
 
                         nb += 1
+
+                        #if ((i == 16) and (j == 201)):
+
+                            
                         array += tr.data
                         hilb = hilbert(tr.data)
                         phase = np.arctan2(hilb.imag, hilb.real)
                         weight += np.exp(1j*phase)
+                        
+
+
                         break
 
                 if nb > 0:

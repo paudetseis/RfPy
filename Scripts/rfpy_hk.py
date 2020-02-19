@@ -114,6 +114,37 @@ def main():
 
         rfRstream = Stream()
 
+
+
+
+
+        ## JMG ##
+        
+        #for folder in os.listdir(datapath):
+
+        #    date = folder.split('_')[0]
+        #    year = date[0:4]
+        #    month = date[4:6]
+        #    day = date[6:8]
+        #    dateUTC = UTCDateTime(year+'-'+month+'-'+day)
+
+        #    if dateUTC > tstart and dateUTC < tend:
+
+        #        file = open(datapath+"/"+folder+"/RF_Data.pkl", "rb")
+        #        rfdata = pickle.load(file)
+        #        if rfdata[0].stats.snr > opts.snr:
+        #            if np.std(rfdata[1].data) < 0.2 and \
+        #                    np.std(rfdata[2].data) < 0.2:
+        #                rfRstream.append(rfdata[1])
+        #        file.close()
+
+        #    else:
+        #        continue
+
+        #if len(rfRstream)==0:
+        #    continue
+            
+
         for folder in os.listdir(datapath):
 
             date = folder.split('_')[0]
@@ -124,19 +155,22 @@ def main():
 
             if dateUTC > tstart and dateUTC < tend:
 
-                file = open(datapath+"/"+folder+"/RF_Data.pkl", "rb")
-                rfdata = pickle.load(file)
-                if rfdata[0].stats.snr > opts.snr:
-                    if np.std(rfdata[1].data) < 0.2 and \
-                            np.std(rfdata[2].data) < 0.2:
-                        rfRstream.append(rfdata[1])
-                file.close()
+                filename = datapath+"/"+folder+"/RF_Data.pkl"
+                if os.path.isfile(filename):
+                    file = open(filename, "rb")
+                    rfdata = pickle.load(file)
+                    if rfdata[0].stats.snrh > opts.snrh and rfdata[0].stats.snr and \
+                            rfdata[0].stats.cc > opts.cc:
 
-            else:
-                continue
+                        rfRstream.append(rfdata[1])
+
+                    file.close()
 
         if len(rfRstream) == 0:
             continue
+
+        ## JMG ##
+
 
         # Remove outliers wrt variance
         # Calculate variance over 30. sec
@@ -173,6 +207,7 @@ def main():
                          freqmax=opts.freqs[1], corners=2,
                          zerophase=True)
 
+
         # Initialize the HkStack object
         try:
             hkstack = HkStack(rfRstream, rfV2=rfRstream_copy,
@@ -201,8 +236,16 @@ def main():
             hkstack.plot(opts.save_plot, opts.title, opts.form)
 
         if opts.save:
-            filename = datapath + "/" + hkstack.hstream[0].stats.station + \
+
+## JMG ##
+            #filename = datapath + "/" + hkstack.hstream[0].stats.station + \
+            #    ".hkstack.pkl"
+
+            filename = datapath + "/" + hkstack.rfV1[0].stats.station + \
                 ".hkstack.pkl"
+## JMG ##
+
+
             hkstack.save(file=filename)
 
         # Save the hkstack object to file.
