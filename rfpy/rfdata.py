@@ -113,7 +113,7 @@ class Meta(object):
                 source_depth_in_km=self.dep,
                 phase_list=[phase])
             if len(arrivals) > 1:
-                print("arrival has many entries: ",len(arrivals))
+                print("arrival has many entries: ", len(arrivals))
             elif len(arrivals) == 0:
                 print("no arrival found")
                 self.accept = False
@@ -300,7 +300,7 @@ class RFData(object):
             # Filter Traces
             self.data.filter('lowpass', freq=0.5*new_sr,
                              corners=2, zerophase=True)
-            self.data.resample(new_sr)
+            self.data.resample(new_sr, strict_length=True)
 
         except:
             print("Error: Not all channels are available")
@@ -616,7 +616,8 @@ class RFData(object):
         self.meta.snrh = 10*np.log10(srms*srms/nrms/nrms)
 
     def deconvolve(self, twin=60., vp=None, vs=None,
-                   align=None, method='wiener'):
+                   align=None, method='wiener', 
+                   gfilt=None, wlevel=0.01):
         """
         Deconvolves three-compoent data using one component as the source wavelet.
         The source component is always taken as the dominant compressional 
@@ -636,6 +637,10 @@ class RFData(object):
         method : str
             Method for deconvolution. Options are 'wiener' or 
             'multitaper'
+        gfilt : float
+            Center frequency of Gaussian filter (Hz). 
+        wlevel : float
+            Water level used in ``method='water'``.
 
         Attributes
         ----------
@@ -653,6 +658,19 @@ class RFData(object):
             tap[0:ns] = win[0:ns]
             tap[nt-ns:nt] = win[ns:2*ns]
             return tap
+
+        def _npow2(x):
+            return 1 if x == 0 else 2**(x-1).bit_length()
+
+        def _gauss_filt(dt, nft, f0):
+            df = 1./(nft*dt)
+            nft21 = int(0.5*nft + 1)
+            f = df*np.arange(nft21)
+            w = 2.*np.pi*f
+            gauss = np.zeros(nft)
+            gauss[:nft21] = np.exp(-0.25*(w/f0)**2.)/dt
+            gauss[nft21:] = np.flip(gauss[1:nft21-1])
+            return gauss
 
         if not self.meta.rotated:
             print("Warning: Data have not been rotated yet - rotating now")
@@ -672,12 +690,12 @@ class RFData(object):
         cT = self.meta.align[2]
 
         # Define source and noise
-        trL = self.data.select(component=cL)[0].copy()
-        trQ = self.data.select(component=cQ)[0].copy()
-        trT = self.data.select(component=cT)[0].copy()
-        trS = self.data.select(component=cL)[0].copy()  # Source
-        trNl = self.data.select(component=cL)[0].copy()  # Noise on L
-        trNq = self.data.select(component=cQ)[0].copy()  # Noise on Q
+        trL = self.data.select(component=cL)[0].copy().detrend('linear')
+        trQ = self.data.select(component=cQ)[0].copy().detrend('linear')
+        trT = self.data.select(component=cT)[0].copy().detrend('linear')
+        # trS = self.data.select(component=cL)[0].copy().detrend('linear')
+        trNl = self.data.select(component=cL)[0].copy().detrend('linear')
+        # trNq = self.data.select(component=cQ)[0].copy().detrend('linear')
 
         # Get dts from trace length
         dts = len(trL.data)*trL.stats.delta/2.
@@ -689,65 +707,69 @@ class RFData(object):
                  self.meta.time+self.meta.ttime+dts-10.)
         trT.trim(self.meta.time+self.meta.ttime-5.,
                  self.meta.time+self.meta.ttime+dts-10.)
-        trS.trim(self.meta.time+self.meta.ttime-5.,
-                 self.meta.time+self.meta.ttime+dts-10.)
+        # trS.trim(self.meta.time+self.meta.ttime-5.,
+        #          self.meta.time+self.meta.ttime+dts-10.)
         trNl.trim(self.meta.time+self.meta.ttime-dts,
                   self.meta.time+self.meta.ttime-5.)
-        trNq.trim(self.meta.time+self.meta.ttime-dts,
-                  self.meta.time+self.meta.ttime-5.)
+        # trNq.trim(self.meta.time+self.meta.ttime-dts,
+        #           self.meta.time+self.meta.ttime-5.)
+
+        # Get cropped length, zero padding parameters and frequencies
+        nt = len(trL.data)
+        dt = trL.stats.delta
+        npad = _npow2(nt*2)
+        freqs = np.fft.fftfreq(npad, d=dt)
 
         # Wiener deconvolution
         if method == 'wiener':
 
-            # Taper trS
-            window = np.zeros(len(trS.data))
-            tap = _taper(int(twin/trS.stats.delta), int(2./trS.stats.delta))
-            window[0:int(twin/trS.stats.delta)] = tap
-            trS.data *= window
+            # # Taper trS
+            # window = np.zeros(len(trS.data))
+            # tap = _taper(int(twin/trS.stats.delta), int(2./trS.stats.delta))
+            # window[0:int(twin/trS.stats.delta)] = tap
+            # trS.data *= window
 
-            # Taper other traces
-            window = np.zeros(len(trL.data))
-            tap = _taper(len(trL.data), int(2./trL.stats.delta))
-            window[0:len(trL.data)] = tap
+            # # Taper other traces
+            # window = np.zeros(len(trL.data))
+            # tap = _taper(len(trL.data), int(2./trL.stats.delta))
+            # window[0:len(trL.data)] = tap
 
-            # Some checks
-            lwin = len(window)
-            if not (lwin == len(trL.data) and lwin == len(trQ.data)
-                    and lwin == len(trT.data) and lwin == len(trNl.data)
-                    and lwin == len(trNq.data)):
-                print('problem with lwin')
-                print(lwin, len(trL.data), len(trQ.data), len(trT.data),
-                      len(trNl.data), lwin == len(trNq.data))
-                self.rf = Stream(traces=[Trace(), Trace(), Trace()])
-                return
-
-            # Apply taper
-            trL.data *= window
-            trQ.data *= window
-            trT.data *= window
-            trNl.data *= window
-            trNq.data *= window
+            # # Apply taper
+            # trL.data *= window
+            # trQ.data *= window
+            # trT.data *= window
+            # trNl.data *= window
+            # trNq.data *= window
 
             # Fourier transform
-            Fl = np.fft.fft(trL.data)
-            Fq = np.fft.fft(trQ.data)
-            Ft = np.fft.fft(trT.data)
-            Fs = np.fft.fft(trS.data)
-            Fnl = np.fft.fft(trNl.data)
-            Fnq = np.fft.fft(trNq.data)
+            Fl = np.fft.fft(trL.data, n=npad)
+            Fq = np.fft.fft(trQ.data, n=npad)
+            Ft = np.fft.fft(trT.data, n=npad)
+            # Fs = np.fft.fft(trS.data, n=npad)
+            Fnl = np.fft.fft(trNl.data, n=npad)
+            # Fnq = np.fft.fft(trNq.data, n=npad)
 
             # Auto and cross spectra
-            Sl = Fl*np.conjugate(Fs)
-            Sq = Fq*np.conjugate(Fs)
-            St = Ft*np.conjugate(Fs)
-            Ss = np.abs(Fs*np.conjugate(Fs))
-            Snl = np.abs(Fnl*np.conjugate(Fnl))
-            Snq = np.abs(Fnq*np.conjugate(Fnq))
-            Snlq = np.abs(Fnq*np.conjugate(Fnl))
+            Sl = np.real(Fl*np.conjugate(Fl))
+            Sq = Fq*np.conjugate(Fl)
+            St = Ft*np.conjugate(Fl)
+            # Ss = np.abs(Fs*np.conjugate(Fs))
+            Snl = np.real(Fnl*np.conjugate(Fnl))
+            # Snq = np.abs(Fnq*np.conjugate(Fnq))
+            # Snlq = np.abs(Fnq*np.conjugate(Fnl))
 
             # Denominator
-            Sdenom = 0.25*(Snl+Snq)+0.5*Snlq
-            # Sdenom = Snl
+            # Sdenom = 0.25*(Snl+Snq)+0.5*Snlq
+            Sdenom = Sl + Snl
+
+            if gfilt:
+                # Gaussian filter
+                gauss = _gauss_filt(dt, npad, gfilt)
+                gnorm = np.sum(gauss)*(freqs[1]-freqs[0])*dt
+
+            else:
+                gauss = np.ones(len(Sl))
+                gnorm = 1.
 
             # Copy traces
             rfL = trL.copy()
@@ -755,9 +777,75 @@ class RFData(object):
             rfT = trT.copy()
 
             # Spectral division and inverse transform
-            rfL.data = np.real(np.fft.ifft(Sl/(Ss+Sdenom)))
-            rfQ.data = np.real(np.fft.ifft(Sq/(Ss+Sdenom))/np.amax(rfL.data))
-            rfT.data = np.real(np.fft.ifft(St/(Ss+Sdenom))/np.amax(rfL.data))
+            rfL.data = np.real(np.fft.ifft(
+                gauss*Sl/(Sdenom)))[0:nt]/gnorm
+            rfQ.data = np.real(np.fft.ifft(
+                gauss*Sq/(Sdenom))/np.amax(rfL.data))[0:nt]/gnorm
+            rfT.data = np.real(np.fft.ifft(
+                gauss*St/(Sdenom))/np.amax(rfL.data))[0:nt]/gnorm
+
+            # Update stats of streams
+            rfL.stats.channel = 'RF' + self.meta.align[0]
+            rfQ.stats.channel = 'RF' + self.meta.align[1]
+            rfT.stats.channel = 'RF' + self.meta.align[2]
+
+            self.rf = Stream(traces=[rfL, rfQ, rfT])
+
+        # Wiener deconvolution
+        elif method == 'water':
+
+            # # Taper other traces
+            # window = np.zeros(len(trL.data))
+            # tap = _taper(len(trL.data), int(2./trL.stats.delta))
+            # window[0:len(trL.data)] = tap
+
+            trL.filter('bandpass', freqmin=0.1, freqmax=1.5)
+            trQ.filter('bandpass', freqmin=0.1, freqmax=1.5)
+            trT.filter('bandpass', freqmin=0.1, freqmax=1.5)
+
+            # # Apply taper
+            # trL.data *= window
+            # trQ.data *= window
+            # trT.data *= window
+
+            # Fourier transform
+            Fl = np.fft.fft(trL.data, n=npad)
+            Fq = np.fft.fft(trQ.data, n=npad)
+            Ft = np.fft.fft(trT.data, n=npad)
+
+            # Auto and cross spectra
+            Sl = np.real(Fl*np.conjugate(Fl))
+            Sq = Fq*np.conjugate(Fl)
+            St = Ft*np.conjugate(Fl)
+
+            # Water level
+            phi = np.amax(Sl)*wlevel
+            Sl[Sl < phi] = phi
+
+            # Denominator
+            Sdenom = Sl
+
+            if gfilt:
+                # Gaussian filter
+                gauss = _gauss_filt(dt, npad, gfilt)
+                gnorm = np.sum(gauss)*(freqs[1]-freqs[0])*dt
+
+            else:
+                gauss = np.ones(len(Sl))
+                gnorm = 1.
+
+            # Copy traces
+            rfL = trL.copy()
+            rfQ = trQ.copy()
+            rfT = trT.copy()
+
+            # Spectral division and inverse transform
+            rfL.data = np.real(np.fft.ifft(
+                gauss*Sl/(Sdenom)))[0:nt]/gnorm
+            rfQ.data = np.real(np.fft.ifft(
+                gauss*Sq/(Sdenom))/np.amax(rfL.data))[0:nt]/gnorm
+            rfT.data = np.real(np.fft.ifft(
+                gauss*St/(Sdenom))/np.amax(rfL.data))[0:nt]/gnorm
 
             # Update stats of streams
             rfL.stats.channel = 'RF' + self.meta.align[0]
@@ -771,38 +859,42 @@ class RFData(object):
 
             NW = 2.5
             Kmax = int(NW*2-2)
-            [tapers, eigenvalues] = dpss(len(trL.data), NW, Kmax)
-            # nwin = len(eigenvalues)
-            # weights = np.array([_x/float(i+1)
-            #                     for i, _x in enumerate(eigenvalues)])
-            # weights = weights.reshape(nwin, 1)
+            [tapers, eigenvalues] = dpss(nt, NW, Kmax)
 
-            # # Taper trS
-            # window = np.zeros(len(trS.data))
-            # tap = _taper(int(twin/trS.stats.delta), int(2./trS.stats.delta))
-            # window[0:int(twin/trS.stats.delta)] = tap
-            # trS.data *= window
+            print(trL)
+            print(trQ)
+            print(trT)
 
+            # # Get multitaper spectrum of data
+            # Fl = np.fft.fft(np.multiply(tapers.transpose(), trL.data), n=npad)
+            # Fq = np.fft.fft(np.multiply(tapers.transpose(), trQ.data), n=npad)
+            # Ft = np.fft.fft(np.multiply(tapers.transpose(), trT.data), n=npad)
+            # Fnl = np.fft.fft(np.multiply(
+            #     tapers.transpose(), trNl.data), n=npad)
             # Get multitaper spectrum of data
             Fl = np.fft.fft(np.multiply(tapers.transpose(), trL.data))
             Fq = np.fft.fft(np.multiply(tapers.transpose(), trQ.data))
             Ft = np.fft.fft(np.multiply(tapers.transpose(), trT.data))
-            # Fs = np.fft.fft(np.multiply(tapers.transpose(), trS.data))
-            Fnl = np.fft.fft(np.multiply(tapers.transpose(), trNl.data))
-            # Fnq = np.fft.fft(np.multiply(tapers.transpose(), trNq.data))
+            Fnl = np.fft.fft(np.multiply(
+                tapers.transpose(), trNl.data))
 
             # Auto and cross spectra
             Sl = np.sum(np.abs(Fl*np.conjugate(Fl)), axis=0)
             Sq = np.sum(Fq*np.conjugate(Fl), axis=0)
             St = np.sum(Ft*np.conjugate(Fl), axis=0)
-            # Ss = np.sum(np.abs(Fs*np.conjugate(Fs)), axis=0)
             Snl = np.sum(np.abs(Fnl*np.conjugate(Fnl)), axis=0)
-            # Snq = np.abs(np.sum(Fnq*np.conjugate(Fnq)), axis=0)
-            # Snlq = np.sum(Fnq*np.conjugate(Fnl), axis=0)
 
             # Denominator
-            # Sdenom = 0.25*(Snl+Snq)+0.5*abs(Snlq)
-            Sdenom = Snl
+            Sdenom = Sl + Snl
+
+            if gfilt:
+                # Gaussian filter
+                gauss = _gauss_filt(dt, npad, gfilt)
+                gnorm = np.sum(gauss)*(freqs[1]-freqs[0])*dt
+
+            else:
+                gauss = np.ones(len(Sl))
+                gnorm = 1.
 
             # Copy traces
             rfL = trL.copy()
@@ -810,9 +902,12 @@ class RFData(object):
             rfT = trT.copy()
 
             # Spectral division and inverse transform
-            rfL.data = np.real(np.fft.ifft(Sl/(Sl+Sdenom)))
-            rfQ.data = np.real(np.fft.ifft(Sq/(Sl+Sdenom))/np.amax(rfL.data))
-            rfT.data = np.real(np.fft.ifft(St/(Sl+Sdenom))/np.amax(rfL.data))
+            rfL.data = np.real(np.fft.ifft(
+                gauss*Sl/(Sdenom)))[0:nt]/gnorm
+            rfQ.data = np.real(np.fft.ifft(
+                gauss*Sq/(Sdenom))/np.amax(rfL.data))[0:nt]/gnorm
+            rfT.data = np.real(np.fft.ifft(
+                gauss*St/(Sdenom))/np.amax(rfL.data))[0:nt]/gnorm
 
             # Update stats of streams
             rfL.stats.channel = 'RF' + self.meta.align[0]
@@ -880,6 +975,7 @@ class RFData(object):
             trace.stats.stla = self.sta.latitude
             trace.stats.vp = self.meta.vp
             trace.stats.vs = self.meta.vs
+            trace.stats.phase = self.meta.phase
             trace.stats.is_rf = True
             trace.stats.phase = self.meta.phase
             return trace
