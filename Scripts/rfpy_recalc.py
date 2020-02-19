@@ -121,7 +121,8 @@ def main():
             # Deconvolve data
             rfdata.deconvolve(
                 vp=opts.vp, vs=opts.vs, 
-                align=opts.align, method=opts.method)
+                align=opts.align, method=opts.method,
+                gfilt=opts.gfilt, wlevel=opts.wlevel)
 
             # Get cross-correlation QC
             rfdata.calc_cc()

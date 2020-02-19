@@ -283,7 +283,7 @@ def get_calc_options():
         type=float,
         dest="fmin",
         default=0.05,
-        help="Specify the minimum frequency corner for SNR " +
+        help="Specify the minimum frequency corner for SNR and CC " +
         "filter (Hz). [Default 0.05]")
     ConstGroup.add_option(
         "--fmax",
@@ -291,30 +291,47 @@ def get_calc_options():
         type=float,
         dest="fmax",
         default=1.0,
-        help="Specify the maximum frequency corner for SNR " +
+        help="Specify the maximum frequency corner for SNR and CC " +
         "filter (Hz). [Default 1.0]")
-    ConstGroup.add_option(
-        "--twin",
-        action="store",
-        type=float,
-        dest="twin",
-        default=60.,
-        help="Specify the source time duration for deconvolution " +
-        "(sec). [Default 60.]")
-    ConstGroup.add_option(
+
+    # Constants Settings
+    DeconGroup = OptionGroup(
+        parser,
+        title='Deconvolution Settings',
+        description="Parameters for deconvolution")
+    DeconGroup.add_option(
         "--method",
         action="store",
         dest="method",
         type=str,
         default="wiener",
         help="Specify the deconvolution method. Available methods " +
-        "include 'wiener' and 'multitaper'. [Default 'wiener']")
+        "include 'wiener', 'water' and 'multitaper'. [Default 'wiener']")
+    DeconGroup.add_option(
+        "--gfilt",
+        action="store",
+        dest="gfilt",
+        type=float,
+        default=None,
+        help="Specify the Gaussian filter width in Hz. " +
+        "[Default None]")
+    DeconGroup.add_option(
+        "--wlevel",
+        action="store",
+        dest="wlevel",
+        type=float,
+        default=0.01,
+        help="Specify the water level, used in the 'water' method. "+
+        "[Default 0.01]")
+
+
 
     parser.add_option_group(ServerGroup)
     parser.add_option_group(DataGroup)
     parser.add_option_group(EventGroup)
     parser.add_option_group(PhaseGroup)
     parser.add_option_group(ConstGroup)
+    parser.add_option_group(DeconGroup)
 
     (opts, args) = parser.parse_args()
 
@@ -403,9 +420,9 @@ def get_calc_options():
         print("SNR window > data window. Defaulting to data " +
               "window minus 10 sec.")
 
-    if opts.method not in ['wiener', 'multitaper']:
+    if opts.method not in ['wiener', 'water', 'multitaper']:
         parser.error(
-            "Error: 'method' should be either 'wiener' or " +
+            "Error: 'method' should be either 'wiener', 'water' or " +
             "'multitaper'")
 
     return (opts, indb)
@@ -478,14 +495,6 @@ def get_recalc_options():
         help="Specify near-surface Vs to use with --align=PVH (km/s). "+
         "[Default 3.5]")
     ConstGroup.add_option(
-        "--method",
-        action="store",
-        dest="method",
-        type=str,
-        default="wiener",
-        help="Specify the deconvolution method. Available methods " +
-        "include 'wiener' and 'multitaper'. [Default 'wiener']")
-    ConstGroup.add_option(
         "--dt-snr",
         action="store",
         type=float,
@@ -509,16 +518,39 @@ def get_recalc_options():
         default=1.0,
         help="Specify the maximum frequency corner for SNR " +
         "filter (Hz). [Default 1.0]")
-    ConstGroup.add_option(
-        "--twin",
+
+    # Constants Settings
+    DeconGroup = OptionGroup(
+        parser,
+        title='Deconvolution Settings',
+        description="Parameters for deconvolution")
+    DeconGroup.add_option(
+        "--method",
         action="store",
+        dest="method",
+        type=str,
+        default="wiener",
+        help="Specify the deconvolution method. Available methods " +
+        "include 'wiener', 'water' and 'multitaper'. [Default 'wiener']")
+    DeconGroup.add_option(
+        "--gfilt",
+        action="store",
+        dest="gfilt",
         type=float,
-        dest="twin",
-        default=60.,
-        help="Specify the source time duration for deconvolution " +
-        "(sec). [Default 30.]")
+        default=None,
+        help="Specify the Gaussian filter width in Hz. " +
+        "[Default None]")
+    DeconGroup.add_option(
+        "--wlevel",
+        action="store",
+        dest="wlevel",
+        type=float,
+        default=0.01,
+        help="Specify the water level, used in the 'water' method. "+
+        "[Default 0.01]")
 
     parser.add_option_group(ConstGroup)
+    parser.add_option_group(DeconGroup)
 
     (opts, args) = parser.parse_args()
 
@@ -540,9 +572,9 @@ def get_recalc_options():
             "Error: Incorrect alignment specifier. Should be " +
             "either 'ZRT', 'LQT', or 'PVH'.")
 
-    if opts.method not in ['wiener', 'multitaper']:
+    if opts.method not in ['wiener', 'water', 'multitaper']:
         parser.error(
-            "Error: 'method' should be either 'wiener' or " +
+            "Error: 'method' should be either 'wiener', 'water' or " +
             "'multitaper'")
 
     return (opts, indb)
@@ -2228,9 +2260,12 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
     else:
 
         try:
-            st.trim(start, end)
+            st.trim(start, end, pad=True, fill_value=0.)
         except:
-            return True, None
+            try:
+                st.trim(start, end)
+            except:
+                return True, None
 
         trA = st[0].copy()
         trB = st[1].copy()
