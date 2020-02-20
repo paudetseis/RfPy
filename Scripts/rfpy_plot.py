@@ -102,7 +102,7 @@ def main():
                 #        rfdata[0].stats.cc > opts.cc:
 
                 ## JMG ##
-                if rfdata[0].stats.snrh > opts.snrh and rfdata[0].stats.snr and \
+                if rfdata[0].stats.snrh > opts.snrh and rfdata[0].stats.snr > opts.snr and \
                         rfdata[0].stats.cc > opts.cc:
 
                     if ( (rfdata[0].stats.slow > opts.slowbound[0]) and \

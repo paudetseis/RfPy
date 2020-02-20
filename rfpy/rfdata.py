@@ -221,10 +221,10 @@ class RFData(object):
             client = Client()
             # Get catalogue using deployment start and end
             event = client.get_events(
-                starttime=UTCDateTime('2015-07-03T06:00:00'),
-                endtime=UTCDateTime('2015-07-03T07:00:00'),
-                minmagnitude=6.0,
-                maxmagnitude=6.5)[0]
+                    starttime=UTCDateTime('2015-07-03T06:00:00'),
+                    endtime=UTCDateTime('2015-07-03T07:00:00'),
+                    minmagnitude=6.0,
+                    maxmagnitude=6.5)[0]
             print(event.short_str())
 
         if not isinstance(event, Event):

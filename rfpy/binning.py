@@ -116,7 +116,7 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=True):
                         
                         continue
 
-                if nb > 0:
+                if nb > 2:
 
                     # Average and update stats
                     array /= nb
@@ -215,7 +215,7 @@ def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=True):
                             weight += np.exp(1j*phase)
                             continue
 
-                    if nbin > 0:
+                    if nbin > 2:
 
                         # Average and update stats
                         array /= nbin
