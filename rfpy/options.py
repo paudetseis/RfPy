@@ -684,9 +684,9 @@ def get_hk_options():
         action="store",
         type=float,
         dest="snr",
-        default=5.,
+        default=-9999.,
         help="Specify the SNR threshold for extracting receiver functions. " +
-        "[Default 5.]")
+        "[Default None]")
 
 ## JMG ##
     PreGroup.add_option(
@@ -694,20 +694,18 @@ def get_hk_options():
         action="store",
         type=float,
         dest="snrh",
-        default=5.,
+        default=-9999,
         help="Specify the horizontal component SNR threshold for extracting receiver functions. " +
-        "[Default 5.]")
-
+        "[Default None]")
     PreGroup.add_option(
         "--cc",
         action="store",
         type=float,
         dest="cc",
-        default=0.5,
+        default=0.,
         help="Specify the CC threshold for extracting receiver functions. " +
-        "[Default 0.5]")
+        "[Default 0.]")
 ## JMG ##
-
     PreGroup.add_option(
         "--copy",
         action="store_true",
@@ -1046,9 +1044,17 @@ def get_harmonics_options():
         action="store",
         type=float,
         dest="snr",
-        default=5.,
+        default=-9999.,
         help="Specify the SNR threshold for extracting receiver functions. " +
-        "[Default 5.]")
+        "[Default None]")
+    PreGroup.add_option(
+        "--cc",
+        action="store",
+        type=float,
+        dest="cc",
+        default=0.,
+        help="Specify the CC threshold for extracting receiver functions. " +
+        "[Default 0.]")
 
     HarmonicGroup = OptionGroup(
         parser,
@@ -1302,9 +1308,17 @@ def get_ccp_options():
         action="store",
         type=float,
         dest="snr",
-        default=5.,
+        default=-9999.,
         help="Specify the SNR threshold for extracting receiver functions. " +
-        "[Default 5.]")
+        "[Default None]")
+    PreGroup.add_option(
+        "--cc",
+        action="store",
+        type=float,
+        dest="cc",
+        default=0.,
+        help="Specify the CC threshold for extracting receiver functions. " +
+        "[Default 0.]")
     PreGroup.add_option(
         "--f1",
         action="store",
@@ -1512,9 +1526,10 @@ def get_ccp_options():
     if opts.gccp and not opts.linear and not opts.phase:
         opts.phase = True
 
-    if (opts.save_figure or opts.cbound or opts.fmt) and not opts.ccp_figure:
-        print("Warning: Figure will not be produced since --figure "+
-            "has not been set.")
+    if opts.ccp or opts.gccp:
+        if (opts.save_figure or opts.cbound or opts.fmt) and not opts.ccp_figure:
+            print("Warning: Figure will not be produced since --figure "+
+                "has not been set.")
 
     if opts.ccp_figure and not (opts.ccp or opts.gccp):
         parser.error(
@@ -1584,7 +1599,7 @@ def get_plot_options():
         type=float,
         dest="snr",
         default=5.,
-        help="Specify the SNR threshold for extracting receiver functions. " +
+        help="Specify the vertical component SNR threshold for extracting receiver functions. " +
         "[Default 5.]")
 
 ## JMG
@@ -1593,9 +1608,9 @@ def get_plot_options():
         action="store",
         type=float,
         dest="snrh",
-        default=5.,
+        default=-9999.,
         help="Specify the horizontal component SNR threshold for extracting receiver functions. " +
-        "[Default 5.]")
+        "[Default None]")
 ## JMG
 
     PreGroup.add_option(

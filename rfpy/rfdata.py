@@ -861,10 +861,6 @@ class RFData(object):
             Kmax = int(NW*2-2)
             [tapers, eigenvalues] = dpss(nt, NW, Kmax)
 
-            print(trL)
-            print(trQ)
-            print(trT)
-
             # # Get multitaper spectrum of data
             # Fl = np.fft.fft(np.multiply(tapers.transpose(), trL.data), n=npad)
             # Fq = np.fft.fft(np.multiply(tapers.transpose(), trQ.data), n=npad)
