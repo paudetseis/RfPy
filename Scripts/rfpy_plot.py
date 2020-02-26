@@ -101,6 +101,8 @@ def main():
                 #if rfdata[0].stats.snr > opts.snr and \
                 #        rfdata[0].stats.cc > opts.cc:
 
+                #print(rfdata[0].stats.slow, rfdata[0].stats.baz, rfdata[0].stats.snr, rfdata[0].stats.snrh, rfdata[0].stats.cc)
+
                 ## JMG ##
                 if rfdata[0].stats.snrh > opts.snrh and rfdata[0].stats.snr > opts.snr and \
                         rfdata[0].stats.cc > opts.cc:
@@ -190,6 +192,14 @@ def main():
             rf_tmp = binning.bin(rfRstream, rfTstream,
                                  typ='baz', nbin=opts.nbaz+1)
 
+            # Check bin counts:
+            for tr in rf_tmp[0]:
+                if (tr.stats.nbin < 4):
+                    rf_tmp[0].remove(tr)
+            for tr in rf_tmp[1]:
+                if (tr.stats.nbin < 4):
+                    rf_tmp[1].remove(tr)
+
             plotting.wiggle_bins(rf_tmp[0], rf_tmp[1], tr1=tr1, tr2=tr2,
                                  btyp='baz', scale=opts.scale,
                                  tmax=opts.tmax, save=opts.saveplot,
@@ -197,6 +207,15 @@ def main():
         elif opts.nslow:
             rf_tmp = binning.bin(rfRstream, rfTstream,
                                  typ='slow', nbin=opts.nslow+1)
+
+            # Check bin counts:
+            for tr in rf_tmp[0]:
+                if (tr.stats.nbin < opts.binlim):
+                    rf_tmp[0].remove(tr)
+            for tr in rf_tmp[1]:
+                if (tr.stats.nbin < opts.binlim):
+                    rf_tmp[1].remove(tr)
+
             plotting.wiggle_bins(rf_tmp[0], rf_tmp[1], tr1=tr1, tr2=tr2,
                                  btyp='slow', scale=opts.scale,
                                  tmax=opts.tmax, save=opts.saveplot,

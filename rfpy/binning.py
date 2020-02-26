@@ -116,7 +116,7 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=True):
                         
                         continue
 
-                if nb > 2:
+                if nb > 0:
 
                     # Average and update stats
                     array /= nb
@@ -127,13 +127,16 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=True):
                     if typ == 'baz':
                         trace.stats.baz = bins[i]
                         trace.stats.slow = None
+                        trace.stats.nbin = nb
                     elif typ == 'slow': 
                         trace.stats.slow = bins[i]
                         trace.stats.baz = None
+                        trace.stats.nbin = nb
                     elif typ == 'dist':
                         trace.stats.dist = bins[i]
                         trace.stats.slow = None
                         trace.stats.baz = None
+                        trace.stats.nbin = nb
                     if not pws:
                         weight = np.ones(len(stream[0].data))
                     trace.data = weight*array
@@ -215,7 +218,7 @@ def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=True):
                             weight += np.exp(1j*phase)
                             continue
 
-                    if nbin > 2:
+                    if nbin > 0: ##################################################################################
 
                         # Average and update stats
                         array /= nbin

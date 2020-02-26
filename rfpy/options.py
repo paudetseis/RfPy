@@ -707,6 +707,7 @@ def get_hk_options():
         help="Specify the CC threshold for extracting receiver functions. " +
         "[Default 0.5]")
 
+## JMG ##
     PreGroup.add_option(
         "--slowbound",
         action="store",
@@ -953,29 +954,6 @@ def get_hk_options():
             parser.error(
                 "Error: --kbound should contain 2 " +
                 "comma-separated floats")
-
-## JMG ##
-    if opts.slowbound is None:
-        opts.slowbound = [0.04, 0.08]
-    else:
-        opts.slowbound = [float(val) for val in opts.slowbound.split(',')]
-        opts.slowbound = sorted(opts.slowbound)
-        if (len(opts.slowbound)) != 2:
-            parser.error(
-                "Error: --slowbound should contain 2 " +
-                "comma-separated floats")
-    
-    if opts.bazbound is None:
-        opts.bazbound = [0.0, 360.0]
-    else:
-        opts.bazbound = [float(val) for val in opts.bazbound.split(',')]
-        opts.bazbound = sorted(opts.bazbound)
-        if (len(opts.bazbound)) != 2:
-            parser.error(
-                "Error: --bazbound should contain 2 " +
-                "comma-separated floats")
-## JMG ##
-
 
     if opts.weights is None:
         opts.weights = [0.5, 2.0, -1.0]
@@ -1636,6 +1614,15 @@ def get_plot_options():
         default=5.,
         help="Specify the horizontal component SNR threshold for extracting receiver functions. " +
         "[Default 5.]")
+
+    PreGroup.add_option(
+        "--binlim",
+        action="store",
+        type=float,
+        dest="binlim",
+        default=5,
+        help="Specify the minimum threshold for the number RFs needed before bin is plotted. [Default 5]")
+
 ## JMG
 
     PreGroup.add_option(
@@ -1964,11 +1951,13 @@ def parse_localdata_for_comp(comp='Z', stdata=[], sta=None,
 
             else:
                 # Check for NoData and convert to NaN
-                stnd = st[0].stats.sac['user9']
+                #stnd = st[0].stats.sac['user9']
                 eddt = False
-                if (not stnd == 0.0) and (not stnd == -12345.0):
-                    st[0].data[st[0].data == stnd] = ndval
-                    eddt = True
+                # JMG 
+                #if (not stnd == 0.0) and (not stnd == -12345.0):
+                #    st[0].data[st[0].data == stnd] = ndval
+                #    eddt = True
+                # JMG
 
                 # Check start/end times in range
                 if (st[0].stats.starttime <= start and
@@ -2096,16 +2085,19 @@ def parse_localdata_for_comp(comp='Z', stdata=[], sta=None,
                     if st1[0].stats.endtime >= \
                             st2[0].stats.starttime-st2[0].stats.delta:
                         # Check for NoData and convert to NaN
-                        st1nd = st1[0].stats.sac['user9']
-                        st2nd = st2[0].stats.sac['user9']
+                        #st1nd = st1[0].stats.sac['user9']
+                        #st2nd = st2[0].stats.sac['user9']
                         eddt1 = False
                         eddt2 = False
-                        if (not st1nd == 0.0) and (not st1nd == -12345.0):
-                            st1[0].data[st1[0].data == st1nd] = ndval
-                            eddt1 = True
-                        if (not st2nd == 0.0) and (not st2nd == -12345.0):
-                            st2[0].data[st2[0].data == st2nd] = ndval
-                            eddt2 = True
+                        
+                        #JMG#
+                        #if (not st1nd == 0.0) and (not st1nd == -12345.0):
+                        #    st1[0].data[st1[0].data == st1nd] = ndval
+                        #    eddt1 = True
+                        #if (not st2nd == 0.0) and (not st2nd == -12345.0):
+                        #    st2[0].data[st2[0].data == st2nd] = ndval
+                        #    eddt2 = True
+                        #JMG#
 
                         st = st1 + st2
                         # Need to work on this HERE (AJS OCT 2015).
