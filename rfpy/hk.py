@@ -98,10 +98,18 @@ class HkStack(object):
             import os
             import pickle
             file = open(os.path.join(
-                    os.path.dirname(__file__),
-                    "examples/data", "demo_streams.pkl"), 'rb')
+                os.path.dirname(__file__),
+                "examples/data", "demo_streams.pkl"), 'rb')
             rfV1 = pickle.load(file)
             file.close()
+
+        # fftshift if the time axis starts at negative lags
+        if rfV1[0].stats.taxis[0] < 0.:
+            nn = rfV1[0].stats.npts
+            for tr in rfV1:
+                tr.data = np.fft.fftshift(tr.data)[0:int(nn/2)]
+            for tr in rfV2:
+                tr.data = np.fft.fftshift(tr.data)[0:int(nn/2)]
 
         self.rfV1 = rfV1
         self.rfV2 = rfV2
@@ -121,7 +129,7 @@ class HkStack(object):
         The stacks are calculated using phase-weighted stacking for
         individual phases and take the median of the weighted stack 
         to avoid bias by outliers.
-        
+
         Note
         ----
         If two streams are available as attributes, the method will assume
@@ -172,7 +180,7 @@ class HkStack(object):
                 for ip, ph in enumerate(self.phases):
                     for i in range(len(self.rfV1)):
 
-                        if self.rfV2 and (ph=='pps' or ph=='pss'):
+                        if self.rfV2 and (ph == 'pps' or ph == 'pss'):
                             rfV = self.rfV2[i].copy()
                         else:
                             rfV = self.rfV1[i].copy()
@@ -200,7 +208,7 @@ class HkStack(object):
         The stacks are calculated using phase-weighted stacking for
         individual phases and take the median of the weighted stack 
         to avoid bias by outliers.
-        
+
         Note
         ----
         If two streams are available as attributes, the method will assume
@@ -264,14 +272,15 @@ class HkStack(object):
                 for ip, ph in enumerate(self.phases):
                     for i in range(len(self.rfV1)):
 
-                        if self.rfV2 and (ph=='pps' or ph=='pss'):
+                        if self.rfV2 and (ph == 'pps' or ph == 'pss'):
                             rfV = self.rfV2[i].copy()
                         else:
                             rfV = self.rfV1[i].copy()
 
                         # Calculate move out for each phase and get
                         # median value, weighted by instantaneous phase (pws)
-                        tt = _dtime_dip_(rfV, H[ih], kk, vp, ph, self.strike, self.dip)
+                        tt = _dtime_dip_(
+                            rfV, H[ih], kk, vp, ph, self.strike, self.dip)
                         trace = _timeshift_(rfV, tt)
                         thilb = hilbert(trace)
                         tphase = np.arctan2(thilb.imag, thilb.real)
@@ -350,7 +359,6 @@ class HkStack(object):
 
         self.error()
 
-
     def error(self, q=0.05, err_method='amp'):
         """
         Method to determine the error on H and k estimates.
@@ -392,8 +400,8 @@ class HkStack(object):
             # Error contour
             vmin = msf.min()
             vmax = msf.max()
-            self.err_contour = vmin*(1. + n_par/(dof - n_par)*
-                           stats.f.ppf(1. - q, n_par, dof - n_par))
+            self.err_contour = vmin*(1. + n_par/(dof - n_par) *
+                                     stats.f.ppf(1. - q, n_par, dof - n_par))
             # print(vmin*(1. + n_par/(dof - n_par)*
             #                stats.f.ppf(1. - q, n_par, dof - n_par)))
             # self.err_contour = (n_par/(dof - n_par) *
@@ -412,7 +420,6 @@ class HkStack(object):
         # Estimate uncertainty (q confidence interval)
         self.err_k0 = max(0.25*(k[max(err[1])] - k[min(err[1])]), self.dk)
         self.err_h0 = max(0.25*(H[max(err[0])] - H[min(err[0])]), self.dh)
-
 
     def plot(self, save=False, title=None, form='png'):
         """
@@ -501,13 +508,13 @@ class HkStack(object):
             # ax.contour(np.rot90(vmax-msf), (vmax-err_cont,),
             if self.err_method == 'stats':
                 ax4.contour(
-                    np.rot90(1.-self.stack/self.stack.max()), 
+                    np.rot90(1.-self.stack/self.stack.max()),
                     (self.err_contour,),
                     hold='on', colors='yellow', linewidths=1, origin='upper',
                     extent=extent)
             elif self.err_method == 'amp':
                 ax4.contour(
-                    np.rot90(self.stack/self.stack.max()), 
+                    np.rot90(self.stack/self.stack.max()),
                     (self.err_contour,),
                     hold='on', colors='yellow', linewidths=1, origin='upper',
                     extent=extent)
@@ -529,10 +536,8 @@ class HkStack(object):
         plt.show()
 
 ## JMG ##
-    #def save(self):
-    def save(self,file):
-## JMG ##
-
+    def save(self, file):
+        ## JMG ##
         """
         Saves HkStack object to file
 
@@ -548,7 +553,6 @@ class HkStack(object):
         pickle.dump(self, output)
         output.close()
 
-
     def _residuals(self):
         """ 
         Internal method to obtain residuals between observed and predicted
@@ -559,8 +563,8 @@ class HkStack(object):
 
         # Simple 1-layer model over half-space
         model = utils.Model(
-            [self.h0, 0.], 
-            [2800., 3300.], 
+            [self.h0, 0.],
+            [2800., 3300.],
             [self.vp, 8.0],
             [self.vp/self.k0, 4.5],
             ['iso', 'iso'])
@@ -574,12 +578,13 @@ class HkStack(object):
 
         for sl in slow:
             trxyz = utils.run_plane(model, sl, npts, dt)
-            tfs = utils.tf_from_xyz(trxyz, pvh=True, vp=self.vp, vs=self.vp/self.k0)
+            tfs = utils.tf_from_xyz(
+                trxyz, pvh=True, vp=self.vp, vs=self.vp/self.k0)
             tfs[0].data = np.fft.fftshift(tfs[0].data)
             trR.append(tfs[0])
 
         trR.filter('bandpass', freqmin=0.05, freqmax=0.5, corners=2,
-            zerophase=True)
+                   zerophase=True)
 
         # Get stream of residuals
         res = trR.copy()
@@ -618,7 +623,7 @@ def _dof(st):
 def _dtime_(trace, z, r, vp, ph):
     """
     Method to calculate travel time for different scattered phases
-    
+
     """
 
     # Horizontal slowness
@@ -642,7 +647,7 @@ def _dtime_dip_(trace, z, r, vp, ph, strike, dip):
     """
     Method to calculate travel time for different scattered phases
     using strike and dip angles
-    
+
     """
 
     # Initialize some parameters

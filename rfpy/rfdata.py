@@ -615,6 +615,7 @@ class RFData(object):
         # Calculate signal/noise ratio in dB
         self.meta.snrh = 10*np.log10(srms*srms/nrms/nrms)
 
+
     def deconvolve(self, twin=60., vp=None, vs=None,
                    align=None, method='wiener', pre_filt=None,
                    gfilt=None, wlevel=0.01):
@@ -652,13 +653,6 @@ class RFData(object):
         if not self.meta.accept:
             return
 
-        def _taper(nt, ns):
-            tap = np.ones(nt)
-            win = np.hanning(2*ns)
-            tap[0:ns] = win[0:ns]
-            tap[nt-ns:nt] = win[ns:2*ns]
-            return tap
-
         def _npow2(x):
             return 1 if x == 0 else 2**(x-1).bit_length()
 
@@ -685,21 +679,16 @@ class RFData(object):
             print("Warning: Data have been deconvolved already - passing")
             return
 
+        # Get the name of components (order is critical here)
         cL = self.meta.align[0]
         cQ = self.meta.align[1]
         cT = self.meta.align[2]
 
         # Define signal and noise
-        trL = self.data.select(component=cL)[0].copy().detrend('linear')
-        trQ = self.data.select(component=cQ)[0].copy().detrend('linear')
-        trT = self.data.select(component=cT)[0].copy().detrend('linear')
-        trNl = self.data.select(component=cL)[0].copy().detrend('linear')
-
-        if pre_filt:
-            trL.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1])
-            trQ.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1])
-            trT.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1])
-            trNL.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1])
+        trL = self.data.select(component=cL)[0].copy()
+        trQ = self.data.select(component=cQ)[0].copy()
+        trT = self.data.select(component=cT)[0].copy()
+        trNl = self.data.select(component=cL)[0].copy()
 
         # Get signal length (i.e., seismogram to deconvolve) from trace length
         dts = len(trL.data)*trL.stats.delta/2.
@@ -711,32 +700,34 @@ class RFData(object):
                  self.meta.time+self.meta.ttime+dts-10.)
         trT.trim(self.meta.time+self.meta.ttime-5.,
                  self.meta.time+self.meta.ttime+dts-10.)
-
         # Crop trace for noise (-dts to -5 sec)
         trNl.trim(self.meta.time+self.meta.ttime-dts,
                   self.meta.time+self.meta.ttime-5.)
 
+        # Demean, detrend, taper, demean, detrend
+        trL.detrend('demean').detrend('linear').taper(max_percentage=0.05, max_length=2.)
+        trQ.detrend('demean').detrend('linear').taper(max_percentage=0.05, max_length=2.)
+        trT.detrend('demean').detrend('linear').taper(max_percentage=0.05, max_length=2.)
+        trNl.detrend('demean').detrend('linear').taper(max_percentage=0.05, max_length=2.)
+
+        # This follows the pre-processing in Lim et al., GJI, 2017
+        if pre_filt:
+            trL.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1],
+                corners=2, zerophase=True)
+            trQ.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1],
+                corners=2, zerophase=True)
+            trT.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1],
+                corners=2, zerophase=True)
+
         # Get cropped length, zero padding parameters and frequencies
         nt = len(trL.data)
         dt = trL.stats.delta
-        npad = _npow2(nt*2)
-        freqs = np.fft.fftfreq(npad, d=dt)
 
         # Wiener or Water level deconvolution
         if method == 'wiener' or method == 'water':
 
-            # Taper traces: 2 sec window applied at start and end
-            window = np.zeros(nt)
-            tap = _taper(nt, int(2./dt))
-            window[0:nt] = tap
-
-            # Apply taper and detrend again
-            trL.data *= window
-            trL.detrend('linear')
-            trQ.data *= window
-            trQ.detrend('linear')
-            trT.data *= window
-            trT.detrend('linear')
+            npad = _npow2(nt*2)
+            freqs = np.fft.fftfreq(npad, d=dt)
 
             # Fourier transform
             Fl = np.fft.fft(trL.data, n=npad)
@@ -751,13 +742,10 @@ class RFData(object):
             # Final processing depends on method
             if method == 'wiener':
 
-                # Process the noise trace
-                trNl.data *= window
-                trNL.detrend('linear')
                 Fnl = np.fft.fft(trNl.data, n=npad)
                 Snl = np.real(Fnl*np.conjugate(Fnl))
 
-                # Denominator (wiener filter)
+                # Wiener filter
                 Sdenom = Sl + Snl
 
             elif method == 'water':
@@ -765,15 +753,17 @@ class RFData(object):
                 # Water level (default is 1% of max value in Sl)
                 phi = np.amax(Sl)*wlevel
 
-                # Apply water level correction
-                Sl[Sl < phi] = phi
-
-                # Denominator (water level corrected)
+                # Water level correction
                 Sdenom = Sl
+                Sdenom[Sdenom < phi] = phi
 
         # Multitaper deconvolution
         elif method == 'multitaper':
             from spectrum import dpss
+
+            # npad = _npow2(nt*2)
+            npad = nt
+            freqs = np.fft.fftfreq(npad, d=dt)
 
             NW = 2.5
             Kmax = int(NW*2-2)
@@ -790,8 +780,7 @@ class RFData(object):
             Fl = np.fft.fft(np.multiply(tapers.transpose(), trL.data))
             Fq = np.fft.fft(np.multiply(tapers.transpose(), trQ.data))
             Ft = np.fft.fft(np.multiply(tapers.transpose(), trT.data))
-            Fnl = np.fft.fft(np.multiply(
-                tapers.transpose(), trNl.data))
+            Fnl = np.fft.fft(np.multiply(tapers.transpose(), trNl.data))
 
             # Auto and cross spectra
             Sl = np.sum(np.real(Fl*np.conjugate(Fl)), axis=0)
@@ -808,13 +797,10 @@ class RFData(object):
 
         # Apply Gaussian filter?
         if gfilt:
-
-            # Gaussian filter
             gauss = _gauss_filt(dt, npad, gfilt)
             gnorm = np.sum(gauss)*(freqs[1]-freqs[0])*dt
-
         else:
-            gauss = np.ones(len(Sl))
+            gauss = np.ones(npad)
             gnorm = 1.
 
         # Copy traces
@@ -823,12 +809,12 @@ class RFData(object):
         rfT = trT.copy()
 
         # Spectral division and inverse transform
-        rfL.data = np.real(np.fft.ifft(
-            gauss*Sl/(Sdenom)))[0:nt]/gnorm
-        rfQ.data = np.real(np.fft.ifft(
-            gauss*Sq/(Sdenom))/np.amax(rfL.data))[0:nt]/gnorm
-        rfT.data = np.real(np.fft.ifft(
-            gauss*St/(Sdenom))/np.amax(rfL.data))[0:nt]/gnorm
+        rfL.data = np.fft.fftshift(np.real(np.fft.ifft(
+            gauss*Sl/Sdenom))/gnorm)
+        rfQ.data = np.fft.fftshift(np.real(np.fft.ifft(
+            gauss*Sq/Sdenom))/np.amax(rfL.data)/gnorm)
+        rfT.data = np.fft.fftshift(np.real(np.fft.ifft(
+            gauss*St/Sdenom))/np.amax(rfL.data)/gnorm)
 
         # Update stats of streams
         rfL.stats.channel = 'RF' + self.meta.align[0]
@@ -849,8 +835,11 @@ class RFData(object):
         obs_L = self.data[0].copy()
         obs_Q = self.data[1].copy()
         obs_rfQ = self.rf[1].copy()
+        sr = obs_L.stats.sampling_rate
 
         # Filter using SNR bandpass
+        obs_L.detrend('demean').detrend('linear').taper(max_percentage=0.05, max_length=2.)
+        obs_Q.detrend('demean').detrend('linear').taper(max_percentage=0.05, max_length=2.)
         obs_L.filter('bandpass', freqmin=0.05, freqmax=1.)
         obs_Q.filter('bandpass', freqmin=0.05, freqmax=1.)
         obs_rfQ.filter('bandpass', freqmin=0.05, freqmax=1.)
@@ -858,17 +847,20 @@ class RFData(object):
         # Convolve L with rfQ to obtain predicted Q
         pred_Q = obs_Q.copy()
         pred_Q.stats.channel = 'PRR'
+        ind1 = int((len(obs_rfQ.data)/2.))
+        ind2 = ind1+len(obs_L.data)
         pred_Q.data = np.convolve(
-            obs_L.data, obs_rfQ.data, mode='full')[0:len(obs_L.data)]
+            obs_L.data, obs_rfQ.data, mode='full')[ind1:ind2]
 
         # trim all traces from 0 to 20. sec following P-wave (fftshift first)
-        obs_L.data = np.fft.fftshift(obs_L.data)[0:int(5.*20.)]
-        obs_Q.data = np.fft.fftshift(obs_Q.data)[0:int(5.*20.)]
-        pred_Q.data = np.fft.fftshift(pred_Q.data)[0:int(5.*20.)]
+        obs_L.data = np.fft.fftshift(obs_L.data)[0:int(sr*10.)]
+        obs_Q.data = np.fft.fftshift(obs_Q.data)[0:int(sr*10.)]
+        pred_Q.data = np.fft.fftshift(pred_Q.data)[0:int(sr*10.)]
 
         # Get cross correlation coefficient between observed and predicted Q
         self.meta.cc = np.corrcoef(obs_Q.data, pred_Q.data)[0][1]
 
+        # print(self.meta.cc)
         # test = Stream(traces=[obs_L, obs_Q, pred_Q])
         # test.plot()
 
@@ -896,6 +888,9 @@ class RFData(object):
             trace.stats.phase = self.meta.phase
             trace.stats.is_rf = True
             trace.stats.phase = self.meta.phase
+            nn = self.rf[0].stats.npts
+            sr = self.rf[0].stats.sampling_rate
+            trace.stats.taxis = np.arange(-nn/2., nn/2.)/sr
             return trace
 
         if not hasattr(self, 'rf'):

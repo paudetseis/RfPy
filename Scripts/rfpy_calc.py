@@ -37,6 +37,18 @@ from rfpy import RFData
 
 def main():
 
+    print()
+    print("##############################################")
+    print("#        __                          _       #")
+    print("#  _ __ / _|_ __  _   _     ___ __ _| | ___  #")
+    print("# | '__| |_| '_ \| | | |   / __/ _` | |/ __| #")
+    print("# | |  |  _| |_) | |_| |  | (_| (_| | | (__  #")
+    print("# |_|  |_| | .__/ \__, |___\___\__,_|_|\___| #")
+    print("#          |_|    |___/_____|                #")
+    print("#                                            #")
+    print("##############################################")
+    print()
+
     # Run Input Parser
     (opts, indb) = options.get_calc_options()
 
@@ -270,7 +282,8 @@ def main():
                 rfdata.deconvolve(
                     vp=opts.vp, vs=opts.vs,
                     align=opts.align, method=opts.method,
-                    gfilt=opts.gfilt, wlevel=opts.wlevel)
+                    gfilt=opts.gfilt, wlevel=opts.wlevel,
+                    pre_filt=opts.pre_filt)
 
                 # Get cross-correlation QC
                 rfdata.calc_cc()

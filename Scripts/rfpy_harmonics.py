@@ -37,6 +37,18 @@ from rfpy import Harmonics
 
 def main():
 
+    print()
+    print("################################################################################")
+    print("#        __                 _                                      _           #")
+    print("#  _ __ / _|_ __  _   _    | |__   __ _ _ __ _ __ ___   ___  _ __ (_) ___ ___  #")
+    print("# | '__| |_| '_ \| | | |   | '_ \ / _` | '__| '_ ` _ \ / _ \| '_ \| |/ __/ __| #")
+    print("# | |  |  _| |_) | |_| |   | | | | (_| | |  | | | | | | (_) | | | | | (__\__ \ #")
+    print("# |_|  |_| | .__/ \__, |___|_| |_|\__,_|_|  |_| |_| |_|\___/|_| |_|_|\___|___/ #")
+    print("#          |_|    |___/_____|                                                  #")
+    print("#                                                                              #")
+    print("################################################################################")
+    print()
+
     # Run Input Parser
     (opts, indb) = options.get_harmonics_options()
 
@@ -125,38 +137,43 @@ def main():
 
             if dateUTC > tstart and dateUTC < tend:
 
-                file = open(datapath+"/"+folder+"/RF_Data.pkl", "rb")
-                rfdata = pickle.load(file)
-                rfRstream.append(rfdata[1])
-                rfTstream.append(rfdata[2])
-                file.close()
+                filename = datapath+"/"+folder+"/RF_Data.pkl"
+                if os.path.isfile(filename):
+                    file = open(filename, "rb")
+                    rfdata = pickle.load(file)
+                    if rfdata[0].stats.snrh > opts.snrh and rfdata[0].stats.snr and \
+                            rfdata[0].stats.cc > opts.cc:
 
+                        rfRstream.append(rfdata[1])
+                        rfTstream.append(rfdata[2])
+
+                    file.close()
+                    
             else:
                 continue
 
-        # Remove outliers wrt variance
-        # Calculate variance over 30. sec
-        nt = int(30./rfRstream[0].stats.delta)
-        varR = np.array([np.var(tr.data[0:nt]) for tr in rfRstream])
+        if opts.no_outl:
+            # Remove outliers wrt variance
+            varR = np.array([np.var(tr.data) for tr in rfRstream])
 
-        # Calculate outliers
-        medvarR = np.median(varR)
-        madvarR = 1.4826*np.median(np.abs(varR-medvarR))
-        robustR = np.abs((varR-medvarR)/madvarR)
-        outliersR = np.arange(len(rfRstream))[robustR>2.]
-        for i in outliersR[::-1]:
-            rfRstream.remove(rfRstream[i])      
-            rfTstream.remove(rfTstream[i])    
+            # Calculate outliers
+            medvarR = np.median(varR)
+            madvarR = 1.4826*np.median(np.abs(varR-medvarR))
+            robustR = np.abs((varR-medvarR)/madvarR)
+            outliersR = np.arange(len(rfRstream))[robustR>2.]
+            for i in outliersR[::-1]:
+                rfRstream.remove(rfRstream[i])      
+                rfTstream.remove(rfTstream[i])    
 
-        # Do the same for transverse
-        varT = np.array([np.var(tr.data[0:nt]) for tr in rfTstream])
-        medvarT = np.median(varT)
-        madvarT = 1.4826*np.median(np.abs(varT-medvarT))
-        robustT = np.abs((varT-medvarT)/madvarT)
-        outliersT = np.arange(len(rfTstream))[robustT>2.]
-        for i in outliersT[::-1]:
-            rfRstream.remove(rfRstream[i])      
-            rfTstream.remove(rfTstream[i])       
+            # Do the same for transverse
+            varT = np.array([np.var(tr.data) for tr in rfTstream])
+            medvarT = np.median(varT)
+            madvarT = 1.4826*np.median(np.abs(varT-medvarT))
+            robustT = np.abs((varT-medvarT)/madvarT)
+            outliersT = np.arange(len(rfTstream))[robustT>2.]
+            for i in outliersT[::-1]:
+                rfRstream.remove(rfRstream[i])      
+                rfTstream.remove(rfTstream[i])       
 
         # Try binning if specified
         if opts.nbin is not None:
@@ -166,11 +183,11 @@ def main():
             rfTstream = rf_tmp[1]
 
         # Filter original streams
-        rfRstream.filter('bandpass', freqmin=opts.freqs[0],
-                         freqmax=opts.freqs[1], corners=2,
+        rfRstream.filter('bandpass', freqmin=opts.bp[0],
+                         freqmax=opts.bp[1], corners=2,
                          zerophase=True)
-        rfTstream.filter('bandpass', freqmin=opts.freqs[0],
-                         freqmax=opts.freqs[1], corners=2,
+        rfTstream.filter('bandpass', freqmin=opts.bp[0],
+                         freqmax=opts.bp[1], corners=2,
                          zerophase=True)
 
         # Initialize the HkStack object

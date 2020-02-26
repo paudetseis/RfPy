@@ -93,6 +93,13 @@ class Harmonics(object):
         if not transvRF:
             raise TypeError("__init__() missing 1 required positional argument: 'transvRF'")
 
+        # fftshift if the time axis starts at negative lags 
+        if radialRF[0].stats.taxis[0]<0.:
+            for tr in radialRF:
+                tr.data = np.fft.fftshift(tr.data)
+            for tr in transvRF:
+                tr.data = np.fft.fftshift(tr.data)
+
         self.radialRF = radialRF
         self.transvRF = transvRF
         self.azim = azim
