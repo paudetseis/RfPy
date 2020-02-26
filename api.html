@@ -372,7 +372,7 @@ due to different conventions.</p>
 
 <dl class="method">
 <dt id="rfpy.rfdata.RFData.deconvolve">
-<code class="sig-name descname">deconvolve</code><span class="sig-paren">(</span><em class="sig-param">twin=60.0</em>, <em class="sig-param">vp=None</em>, <em class="sig-param">vs=None</em>, <em class="sig-param">align=None</em>, <em class="sig-param">method='wiener'</em>, <em class="sig-param">gfilt=None</em>, <em class="sig-param">wlevel=0.01</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.deconvolve" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">deconvolve</code><span class="sig-paren">(</span><em class="sig-param">twin=60.0</em>, <em class="sig-param">vp=None</em>, <em class="sig-param">vs=None</em>, <em class="sig-param">align=None</em>, <em class="sig-param">method='wiener'</em>, <em class="sig-param">pre_filt=None</em>, <em class="sig-param">gfilt=None</em>, <em class="sig-param">wlevel=0.01</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.deconvolve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deconvolves three-compoent data using one component as the source wavelet.
 The source component is always taken as the dominant compressional
 component, which can be either ‘Z’, ‘L’, or ‘P’.</p>
@@ -1143,7 +1143,7 @@ Ps, Pps and Pss phases</p>
 bins, or both, or for all data, regardless of the x axis (time or depth).</p>
 <dl class="function">
 <dt id="rfpy.binning.bin">
-<code class="sig-prename descclassname">rfpy.binning.</code><code class="sig-name descname">bin</code><span class="sig-paren">(</span><em class="sig-param">stream1</em>, <em class="sig-param">stream2=None</em>, <em class="sig-param">typ='baz'</em>, <em class="sig-param">nbin=37</em>, <em class="sig-param">pws=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.bin" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">rfpy.binning.</code><code class="sig-name descname">bin</code><span class="sig-paren">(</span><em class="sig-param">stream1</em>, <em class="sig-param">stream2=None</em>, <em class="sig-param">typ='baz'</em>, <em class="sig-param">nbin=37</em>, <em class="sig-param">pws=False</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.bin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to stack receiver functions into (baz or slow) bins
 This can be done using a linear stack (i.e., simple
 mean), or using phase-weighted stacking.</p>
@@ -1170,7 +1170,7 @@ depending on the number of input streams</p>
 
 <dl class="function">
 <dt id="rfpy.binning.bin_baz_slow">
-<code class="sig-prename descclassname">rfpy.binning.</code><code class="sig-name descname">bin_baz_slow</code><span class="sig-paren">(</span><em class="sig-param">stream1</em>, <em class="sig-param">stream2=None</em>, <em class="sig-param">nbaz=37</em>, <em class="sig-param">nslow=21</em>, <em class="sig-param">pws=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.bin_baz_slow" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">rfpy.binning.</code><code class="sig-name descname">bin_baz_slow</code><span class="sig-paren">(</span><em class="sig-param">stream1</em>, <em class="sig-param">stream2=None</em>, <em class="sig-param">nbaz=37</em>, <em class="sig-param">nslow=21</em>, <em class="sig-param">pws=False</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.bin_baz_slow" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to stack receiver functions into back-azimuth and slowness bins.
 This can be done using a linear stack (i.e., simple
 mean), or using phase-weighted stacking.</p>
@@ -1197,7 +1197,7 @@ depending on the number of input streams</p>
 
 <dl class="function">
 <dt id="rfpy.binning.bin_all">
-<code class="sig-prename descclassname">rfpy.binning.</code><code class="sig-name descname">bin_all</code><span class="sig-paren">(</span><em class="sig-param">stream1</em>, <em class="sig-param">stream2=None</em>, <em class="sig-param">pws=True</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.bin_all" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">rfpy.binning.</code><code class="sig-name descname">bin_all</code><span class="sig-paren">(</span><em class="sig-param">stream1</em>, <em class="sig-param">stream2=None</em>, <em class="sig-param">pws=False</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.bin_all" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to bin all streams into a single trace.
 This can be done using a linear stack (i.e., simple
 mean), or using phase-weighted stacking.</p>
@@ -1228,7 +1228,7 @@ depending on the number of input streams</p>
 time/depth or slowness vs time.</p>
 <dl class="function">
 <dt id="rfpy.plotting.wiggle">
-<code class="sig-prename descclassname">rfpy.plotting.</code><code class="sig-name descname">wiggle</code><span class="sig-paren">(</span><em class="sig-param">stream1</em>, <em class="sig-param">stream2=None</em>, <em class="sig-param">sort=None</em>, <em class="sig-param">tmax=30</em>, <em class="sig-param">normalize=True</em>, <em class="sig-param">save=False</em>, <em class="sig-param">title=None</em>, <em class="sig-param">form='png'</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.plotting.wiggle" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">rfpy.plotting.</code><code class="sig-name descname">wiggle</code><span class="sig-paren">(</span><em class="sig-param">stream1</em>, <em class="sig-param">stream2=None</em>, <em class="sig-param">sort=None</em>, <em class="sig-param">tmin=0.0</em>, <em class="sig-param">tmax=30</em>, <em class="sig-param">normalize=True</em>, <em class="sig-param">save=False</em>, <em class="sig-param">title=None</em>, <em class="sig-param">form='png'</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.plotting.wiggle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to plot receiver function traces by index in stream. By default,
 only one stream is required, which produces a Figure with a single panel.
 Optionally, if a second stream is present, the Figure will contain two panels.
@@ -1253,7 +1253,7 @@ in <code class="docutils literal notranslate"><span class="pre">stream1</span></
 
 <dl class="function">
 <dt id="rfpy.plotting.wiggle_bins">
-<code class="sig-prename descclassname">rfpy.plotting.</code><code class="sig-name descname">wiggle_bins</code><span class="sig-paren">(</span><em class="sig-param">stream1</em>, <em class="sig-param">stream2=None</em>, <em class="sig-param">tr1=None</em>, <em class="sig-param">tr2=None</em>, <em class="sig-param">btyp='baz'</em>, <em class="sig-param">tmax=30.0</em>, <em class="sig-param">xtyp='time'</em>, <em class="sig-param">scale=None</em>, <em class="sig-param">save=False</em>, <em class="sig-param">title=None</em>, <em class="sig-param">form='png'</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.plotting.wiggle_bins" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">rfpy.plotting.</code><code class="sig-name descname">wiggle_bins</code><span class="sig-paren">(</span><em class="sig-param">stream1</em>, <em class="sig-param">stream2=None</em>, <em class="sig-param">tr1=None</em>, <em class="sig-param">tr2=None</em>, <em class="sig-param">btyp='baz'</em>, <em class="sig-param">tmin=0.0</em>, <em class="sig-param">tmax=30.0</em>, <em class="sig-param">xtyp='time'</em>, <em class="sig-param">scale=None</em>, <em class="sig-param">norm=None</em>, <em class="sig-param">save=False</em>, <em class="sig-param">title=None</em>, <em class="sig-param">form='png'</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.plotting.wiggle_bins" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to plot receiver function according to either baz or
 slowness bins. By default,
 only one stream is required, which produces a Figure with a single panel.
