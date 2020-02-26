@@ -38,7 +38,7 @@ from scipy.interpolate import griddata
 import matplotlib.pyplot as plt
 
 
-def wiggle(stream1, stream2=None, sort=None, tmax=30, normalize=True,
+def wiggle(stream1, stream2=None, sort=None, tmin=0., tmax=30, normalize=True,
            save=False, title=None, form='png'):
     """
     Function to plot receiver function traces by index in stream. By default, 
@@ -72,20 +72,21 @@ def wiggle(stream1, stream2=None, sort=None, tmax=30, normalize=True,
         try:
             stream1.traces.sort(key=lambda x: x.stats[sort], reverse=False)
         except:
-            print("Warning: stats attribute "+sort +
+            print("Warning: stats attribute " + sort +
                   " is not available in stats")
             pass
 
     # Time axis
     nn = stream1[0].stats.npts
     sr = stream1[0].stats.sampling_rate
-    t = np.arange(nn)/sr
+    time = np.arange(-nn/2+1, nn/2+1)/sr
 
     # Normalize?
     if normalize:
         ntr = len(stream1)
         maxamp = np.median(
-            [np.max(np.abs(tr.data[t < tmax])) for tr in stream1])
+            [np.max(np.abs(
+                tr.data[time>tmin and time<tmax])) for tr in stream1])
 
     f = plt.figure()
 
@@ -102,14 +103,14 @@ def wiggle(stream1, stream2=None, sort=None, tmax=30, normalize=True,
 
         # Fill positive in red, negative in blue
         ax1.fill_between(
-            t, itr+1, itr+1+tr.data/maxamp/2.,
+            time, itr+1, itr+1+tr.data/maxamp/2.,
             where=tr.data+1e-10 <= 0., facecolor='blue', linewidth=0)
         ax1.fill_between(
-            t, itr+1, itr+1+tr.data/maxamp/2.,
+            time, itr+1, itr+1+tr.data/maxamp/2.,
             where=tr.data+1e-10 >= 0., facecolor='red', linewidth=0)
         # plt.plot(t, y+tr.data*maxamp, c='k')
 
-    ax1.set_xlim(0, tmax)
+    ax1.set_xlim(tmin, tmax)
     ax1.set_ylabel('Radial RF')
     ax1.grid()
 
@@ -121,13 +122,13 @@ def wiggle(stream1, stream2=None, sort=None, tmax=30, normalize=True,
 
             # Fill positive in red, negative in blue
             ax2.fill_between(
-                t, itr+1, itr+1+tr.data/maxamp/2.,
+                time, itr+1, itr+1+tr.data/maxamp/2.,
                 where=tr.data+1e-10 <= 0., facecolor='blue', linewidth=0)
             ax2.fill_between(
-                t, itr+1, itr+1+tr.data/maxamp/2.,
+                time, itr+1, itr+1+tr.data/maxamp/2.,
                 where=tr.data+1e-10 >= 0., facecolor='red', linewidth=0)
 
-        ax2.set_xlim(0, tmax)
+        ax2.set_xlim(tmin, tmax)
         ax2.set_ylabel('Transverse RF')
         ax2.grid()
 
@@ -143,8 +144,8 @@ def wiggle(stream1, stream2=None, sort=None, tmax=30, normalize=True,
 
 # PLot wiggles according to either baz or slowness
 def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
-                btyp='baz', tmax=30., xtyp='time', scale=None,
-                save=False, title=None, form='png'):
+                btyp='baz', tmin=0., tmax=30., xtyp='time', scale=None,
+                norm=None, save=False, title=None, form='png'):
     """
     Function to plot receiver function according to either baz or
     slowness bins. By default, 
@@ -184,10 +185,34 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
     if btyp == 'slow' and xtyp == 'depth':
         raise(Exception("Cannot plot by slowness if data is migrated"))
 
-    # X axis
+    # Figure out scaling here
+    if scale: 
+        maxval = scale
+    else:
+        if norm:
+            for tr in stream1:
+                tr.data /= norm
+            if stream2:
+                for tr in stream2:
+                    tr.data /= norm
+            if btyp == 'baz':
+                maxval = 5.
+            elif btyp == 'slow':
+                maxval = 0.001
+            elif btyp == 'dist':
+                maxval = 1
+        else:
+            if btyp == 'baz':
+                maxval = 100
+            elif btyp == 'slow':
+                maxval = 0.02
+            elif btyp == 'dist':
+                maxval = 20
+
+    # Time axis
     nn = stream1[0].stats.npts
     sr = stream1[0].stats.sampling_rate
-    x = np.arange(nn)/sr
+    time = np.arange(-nn/2, nn/2)/sr
 
     # Initialize figure
     fig = plt.figure()
@@ -211,60 +236,49 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
         ax4 = None
 
     if ax1:
+
         # Plot stack of all SV traces on top left
         ax1.fill_between(
-            x, 0., tr1.data,
+            time, 0., tr1.data,
             where=tr1.data+1e-6 <= 0.,
             facecolor='blue',
             linewidth=0)
         ax1.fill_between(
-            x, 0., tr1.data,
+            time, 0., tr1.data,
             where=tr1.data+1e-6 >= 0.,
             facecolor='red',
             linewidth=0)
-        ax1.set_ylim(-np.max(np.abs(tr1.data)), np.max(np.abs(tr1.data)))
+        ylim = np.max([np.max(np.abs(tr1.data)),np.max(np.abs(tr2.data))])
+        ax1.set_ylim(-1.*ylim, ylim)
         ax1.set_yticks(())
         ax1.set_xticks(())
         ax1.set_title('Radial')
-        ax1.set_xlim(0, tmax)
+        ax1.set_xlim(tmin, tmax)
 
     # Plot binned SV traces in back-azimuth on bottom left
     for tr in stream1:
 
-        if scale:
-            maxval = scale
-            # Define y axis
-            if btyp == 'baz':
-                y = tr.stats.baz
-            elif btyp == 'slow':
-                y = tr.stats.slow
-            elif btyp == 'dist':
-                y = tr.stats.dist
-        else:
-            # Define y axis
-            if btyp == 'baz':
-                y = tr.stats.baz
-                maxval = 100
-            elif btyp == 'slow':
-                y = tr.stats.slow
-                maxval = 0.02
-            elif btyp == 'dist':
-                y = tr.stats.dist
-                maxval = 20
+        # Define y axis
+        if btyp == 'baz':
+            y = tr.stats.baz
+        elif btyp == 'slow':
+            y = tr.stats.slow
+        elif btyp == 'dist':
+            y = tr.stats.dist
 
         # Fill positive in red, negative in blue
         ax2.fill_between(
-            x, y, y+tr.data*maxval,
+            time, y, y+tr.data*maxval,
             where=tr.data+1e-6 <= 0.,
             facecolor='blue',
             linewidth=0)
         ax2.fill_between(
-            x, y, y+tr.data*maxval,
+            time, y, y+tr.data*maxval,
             where=tr.data+1e-6 >= 0.,
             facecolor='red',
             linewidth=0)
 
-    ax2.set_xlim(0, tmax)
+    ax2.set_xlim(tmin, tmax)
 
     if btyp == 'baz':
         ax2.set_ylim(-5, 370)
@@ -285,19 +299,20 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
         ax2.set_title('Radial')
 
     if ax3:
+
         # Plot stack of all SH traces on top right
         ax3.fill_between(
-            x, 0., tr2.data,
+            time, 0., tr2.data,
             where=tr2.data+1e-6 <= 0.,
             facecolor='blue',
             linewidth=0)
         ax3.fill_between(
-            x, 0., tr2.data,
+            time, 0., tr2.data,
             where=tr2.data+1e-6 >= 0.,
             facecolor='red',
             linewidth=0)
-        ax3.set_xlim(0, tmax)
-        ax3.set_ylim(-np.max(np.abs(tr1.data)), np.max(np.abs(tr1.data)))
+        ax3.set_xlim(tmin, tmax)
+        ax3.set_ylim(-1.*ylim, ylim)
         ax3.set_yticks(())
         ax3.set_xticks(())
         ax3.set_title('Transverse')
@@ -306,40 +321,27 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
         # Plot binned SH traces in back-azimuth on bottom right
         for tr in stream2:
 
-            if scale:
-                maxval = scale
-                # Define y axis
-                if btyp == 'baz':
-                    y = tr.stats.baz
-                elif btyp == 'slow':
-                    y = tr.stats.slow
-                elif btyp == 'dist':
-                    y = tr.stats.dist
-            else:
-                # Define y axis
-                if btyp == 'baz':
-                    y = tr.stats.baz
-                    maxval = 150
-                elif btyp == 'slow':
-                    y = tr.stats.slow
-                    maxval = 0.02
-                elif btyp == 'dist':
-                    y = tr.stats.dist
-                    maxval = 20
+            # Define y axis
+            if btyp == 'baz':
+                y = tr.stats.baz
+            elif btyp == 'slow':
+                y = tr.stats.slow
+            elif btyp == 'dist':
+                y = tr.stats.dist
 
             # Fill positive in red, negative in blue
             ax4.fill_between(
-                x, y, y+tr.data*maxval,
+                time, y, y+tr.data*maxval,
                 where=tr.data+1e-6 <= 0.,
                 facecolor='blue',
                 linewidth=0)
             ax4.fill_between(
-                x, y, y+tr.data*maxval,
+                time, y, y+tr.data*maxval,
                 where=tr.data+1e-6 >= 0.,
                 facecolor='red',
                 linewidth=0)
 
-        ax4.set_xlim(0, tmax)
+        ax4.set_xlim(tmin, tmax)
 
         if btyp == 'baz':
             ax4.set_ylim(-5, 370)

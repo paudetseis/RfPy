@@ -35,6 +35,19 @@ from rfpy import RFData
 
 def main():
 
+    print()
+    print("########################################################")
+    print("#                                                      #")
+    print("#        __                                    _       #")
+    print("#  _ __ / _|_ __  _   _     _ __ ___  ___ __ _| | ___  #")
+    print("# | '__| |_| '_ \| | | |   | '__/ _ \/ __/ _` | |/ __| #")
+    print("# | |  |  _| |_) | |_| |   | | |  __/ (_| (_| | | (__  #")
+    print("# |_|  |_| | .__/ \__, |___|_|  \___|\___\__,_|_|\___| #")
+    print("#          |_|    |___/_____|                          #")
+    print("#                                                      #")
+    print("########################################################")
+    print()
+
     # Run Input Parser
     (opts, indb) = options.get_recalc_options()
 
@@ -101,7 +114,12 @@ def main():
                 continue
             rfdata.meta = pickle.load(open(
                 datapath+"/"+folder+"/Meta_Data.pkl",'rb'))
-            print("* Station: {0}; folder: {1}".format(stkey,folder))
+
+            if opts.verb:
+                print("* Station: {0}; folder: {1}".format(stkey,folder))
+
+            if not hasattr(rfdata.meta, 'phase'):
+                rfdata.meta.phase = 'P'
 
             # Load ZNE data
             rfdata.data = pickle.load(open(
@@ -116,17 +134,22 @@ def main():
 
             # Calculate SNR
             rfdata.calc_snr(dt=opts.dt_snr, fmin=opts.fmin, fmax=opts.fmax)
-            print("* SNR: {}".format(rfdata.meta.snr))
+    
+            if opts.verb:
+                print("* SNR: {}".format(rfdata.meta.snr))
 
             # Deconvolve data
             rfdata.deconvolve(
                 vp=opts.vp, vs=opts.vs, 
                 align=opts.align, method=opts.method,
-                gfilt=opts.gfilt, wlevel=opts.wlevel)
+                gfilt=opts.gfilt, wlevel=opts.wlevel,
+                pre_filt=opts.pre_filt)
 
             # Get cross-correlation QC
             rfdata.calc_cc()
-            print("* CC: {}".format(rfdata.meta.cc))
+
+            if opts.verb:
+                print("* CC: {}".format(rfdata.meta.cc))
 
             # Convert to Stream
             rfstream = rfdata.to_stream()
@@ -136,8 +159,9 @@ def main():
                 datapath+"/"+folder+"/RF_Data.pkl", "wb"))
 
             # Update
-            print("* Output files written")
-            print("**************************************************")
+            if opts.verb:
+                print("* Output files written")
+                print("**************************************************")
 
 
 if __name__ == "__main__":

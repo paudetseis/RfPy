@@ -37,6 +37,18 @@ from rfpy import CCPimage
 
 def main():
 
+    print()
+    print("############################################")
+    print("#        __                                #")
+    print("#  _ __ / _|_ __  _   _     ___ ___ _ __   #")
+    print("# | '__| |_| '_ \| | | |   / __/ __| '_ \  #")
+    print("# | |  |  _| |_) | |_| |  | (_| (__| |_) | #")
+    print("# |_|  |_| | .__/ \__, |___\___\___| .__/  #")
+    print("#          |_|    |___/_____|      |_|     #")
+    print("#                                          #")
+    print("############################################")
+    print()
+
     # Run Input Parser
     (opts, indb) = options.get_ccp_options()
 
@@ -109,22 +121,20 @@ def main():
                     if os.path.isfile(filename):
                         file = open(filename, "rb")
                         rfdata = pickle.load(file)
-                        if rfdata[1].stats.snr > opts.snr:
+                        if rfdata[0].stats.snrh > opts.snrh and rfdata[0].stats.snr and \
+                                rfdata[0].stats.cc > opts.cc:
                             rfRstream.append(rfdata[1])
                         file.close()
 
-                # Remove outliers wrt variance
-                # Calculate variance over 30. sec
-                nt = int(30./rfRstream[0].stats.delta)
-                var = np.array([np.var(tr.data[0:nt]) for tr in rfRstream])
-
-                # Calculate outliers
-                medvar = np.median(var)
-                madvar = 1.4826*np.median(np.abs(var-medvar))
-                robust = np.abs((var-medvar)/madvar)
-                outliers = np.arange(len(rfRstream))[robust>2.]
-                for i in outliers[::-1]:
-                    rfRstream.remove(rfRstream[i])      
+                if opts.no_outl:
+                    # Remove outliers wrt variance
+                    var = np.array([np.var(tr.data) for tr in rfRstream])
+                    medvar = np.median(var)
+                    madvar = 1.4826*np.median(np.abs(var-medvar))
+                    robust = np.abs((var-medvar)/madvar)
+                    outliers = np.arange(len(rfRstream))[robust>2.]
+                    for i in outliers[::-1]:
+                        rfRstream.remove(rfRstream[i])      
 
                 print("Station: {0:>2s}.{1:5s} -  {2} traces loaded".format(
                     sta.network, sta.station, len(rfRstream)))

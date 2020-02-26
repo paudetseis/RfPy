@@ -158,6 +158,11 @@ class CCPimage(object):
 
         """
         if len(rfstream) > 0:
+            # fftshift if the time axis starts at negative lags 
+            if rfstream[0].stats.taxis[0]<0.:
+                for tr in rfstream:
+                    tr.data = np.fft.fftshift(tr.data)
+
             self.radialRF.append(rfstream)
             self.is_ready_for_prep = True
 

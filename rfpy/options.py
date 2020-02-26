@@ -278,6 +278,14 @@ def get_calc_options():
         help="Specify the window length over which to calculate " +
         "the SNR in sec. [Default 30.]")
     ConstGroup.add_option(
+        "--pre-filt",
+        action="store",
+        type=str,
+        dest="pre_filt",
+        default=None,
+        help="Specify two floats with low and high frequency corners for "+
+        "pre-filter (before deconvolution). [Default None]")
+    ConstGroup.add_option(
         "--fmin",
         action="store",
         type=float,
@@ -407,6 +415,14 @@ def get_calc_options():
                 "Distances should be between 100 and 180 deg. for "+
                 "teleseismic 'PP' waves.")
 
+    if opts.pre_filt is not None:
+        opts.pre_filt = [float(val) for val in opts.pre_filt.split(',')]
+        opts.pre_filt = sorted(opts.pre_filt)
+        if (len(opts.pre_filt)) != 2:
+            parser.error(
+                "Error: --pre-filt should contain 2 " +
+                "comma-separated floats")
+
     # Check alignment options
     if opts.align is None:
         opts.align = 'ZRT'
@@ -464,6 +480,12 @@ def get_recalc_options():
         "be used to match against those in the dictionary. For " +
         "instance, providing IU will match with all stations in " +
         "the IU network [Default processes all stations in the database]")
+    parser.add_option(
+        "-v", "-V", "--verbose",
+        action="store_true",
+        dest="verb",
+        default=False,
+        help="Specify to increase verbosity.")
 
     # Constants Settings
     ConstGroup = OptionGroup(
@@ -502,6 +524,14 @@ def get_recalc_options():
         default=30.,
         help="Specify the window length over which to calculate " +
         "the SNR in sec. [Default 30.]")
+    ConstGroup.add_option(
+        "--pre-filt",
+        action="store",
+        type=str,
+        dest="pre_filt",
+        default=None,
+        help="Specify two floats with low and high frequency corners for "+
+        "pre-filter (before deconvolution). [Default None]")
     ConstGroup.add_option(
         "--fmin",
         action="store",
@@ -576,6 +606,15 @@ def get_recalc_options():
         parser.error(
             "Error: 'method' should be either 'wiener', 'water' or " +
             "'multitaper'")
+
+    if opts.pre_filt is not None:
+        opts.pre_filt = [float(val) for val in opts.pre_filt.split(',')]
+        opts.pre_filt = sorted(opts.pre_filt)
+        if (len(opts.pre_filt)) != 2:
+            parser.error(
+                "Error: --pre-filt should contain 2 " +
+                "comma-separated floats")
+
 
     return (opts, indb)
 
@@ -656,13 +695,13 @@ def get_hk_options():
         description="Options for pre-processing of receiver function " +
         "data prior to H-k stacking")
     PreGroup.add_option(
-        "--freqs",
+        "--bp",
         action="store",
         type=str,
-        dest="freqs",
+        dest="bp",
         default=None,
-        help="Specify a list of two floats with the minimum and maximum " +
-        "frequency corner for the bandpass filter (Hz). [Default [0.05, 0.5]]")
+        help="Specify the corner frequencies for the bandpass filter. " +
+        "[Default 0.05,0.5]")
     PreGroup.add_option(
         "--nbaz",
         action="store",
@@ -684,30 +723,50 @@ def get_hk_options():
         action="store",
         type=float,
         dest="snr",
-        default=5.,
+        default=-9999.,
         help="Specify the SNR threshold for extracting receiver functions. " +
-        "[Default 5.]")
-
-## JMG ##
+        "[Default None]")
     PreGroup.add_option(
         "--snrh",
         action="store",
         type=float,
         dest="snrh",
-        default=5.,
-        help="Specify the horizontal component SNR threshold for extracting receiver functions. " +
-        "[Default 5.]")
-
+        default=-9999,
+        help="Specify the horizontal component SNR threshold for "+
+        "extracting receiver functions. [Default None]")
     PreGroup.add_option(
         "--cc",
         action="store",
         type=float,
         dest="cc",
-        default=0.5,
+        default=-1.,
         help="Specify the CC threshold for extracting receiver functions. " +
-        "[Default 0.5]")
+        "[Default None]")
+    PreGroup.add_option(
+        "--no-outlier",
+        action="store_true",
+        dest="no_outl",
+        default=False,
+        help="Set this option to delete outliers based on the MAD "+
+        "on the variance. [Default False]")
 ## JMG ##
-
+    PreGroup.add_option(
+         "--slowbound",
+         action="store",
+        dest="slowbound",
+        type=str,
+        default=None,
+        help="Specify a list of two floats with minimum and maximum" +
+        "bounds on slowness (s/km). [Default [0.04, 0.08]]")
+    PreGroup.add_option(
+        "--bazbound",
+        action="store",
+        dest="bazbound",
+        type=str,
+        default=None,
+        help="Specify a list of two floats with minimum and maximum" +
+        "bounds on back azimuth (degrees). [Default [0, 360]]")
+## JMG ##
     PreGroup.add_option(
         "--copy",
         action="store_true",
@@ -717,9 +776,9 @@ def get_hk_options():
         "filtered at different corners for the Pps and Pss phases. " +
         "[Default False]")
     PreGroup.add_option(
-        "--freqs_copy",
+        "--bp-copy",
         action="store",
-        dest="freqs_copy",
+        dest="bp_copy",
         type=str,
         default=None,
         help="Specify a list of two floats with minimum and maximum" +
@@ -895,26 +954,48 @@ def get_hk_options():
     else:
         opts.calc_dip = True
 
-    if opts.freqs is None:
-        opts.freqs = [0.05, 0.5]
+    if opts.bp is None:
+        opts.bp = [0.05, 0.5]
     else:
-        opts.freqs = [float(val) for val in opts.freqs.split(',')]
-        opts.freqs = sorted(opts.freqs)
-        if (len(opts.freqs)) != 2:
+        opts.bp = [float(val) for val in opts.bp.split(',')]
+        opts.bp = sorted(opts.bp)
+        if (len(opts.bp)) != 2:
             parser.error(
-                "Error: --freqs should contain 2 " +
+                "Error: --bp should contain 2 " +
                 "comma-separated floats")
 
+## JMG ##
+    if opts.slowbound is None:
+        opts.slowbound = [0.04, 0.08]
+    else:
+        opts.slowbound = [float(val) for val in opts.slowbound.split(',')]
+        opts.slowbound = sorted(opts.slowbound)
+        if (len(opts.slowbound)) != 2:
+            parser.error(
+                "Error: --slowbound should contain 2 " +
+                "comma-separated floats")
+    
+    if opts.bazbound is None:
+        opts.bazbound = [0.0, 360.0]
+    else:
+        opts.bazbound = [float(val) for val in opts.bazbound.split(',')]
+        opts.bazbound = sorted(opts.bazbound)
+        if (len(opts.bazbound)) != 2:
+            parser.error(
+                "Error: --bazbound should contain 2 " +
+                "comma-separated floats")
+## JMG ##
+
     if opts.copy:
-        if opts.freqs_copy is None:
-            opts.freqs_copy = [0.05, 0.35]
+        if opts.bp_copy is None:
+            opts.bp_copy = [0.05, 0.35]
         else:
-            opts.freqs_copy = [float(val)
-                               for val in opts.freqs_copy.split(',')]
-            opts.freqs_copy = sorted(opts.freqs_copy)
-            if (len(opts.freqs_copy)) != 2:
+            opts.bp_copy = [float(val)
+                               for val in opts.bp_copy.split(',')]
+            opts.bp_copy = sorted(opts.bp_copy)
+            if (len(opts.bp_copy)) != 2:
                 parser.error(
-                    "Error: --freqs_copy should contain 2 " +
+                    "Error: --bp_copy should contain 2 " +
                     "comma-separated floats")
 
     if opts.hbound is None:
@@ -1026,13 +1107,13 @@ def get_harmonics_options():
         description="Options for pre-processing of receiver function " +
         "data prior to harmonic decomposition")
     PreGroup.add_option(
-        "--freqs",
+        "--bp",
         action="store",
         type=str,
-        dest="freqs",
+        dest="bp",
         default=None,
-        help="Specify a list of two floats with the minimum and maximum " +
-        "frequency corner for the bandpass filter (Hz). [Default [0.05, 0.5]]")
+        help="Specify the corner frequencies for the bandpass filter. " +
+        "[Default 0.05,0.5]")
     PreGroup.add_option(
         "--bin",
         action="store",
@@ -1046,9 +1127,32 @@ def get_harmonics_options():
         action="store",
         type=float,
         dest="snr",
-        default=5.,
+        default=-9999.,
         help="Specify the SNR threshold for extracting receiver functions. " +
-        "[Default 5.]")
+        "[Default None]")
+    PreGroup.add_option(
+        "--snrh",
+        action="store",
+        type=float,
+        dest="snrh",
+        default=-9999,
+        help="Specify the horizontal component SNR threshold for "+
+        "extracting receiver functions. [Default None]")
+    PreGroup.add_option(
+        "--cc",
+        action="store",
+        type=float,
+        dest="cc",
+        default=-1.,
+        help="Specify the CC threshold for extracting receiver functions. " +
+        "[Default None]")
+    PreGroup.add_option(
+        "--no-outlier",
+        action="store_true",
+        dest="no_outl",
+        default=False,
+        help="Set this option to delete outliers based on the MAD "+
+        "on the variance. [Default False]")
 
     HarmonicGroup = OptionGroup(
         parser,
@@ -1176,14 +1280,14 @@ def get_harmonics_options():
     else:
         opts.endT = None
 
-    if opts.freqs is None:
-        opts.freqs = [0.05, 0.5]
+    if opts.bp is None:
+        opts.bp = [0.05, 0.5]
     else:
-        opts.freqs = [float(val) for val in opts.freqs.split(',')]
-        opts.freqs = sorted(opts.freqs)
-        if (len(opts.freqs)) != 2:
+        opts.bp = [float(val) for val in opts.bp.split(',')]
+        opts.bp = sorted(opts.bp)
+        if (len(opts.bp)) != 2:
             parser.error(
-                "Error: --freqs should contain 2 " +
+                "Error: --bp should contain 2 " +
                 "comma-separated floats")
 
     if opts.azim is not None and opts.find_azim:
@@ -1302,9 +1406,32 @@ def get_ccp_options():
         action="store",
         type=float,
         dest="snr",
-        default=5.,
+        default=-9999.,
         help="Specify the SNR threshold for extracting receiver functions. " +
-        "[Default 5.]")
+        "[Default None]")
+    PreGroup.add_option(
+        "--snrh",
+        action="store",
+        type=float,
+        dest="snrh",
+        default=-9999,
+        help="Specify the horizontal component SNR threshold for "+
+        "extracting receiver functions. [Default None]")
+    PreGroup.add_option(
+        "--cc",
+        action="store",
+        type=float,
+        dest="cc",
+        default=-1.,
+        help="Specify the CC threshold for extracting receiver functions. " +
+        "[Default None]")
+    PreGroup.add_option(
+        "--no-outlier",
+        action="store_true",
+        dest="no_outl",
+        default=False,
+        help="Set this option to delete outliers based on the MAD "+
+        "on the variance. [Default False]")
     PreGroup.add_option(
         "--f1",
         action="store",
@@ -1512,9 +1639,10 @@ def get_ccp_options():
     if opts.gccp and not opts.linear and not opts.phase:
         opts.phase = True
 
-    if (opts.save_figure or opts.cbound or opts.fmt) and not opts.ccp_figure:
-        print("Warning: Figure will not be produced since --figure "+
-            "has not been set.")
+    if opts.ccp or opts.gccp:
+        if (opts.save_figure or opts.cbound or opts.fmt) and not opts.ccp_figure:
+            print("Warning: Figure will not be produced since --figure "+
+                "has not been set.")
 
     if opts.ccp_figure and not (opts.ccp or opts.gccp):
         parser.error(
@@ -1583,45 +1711,55 @@ def get_plot_options():
         action="store",
         type=float,
         dest="snr",
-        default=5.,
-        help="Specify the SNR threshold for extracting receiver functions. " +
+        default=-9999.,
+        help="Specify the vertical component SNR threshold for extracting receiver functions. " +
         "[Default 5.]")
-
-## JMG
     PreGroup.add_option(
         "--snrh",
         action="store",
         type=float,
         dest="snrh",
-        default=5.,
+        default=-9999.,
         help="Specify the horizontal component SNR threshold for extracting receiver functions. " +
-        "[Default 5.]")
-## JMG
-
+        "[Default None]")
     PreGroup.add_option(
         "--cc",
         action="store",
         type=float,
         dest="cc",
-        default=0.5,
+        default=-1.,
         help="Specify the CC threshold for extracting receiver functions. " +
-        "[Default 0.5]")
+        "[Default None]")
     PreGroup.add_option(
-        "--fmin",
-        action="store",
-        type=float,
-        dest="fmin",
-        default=0.05,
-        help="Specify the low frequency corner for the bandpass filter. " +
-        "[Default [0.05]]")
+        "--no-outlier",
+        action="store_true",
+        dest="no_outl",
+        default=False,
+        help="Set this option to delete outliers based on the MAD "+
+        "on the variance. [Default False]")
     PreGroup.add_option(
-        "--fmax",
+         "--binlim",
+         action="store",
+         type=float,
+         dest="binlim",
+         default=0,
+         help="Specify the minimum threshold for the number RFs needed before bin is "+
+         "plotted. [Default 0]")
+    PreGroup.add_option(
+        "--bp",
         action="store",
-        type=float,
-        dest="fmax",
-        default=0.5,
-        help="Specify the high frequency corner for the bandpass filter. " +
-        "[Default [0.5]]")
+        type=str,
+        dest="bp",
+        default=None,
+        help="Specify the corner frequencies for the bandpass filter. " +
+        "[Default no filtering]")
+    PreGroup.add_option(
+        "--pws",
+        action="store_true",
+        dest="pws",
+        default=False,
+        help="Set this option to use phase-weighted stacking during binning "+
+        " [Default False]")
     PreGroup.add_option(
         "--nbaz",
         action="store",
@@ -1681,13 +1819,20 @@ def get_plot_options():
         "receiver functions in the wiggle plots. [Default 100. for "+
         "a back-azimuth plot, 0.02 for a slowness plot]")
     PlotGroup.add_option(
-        "--tmax",
+        "--normalize",
+        action="store_true",
+        dest="norm",
+        default=False,
+        help="Set this option to produce receiver functions normalized "+
+        "by the max amplitude of stacked RFs. [Default False]")
+    PlotGroup.add_option(
+        "--trange",
         action="store",
-        default=30.,
-        type=float,
-        dest="tmax",
-        help="Specify the maximum time on the x-axis for plotting (sec). "+
-        "[Default 30.]")
+        default=None,
+        type=str,
+        dest="trange",
+        help="Specify the time range for the x-axis (sec). Negative times "+
+        "are allowed [Default 0., 30.]")
     PlotGroup.add_option(
         "--stacked",
         action="store_true",
@@ -1730,7 +1875,6 @@ def get_plot_options():
     if not exist(indb):
         parser.error("Input file " + indb + " does not exist")
 
-
 ## JMG ##
     if opts.slowbound is None:
         opts.slowbound = [0.04, 0.08]
@@ -1753,6 +1897,24 @@ def get_plot_options():
                 "comma-separated floats")
 ## JMG ##
 
+    if opts.bp is not None:
+        opts.bp = [float(val) for val in opts.bp.split(',')]
+        opts.bp = sorted(opts.bp)
+        if (len(opts.bp)) != 2:
+            parser.error(
+                "Error: --bp should contain 2 " +
+                "comma-separated floats")
+
+    if opts.trange is None:
+        opts.tmin = 0.
+        opts.tmax = 30.
+    if opts.trange is not None:
+        opts.trange = [float(val) for val in opts.trange.split(',')]
+        opts.trange = sorted(opts.trange)
+        if (len(opts.trange)) != 2:
+            parser.error(
+                "Error: --trange should contain 2 " +
+                "comma-separated floats")
 
     # create station key list
     if len(opts.stkeys) > 0:
@@ -2259,13 +2421,16 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
     # Three components successfully retrieved
     else:
 
+        # try:
+        #     st.trim(start, end, pad=True, fill_value=0.)
+        # except:
         try:
-            st.trim(start, end, pad=True, fill_value=0.)
+            st.trim(start, end)
         except:
-            try:
-                st.trim(start, end)
-            except:
-                return True, None
+            print("* Unable to trim")
+            print("* -> Aborting")
+            print("**************************************************")
+            return True, None
 
         trA = st[0].copy()
         trB = st[1].copy()
