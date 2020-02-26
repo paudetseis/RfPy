@@ -750,7 +750,7 @@ def get_hk_options():
         help="Set this option to delete outliers based on the MAD "+
         "on the variance. [Default False]")
 ## JMG ##
-     PreGroup.add_option(
+    PreGroup.add_option(
          "--slowbound",
          action="store",
         dest="slowbound",
@@ -1737,7 +1737,7 @@ def get_plot_options():
         default=False,
         help="Set this option to delete outliers based on the MAD "+
         "on the variance. [Default False]")
-     PreGroup.add_option(
+    PreGroup.add_option(
          "--binlim",
          action="store",
          type=float,

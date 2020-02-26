@@ -111,13 +111,14 @@ def main():
                 rfdata = pickle.load(file)
 
                 ## JMG ##
-                if rfdata[0].stats.snrh > opts.snrh and rfdata[0].stats.snr and \
+                if rfdata[0].stats.snrh > opts.snrh and \
+                    rfdata[0].stats.snr > opts.snr and \
                         rfdata[0].stats.cc > opts.cc:
 
-                    if ( (rfdata[0].stats.slow > opts.slowbound[0]) and \
-                         (rfdata[0].stats.slow < opts.slowbound[1]) and \
-                         (rfdata[0].stats.baz > opts.bazbound[0]) and \
-                         (rfdata[0].stats.baz < opts.bazbound[1]) ):
+                    if ((rfdata[0].stats.slow > opts.slowbound[0]) and
+                        (rfdata[0].stats.slow < opts.slowbound[1]) and
+                        (rfdata[0].stats.baz > opts.bazbound[0]) and
+                            (rfdata[0].stats.baz < opts.bazbound[1])):
 
                         if opts.phase:
                             if (rfdata[0].stats.phase == opts.phase):
@@ -184,13 +185,13 @@ def main():
                                  pws=opts.pws)
 
         # Check bin counts:
-         for tr in rf_tmp[0]:
-             if (tr.stats.nbin < 4):
-                 rf_tmp[0].remove(tr)
-         for tr in rf_tmp[1]:
-             if (tr.stats.nbin < 4):
-                 rf_tmp[1].remove(tr)
-                     
+        for tr in rf_tmp[0]:
+            if (tr.stats.nbin < 4):
+                rf_tmp[0].remove(tr)
+        for tr in rf_tmp[1]:
+            if (tr.stats.nbin < 4):
+                rf_tmp[1].remove(tr)
+
         # Show a stacked trace on top OR normalize option specified
         if opts.stacked or opts.norm:
             st_tmp = binning.bin_all(rf_tmp[0], rf_tmp[1], pws=opts.pws)
@@ -201,8 +202,8 @@ def main():
             t1 = opts.trange[0]
             t2 = opts.trange[1]
 
-            normR = np.amax(np.abs(tr1.data[(taxis>t1) & (taxis<t2)]))
-            normT = np.amax(np.abs(tr2.data[(taxis>t1) & (taxis<t2)]))
+            normR = np.amax(np.abs(tr1.data[(taxis > t1) & (taxis < t2)]))
+            normT = np.amax(np.abs(tr2.data[(taxis > t1) & (taxis < t2)]))
             norm = np.max([normR, normT])
         else:
             norm = None
@@ -213,13 +214,13 @@ def main():
         if opts.nbaz:
             plotting.wiggle_bins(rf_tmp[0], rf_tmp[1], tr1=tr1, tr2=tr2,
                                  btyp='baz', scale=opts.scale,
-                                 tmin=opts.trange[0], tmax=opts.trange[1], 
+                                 tmin=opts.trange[0], tmax=opts.trange[1],
                                  norm=norm, save=opts.saveplot,
                                  title=opts.titleplot, form=opts.form)
         elif opts.nslow:
             plotting.wiggle_bins(rf_tmp[0], rf_tmp[1], tr1=tr1, tr2=tr2,
                                  btyp='slow', scale=opts.scale,
-                                 tmin=opts.trange[0], tmax=opts.trange[1], 
+                                 tmin=opts.trange[0], tmax=opts.trange[1],
                                  norm=norm, save=opts.saveplot,
                                  title=opts.titleplot, form=opts.form)
 
