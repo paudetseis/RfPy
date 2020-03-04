@@ -72,9 +72,12 @@ def main():
         sta = db[stkey]
 
         # Define path to see if it exists
-        datapath = 'DATA/' + stkey
+        if opts.phase in ['P', 'PP', 'allP']:
+            datapath = 'P_DATA/' + stkey
+        elif opts.phase in ['S', 'SKS', 'allS']:
+            datapath = 'S_DATA/' + stkey
         if not os.path.isdir(datapath):
-            print("Path to '+datapath+' doesn't exist - continuing")
+            print('Path to ' + datapath + ' doesn`t exist - continuing')
             continue
 
         # Temporary print locations
@@ -105,30 +108,43 @@ def main():
 
         for folder in os.listdir(datapath):
 
-            filename = datapath+"/"+folder+"/RF_Data.pkl"
+            # Load meta data
+            filename = datapath+"/"+folder+"/Meta_Data.pkl"
+            if not os.path.isfile(filename):
+                continue
+            meta = pickle.load(open(filename,'rb'))
+
+            # Skip data not in list of phases
+            if meta.phase not in opts.listphase:
+                continue
+
+            # QC Thresholding
+            if meta.snrh < opts.snrh:
+                continue
+            if meta.snr < opts.snr:
+                continue
+            if meta.cc < opts.cc:
+                continue
+
+            # Check bounds on data
+            if meta.slow < opts.slowbound[0] or meta.slow > opts.slowbound[1]:
+                continue
+            if meta.baz < opts.bazbound[0] or meta.baz > opts.bazbound[1]:
+                continue
+
+            # If everything passed, load the RF data
+            filename = datapath + "/" + folder + "/RF_Data.pkl"
             if os.path.isfile(filename):
                 file = open(filename, "rb")
                 rfdata = pickle.load(file)
-
-                ## JMG ##
-                if rfdata[0].stats.snrh > opts.snrh and \
-                    rfdata[0].stats.snr > opts.snr and \
-                        rfdata[0].stats.cc > opts.cc:
-
-                    if ((rfdata[0].stats.slow > opts.slowbound[0]) and
-                        (rfdata[0].stats.slow < opts.slowbound[1]) and
-                        (rfdata[0].stats.baz > opts.bazbound[0]) and
-                            (rfdata[0].stats.baz < opts.bazbound[1])):
-
-                        if opts.phase:
-                            if (rfdata[0].stats.phase == opts.phase):
-                                rfRstream.append(rfdata[1])
-                                rfTstream.append(rfdata[2])
-                        else:
-                            rfRstream.append(rfdata[1])
-                            rfTstream.append(rfdata[2])
-                    ## JMG ##
-
+                if opts.phase in ['P', 'PP', 'allP']:
+                    Rcmp = 1
+                    Tcmp = 2
+                elif opts.phase in ['S', 'SKS', 'allS']:
+                    Rcmp = 1
+                    Tcmp = 2
+                rfRstream.append(rfdata[Rcmp])
+                rfTstream.append(rfdata[Tcmp])
                 file.close()
 
         if len(rfRstream) == 0:
@@ -186,11 +202,12 @@ def main():
 
         # Check bin counts:
         for tr in rf_tmp[0]:
-            if (tr.stats.nbin < 4):
+            if (tr.stats.nbin < opts.binlim):
                 rf_tmp[0].remove(tr)
         for tr in rf_tmp[1]:
-            if (tr.stats.nbin < 4):
+            if (tr.stats.nbin < opts.binlim):
                 rf_tmp[1].remove(tr)
+        print(rf_tmp[0])
 
         # Show a stacked trace on top OR normalize option specified
         if opts.stacked or opts.norm:

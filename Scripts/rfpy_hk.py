@@ -136,15 +136,35 @@ def main():
 
             if dateUTC > tstart and dateUTC < tend:
 
-                filename = datapath+"/"+folder+"/RF_Data.pkl"
-                if os.path.isfile(filename):
+                # Load meta data
+                if not os.path.isfile(datapath+"/"+folder+"/Meta_Data.pkl"):
+                    continue
+                meta = pickle.load(open(
+                    datapath + "/" + folder + "/Meta_Data.pkl",'rb'))
+
+                # Skip data not in list of phases
+                if meta.phase not in opts.listphase:
+                    continue
+
+                # QC Thresholding
+                if meta.snrh < opts.snrh:
+                    continue
+                if meta.snr < opts.snr:
+                    continue
+                if meta.cc < opts.cc:
+                    continue
+
+                # # Check bounds on data
+                # if meta.slow < opts.slowbound[0] and meta.slow > opts.slowbound[1]:
+                #     continue
+                # if meta.baz < opts.bazbound[0] and meta.baz > opts.bazbound[1]:
+                #     continue
+
+                # If everything passed, load the RF data
+                if os.path.isfile(datapath + "/" + folder + "/RF_Data.pkl"):
                     file = open(filename, "rb")
                     rfdata = pickle.load(file)
-                    if rfdata[0].stats.snrh > opts.snrh and rfdata[0].stats.snr and \
-                            rfdata[0].stats.cc > opts.cc:
-
-                        rfRstream.append(rfdata[1])
-
+                    rfRstream.append(rfdata[1])
                     file.close()
 
         if len(rfRstream) == 0:
