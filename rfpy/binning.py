@@ -61,23 +61,20 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False):
     """
 
     if not typ in ['baz', 'slow', 'dist']:
-        raise(Exception("ype has to be 'baz' or 'slow' or 'dist'"))
+        raise(Exception("Type has to be 'baz' or 'slow' or 'dist'"))
 
     if typ == 'baz':
         bmin = 0
         bmax = 360
         stat = [stream1[i].stats.baz for i in range(len(stream1))]
     elif typ == 'slow':
-        bmin = 0.04
-        bmax = 0.08
         stat = [stream1[i].stats.slow for i in range(len(stream1))]
+        bmin = np.min(np.array(stat))
+        bmax = np.max(np.array(stat))
     elif typ == 'dist':
-        try:
-            bmin = 30.
-            bmax = 90.
-            stat = [stream1[i].stats.sac.user0 for i in range(len(stream1))]
-        except:
-            raise(Exception("No 'dist' attribute in stats"))
+        stat = [stream1[i].stats.gac for i in range(len(stream1))]
+        bmin = np.min(np.array(stat))
+        bmax = np.max(np.array(stat))
 
     # Define bins
     bins = np.linspace(bmin, bmax, nbin)

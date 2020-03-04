@@ -27,10 +27,6 @@ that accompany this package.
 """
 
 # -*- coding: utf-8 -*-
-from obspy import UTCDateTime
-from numpy import nan, isnan
-from obspy.core import Stream, read
-
 
 def get_calc_options():
     """
@@ -213,17 +209,17 @@ def get_calc_options():
         action="store",
         type=float,
         dest="mindist",
-        default=30.,
+        default=None,
         help="Specify the minimum great circle distance (degrees) between " +
-        "the station and event. [Default 30.]")
+        "the station and event. [Default depends on phase]")
     PhaseGroup.add_option(
         "--maxdist",
         action="store",
         type=float,
         dest="maxdist",
-        default=90.,
+        default=None,
         help="Specify the maximum great circle distance (degrees) between " +
-        "the station and event. [Default 90.]")
+        "the station and event. [Default depends on phase]")
 
     # Constants Settings
     ConstGroup = OptionGroup(
@@ -235,8 +231,8 @@ def get_calc_options():
         action="store",
         type=float,
         dest="new_sampling_rate",
-        default=5.,
-        help="Specify new sampling rate in Hz. [Default 5.]")
+        default=10.,
+        help="Specify new sampling rate in Hz. [Default 10.]")
     ConstGroup.add_option(
         "--dts",
         action="store",
@@ -401,19 +397,45 @@ def get_calc_options():
         opts.ndval = nan
 
     # Check distances for selected phase
-    if opts.phase not in ['P', 'PP']:
+    if opts.phase not in ['P', 'PP', 'S', 'SKS']:
         parser.error(
-            "Error: choose between 'P' and 'PP'.")
+            "Error: choose between 'P', 'PP', 'S' and 'SKS'.")
     if opts.phase == 'P':
+        if not opts.mindist:
+            opts.mindist = 30.
+        if not opts.maxdist:
+            opts.maxdist = 100.
         if opts.mindist < 30. or opts.maxdist > 100.:
             parser.error(
                 "Distances should be between 30 and 100 deg. for "+
                 "teleseismic 'P' waves.")
     elif opts.phase == 'PP':
+        if not opts.mindist:
+            opts.mindist = 100.
+        if not opts.maxdist:
+            opts.maxdist = 180.
         if opts.mindist < 100. or opts.maxdist > 180.:
             parser.error(
                 "Distances should be between 100 and 180 deg. for "+
                 "teleseismic 'PP' waves.")
+    elif opts.phase == 'S':
+        if not opts.mindist:
+            opts.mindist = 55.
+        if not opts.maxdist:
+            opts.maxdist = 85.
+        if opts.mindist < 55. or opts.maxdist > 85.:
+            parser.error(
+                "Distances should be between 55 and 85 deg. for "+
+                "teleseismic 'S' waves.")
+    elif opts.phase == 'SKS':
+        if not opts.mindist:
+            opts.mindist = 85.
+        if not opts.maxdist:
+            opts.maxdist = 115.
+        if opts.mindist < 85. or opts.maxdist > 115.:
+            parser.error(
+                "Distances should be between 85 and 115 deg. for "+
+                "teleseismic 'SKS' waves.")
 
     if opts.pre_filt is not None:
         opts.pre_filt = [float(val) for val in opts.pre_filt.split(',')]
@@ -492,6 +514,15 @@ def get_recalc_options():
         parser,
         title='Parameter Settings',
         description="Miscellaneous default values and settings")
+    ConstGroup.add_option(
+        "--phase",
+        action="store",
+        type=str,
+        dest="phase",
+        default='allP',
+        help="Specify the phase name to use. Be careful with the distance. "+
+        "setting. Options are 'P', 'PP', 'allP', 'S', 'SKS' or 'allS'. "+
+        "[Default 'allP']")
     ConstGroup.add_option(
         "--align",
         action="store",
@@ -594,6 +625,16 @@ def get_recalc_options():
     # create station key list
     if len(opts.stkeys) > 0:
         opts.stkeys = opts.stkeys.split(',')
+
+    if opts.phase not in ['P', 'PP', 'allP', 'S', 'SKS', 'allS']:
+        parser.error(
+            "Error: choose between 'P', 'PP', 'allP', 'S', 'SKS' and 'allS'.")
+    if opts.phase == 'allP':
+        opts.listphase = ['P', 'PP']
+    elif opts.phase == 'allS':
+        opts.listphase = ['S', 'SKS']
+    else:
+        opts.listphase = [opts.phase]    
 
     if opts.align is None:
         opts.align = 'ZRT'
@@ -1802,7 +1843,8 @@ def get_plot_options():
         dest="phase",
         default=None,
         help="Specify the phase name to plot.  "+
-        "Options are 'P' or 'PP'. [Default Both]")
+        "Options are 'P', 'PP', 'allP', 'S', 'SKS' or 'allS'. "+
+        "[Default 'allP']")
 ## JMG ##
 
     PlotGroup = OptionGroup(
@@ -1897,6 +1939,17 @@ def get_plot_options():
                 "comma-separated floats")
 ## JMG ##
 
+    if opts.phase not in ['P', 'PP', 'allP', 'S', 'SKS', 'allS']:
+        parser.error(
+            "Error: choose between 'P', 'PP', 'allP', 'S', 'SKS' and 'allS'.")
+    if opts.phase == 'allP':
+        opts.listphase = ['P', 'PP']
+    elif opts.phase == 'allS':
+        opts.listphase = ['S', 'SKS']
+    else:
+        opts.listphase = [opts.phase]    
+
+
     if opts.bp is not None:
         opts.bp = [float(val) for val in opts.bp.split(',')]
         opts.bp = sorted(opts.bp)
@@ -1928,525 +1981,3 @@ def get_plot_options():
     return (opts, indb)
 
 
-def list_local_data_stn(lcldrs=list, sta=None, net=None, altnet=[]):
-    """
-    Function to take the list of local directories and recursively 
-    find all data that matches the station name
-
-    Parameters
-    ----------
-    lcldrs : List
-        List of local directories
-    sta : Dict
-        Station metadata from :mod:`~StDb`
-    net : str
-        Network name
-    altnet : List
-        List of alternative networks
-
-    Returns
-    -------
-    fpathmatch : List
-        Sorted list of matched directories
-
-    """
-    from fnmatch import filter
-    from os import walk
-    from os.path import join
-
-    if sta is None:
-        return []
-    else:
-        if net is None:
-            sstrings = ['*.{0:s}.*.SAC'.format(sta)]
-        else:
-            sstrings = ['*.{0:s}.{1:s}.*.SAC'.format(net, sta)]
-            if len(altnet) > 0:
-                for anet in altnet:
-                    sstrings.append('*.{0:s}.{1:s}.*.SAC'.format(anet, sta))
-
-    fpathmatch = []
-    # Loop over all local data directories
-    for lcldr in lcldrs:
-        # Recursiely walk through directory
-        for root, dirnames, filenames in walk(lcldr):
-            # Keep paths only for those matching the station
-            for sstring in sstrings:
-                for filename in filter(filenames, sstring):
-                    fpathmatch.append(join(root, filename))
-
-    fpathmatch.sort()
-
-    return fpathmatch
-
-
-def parse_localdata_for_comp(comp='Z', stdata=[], sta=None,
-                             start=UTCDateTime, end=UTCDateTime, ndval=nan):
-    """
-    Function to determine the path to data for a given component and alternate network
-
-    Parameters
-    ----------
-    comp : str
-        Channel for seismogram (one letter only)
-    stdata : List
-        Station list
-    sta : Dict
-        Station metadata from :mod:`~StDb` data base
-    start : :class:`~obspy.core.utcdatetime.UTCDateTime`
-        Start time for request
-    end : :class:`~obspy.core.utcdatetime.UTCDateTime`
-        End time for request
-    ndval : float or nan
-        Default value for missing data
-
-    Returns
-    -------
-    err : bool
-        Boolean for error handling (`False` is associated with success)
-    st : :class:`~obspy.core.Stream`
-        Stream containing North, East and Vertical components of motion
-
-    """
-
-    from fnmatch import filter
-
-    # Get start and end parameters
-    styr = start.strftime("%Y")
-    stjd = start.strftime("%j")
-    edyr = end.strftime("%Y")
-    edjd = end.strftime("%j")
-
-    # Intialize to default positive error
-    erd = True
-
-    print(
-        ("*          {0:2s}{1:1s} - Checking Disk".format(sta.channel.upper(),
-                                                          comp.upper())))
-
-    # Time Window Spans Single Day
-    if stjd == edjd:
-        # Format 1
-        lclfiles = list(filter(
-            stdata,
-            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.{4:2s}{5:1s}.SAC'.format(
-                styr, stjd, sta.network.upper(
-                ), sta.station.upper(), sta.channel.upper()[0:2],
-                comp.upper())))
-        # Format 2
-        if len(lclfiles) == 0:
-            lclfiles = list(filter(
-                stdata,
-                '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*{4:1s}.SAC'.format(
-                    styr, stjd, sta.network.upper(), sta.station.upper(),
-                    comp.upper())))
-
-        # Alternate Nets (for CN/PO issues) Format 1
-        if len(lclfiles) == 0:
-            lclfiles = []
-            for anet in sta.altnet:
-                lclfiles.extend(
-                    list(
-                        filter(
-                            stdata,
-                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.' +
-                            '{4:2s}{5:1s}.SAC'.format(
-                                styr, stjd, anet.upper(), sta.station.upper(),
-                                sta.channel.upper()[0:2], comp.upper()))))
-
-        # Alternate Nets (for CN/PO issues) Format 2
-        if len(lclfiles) == 0:
-            # Check Alternate Networks
-            lclfiles = []
-            for anet in sta.altnet:
-                lclfiles.extend(
-                    list(
-                        filter(
-                            stdata,
-                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*' +
-                            '{4:1s}.SAC'.format(
-                                styr, stjd, sta.network.upper(),
-                                sta.station.upper(), comp.upper()))))
-
-        # If still no Local files stop
-        if len(lclfiles) == 0:
-            print("*              - Data Unavailable")
-            return erd, None
-
-        # Process the local Files
-        for sacfile in lclfiles:
-            # Read File
-            st = read(sacfile)
-            # st = read(sacfile, format="SAC")
-
-            # Should only be one component, otherwise keep reading If more
-            # than 1 component, error
-            if len(st) != 1:
-                pass
-
-            else:
-                # Check for NoData and convert to NaN
-                stnd = st[0].stats.sac['user9']
-                eddt = False
-                if (not stnd == 0.0) and (not stnd == -12345.0):
-                    st[0].data[st[0].data == stnd] = ndval
-                    eddt = True
-
-                # Check start/end times in range
-                if (st[0].stats.starttime <= start and
-                        st[0].stats.endtime >= end):
-                    st.trim(starttime=start, endtime=end)
-
-                    # Check for Nan in stream
-                    if True in isnan(st[0].data):
-                        print(
-                            "*          !!! Missing Data Present !!! " +
-                            "Skipping (NaNs)")
-                    else:
-                        if eddt and (ndval == 0.0):
-                            if any(st[0].data == 0.0):
-                                print(
-                                    "*          !!! Missing Data Present " +
-                                    "!!! (Set to Zero)")
-
-                        st[0].stats.update()
-                        tloc = st[0].stats.location
-                        if len(tloc) == 0:
-                            tloc = "--"
-
-                        # Processed succesfully...Finish
-                        print(("*          {1:3s}.{2:2s}  - From Disk".format(
-                            st[0].stats.station, st[0].stats.channel.upper(),
-                            tloc)))
-                        return False, st
-
-    # Time Window spans Multiple days
-    else:
-        # Day 1 Format 1
-        lclfiles1 = list(
-            filter(stdata,
-                   '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.{4:2s}{5:1s}.SAC'.format(
-                       styr, stjd, sta.network.upper(), sta.station.upper(),
-                       sta.channel.upper()[0:2], comp.upper())))
-        # Day 1 Format 2
-        if len(lclfiles1) == 0:
-            lclfiles1 = list(
-                filter(stdata,
-                       '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*{4:1s}.SAC'.format(
-                           styr, stjd, sta.network.upper(),
-                           sta.station.upper(), comp.upper())))
-        # Day 1 Alternate Nets (for CN/PO issues) Format 1
-        if len(lclfiles1) == 0:
-            lclfiles1 = []
-            for anet in sta.altnet:
-                lclfiles1.extend(
-                    list(
-                        filter(
-                            stdata,
-                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.' +
-                            '{4:2s}{5:1s}.SAC'.format(
-                                styr, stjd, anet.upper(), sta.station.upper(
-                                ), sta.channel.upper()[0:2],
-                                comp.upper()))))
-        # Day 1 Alternate Nets (for CN/PO issues) Format 2
-        if len(lclfiles1) == 0:
-            lclfiles1 = []
-            for anet in sta.altnet:
-                lclfiles1.extend(
-                    list(
-                        filter(
-                            stdata,
-                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*{4:1s}.SAC'.format(
-                                styr, stjd, anet.upper(),
-                                sta.station.upper(), comp.upper()))))
-
-        # Day 2 Format 1
-        lclfiles2 = list(
-            filter(stdata,
-                   '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.{4:2s}{5:1s}.SAC'.format(
-                       edyr, edjd, sta.network.upper(
-                       ), sta.station.upper(), sta.channel.upper()[0:2],
-                       comp.upper())))
-        # Day 2 Format 2
-        if len(lclfiles2) == 0:
-            lclfiles2 = list(
-                filter(stdata,
-                       '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*' +
-                       '{4:1s}.SAC'.format(
-                           edyr, edjd, sta.network.upper(),
-                           sta.station.upper(),
-                           comp.upper())))
-        # Day 2 Alternate Nets (for CN/PO issues) Format 1
-        if len(lclfiles2) == 0:
-            lclfiles2 = []
-            for anet in sta.altnet:
-                lclfiles2.extend(
-                    list(
-                        filter(
-                            stdata,
-                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.' +
-                            '{4:2s}{5:1s}.SAC'.format(
-                                edyr, edjd, anet.upper(), sta.station.upper(),
-                                sta.channel.upper()[0:2], comp.upper()))))
-        # Day 2 Alternate Nets (for CN/PO issues) Format 2
-        if len(lclfiles2) == 0:
-            lclfiles2 = []
-            for anet in sta.altnet:
-                lclfiles2.extend(
-                    list(
-                        filter(
-                            stdata,
-                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*{4:1s}.SAC'.format(
-                                edyr, edjd, anet.upper(), sta.station.upper(),
-                                comp.upper()))))
-
-        # If still no Local files stop
-        if len(lclfiles1) == 0 and len(lclfiles2) == 0:
-            print("*              - Data Unavailable")
-            return erd, None
-
-        # Now try to merge the two separate day files
-        if len(lclfiles1) > 0 and len(lclfiles2) > 0:
-            # Loop over first day file options
-            for sacf1 in lclfiles1:
-                st1 = read(sacf1, format='SAC')
-                # Loop over second day file options
-                for sacf2 in lclfiles2:
-                    st2 = read(sacf2, format='SAC')
-
-                    # Check time overlap of the two files.
-                    if st1[0].stats.endtime >= \
-                            st2[0].stats.starttime-st2[0].stats.delta:
-                        # Check for NoData and convert to NaN
-                        st1nd = st1[0].stats.sac['user9']
-                        st2nd = st2[0].stats.sac['user9']
-                        eddt1 = False
-                        eddt2 = False
-                        if (not st1nd == 0.0) and (not st1nd == -12345.0):
-                            st1[0].data[st1[0].data == st1nd] = ndval
-                            eddt1 = True
-                        if (not st2nd == 0.0) and (not st2nd == -12345.0):
-                            st2[0].data[st2[0].data == st2nd] = ndval
-                            eddt2 = True
-
-                        st = st1 + st2
-                        # Need to work on this HERE (AJS OCT 2015).
-                        # If Calibration factors are different,
-                        try:
-                                # then the traces cannot be merged.
-                            st.merge()
-
-                            # Should only be one component, otherwise keep
-                            # reading If more than 1 component, error
-                            if len(st) != 1:
-                                print(st)
-                                print("merge failed?")
-
-                            else:
-                                if (st[0].stats.starttime <= start and
-                                        st[0].stats.endtime >= end):
-                                    st.trim(starttime=start, endtime=end)
-
-                                    # Check for Nan in stream
-                                    if True in isnan(st[0].data):
-                                        print(
-                                            "*          !!! Missing Data " +
-                                            "Present !!! Skipping (NaNs)")
-                                    else:
-                                        if (eddt1 or eddt2) and (ndval == 0.0):
-                                            if any(st[0].data == 0.0):
-                                                print(
-                                                    "*          !!! Missing " +
-                                                    "Data Present !!! (Set " +
-                                                    "to Zero)")
-
-                                        st[0].stats.update()
-                                        tloc = st[0].stats.location
-                                        if len(tloc) == 0:
-                                            tloc = "--"
-
-                                        # Processed succesfully...Finish
-                                        print(("*          {1:3s}.{2:2s}  - " +
-                                               "From Disk".format(
-                                                   st[0].stats.station,
-                                                   st[0].stats.channel.upper(),
-                                                   tloc)))
-                                        return False, st
-
-                        except:
-                            pass
-                    else:
-                        print(("*                 - Merge Failed: No " +
-                               "Overlap {0:s} - {1:s}".format(
-                                   st1[0].stats.endtime,
-                                   st2[0].stats.starttime -
-                                   st2[0].stats.delta)))
-
-    # If we got here, we did not get the data.
-    print("*              - Data Unavailable")
-    return erd, None
-
-
-def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
-                  stdata=[], ndval=nan, new_sr=0.):
-    """
-    Function to build a stream object for a seismogram in a given time window either
-    by downloading data from the client object or alternatively first checking if the
-    given data is already available locally.
-
-    Note 
-    ----
-    Currently only supports NEZ Components!
-
-    Parameters
-    ----------
-    client : :class:`~obspy.client.fdsn.Client`
-        Client object
-    sta : Dict
-        Station metadata from :mod:`~StDb` data base
-    start : :class:`~obspy.core.utcdatetime.UTCDateTime`
-        Start time for request
-    end : :class:`~obspy.core.utcdatetime.UTCDateTime`
-        End time for request
-    stdata : List
-        Station list
-    ndval : float or nan
-        Default value for missing data
-
-    Returns
-    -------
-    err : bool
-        Boolean for error handling (`False` is associated with success)
-    trN : :class:`~obspy.core.Trace`
-        Trace of North component of motion
-    trE : :class:`~obspy.core.Trace`
-        Trace of East component of motion
-    trZ : :class:`~obspy.core.Trace` 
-        Trace of Vertical component of motion
-
-    """
-
-    from fnmatch import filter
-    from obspy import read, Stream
-    from os.path import dirname, join, exists
-    from numpy import any
-
-    # Output
-    print(("*     {0:s}.{1:2s} - ZNE:".format(sta.station,
-                                              sta.channel.upper())))
-
-    # Set Error Default to True
-    erd = True
-
-    # Check if there is local data
-    if len(stdata) > 0:
-        # Only a single day: Search for local data
-        # Get Z localdata
-        errZ, stZ = parse_localdata_for_comp(
-            comp='Z', stdata=stdata, sta=sta, start=start, end=end,
-            ndval=ndval)
-        # Get N localdata
-        errN, stN = parse_localdata_for_comp(
-            comp='N', stdata=stdata, sta=sta, start=start, end=end,
-            ndval=ndval)
-        # Get E localdata
-        errE, stE = parse_localdata_for_comp(
-            comp='E', stdata=stdata, sta=sta, start=start, end=end,
-            ndval=ndval)
-        # Retreived Succesfully?
-        erd = errZ or errN or errE
-        if not erd:
-            # Combine Data
-            st = stZ + stN + stE
-
-    # No local data? Request using client
-    if erd:
-        erd = False
-
-        for loc in sta.location:
-            tloc = loc
-            # Construct location name
-            if len(tloc) == 0:
-                tloc = "--"
-            # Construct Channel List
-            channelsZNE = sta.channel.upper() + 'Z,' + sta.channel.upper() + \
-                'N,' + sta.channel.upper() + 'E'
-            print(("*          {1:2s}[ZNE].{2:2s} - Checking Network".format(
-                sta.station, sta.channel.upper(), tloc)))
-
-            try:
-                st = client.get_waveforms(
-                    network=sta.network,
-                    station=sta.station, location=loc,
-                    channel=channelsZNE, starttime=start,
-                    endtime=end, attach_response=False)
-                if len(st) == 3:
-                    print("*              - ZNE Data Downloaded")
-
-                # it's possible if len(st)==1 that data is Z12
-                else:
-                    # Construct Channel List
-                    channelsZ12 = sta.channel.upper() + 'Z,' + \
-                        sta.channel.upper() + '1,' + \
-                        sta.channel.upper() + '2'
-                    msg = "*          {1:2s}[Z12].{2:2s} - Checking Network".format(
-                        sta.station, sta.channel.upper(), tloc)
-                    print(msg)
-                    try:
-                        st = client.get_waveforms(
-                            network=sta.network,
-                            station=sta.station, location=loc,
-                            channel=channelsZ12, starttime=start,
-                            endtime=end, attach_response=False)
-                        if len(st) == 3:
-                            print("*              - Z12 Data Downloaded")
-                        else:
-                            st = None
-                    except:
-                        st = None
-            except:
-                st = None
-
-            # Break if we successfully obtained 3 components in st
-            if not erd:
-
-                break
-
-    # Check the correct 3 components exist
-    if st is None:
-        print("* Error retrieving waveforms")
-        print("**************************************************")
-        return True, None
-
-    # Three components successfully retrieved
-    else:
-
-        # try:
-        #     st.trim(start, end, pad=True, fill_value=0.)
-        # except:
-        try:
-            st.trim(start, end)
-        except:
-            print("* Unable to trim")
-            print("* -> Aborting")
-            print("**************************************************")
-            return True, None
-
-        trA = st[0].copy()
-        trB = st[1].copy()
-        trC = st[2].copy()
-
-        # Check trace lengths
-        lenA = len(trA.data)
-        lenB = len(trB.data)
-        lenC = len(trC.data)
-
-        if not (lenA == lenB and lenA == lenC):
-            print("* Lengths are incompatible: ", lenA, lenB, lenC)
-            print("* -> Aborting")
-            print("**************************************************")
-            return True, None
-
-        else:
-            print("* Waveforms Retrieved...")
-            return False, st

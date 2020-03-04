@@ -73,9 +73,12 @@ def main():
         sta = db[stkey]
 
         # Define path to see if it exists
-        datapath = 'DATA/' + stkey
+        if opts.phase in ['P', 'PP', 'allP']:
+            datapath = 'P_DATA/' + stkey
+        elif opts.phase in ['S', 'SKS', 'allS']:
+            datapath = 'S_DATA/' + stkey
         if not os.path.isdir(datapath):
-            print('Path to '+datapath+' doesn`t exist - continuing')
+            print('Path to ' + datapath + ' doesn`t exist - continuing')
             continue
 
         # Temporary print locations
@@ -115,11 +118,15 @@ def main():
             rfdata.meta = pickle.load(open(
                 datapath+"/"+folder+"/Meta_Data.pkl",'rb'))
 
+            # Skip data not in list of phases
+            if rfdata.meta.phase not in opts.listphase:
+                continue
+
             if opts.verb:
                 print("* Station: {0}; folder: {1}".format(stkey,folder))
 
-            if not hasattr(rfdata.meta, 'phase'):
-                rfdata.meta.phase = 'P'
+            # if not hasattr(rfdata.meta, 'phase'):
+            #     rfdata.meta.phase = 'P'
 
             # Load ZNE data
             rfdata.data = pickle.load(open(

@@ -30,7 +30,7 @@ import pickle
 import glob
 import stdb
 from obspy.clients.fdsn import Client
-from rfpy import options
+from rfpy import options, utils
 from rfpy import RFData
 
 # Main function
@@ -75,7 +75,10 @@ def main():
         sta = db[stkey]
 
         # Define path to see if it exists
-        datapath = 'DATA/' + stkey
+        if opts.phase in ['P', 'PP']:
+            datapath = 'P_DATA/' + stkey
+        elif opts.phase in ['S', 'SKS']:
+            datapath = 'S_DATA/' + stkey
         if not os.path.isdir(datapath):
             print('Path to '+datapath+' doesn`t exist - creating it')
             os.makedirs(datapath)
@@ -167,7 +170,7 @@ def main():
             print("|-----------------------------------------------|")
             print("| Cataloging Local Data...                      |")
             if opts.useNet:
-                stalcllist = options.list_local_data_stn(
+                stalcllist = utils.list_local_data_stn(
                     lcldrs=opts.localdata, sta=sta.station,
                     net=sta.network, altnet=sta.altnet)
                 print("|   {0:>2s}.{1:5s}: {2:6d}".format(
@@ -175,7 +178,7 @@ def main():
                     " files                      |")
                 print(stalcllist[0:10])
             else:
-                stalcllist = options.list_local_data_stn(
+                stalcllist = utils.list_local_data_stn(
                     lcldrs=opts.localdata, sta=sta.station)
                 print("|   {0:5s}: {1:6d} files                " +
                       "        |".format(
@@ -209,7 +212,7 @@ def main():
             jd = str(rfdata.meta.time.julday).zfill(3)
             hr = str(rfdata.meta.time.hour).zfill(2)
 
-            # If distance between mindist and maxdist deg:
+            # If event is accepted (data exists)
             if accept:
 
                 # Display Event Info
@@ -220,22 +223,23 @@ def main():
                     inum = nevtT - iev + 1
                 print(" ")
                 print("**************************************************")
-                print("* #{0:d} ({1:d}/{2:d}):  {3:13s}".format(
+                print("* #{0:d} ({1:d}/{2:d}):  {3:13s} {4}".format(
                     nevK, inum, nevtT, rfdata.meta.time.strftime(
-                        "%Y%m%d_%H%M%S")))
-                print("*   Phase: {}".format(opts.phase))
-                print("*   Origin Time: " +
-                      rfdata.meta.time.strftime("%Y-%m-%d %H:%M:%S"))
-                print(
-                    "*   Lat: {0:6.2f};        Lon: {1:7.2f}".format(
-                        rfdata.meta.lat, rfdata.meta.lon))
-                print(
-                    "*   Dep: {0:6.2f} km;     Mag: {1:3.1f}".format(
-                        rfdata.meta.dep, rfdata.meta.mag))
-                print("*   Dist: {0:7.2f} km;".format(rfdata.meta.epi_dist) +
-                      "   Epi dist: {0:6.2f} deg\n".format(rfdata.meta.gac) +
-                      "*   Baz:  {0:6.2f} deg;".format(rfdata.meta.baz) +
-                      "   Az: {0:6.2f} deg".format(rfdata.meta.az))
+                        "%Y%m%d_%H%M%S"),stkey))
+                if opts.verb:
+                    print("*   Phase: {}".format(opts.phase))
+                    print("*   Origin Time: " +
+                          rfdata.meta.time.strftime("%Y-%m-%d %H:%M:%S"))
+                    print(
+                        "*   Lat: {0:6.2f};        Lon: {1:7.2f}".format(
+                            rfdata.meta.lat, rfdata.meta.lon))
+                    print(
+                        "*   Dep: {0:6.2f} km;     Mag: {1:3.1f}".format(
+                            rfdata.meta.dep, rfdata.meta.mag))
+                    print("*   Dist: {0:7.2f} km;".format(rfdata.meta.epi_dist) +
+                          "   Epi dist: {0:6.2f} deg\n".format(rfdata.meta.gac) +
+                          "*   Baz:  {0:6.2f} deg;".format(rfdata.meta.baz) +
+                          "   Az: {0:6.2f} deg".format(rfdata.meta.az))
 
                 # Event Folder
                 timekey = rfdata.meta.time.strftime("%Y%m%d_%H%M%S")
@@ -251,7 +255,7 @@ def main():
                 has_data = rfdata.download_data(
                     client=data_client, dts=opts.dts, stdata=stalcllist,
                     ndval=opts.ndval, new_sr=opts.new_sampling_rate,
-                    returned=True)
+                    returned=True, verbose=opts.verb)
 
                 if not has_data:
                     continue
@@ -270,11 +274,13 @@ def main():
                 # Calculate snr over dt_snr seconds
                 rfdata.calc_snr(
                     dt=opts.dt_snr, fmin=opts.fmin, fmax=opts.fmax)
-                print("* SNR: {}".format(rfdata.meta.snr))
+                if opts.verb:
+                    print("* SNR: {}".format(rfdata.meta.snr))
 
                 # Make sure no processing happens for NaNs
                 if np.isnan(rfdata.meta.snr):
-                    print("* SNR NaN...Skipping")
+                    if opts.verb:
+                        print("* SNR NaN...Skipping")
                     print("**************************************************")
                     continue
 
@@ -287,7 +293,8 @@ def main():
 
                 # Get cross-correlation QC
                 rfdata.calc_cc()
-                print("* CC: {}".format(rfdata.meta.cc))
+                if opts.verb:
+                    print("* CC: {}".format(rfdata.meta.cc))
 
                 # Convert to Stream
                 rfstream = rfdata.to_stream()
@@ -305,8 +312,9 @@ def main():
                     evtdir + "/RF_Data.pkl", "wb"))
 
                 # Update
-                print("* Wrote Output Files to: ")
-                print("*     "+evtdir)
+                if opts.verb:
+                    print("* Wrote Output Files to: ")
+                    print("*     "+evtdir)
                 print("**************************************************")
 
 
