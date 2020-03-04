@@ -271,7 +271,7 @@ of P wave.</p>
 
 <dl class="method">
 <dt id="rfpy.rfdata.RFData.download_data">
-<code class="sig-name descname">download_data</code><span class="sig-paren">(</span><em class="sig-param">client</em>, <em class="sig-param">stdata=[]</em>, <em class="sig-param">ndval=nan</em>, <em class="sig-param">new_sr=5.0</em>, <em class="sig-param">dts=120.0</em>, <em class="sig-param">returned=False</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.download_data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">download_data</code><span class="sig-paren">(</span><em class="sig-param">client</em>, <em class="sig-param">stdata=[]</em>, <em class="sig-param">ndval=nan</em>, <em class="sig-param">new_sr=5.0</em>, <em class="sig-param">dts=120.0</em>, <em class="sig-param">returned=False</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.download_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Downloads seismograms based on event origin time and
 P phase arrival.</p>
 <dl class="field-list simple">
@@ -372,14 +372,13 @@ due to different conventions.</p>
 
 <dl class="method">
 <dt id="rfpy.rfdata.RFData.deconvolve">
-<code class="sig-name descname">deconvolve</code><span class="sig-paren">(</span><em class="sig-param">twin=60.0</em>, <em class="sig-param">vp=None</em>, <em class="sig-param">vs=None</em>, <em class="sig-param">align=None</em>, <em class="sig-param">method='wiener'</em>, <em class="sig-param">pre_filt=None</em>, <em class="sig-param">gfilt=None</em>, <em class="sig-param">wlevel=0.01</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.deconvolve" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">deconvolve</code><span class="sig-paren">(</span><em class="sig-param">phase='P'</em>, <em class="sig-param">vp=None</em>, <em class="sig-param">vs=None</em>, <em class="sig-param">align=None</em>, <em class="sig-param">method='wiener'</em>, <em class="sig-param">pre_filt=None</em>, <em class="sig-param">gfilt=None</em>, <em class="sig-param">wlevel=0.01</em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.deconvolve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deconvolves three-compoent data using one component as the source wavelet.
 The source component is always taken as the dominant compressional
 component, which can be either ‘Z’, ‘L’, or ‘P’.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>twin</strong> (<em>float</em>) – Estimated duration of source wavelet (sec).</p></li>
 <li><p><strong>vp</strong> (<em>float</em>) – P-wave velocity at surface (km/s)</p></li>
 <li><p><strong>vs</strong> (<em>float</em>) – S-wave velocity at surface (km/s)</p></li>
 <li><p><strong>align</strong> (<em>str</em>) – Alignment of coordinate system for rotation
