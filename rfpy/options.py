@@ -1443,6 +1443,15 @@ def get_ccp_options():
         description="Options for pre-processing of receiver function " +
         "data for CCP stacking")
     PreGroup.add_option(
+        "--phase",
+        action="store",
+        type=str,
+        dest="phase",
+        default='allP',
+        help="Specify the phase name to plot.  "+
+        "Options are 'P', 'PP', 'allP', 'S', 'SKS' or 'allS'. "+
+        "[Default 'allP']")
+    PreGroup.add_option(
         "--snr",
         action="store",
         type=float,
@@ -1579,9 +1588,9 @@ def get_ccp_options():
         "stack for the final [G]CCP image. [Default True unless "+
         "--phase is set]")
     CCPGroup.add_option(
-        "--phase",
+        "--pws",
         action="store_true",
-        dest="phase",
+        dest="pws",
         default=False,
         help="Step 5b. Set this option to produce a phase weighted stack "+
         "for the final [G]CCP image. [Default False]")
@@ -1647,6 +1656,16 @@ def get_ccp_options():
     if len(opts.stkeys) > 0:
         opts.stkeys = opts.stkeys.split(',')
 
+    if opts.phase not in ['P', 'PP', 'allP', 'S', 'SKS', 'allS']:
+        parser.error(
+            "Error: choose between 'P', 'PP', 'allP', 'S', 'SKS' and 'allS'.")
+    if opts.phase == 'allP':
+        opts.listphase = ['P', 'PP']
+    elif opts.phase == 'allS':
+        opts.listphase = ['S', 'SKS']
+    else:
+        opts.listphase = [opts.phase]    
+
     if opts.load and opts.coord_start is None:
         parser.error("--start=lon,lat is required")
     elif opts.load and opts.coord_start is not None:
@@ -1671,14 +1690,14 @@ def get_ccp_options():
             "Error: needs at least one CCP Setting (--load, --prep, " +
             "--prestack, --ccp or --gccp")
 
-    if opts.linear and opts.phase:
+    if opts.linear and opts.pws:
         parser.error(
-            "Error: cannot use --linear and --phase at the same time")
+            "Error: cannot use --linear and --pws at the same time")
 
-    if opts.ccp and not opts.linear and not opts.phase:
+    if opts.ccp and not opts.linear and not opts.pws:
         opts.linear = True
-    if opts.gccp and not opts.linear and not opts.phase:
-        opts.phase = True
+    if opts.gccp and not opts.linear and not opts.pws:
+        opts.pws = True
 
     if opts.ccp or opts.gccp:
         if (opts.save_figure or opts.cbound or opts.fmt) and not opts.ccp_figure:
@@ -1841,7 +1860,7 @@ def get_plot_options():
         action="store",
         type=str,
         dest="phase",
-        default=None,
+        default='allP',
         help="Specify the phase name to plot.  "+
         "Options are 'P', 'PP', 'allP', 'S', 'SKS' or 'allS'. "+
         "[Default 'allP']")
@@ -1959,9 +1978,8 @@ def get_plot_options():
                 "comma-separated floats")
 
     if opts.trange is None:
-        opts.tmin = 0.
-        opts.tmax = 30.
-    if opts.trange is not None:
+        opts.trange = [0., 30.]
+    else:
         opts.trange = [float(val) for val in opts.trange.split(',')]
         opts.trange = sorted(opts.trange)
         if (len(opts.trange)) != 2:
