@@ -100,9 +100,12 @@ def main():
                 sta = db[stkey]
 
                 # Define path to see if it exists
-                datapath = 'DATA/' + stkey
+                if opts.phase in ['P', 'PP', 'allP']:
+                    datapath = 'P_DATA/' + stkey
+                elif opts.phase in ['S', 'SKS', 'allS']:
+                    datapath = 'S_DATA/' + stkey
                 if not os.path.isdir(datapath):
-                    print('Path to '+datapath+' doesn`t exist - continuing')
+                    print('Path to ' + datapath + ' doesn`t exist - continuing')
                     continue
 
                 # Temporary print locations
@@ -115,26 +118,55 @@ def main():
                 sta.location = tlocs
 
                 rfRstream = Stream()
+
+
                 for folder in os.listdir(datapath):
 
-                    filename = datapath+"/"+folder+"/RF_Data.pkl"
+                    # Load meta data
+                    filename = datapath+"/"+folder+"/Meta_Data.pkl"
+                    if not os.path.isfile(filename):
+                        continue
+                    meta = pickle.load(open(filename, 'rb'))
+
+                    # Skip data not in list of phases
+                    if meta.phase not in opts.listphase:
+                        continue
+
+                    # QC Thresholding
+                    if meta.snrh < opts.snrh:
+                        continue
+                    if meta.snr < opts.snr:
+                        continue
+                    if meta.cc < opts.cc:
+                        continue
+
+                    # If everything passed, load the RF data
+                    filename = datapath + "/" + folder + "/RF_Data.pkl"
                     if os.path.isfile(filename):
                         file = open(filename, "rb")
                         rfdata = pickle.load(file)
-                        if rfdata[0].stats.snrh > opts.snrh and rfdata[0].stats.snr and \
-                                rfdata[0].stats.cc > opts.cc:
-                            rfRstream.append(rfdata[1])
+                        rfRstream.append(rfdata[1])
                         file.close()
 
+                if len(rfRstream) == 0:
+                    continue
+
+                # Time axis and time ranges
+                taxis = rfRstream[0].stats.taxis
+                t1 = 0.
+                t2 = 30.
+                tselect = (taxis > t1) & (taxis < t2)
+
                 if opts.no_outl:
-                    # Remove outliers wrt variance
-                    var = np.array([np.var(tr.data) for tr in rfRstream])
-                    medvar = np.median(var)
-                    madvar = 1.4826*np.median(np.abs(var-medvar))
-                    robust = np.abs((var-medvar)/madvar)
-                    outliers = np.arange(len(rfRstream))[robust>2.]
-                    for i in outliers[::-1]:
-                        rfRstream.remove(rfRstream[i])      
+                    # Remove outliers wrt variance within time range
+                    varR = np.array([np.var(tr.data[tselect]) for tr in rfRstream])
+                    medvarR = np.median(varR)
+                    madvarR = 1.4826*np.median(np.abs(varR-medvarR))
+                    robustR = np.abs((varR-medvarR)/madvarR)
+                    outliersR = np.arange(len(rfRstream))[robustR > 2.]
+                    for i in outliersR[::-1]:
+                        rfRstream.remove(rfRstream[i])
+                        rfTstream.remove(rfTstream[i])
 
                 print("Station: {0:>2s}.{1:5s} -  {2} traces loaded".format(
                     sta.network, sta.station, len(rfRstream)))
@@ -231,7 +263,7 @@ def main():
                     print("|  Linear CCP stack - all phases                |")
                     print("|-----------------------------------------------|")
                     print()
-                elif opts.phase:
+                elif opts.pws:
                     print()
                     print("|-----------------------------------------------|")
                     print("|  Phase-weighted CCP stack - all phases        |")
@@ -242,7 +274,7 @@ def main():
                 ccpimage.ccp()
                 if opts.linear:
                     ccpimage.linear_stack(typ='ccp')
-                elif opts.phase:
+                elif opts.pws:
                     ccpimage.phase_weighted_stack(typ='ccp')
                 ccpimage.save(ccp_file)
                 print()
@@ -271,7 +303,7 @@ def main():
                     print("|  Linear GCCP stack - all phases               |")
                     print("|-----------------------------------------------|")
                     print()
-                elif opts.phase:
+                elif opts.pws:
                     print()
                     print("|-----------------------------------------------|")
                     print("|  Phase-weighted GCCP stack - all phases       |")
@@ -283,7 +315,7 @@ def main():
                 ccpimage.gccp(wlen=opts.wlen)
                 if opts.linear:
                     ccpimage.linear_stack(typ='gccp')
-                elif opts.phase:
+                elif opts.pws:
                     ccpimage.phase_weighted_stack(typ='gccp')
                 ccpimage.save(gccp_file)
                 print()
