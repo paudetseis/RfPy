@@ -284,8 +284,8 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
         ax2.set_ylim(-5, 370)
         ax2.set_ylabel('Back-azimuth (deg)')
     elif btyp == 'slow':
-        ax2.set_ylim(0.03, 0.13)
-        # ax2.set_ylim(0.038, 0.082)
+        # ax2.set_ylim(0.03, 0.13)
+        ax2.set_ylim(0.038, 0.082)
         ax2.set_ylabel('Slowness (s/km)')
     elif btyp == 'dist':
         ax2.set_ylim(28., 92.)
