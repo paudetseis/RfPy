@@ -112,7 +112,7 @@ def main():
             filename = datapath+"/"+folder+"/Meta_Data.pkl"
             if not os.path.isfile(filename):
                 continue
-            meta = pickle.load(open(filename,'rb'))
+            meta = pickle.load(open(filename, 'rb'))
 
             # Skip data not in list of phases
             if meta.phase not in opts.listphase:
@@ -150,9 +150,15 @@ def main():
         if len(rfRstream) == 0:
             continue
 
+        # Time axis and time ranges
+        taxis = rfRstream[0].stats.taxis
+        t1 = opts.trange[0]
+        t2 = opts.trange[1]
+        tselect = (taxis > t1) & (taxis < t2)
+
         if opts.no_outl:
-            # Remove outliers wrt variance
-            varR = np.array([np.var(tr.data) for tr in rfRstream])
+            # Remove outliers wrt variance within time range
+            varR = np.array([np.var(tr.data[tselect]) for tr in rfRstream])
             medvarR = np.median(varR)
             madvarR = 1.4826*np.median(np.abs(varR-medvarR))
             robustR = np.abs((varR-medvarR)/madvarR)
@@ -162,7 +168,7 @@ def main():
                 rfTstream.remove(rfTstream[i])
 
             # Do the same for transverse
-            varT = np.array([np.var(tr.data) for tr in rfTstream])
+            varT = np.array([np.var(tr.data[tselect]) for tr in rfTstream])
             medvarT = np.median(varT)
             madvarT = 1.4826*np.median(np.abs(varT-medvarT))
             robustT = np.abs((varT-medvarT)/madvarT)
@@ -215,10 +221,6 @@ def main():
             tr1 = st_tmp[0]
             tr2 = st_tmp[1]
             # Find normalization constant
-            taxis = rfRstream[0].stats.taxis
-            t1 = opts.trange[0]
-            t2 = opts.trange[1]
-
             normR = np.amax(np.abs(tr1.data[(taxis > t1) & (taxis < t2)]))
             normT = np.amax(np.abs(tr2.data[(taxis > t1) & (taxis < t2)]))
             norm = np.max([normR, normT])
