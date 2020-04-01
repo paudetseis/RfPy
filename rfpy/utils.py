@@ -496,7 +496,7 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
                 if len(st) == 3:
                     print("*              - ZNE Data Downloaded")
 
-                # it's possible if len(st)==1 that data is Z12
+                # It's possible if len(st)==1 that data is Z12
                 else:
                     # Construct Channel List
                     channelsZ12 = sta.channel.upper() + 'Z,' + \
@@ -535,8 +535,7 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
     else:
 
         # Detrend and apply taper
-        st.detrend('linear')
-        st.taper(max_percentage=0.05, max_length=5.)
+        st.detrend('linear').taper(max_percentage=0.05, max_length=5.)
 
         # Check start times
         if not np.all([tr.stats.starttime == start for tr in st]):
@@ -568,7 +567,8 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
             print("**************************************************")
             return True, None
 
-        # Check final lengths
+        # Check final lengths - they should all be equal if start times 
+        # and sampling rates are all equal and traces have been trimmed
         if not np.allclose([tr.stats.npts for tr in st[1:]], st[0].stats.npts):
             print("* Lengths are incompatible: ")
             [print("*     "+str(tr.stats.npts)) for tr in st]
