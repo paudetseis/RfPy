@@ -1443,15 +1443,6 @@ def get_ccp_options():
         description="Options for pre-processing of receiver function " +
         "data for CCP stacking")
     PreGroup.add_option(
-        "--phase",
-        action="store",
-        type=str,
-        dest="phase",
-        default='allP',
-        help="Specify the phase name to plot.  "+
-        "Options are 'P', 'PP', 'allP', 'S', 'SKS' or 'allS'. "+
-        "[Default 'allP']")
-    PreGroup.add_option(
         "--snr",
         action="store",
         type=float,
@@ -1538,6 +1529,15 @@ def get_ccp_options():
         default=35.,
         help="Specify wavelength of P-wave as sensitivity (km). " +
         "[Default 35.]")
+    PreGroup.add_option(
+        "--phase",
+        action="store",
+        type=str,
+        dest="phase",
+        default='allP',
+        help="Specify the phase name to plot.  "+
+        "Options are 'P', 'PP', 'allP', 'S', 'SKS' or 'allS'. "+
+        "[Default 'allP']")
 
     CCPGroup = OptionGroup(
         parser,

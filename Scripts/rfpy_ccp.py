@@ -151,22 +151,24 @@ def main():
                 if len(rfRstream) == 0:
                     continue
 
-                # Time axis and time ranges
-                taxis = rfRstream[0].stats.taxis
-                t1 = 0.
-                t2 = 30.
-                tselect = (taxis > t1) & (taxis < t2)
-
                 if opts.no_outl:
+                    t1 = 0.
+                    t2 = 30.
+
+                    varR = []
+                    for i in range(len(rfRstream)):
+                        taxis = rfRstream[i].stats.taxis
+                        tselect = (taxis > t1) & (taxis < t2)
+                        varR.append(np.var(rfRstream[i].data[tselect]))
+                    varR = np.array(varR)
+
                     # Remove outliers wrt variance within time range
-                    varR = np.array([np.var(tr.data[tselect]) for tr in rfRstream])
                     medvarR = np.median(varR)
                     madvarR = 1.4826*np.median(np.abs(varR-medvarR))
                     robustR = np.abs((varR-medvarR)/madvarR)
-                    outliersR = np.arange(len(rfRstream))[robustR > 2.]
+                    outliersR = np.arange(len(rfRstream))[robustR > 2.5]
                     for i in outliersR[::-1]:
                         rfRstream.remove(rfRstream[i])
-                        rfTstream.remove(rfTstream[i])
 
                 print("Station: {0:>2s}.{1:5s} -  {2} traces loaded".format(
                     sta.network, sta.station, len(rfRstream)))

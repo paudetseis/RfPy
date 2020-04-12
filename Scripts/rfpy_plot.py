@@ -146,33 +146,42 @@ def main():
                 rfRstream.append(rfdata[Rcmp])
                 rfTstream.append(rfdata[Tcmp])
                 file.close()
+            # print(folder)
+            # print(rfdata[1].stats.npts)
 
         if len(rfRstream) == 0:
             continue
 
-        # Time axis and time ranges
-        taxis = rfRstream[0].stats.taxis
-        t1 = opts.trange[0]
-        t2 = opts.trange[1]
-        tselect = (taxis > t1) & (taxis < t2)
-
         if opts.no_outl:
+
+            varR = []
+            for i in range(len(rfRstream)):
+                taxis = rfRstream[i].stats.taxis
+                tselect = (taxis > opts.trange[0]) & (taxis < opts.trange[1])
+                varR.append(np.var(rfRstream[i].data[tselect]))
+            varR = np.array(varR)
+
             # Remove outliers wrt variance within time range
-            varR = np.array([np.var(tr.data[tselect]) for tr in rfRstream])
             medvarR = np.median(varR)
             madvarR = 1.4826*np.median(np.abs(varR-medvarR))
             robustR = np.abs((varR-medvarR)/madvarR)
-            outliersR = np.arange(len(rfRstream))[robustR > 2.]
+            outliersR = np.arange(len(rfRstream))[robustR > 2.5]
             for i in outliersR[::-1]:
                 rfRstream.remove(rfRstream[i])
                 rfTstream.remove(rfTstream[i])
 
             # Do the same for transverse
-            varT = np.array([np.var(tr.data[tselect]) for tr in rfTstream])
+            varT = []
+            for i in range(len(rfRstream)):
+                taxis = rfRstream[i].stats.taxis
+                tselect = (taxis > opts.trange[0]) & (taxis < opts.trange[1])
+                varT.append(np.var(rfTstream[i].data[tselect]))
+            varT = np.array(varT)
+
             medvarT = np.median(varT)
             madvarT = 1.4826*np.median(np.abs(varT-medvarT))
             robustT = np.abs((varT-medvarT)/madvarT)
-            outliersT = np.arange(len(rfTstream))[robustT > 2.]
+            outliersT = np.arange(len(rfTstream))[robustT > 2.5]
             for i in outliersT[::-1]:
                 rfRstream.remove(rfRstream[i])
                 rfTstream.remove(rfTstream[i])
@@ -213,7 +222,6 @@ def main():
         for tr in rf_tmp[1]:
             if (tr.stats.nbin < opts.binlim):
                 rf_tmp[1].remove(tr)
-        print(rf_tmp[0])
 
         # Show a stacked trace on top OR normalize option specified
         if opts.stacked or opts.norm:
@@ -221,8 +229,10 @@ def main():
             tr1 = st_tmp[0]
             tr2 = st_tmp[1]
             # Find normalization constant
-            normR = np.amax(np.abs(tr1.data[(taxis > t1) & (taxis < t2)]))
-            normT = np.amax(np.abs(tr2.data[(taxis > t1) & (taxis < t2)]))
+            normR = np.amax(np.abs(
+                tr1.data[(taxis > opts.trange[0]) & (taxis < opts.trange[1])]))
+            normT = np.amax(np.abs(
+                tr2.data[(taxis > opts.trange[0]) & (taxis < opts.trange[1])]))
             norm = np.max([normR, normT])
         else:
             norm = None
@@ -242,6 +252,10 @@ def main():
                                  tmin=opts.trange[0], tmax=opts.trange[1],
                                  norm=norm, save=opts.saveplot,
                                  title=opts.titleplot, form=opts.form)
+
+        # Event distribution
+        plotting.event_dist(rfRstream, phase=opts.phase, save=opts.saveplot,
+                            title=opts.titleplot, form=opts.form)
 
 
 if __name__ == "__main__":

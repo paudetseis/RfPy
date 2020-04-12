@@ -86,7 +86,7 @@ def wiggle(stream1, stream2=None, sort=None, tmin=0., tmax=30, normalize=True,
         ntr = len(stream1)
         maxamp = np.median(
             [np.max(np.abs(
-                tr.data[time>tmin and time<tmax])) for tr in stream1])
+                tr.data[time > tmin and time < tmax])) for tr in stream1])
 
     f = plt.figure()
 
@@ -141,6 +141,8 @@ def wiggle(stream1, stream2=None, sort=None, tmin=0., tmax=30, normalize=True,
     else:
         plt.show()
 
+    plt.close()
+
 
 # PLot wiggles according to either baz or slowness
 def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
@@ -186,7 +188,7 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
         raise(Exception("Cannot plot by slowness if data is migrated"))
 
     # Figure out scaling here
-    if scale: 
+    if scale:
         maxval = scale
     else:
         if norm:
@@ -248,7 +250,7 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
             where=tr1.data+1e-6 >= 0.,
             facecolor='red',
             linewidth=0)
-        ylim = np.max([np.max(np.abs(tr1.data)),np.max(np.abs(tr2.data))])
+        ylim = np.max([np.max(np.abs(tr1.data)), np.max(np.abs(tr2.data))])
         ax1.set_ylim(-1.*ylim, ylim)
         ax1.set_yticks(())
         ax1.set_xticks(())
@@ -367,4 +369,64 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
     if save:
         plt.savefig('RF_PLOTS/' + stream1[0].stats.station +
                     '.' + title + '.' + form, format=form)
-    plt.show()
+    else:
+        plt.show()
+
+    plt.close()
+
+
+def event_dist(stream, phase='P', save=False, title=None, form='png'):
+
+    import cartopy.crs as ccrs
+
+    # Specify azimuthal equidistant projection
+    aeqd = ccrs.AzimuthalEquidistant(central_longitude=stream[0].stats.stlo,
+                                     central_latitude=stream[0].stats.stla,
+                                     globe=ccrs.Globe())
+
+    # Extract latitude and longitude
+    evlat = []
+    evlon = []
+    phlist = []
+    for tr in stream:
+        evlat.append(tr.stats.evla)
+        evlon.append(tr.stats.evlo)
+        phlist.append(tr.stats.phase)
+
+    # Turn into arrays
+    evlat = np.array(evlat)
+    evlon = np.array(evlon)
+    phlist = np.array(phlist)
+
+    # Select phase to plot
+    phP = phlist == 'P'
+    phPP = phlist == 'PP'
+
+    # Now plot
+    fig = plt.figure(figsize=(3, 3))
+    ax = fig.add_subplot(1, 1, 1, projection=aeqd)
+    if np.sum(phP) > 0:
+        # ax.scatter(evlon[phP], evlat[phP], c='royalblue', label='P')
+        ax.scatter(evlon[phP], evlat[phP], c='royalblue', label='P',
+                   transform=ccrs.Geodetic())
+    if np.sum(phPP) > 0:
+        ind = phase == 'P'
+        ax.scatter(evlon[phPP], evlat[phPP], c='coral', label='PP',
+                   transform=ccrs.Geodetic())
+
+    ax.scatter(stream[0].stats.stlo, stream[0].stats.stla, c='grey',
+               marker='v', transform=ccrs.Geodetic())
+    ax.coastlines()
+
+    if title:
+        plt.suptitle(title)
+
+    if save:
+        plt.savefig('RF_PLOTS/' + stream[0].stats.station +
+                    '.' + title + '.event_dist.' + form, format=form)
+    else:
+        plt.show()
+
+    plt.close()
+
+    # ax.gridlines()

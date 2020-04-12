@@ -124,14 +124,12 @@ class Meta(object):
 
             # Attributes from parameters
             self.ttime = arrival.time
-            self.ph = arrival.name
             self.slow = arrival.ray_param_sec_degree/111.
             self.inc = arrival.incident_angle
             self.phase = phase
             self.accept = True
         else:
             self.ttime = None
-            self.ph = None
             self.slow = None
             self.inc = None
             self.phase = None
@@ -285,7 +283,7 @@ class RFData(object):
             self.data = stream
 
             if not np.allclose(
-                [tr.stats.npts for tr in stream[1:]], stream[0].stats.npts):
+                    [tr.stats.npts for tr in stream[1:]], stream[0].stats.npts):
                 self.meta.accept = False
 
             # Filter Traces
@@ -607,7 +605,6 @@ class RFData(object):
         # Calculate signal/noise ratio in dB
         self.meta.snrh = 10*np.log10(srms*srms/nrms/nrms)
 
-
     def deconvolve(self, phase='P', vp=None, vs=None,
                    align=None, method='wiener', pre_filt=None,
                    gfilt=None, wlevel=0.01):
@@ -690,25 +687,43 @@ class RFData(object):
 
             # Multitaper deconvolution
             elif method == 'multitaper':
+
+                def pad(array, n):
+                    tmp = np.zeros(n)
+                    tmp[:array.shape[0]] = array
+                    return tmp
+
                 from spectrum import dpss
 
-                # npad = _npow2(nt*2)
                 npad = nt
+                # Re-check length and pad with zeros if necessary
+                if not np.allclose(
+                        [tr.stats.npts for tr in [daughter1,
+                                                  daughter2, 
+                                                  noise]], nt):
+                    nn = int(np.unique(np.max(np.array(
+                        [nt, daughter1.stats.npts, daughter2.stats.npts]))))
+                    parent.data = pad(parent.data, nn)
+                    daughter1.data = pad(daughter1.data, nn)
+                    daughter2.data = pad(daughter2.data, nn)
+                    noise.data = pad(noise.data, nn)
+                    npad = nn
+
                 freqs = np.fft.fftfreq(npad, d=dt)
 
                 NW = 2.5
                 Kmax = int(NW*2-2)
-                [tapers, eigenvalues] = dpss(nt, NW, Kmax)
+                [tapers, eigenvalues] = dpss(npad, NW, Kmax)
 
                 # Get multitaper spectrum of data
-                Fp = np.fft.fft(np.multiply(tapers.transpose(), 
-                    parent.data))
-                Fd1 = np.fft.fft(np.multiply(tapers.transpose(), 
-                    daughter1.data))
-                Fd2 = np.fft.fft(np.multiply(tapers.transpose(), 
-                    daughter2.data))
-                Fn = np.fft.fft(np.multiply(tapers.transpose(), 
-                    noise.data))
+                Fp = np.fft.fft(np.multiply(tapers.transpose(),
+                                            parent.data))
+                Fd1 = np.fft.fft(np.multiply(tapers.transpose(),
+                                             daughter1.data))
+                Fd2 = np.fft.fft(np.multiply(tapers.transpose(),
+                                             daughter2.data))
+                Fn = np.fft.fft(np.multiply(tapers.transpose(),
+                                            noise.data))
 
                 # Auto and cross spectra
                 Spp = np.sum(np.real(Fp*np.conjugate(Fp)), axis=0)
@@ -788,10 +803,10 @@ class RFData(object):
             # Crop trace for noise (-dts to -5 sec)
             trNl.trim(self.meta.time+self.meta.ttime-dts,
                       self.meta.time+self.meta.ttime-5.,
-                     nearest_sample=False)
+                      nearest_sample=False)
             trNq.trim(self.meta.time+self.meta.ttime-dts,
                       self.meta.time+self.meta.ttime-5.,
-                     nearest_sample=False)
+                      nearest_sample=False)
 
         elif phase == 'S' or 'SKS':
             # Get signal length (i.e., seismogram to deconvolve) from trace length
@@ -820,11 +835,11 @@ class RFData(object):
         # This follows the pre-processing in Lim et al., GJI, 2017
         if pre_filt:
             trL.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1],
-                corners=2, zerophase=True)
+                       corners=2, zerophase=True)
             trQ.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1],
-                corners=2, zerophase=True)
+                       corners=2, zerophase=True)
             trT.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1],
-                corners=2, zerophase=True)
+                       corners=2, zerophase=True)
 
         # Deconvolve
         if phase == 'P' or 'PP':
@@ -839,7 +854,6 @@ class RFData(object):
         rfT.stats.channel = 'RF' + self.meta.align[2]
 
         self.rf = Stream(traces=[rfL, rfQ, rfT])
-
 
     def calc_cc(self):
 
@@ -901,6 +915,8 @@ class RFData(object):
             trace.stats.gac = self.meta.gac
             trace.stats.stlo = self.sta.longitude
             trace.stats.stla = self.sta.latitude
+            trace.stats.evlo = self.meta.lon
+            trace.stats.evla = self.meta.lat
             trace.stats.vp = self.meta.vp
             trace.stats.vs = self.meta.vs
             trace.stats.phase = self.meta.phase

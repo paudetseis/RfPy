@@ -123,9 +123,6 @@ def main():
             if opts.verb:
                 print("* Station: {0}; folder: {1}".format(stkey,folder))
 
-            # if not hasattr(rfdata.meta, 'phase'):
-            #     rfdata.meta.phase = 'P'
-
             # Load ZNE data
             rfdata.data = pickle.load(open(
                 datapath+"/"+folder+"/ZNE_Data.pkl",'rb'))
