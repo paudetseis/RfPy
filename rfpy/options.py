@@ -28,6 +28,7 @@ that accompany this package.
 
 # -*- coding: utf-8 -*-
 
+
 def get_calc_options():
     """
     Get Options from :class:`~optparse.OptionParser` objects.
@@ -202,7 +203,7 @@ def get_calc_options():
         type=str,
         dest="phase",
         default='P',
-        help="Specify the phase name to use. Be careful with the distance. "+
+        help="Specify the phase name to use. Be careful with the distance. " +
         "setting. Options are 'P' or 'PP'. [Default 'P']")
     PhaseGroup.add_option(
         "--mindist",
@@ -255,7 +256,7 @@ def get_calc_options():
         type=float,
         dest="vp",
         default=6.0,
-        help="Specify near-surface Vp to use with --align=PVH (km/s). "+
+        help="Specify near-surface Vp to use with --align=PVH (km/s). " +
         "[Default 6.0]")
     ConstGroup.add_option(
         "--vs",
@@ -263,7 +264,7 @@ def get_calc_options():
         type=float,
         dest="vs",
         default=3.5,
-        help="Specify near-surface Vs to use with --align=PVH (km/s). "+
+        help="Specify near-surface Vs to use with --align=PVH (km/s). " +
         "[Default 3.5]")
     ConstGroup.add_option(
         "--dt-snr",
@@ -279,7 +280,7 @@ def get_calc_options():
         type=str,
         dest="pre_filt",
         default=None,
-        help="Specify two floats with low and high frequency corners for "+
+        help="Specify two floats with low and high frequency corners for " +
         "pre-filter (before deconvolution). [Default None]")
     ConstGroup.add_option(
         "--fmin",
@@ -325,10 +326,8 @@ def get_calc_options():
         dest="wlevel",
         type=float,
         default=0.01,
-        help="Specify the water level, used in the 'water' method. "+
+        help="Specify the water level, used in the 'water' method. " +
         "[Default 0.01]")
-
-
 
     parser.add_option_group(ServerGroup)
     parser.add_option_group(DataGroup)
@@ -407,7 +406,7 @@ def get_calc_options():
             opts.maxdist = 100.
         if opts.mindist < 30. or opts.maxdist > 100.:
             parser.error(
-                "Distances should be between 30 and 100 deg. for "+
+                "Distances should be between 30 and 100 deg. for " +
                 "teleseismic 'P' waves.")
     elif opts.phase == 'PP':
         if not opts.mindist:
@@ -416,7 +415,7 @@ def get_calc_options():
             opts.maxdist = 180.
         if opts.mindist < 100. or opts.maxdist > 180.:
             parser.error(
-                "Distances should be between 100 and 180 deg. for "+
+                "Distances should be between 100 and 180 deg. for " +
                 "teleseismic 'PP' waves.")
     elif opts.phase == 'S':
         if not opts.mindist:
@@ -425,7 +424,7 @@ def get_calc_options():
             opts.maxdist = 85.
         if opts.mindist < 55. or opts.maxdist > 85.:
             parser.error(
-                "Distances should be between 55 and 85 deg. for "+
+                "Distances should be between 55 and 85 deg. for " +
                 "teleseismic 'S' waves.")
     elif opts.phase == 'SKS':
         if not opts.mindist:
@@ -434,7 +433,7 @@ def get_calc_options():
             opts.maxdist = 115.
         if opts.mindist < 85. or opts.maxdist > 115.:
             parser.error(
-                "Distances should be between 85 and 115 deg. for "+
+                "Distances should be between 85 and 115 deg. for " +
                 "teleseismic 'SKS' waves.")
 
     if opts.pre_filt is not None:
@@ -520,8 +519,8 @@ def get_recalc_options():
         type=str,
         dest="phase",
         default='allP',
-        help="Specify the phase name to use. Be careful with the distance. "+
-        "setting. Options are 'P', 'PP', 'allP', 'S', 'SKS' or 'allS'. "+
+        help="Specify the phase name to use. Be careful with the distance. " +
+        "setting. Options are 'P', 'PP', 'allP', 'S', 'SKS' or 'allS'. " +
         "[Default 'allP']")
     ConstGroup.add_option(
         "--align",
@@ -537,7 +536,7 @@ def get_recalc_options():
         type=float,
         dest="vp",
         default=6.0,
-        help="Specify near-surface Vp to use with --align=PVH (km/s). "+
+        help="Specify near-surface Vp to use with --align=PVH (km/s). " +
         "[Default 6.0]")
     ConstGroup.add_option(
         "--vs",
@@ -545,7 +544,7 @@ def get_recalc_options():
         type=float,
         dest="vs",
         default=3.5,
-        help="Specify near-surface Vs to use with --align=PVH (km/s). "+
+        help="Specify near-surface Vs to use with --align=PVH (km/s). " +
         "[Default 3.5]")
     ConstGroup.add_option(
         "--dt-snr",
@@ -561,7 +560,7 @@ def get_recalc_options():
         type=str,
         dest="pre_filt",
         default=None,
-        help="Specify two floats with low and high frequency corners for "+
+        help="Specify two floats with low and high frequency corners for " +
         "pre-filter (before deconvolution). [Default None]")
     ConstGroup.add_option(
         "--fmin",
@@ -607,7 +606,7 @@ def get_recalc_options():
         dest="wlevel",
         type=float,
         default=0.01,
-        help="Specify the water level, used in the 'water' method. "+
+        help="Specify the water level, used in the 'water' method. " +
         "[Default 0.01]")
 
     parser.add_option_group(ConstGroup)
@@ -634,7 +633,7 @@ def get_recalc_options():
     elif opts.phase == 'allS':
         opts.listphase = ['S', 'SKS']
     else:
-        opts.listphase = [opts.phase]    
+        opts.listphase = [opts.phase]
 
     if opts.align is None:
         opts.align = 'ZRT'
@@ -655,7 +654,6 @@ def get_recalc_options():
             parser.error(
                 "Error: --pre-filt should contain 2 " +
                 "comma-separated floats")
-
 
     return (opts, indb)
 
@@ -736,6 +734,13 @@ def get_hk_options():
         description="Options for pre-processing of receiver function " +
         "data prior to H-k stacking")
     PreGroup.add_option(
+        "--binlim",
+        action="store",
+        type=float,
+        dest="binlim",
+        default=3,
+        help="Specify the minimum number of RFs in each bin. [Default 3]")
+    PreGroup.add_option(
         "--bp",
         action="store",
         type=str,
@@ -773,7 +778,7 @@ def get_hk_options():
         type=float,
         dest="snrh",
         default=-9999,
-        help="Specify the horizontal component SNR threshold for "+
+        help="Specify the horizontal component SNR threshold for " +
         "extracting receiver functions. [Default None]")
     PreGroup.add_option(
         "--cc",
@@ -788,12 +793,12 @@ def get_hk_options():
         action="store_true",
         dest="no_outl",
         default=False,
-        help="Set this option to delete outliers based on the MAD "+
+        help="Set this option to delete outliers based on the MAD " +
         "on the variance. [Default False]")
 ## JMG ##
     PreGroup.add_option(
-         "--slowbound",
-         action="store",
+        "--slowbound",
+        action="store",
         dest="slowbound",
         type=str,
         default=None,
@@ -808,6 +813,15 @@ def get_hk_options():
         help="Specify a list of two floats with minimum and maximum" +
         "bounds on back azimuth (degrees). [Default [0, 360]]")
 ## JMG ##
+    PreGroup.add_option(
+        "--phase",
+        action="store",
+        type=str,
+        dest="phase",
+        default='allP',
+        help="Specify the phase name to plot.  " +
+        "Options are 'P', 'PP', 'allP', 'S', 'SKS' or 'allS'. " +
+        "[Default 'allP']")
     PreGroup.add_option(
         "--copy",
         action="store_true",
@@ -875,14 +889,14 @@ def get_hk_options():
         dest="typ",
         default="sum",
         help="Specify type of final stacking. Options are: 'sum' for " +
-        "a weighted average (using weights), or 'prod' for the product " +
+        "a weighted average (using weights), or 'product' for the product " +
         "of positive values in stacks. [Default 'sum']")
     HKGroup.add_option(
         "--save",
         action="store_true",
         dest="save",
         default=False,
-        help="Set this option to save the HkStack object to file. "+
+        help="Set this option to save the HkStack object to file. " +
         "[Default doesn't save]")
 
     # Constants Settings
@@ -1015,7 +1029,7 @@ def get_hk_options():
             parser.error(
                 "Error: --slowbound should contain 2 " +
                 "comma-separated floats")
-    
+
     if opts.bazbound is None:
         opts.bazbound = [0.0, 360.0]
     else:
@@ -1027,12 +1041,26 @@ def get_hk_options():
                 "comma-separated floats")
 ## JMG ##
 
+    if opts.phase not in ['P', 'PP', 'allP', 'S', 'SKS', 'allS']:
+        parser.error(
+            "Error: choose between 'P', 'PP', 'allP', 'S', 'SKS' and 'allS'.")
+    if opts.phase == 'allP':
+        opts.listphase = ['P', 'PP']
+    elif opts.phase == 'allS':
+        opts.listphase = ['S', 'SKS']
+    else:
+        opts.listphase = [opts.phase]
+
+    if opts.typ not in ['sum', 'product']:
+        parser.error(
+            "Error: choose between 'sum' and 'product'")
+
     if opts.copy:
         if opts.bp_copy is None:
             opts.bp_copy = [0.05, 0.35]
         else:
             opts.bp_copy = [float(val)
-                               for val in opts.bp_copy.split(',')]
+                            for val in opts.bp_copy.split(',')]
             opts.bp_copy = sorted(opts.bp_copy)
             if (len(opts.bp_copy)) != 2:
                 parser.error(
@@ -1063,7 +1091,6 @@ def get_hk_options():
         opts.weights = [0.5, 2.0, -1.0]
     else:
         opts.weights = [float(val) for val in opts.weights.split(',')]
-        opts.weights = sorted(opts.weights)
         if (len(opts.weights)) != 3:
             parser.error(
                 "Error: --weights should contain 3 " +
@@ -1177,7 +1204,7 @@ def get_harmonics_options():
         type=float,
         dest="snrh",
         default=-9999,
-        help="Specify the horizontal component SNR threshold for "+
+        help="Specify the horizontal component SNR threshold for " +
         "extracting receiver functions. [Default None]")
     PreGroup.add_option(
         "--cc",
@@ -1192,7 +1219,7 @@ def get_harmonics_options():
         action="store_true",
         dest="no_outl",
         default=False,
-        help="Set this option to delete outliers based on the MAD "+
+        help="Set this option to delete outliers based on the MAD " +
         "on the variance. [Default False]")
 
     HarmonicGroup = OptionGroup(
@@ -1456,7 +1483,7 @@ def get_ccp_options():
         type=float,
         dest="snrh",
         default=-9999,
-        help="Specify the horizontal component SNR threshold for "+
+        help="Specify the horizontal component SNR threshold for " +
         "extracting receiver functions. [Default None]")
     PreGroup.add_option(
         "--cc",
@@ -1471,8 +1498,15 @@ def get_ccp_options():
         action="store_true",
         dest="no_outl",
         default=False,
-        help="Set this option to delete outliers based on the MAD "+
+        help="Set this option to delete outliers based on the MAD " +
         "on the variance. [Default False]")
+    PreGroup.add_option(
+        "--binlim",
+        action="store",
+        type=float,
+        dest="binlim",
+        default=3,
+        help="Specify the minimum number of RFs in each bin. [Default 3]")
     PreGroup.add_option(
         "--f1",
         action="store",
@@ -1535,8 +1569,8 @@ def get_ccp_options():
         type=str,
         dest="phase",
         default='allP',
-        help="Specify the phase name to plot.  "+
-        "Options are 'P', 'PP', 'allP', 'S', 'SKS' or 'allS'. "+
+        help="Specify the phase name to plot.  " +
+        "Options are 'P', 'PP', 'allP', 'S', 'SKS' or 'allS'. " +
         "[Default 'allP']")
 
     CCPGroup = OptionGroup(
@@ -1549,50 +1583,50 @@ def get_ccp_options():
         action="store_true",
         dest="load",
         default=False,
-        help="Step 1. Set this option to load rfstreams into CCPimage "+
+        help="Step 1. Set this option to load rfstreams into CCPimage " +
         "object. [Default False]")
     CCPGroup.add_option(
         "--prep",
         action="store_true",
         dest="prep",
         default=False,
-        help="Step 2. Set this option to prepare CCPimage before "+
+        help="Step 2. Set this option to prepare CCPimage before " +
         "pre-stacking. [Default False]")
     CCPGroup.add_option(
         "--prestack",
         action="store_true",
         dest="prestack",
         default=False,
-        help="Step 3. Set this option to prestack all phases before "+
+        help="Step 3. Set this option to prestack all phases before " +
         "CCP averaging. [Default False]")
     CCPGroup.add_option(
         "--ccp",
         action="store_true",
         dest="ccp",
         default=False,
-        help="Step 4a. Set this option for standard CCP stacking with "+
+        help="Step 4a. Set this option for standard CCP stacking with " +
         "multiples. [Default False]")
     CCPGroup.add_option(
         "--gccp",
         action="store_true",
         dest="gccp",
         default=False,
-        help="Step 4b. Set this option for Gaussian-weighted "+
+        help="Step 4b. Set this option for Gaussian-weighted " +
         "CCP stacking with multiples. [Default False]")
     CCPGroup.add_option(
         "--linear",
         action="store_true",
         dest="linear",
         default=False,
-        help="Step 5a. Set this option to produce a linear, weighted "+
-        "stack for the final [G]CCP image. [Default True unless "+
+        help="Step 5a. Set this option to produce a linear, weighted " +
+        "stack for the final [G]CCP image. [Default True unless " +
         "--phase is set]")
     CCPGroup.add_option(
         "--pws",
         action="store_true",
         dest="pws",
         default=False,
-        help="Step 5b. Set this option to produce a phase weighted stack "+
+        help="Step 5b. Set this option to produce a phase weighted stack " +
         "for the final [G]CCP image. [Default False]")
 
     FigGroup = OptionGroup(
@@ -1612,14 +1646,14 @@ def get_ccp_options():
         dest="cbound",
         type=float,
         default=None,
-        help="Set the maximum value for the color palette. "+
+        help="Set the maximum value for the color palette. " +
         "[Default 0.05 for --ccp or 0.015 for --gccp]")
     FigGroup.add_option(
         "--save-fig",
         action="store_true",
         dest="save_figure",
         default=False,
-        help="Set this option to save the final [G]CCP figure. "+
+        help="Set this option to save the final [G]CCP figure. " +
         "This option can only be set if --figure is also set." +
         "[Default False]")
     FigGroup.add_option(
@@ -1635,7 +1669,7 @@ def get_ccp_options():
         dest="fmt",
         type=str,
         default='png',
-        help="Set format of figure. You can choose among "+
+        help="Set format of figure. You can choose among " +
         "'png', 'jpg', 'eps', 'pdf'. [Default 'png']")
 
     parser.add_option_group(LineGroup)
@@ -1664,7 +1698,7 @@ def get_ccp_options():
     elif opts.phase == 'allS':
         opts.listphase = ['S', 'SKS']
     else:
-        opts.listphase = [opts.phase]    
+        opts.listphase = [opts.phase]
 
     if opts.load and opts.coord_start is None:
         parser.error("--start=lon,lat is required")
@@ -1701,12 +1735,12 @@ def get_ccp_options():
 
     if opts.ccp or opts.gccp:
         if (opts.save_figure or opts.cbound or opts.fmt) and not opts.ccp_figure:
-            print("Warning: Figure will not be produced since --figure "+
-                "has not been set.")
+            print("Warning: Figure will not be produced since --figure " +
+                  "has not been set.")
 
     if opts.ccp_figure and not (opts.ccp or opts.gccp):
         parser.error(
-            "Error: Cannot produce Figure without specifying the "+
+            "Error: Cannot produce Figure without specifying the " +
             "type of stacking [--ccp or --gccp].")
 
     if not opts.cbound and opts.gccp:
@@ -1795,16 +1829,15 @@ def get_plot_options():
         action="store_true",
         dest="no_outl",
         default=False,
-        help="Set this option to delete outliers based on the MAD "+
+        help="Set this option to delete outliers based on the MAD " +
         "on the variance. [Default False]")
     PreGroup.add_option(
-         "--binlim",
-         action="store",
-         type=float,
-         dest="binlim",
-         default=0,
-         help="Specify the minimum threshold for the number RFs needed before bin is "+
-         "plotted. [Default 0]")
+        "--binlim",
+        action="store",
+        type=float,
+        dest="binlim",
+        default=3,
+        help="Specify the minimum number of RFs in each bin. [Default 3]")
     PreGroup.add_option(
         "--bp",
         action="store",
@@ -1818,7 +1851,7 @@ def get_plot_options():
         action="store_true",
         dest="pws",
         default=False,
-        help="Set this option to use phase-weighted stacking during binning "+
+        help="Set this option to use phase-weighted stacking during binning " +
         " [Default False]")
     PreGroup.add_option(
         "--nbaz",
@@ -1861,8 +1894,8 @@ def get_plot_options():
         type=str,
         dest="phase",
         default='allP',
-        help="Specify the phase name to plot.  "+
-        "Options are 'P', 'PP', 'allP', 'S', 'SKS' or 'allS'. "+
+        help="Specify the phase name to plot.  " +
+        "Options are 'P', 'PP', 'allP', 'S', 'SKS' or 'allS'. " +
         "[Default 'allP']")
 ## JMG ##
 
@@ -1876,15 +1909,15 @@ def get_plot_options():
         dest="scale",
         default=None,
         type=float,
-        help="Specify the scaling factor for the amplitude of the "+
-        "receiver functions in the wiggle plots. [Default 100. for "+
+        help="Specify the scaling factor for the amplitude of the " +
+        "receiver functions in the wiggle plots. [Default 100. for " +
         "a back-azimuth plot, 0.02 for a slowness plot]")
     PlotGroup.add_option(
         "--normalize",
         action="store_true",
         dest="norm",
         default=False,
-        help="Set this option to produce receiver functions normalized "+
+        help="Set this option to produce receiver functions normalized " +
         "by the max amplitude of stacked RFs. [Default False]")
     PlotGroup.add_option(
         "--trange",
@@ -1892,14 +1925,14 @@ def get_plot_options():
         default=None,
         type=str,
         dest="trange",
-        help="Specify the time range for the x-axis (sec). Negative times "+
+        help="Specify the time range for the x-axis (sec). Negative times " +
         "are allowed [Default 0., 30.]")
     PlotGroup.add_option(
         "--stacked",
         action="store_true",
         dest="stacked",
         default=False,
-        help="Set this option to plot a stack of all traces in top panel. "+
+        help="Set this option to plot a stack of all traces in top panel. " +
         "[Default does not plot stacked traces]")
     PlotGroup.add_option(
         "--save",
@@ -1946,7 +1979,7 @@ def get_plot_options():
             parser.error(
                 "Error: --slowbound should contain 2 " +
                 "comma-separated floats")
-    
+
     if opts.bazbound is None:
         opts.bazbound = [0.0, 360.0]
     else:
@@ -1966,8 +1999,7 @@ def get_plot_options():
     elif opts.phase == 'allS':
         opts.listphase = ['S', 'SKS']
     else:
-        opts.listphase = [opts.phase]    
-
+        opts.listphase = [opts.phase]
 
     if opts.bp is not None:
         opts.bp = [float(val) for val in opts.bp.split(',')]
@@ -1997,5 +2029,3 @@ def get_plot_options():
         parser.error("Specify only one of --nbaz or --nslow")
 
     return (opts, indb)
-
-

@@ -305,7 +305,7 @@ class HkStack(object):
         typ : str
             How the phase-weigthed stacks should be combined to produce
             a final stack. Available options are: weighted sum (``typ=sum``) 
-            or product (``typ=prod``).
+            or product (``typ=product``).
         q : float
             Confidence level for the error estimate
         err_method : str
@@ -333,20 +333,20 @@ class HkStack(object):
         # Get stacks
         if typ == 'sum':
             stack = (ps + pps + pss)
-        elif typ == 'prod':
+        elif typ == 'product':
             # Zero out negative values
             ps[ps < 0] = 0.
-            try:
+            if self.weights[1] != 0.:
                 pps[pps < 0] = 0.
-            except:
+            else:
                 pps = 1.
-            try:
+            if self.weights[2] != 0.:
                 pss[pss < 0] = 0.
-            except:
+            else:
                 pss = 1.
             stack = ps*pps*pss
         else:
-            raise(Exception("'typ' must be either 'sum' or 'prod'"))
+            raise(Exception("'typ' must be either 'sum' or 'product'"))
 
         self.typ = typ
 
@@ -357,7 +357,11 @@ class HkStack(object):
         self.k0 = k[ind[1]][0]
         self.stack = stack
 
-        self.error()
+        try:
+            self.error()
+        except:
+            self.err_k0 = 0.
+            self.err_h0 = 0.
 
     def error(self, q=0.05, err_method='amp'):
         """
@@ -454,7 +458,7 @@ class HkStack(object):
         except:
             pss = None
 
-        if self.typ == 'mult':
+        if self.typ == 'product':
             # Zero out negative values
             ps[ps < 0] = 0.
             try:
@@ -531,9 +535,12 @@ class HkStack(object):
             plt.suptitle('H-k stacks, station: ' + self.rfV1[0].stats.station)
 
         if save:
-            plt.savefig('FIGURES/' + self.rfV1[0].stats.station +
-                        '.' + title+'.'+form, format=form)
-        plt.show()
+            plt.savefig('HK_PLOTS/hk.' + self.rfV1[0].stats.station +
+                        '.' + title+'.'+self.typ+'.'+form, format=form)
+        else:
+            plt.show()
+
+        plt.close()
 
 ## JMG ##
     def save(self, file):

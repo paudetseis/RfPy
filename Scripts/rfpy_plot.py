@@ -31,7 +31,6 @@ import glob
 import stdb
 from obspy import Stream
 from rfpy import options, binning, plotting
-from rfpy import CCPimage
 
 
 def main():
@@ -256,7 +255,6 @@ def main():
         # Event distribution
         plotting.event_dist(rfRstream, phase=opts.phase, save=opts.saveplot,
                             title=opts.titleplot, form=opts.form)
-
 
 if __name__ == "__main__":
 

@@ -75,9 +75,20 @@ def main():
         sta = db[stkey]
 
         # Define path to see if it exists
-        datapath = 'DATA/' + stkey
+        if opts.phase in ['P', 'PP', 'allP']:
+            datapath = 'P_DATA/' + stkey
+        elif opts.phase in ['S', 'SKS', 'allS']:
+            datapath = 'S_DATA/' + stkey
         if not os.path.isdir(datapath):
-            raise(Exception('Path to '+datapath+' doesn`t exist - aborting'))
+            print('Path to ' + datapath + ' doesn`t exist - continuing')
+            continue
+
+        # Define save path
+        if opts.save:
+            savepath = 'HK_DATA/' + stkey
+            if not os.path.isdir(savepath):
+                print('Path to '+savepath+' doesn`t exist - creating it')
+                os.makedirs(savepath)
 
         # Get search start time
         if opts.startT is None:
@@ -128,6 +139,9 @@ def main():
 
         for folder in os.listdir(datapath):
 
+            if folder.startswith('.'):
+                continue
+                
             date = folder.split('_')[0]
             year = date[0:4]
             month = date[4:6]
@@ -161,24 +175,34 @@ def main():
                 #     continue
 
                 # If everything passed, load the RF data
-                if os.path.isfile(datapath + "/" + folder + "/RF_Data.pkl"):
+                filename = datapath + "/" + folder + "/RF_Data.pkl"
+                if os.path.isfile(filename):
                     file = open(filename, "rb")
                     rfdata = pickle.load(file)
                     rfRstream.append(rfdata[1])
                     file.close()
+                if rfdata[0].stats.npts != 1451:
+                    print(folder)
 
         if len(rfRstream) == 0:
             continue
 
         if opts.no_outl:
-            # Remove outliers wrt variance
-            varR = np.array([np.var(tr.data) for tr in rfRstream])
+            t1 = 0.
+            t2 = 30.
 
-            # Calculate outliers
+            varR = []
+            for i in range(len(rfRstream)):
+                taxis = rfRstream[i].stats.taxis
+                tselect = (taxis > t1) & (taxis < t2)
+                varR.append(np.var(rfRstream[i].data[tselect]))
+            varR = np.array(varR)
+
+            # Remove outliers wrt variance within time range
             medvarR = np.median(varR)
             madvarR = 1.4826*np.median(np.abs(varR-medvarR))
             robustR = np.abs((varR-medvarR)/madvarR)
-            outliersR = np.arange(len(rfRstream))[robustR > 2.]
+            outliersR = np.arange(len(rfRstream))[robustR > 2.5]
             for i in outliersR[::-1]:
                 rfRstream.remove(rfRstream[i])
 
@@ -202,6 +226,18 @@ def main():
             rfRstream_copy.filter('bandpass', freqmin=opts.bp_copy[0],
                                   freqmax=opts.bp_copy[1], corners=2,
                                   zerophase=True)
+
+        # Check bin counts:
+        for tr in rfRstream:
+            if (tr.stats.nbin < opts.binlim):
+                rfRstream.remove(tr)
+
+        if opts.save_plot and not os.path.isdir('HK_PLOTS'):
+            os.makedirs('HK_PLOTS')
+
+        print('')
+        print("Number of radial RF bins: " + str(len(rfRstream)))
+        print('')
 
         # Filter original stream
         rfRstream.filter('bandpass', freqmin=opts.bp[0],
@@ -236,8 +272,8 @@ def main():
             hkstack.plot(opts.save_plot, opts.title, opts.form)
 
         if opts.save:
-            filename = datapath + "/" + hkstack.rfV1[0].stats.station + \
-                ".hkstack.pkl"
+            filename = savepath + "/" + hkstack.rfV1[0].stats.station + \
+                ".hkstack."+opts.typ+".pkl"
 
             hkstack.save(file=filename)
 

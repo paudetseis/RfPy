@@ -643,6 +643,11 @@ class RFData(object):
         def _npow2(x):
             return 1 if x == 0 else 2**(x-1).bit_length()
 
+        def _pad(array, n):
+            tmp = np.zeros(n)
+            tmp[:array.shape[0]] = array
+            return tmp
+
         def _gauss_filt(dt, nft, f0):
             df = 1./(nft*dt)
             nft21 = int(0.5*nft + 1)
@@ -653,16 +658,15 @@ class RFData(object):
             gauss[nft21:] = np.flip(gauss[1:nft21-1])
             return gauss
 
-        def _decon(parent, daughter1, daughter2, noise, method):
+        def _decon(parent, daughter1, daughter2, noise, nn, method):
 
             # Get length, zero padding parameters and frequencies
-            nt = parent.stats.npts
             dt = parent.stats.delta
 
             # Wiener or Water level deconvolution
             if method == 'wiener' or method == 'water':
 
-                npad = _npow2(nt*2)
+                npad = _npow2(nn*2)
                 freqs = np.fft.fftfreq(npad, d=dt)
 
                 # Fourier transform
@@ -688,26 +692,19 @@ class RFData(object):
             # Multitaper deconvolution
             elif method == 'multitaper':
 
-                def pad(array, n):
-                    tmp = np.zeros(n)
-                    tmp[:array.shape[0]] = array
-                    return tmp
-
                 from spectrum import dpss
 
-                npad = nt
+                npad = nn
                 # Re-check length and pad with zeros if necessary
                 if not np.allclose(
-                        [tr.stats.npts for tr in [daughter1,
-                                                  daughter2, 
-                                                  noise]], nt):
-                    nn = int(np.unique(np.max(np.array(
-                        [nt, daughter1.stats.npts, daughter2.stats.npts]))))
-                    parent.data = pad(parent.data, nn)
-                    daughter1.data = pad(daughter1.data, nn)
-                    daughter2.data = pad(daughter2.data, nn)
-                    noise.data = pad(noise.data, nn)
-                    npad = nn
+                        [tr.stats.npts for tr in [parent,
+                                                  daughter1,
+                                                  daughter2,
+                                                  noise]], npad):
+                    parent.data = _pad(parent.data, npad)
+                    daughter1.data = _pad(daughter1.data, npad)
+                    daughter2.data = _pad(daughter2.data, npad)
+                    noise.data = _pad(noise.data, npad)
 
                 freqs = np.fft.fftfreq(npad, d=dt)
 
@@ -789,24 +786,25 @@ class RFData(object):
         if phase == 'P' or 'PP':
             # Get signal length (i.e., seismogram to deconvolve) from trace length
             dts = len(trL.data)*trL.stats.delta/2.
+            nn = int(round((dts-5.)*trL.stats.sampling_rate)) + 1
 
             # Crop traces for signal (-5. to dts-10 sec)
             trL.trim(self.meta.time+self.meta.ttime-5.,
                      self.meta.time+self.meta.ttime+dts-10.,
-                     nearest_sample=False)
+                     nearest_sample=False, pad=nn, fill_value=0.)
             trQ.trim(self.meta.time+self.meta.ttime-5.,
                      self.meta.time+self.meta.ttime+dts-10.,
-                     nearest_sample=False)
+                     nearest_sample=False, pad=nn, fill_value=0.)
             trT.trim(self.meta.time+self.meta.ttime-5.,
                      self.meta.time+self.meta.ttime+dts-10.,
-                     nearest_sample=False)
+                     nearest_sample=False, pad=nn, fill_value=0.)
             # Crop trace for noise (-dts to -5 sec)
             trNl.trim(self.meta.time+self.meta.ttime-dts,
                       self.meta.time+self.meta.ttime-5.,
-                      nearest_sample=False)
+                      nearest_sample=False, pad=nn, fill_value=0.)
             trNq.trim(self.meta.time+self.meta.ttime-dts,
                       self.meta.time+self.meta.ttime-5.,
-                      nearest_sample=False)
+                      nearest_sample=False, pad=nn, fill_value=0.)
 
         elif phase == 'S' or 'SKS':
             # Get signal length (i.e., seismogram to deconvolve) from trace length
@@ -843,10 +841,10 @@ class RFData(object):
 
         # Deconvolve
         if phase == 'P' or 'PP':
-            rfL, rfQ, rfT = _decon(trL, trQ, trT, trNl, method)
+            rfL, rfQ, rfT = _decon(trL, trQ, trT, trNl, nn, method)
 
         elif phase == 'S' or 'SKS':
-            rfQ, rfL, rfT = _decon(trQ, trL, trT, trNq, method)
+            rfQ, rfL, rfT = _decon(trQ, trL, trT, trNq, nn, method)
 
         # Update stats of streams
         rfL.stats.channel = 'RF' + self.meta.align[0]

@@ -534,6 +534,8 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
     # Three components successfully retrieved
     else:
 
+        
+
         # Detrend and apply taper
         st.detrend('linear').taper(max_percentage=0.05, max_length=5.)
 
