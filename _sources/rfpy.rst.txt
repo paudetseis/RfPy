@@ -36,6 +36,7 @@ Also, the following packages are required:
 
 - `stdb <https://github.com/paudetseis/StDb>`_
 - `spectrum <https://github.com/cokelaer/spectrum>`_
+- `cartopy <https://scitools.org.uk/cartopy/docs/latest/>`_
 
 Other required packages (e.g., ``obspy``)
 will be automatically installed by ``stdb``.
@@ -48,7 +49,7 @@ where ``RfPy`` can be installed along with some of its dependencies.
 
 .. sourcecode:: bash
 
-   conda create -n rfpy python=3.7 obspy -c conda-forge
+   conda create -n rfpy python=3.7 obspy cartopy -c conda-forge
 
 Activate the newly created environment:
 

@@ -223,6 +223,7 @@ SOFTWARE.</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/paudetseis/StDb">stdb</a></p></li>
 <li><p><a class="reference external" href="https://github.com/cokelaer/spectrum">spectrum</a></p></li>
+<li><p><a class="reference external" href="https://scitools.org.uk/cartopy/docs/latest/">cartopy</a></p></li>
 </ul>
 <p>Other required packages (e.g., <code class="docutils literal notranslate"><span class="pre">obspy</span></code>)
 will be automatically installed by <code class="docutils literal notranslate"><span class="pre">stdb</span></code>.</p>
@@ -231,7 +232,7 @@ will be automatically installed by <code class="docutils literal notranslate"><s
 <h2>Conda environment<a class="headerlink" href="#conda-environment" title="Permalink to this headline">¶</a></h2>
 <p>We recommend creating a custom <code class="docutils literal notranslate"><span class="pre">conda</span></code> environment
 where <code class="docutils literal notranslate"><span class="pre">RfPy</span></code> can be installed along with some of its dependencies.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda create -n rfpy <span class="nv">python</span><span class="o">=</span><span class="m">3</span>.7 obspy -c conda-forge
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda create -n rfpy <span class="nv">python</span><span class="o">=</span><span class="m">3</span>.7 obspy cartopy -c conda-forge
 </pre></div>
 </div>
 <p>Activate the newly created environment:</p>

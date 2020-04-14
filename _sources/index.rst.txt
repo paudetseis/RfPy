@@ -25,8 +25,6 @@ used in command-line scripts.
    to ``rf`` objects, since both are heavily based on `obspy <http://www.obspy.org>`_. The main
    differences between ``RfPy`` and ``rf`` are as follows:
 
-   * ``RfPy`` only calculates `P` receiver functions, whereas ``rf`` can also calculate
-     `S` receiver functions. 
    * ``RfPy`` employs either a Wiener or multitaper spectral deconvolution 
      technique, whereas ``rf`` uses either a water-level 
      spectral deconvolution or a time-domain deconvolution.
