@@ -107,6 +107,10 @@ def main():
 
         for folder in os.listdir(datapath):
 
+            # Skip hidden folders
+            if folder.startswith('.'):
+                continue
+
             # Re-initialize RFData object
             rfdata = RFData(sta)
 

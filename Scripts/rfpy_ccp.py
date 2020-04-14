@@ -122,6 +122,10 @@ def main():
 
                 for folder in os.listdir(datapath):
 
+                    # Skip hidden folders
+                    if folder.startswith('.'):
+                        continue
+
                     # Load meta data
                     filename = datapath+"/"+folder+"/Meta_Data.pkl"
                     if not os.path.isfile(filename):

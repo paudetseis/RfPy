@@ -139,9 +139,10 @@ def main():
 
         for folder in os.listdir(datapath):
 
+            # Skip hidden folders
             if folder.startswith('.'):
                 continue
-                
+
             date = folder.split('_')[0]
             year = date[0:4]
             month = date[4:6]
