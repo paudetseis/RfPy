@@ -257,8 +257,9 @@ def main():
                                  title=opts.titleplot, form=opts.form)
 
         # Event distribution
-        plotting.event_dist(rfRstream, phase=opts.phase, save=opts.saveplot,
-                            title=opts.titleplot, form=opts.form)
+        if opts.plot_event_dist:
+            plotting.event_dist(rfRstream, phase=opts.phase, save=opts.saveplot,
+                                title=opts.titleplot, form=opts.form)
 
 if __name__ == "__main__":
 

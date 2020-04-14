@@ -1871,7 +1871,6 @@ def get_plot_options():
         help="Specify integer number of slowness bins to consider " +
         "(typically 20 or 40). If not None, the plot will show receiver " +
         "functions sorted by slowness values. [Default None]")
-## JMG ##
     PreGroup.add_option(
         "--slowbound",
         action="store",
@@ -1897,7 +1896,6 @@ def get_plot_options():
         help="Specify the phase name to plot.  " +
         "Options are 'P', 'PP', 'allP', 'S', 'SKS' or 'allS'. " +
         "[Default 'allP']")
-## JMG ##
 
     PlotGroup = OptionGroup(
         parser,
@@ -1956,6 +1954,15 @@ def get_plot_options():
         default="png",
         help="Specify format of figure. Can be any one of the valid" +
         "matplotlib formats: 'png', 'jpg', 'eps', 'pdf'. [Default 'png']")
+    PlotGroup.add_option(
+        "--plot-event-dist",
+        action="store_true",
+        dest="plot_event_dist",
+        default=False,
+        help="Plot distribution of events on map. Other Plotting Options "+
+        "will be applied to this figure (title, save, etc.). "+
+        "[Default no plot]")
+
 
     parser.add_option_group(PreGroup)
     parser.add_option_group(PlotGroup)
@@ -1969,7 +1976,6 @@ def get_plot_options():
     if not exist(indb):
         parser.error("Input file " + indb + " does not exist")
 
-## JMG ##
     if opts.slowbound is None:
         opts.slowbound = [0.04, 0.08]
     else:
@@ -1989,7 +1995,6 @@ def get_plot_options():
             parser.error(
                 "Error: --bazbound should contain 2 " +
                 "comma-separated floats")
-## JMG ##
 
     if opts.phase not in ['P', 'PP', 'allP', 'S', 'SKS', 'allS']:
         parser.error(
