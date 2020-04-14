@@ -3,7 +3,7 @@
 
 ## Teleseismic receiver function calculation and post-processing 
 
-RfPy is a software to calculate single event-station receiver functions from the spectral deconvolution technique. Methods are available to post-process the receiver function data to calculate H-k stacks and back-azimuth harmonics. The code uses the ``StDb`` package for querying and building a station database and can be used through command-line scripts.
+RfPy is a software to calculate single event-station receiver functions from the spectral deconvolution technique. Methods are available to post-process the receiver function data to calculate H-k stacks, back-azimuth harmonics and common-conversion-point (CCP) imaging. The code uses the ``StDb`` package for querying and building a station database and can be used through command-line scripts.
 
 [![Build Status](https://travis-ci.com/paudetseis/RfPy.svg?branch=master)](https://travis-ci.com/paudetseis/RfPy)
 [![codecov](https://codecov.io/gh/paudetseis/RfPy/branch/master/graph/badge.svg)](https://codecov.io/gh/paudetseis/RfPy)
