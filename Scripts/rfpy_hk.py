@@ -155,7 +155,7 @@ def main():
                 if not os.path.isfile(datapath+"/"+folder+"/Meta_Data.pkl"):
                     continue
                 meta = pickle.load(open(
-                    datapath + "/" + folder + "/Meta_Data.pkl",'rb'))
+                    datapath + "/" + folder + "/Meta_Data.pkl", 'rb'))
 
                 # Skip data not in list of phases
                 if meta.phase not in opts.listphase:
@@ -213,12 +213,16 @@ def main():
 
         # Try binning if specified
         if opts.calc_dip:
-            rf_tmp = binning.bin_baz_slow(
-                rfRstream, nbaz=opts.nbaz+1, nslow=opts.nslow+1)
+            rf_tmp = binning.bin_baz_slow(rfRstream,
+                                          nbaz=opts.nbaz+1,
+                                          nslow=opts.nslow+1, 
+                                          pws=opts.pws)
             rfRstream = rf_tmp[0]
         else:
-            rf_tmp = binning.bin(
-                rfRstream, typ='slow', nbin=opts.nslow+1)
+            rf_tmp = binning.bin(rfRstream,
+                                 typ='slow',
+                                 nbin=opts.nslow+1, 
+                                 pws=opts.pws)
             rfRstream = rf_tmp[0]
 
         # Get a copy of the radial component and filter
@@ -232,6 +236,10 @@ def main():
         for tr in rfRstream:
             if (tr.stats.nbin < opts.binlim):
                 rfRstream.remove(tr)
+
+        # Continue if stream is too short
+        if len(rfRstream) < 5:
+            continue
 
         if opts.save_plot and not os.path.isdir('HK_PLOTS'):
             os.makedirs('HK_PLOTS')

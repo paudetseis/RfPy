@@ -795,7 +795,6 @@ def get_hk_options():
         default=False,
         help="Set this option to delete outliers based on the MAD " +
         "on the variance. [Default False]")
-## JMG ##
     PreGroup.add_option(
         "--slowbound",
         action="store",
@@ -812,7 +811,13 @@ def get_hk_options():
         default=None,
         help="Specify a list of two floats with minimum and maximum" +
         "bounds on back azimuth (degrees). [Default [0, 360]]")
-## JMG ##
+    PreGroup.add_option(
+        "--pws",
+        action="store_true",
+        dest="pws",
+        default=False,
+        help="Set this option to use phase-weighted stacking during binning " +
+        " [Default False]")
     PreGroup.add_option(
         "--phase",
         action="store",
