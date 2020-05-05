@@ -108,8 +108,10 @@ class HkStack(object):
             nn = rfV1[0].stats.npts
             for tr in rfV1:
                 tr.data = np.fft.fftshift(tr.data)[0:int(nn/2)]
+                tr.stats.taxis = np.fft.fftshift(tr.data)[0:int(nn/2)]
             for tr in rfV2:
                 tr.data = np.fft.fftshift(tr.data)[0:int(nn/2)]
+                tr.stats.taxis = np.fft.fftshift(tr.data)[0:int(nn/2)]
 
         self.rfV1 = rfV1
         self.rfV2 = rfV2
@@ -193,6 +195,14 @@ class HkStack(object):
                         tphase = np.arctan2(thilb.imag, thilb.real)
                         weight += np.exp(1j*tphase[0])
                         amp[i] = trace[0]
+
+                        # ### Attempt at speeding things up
+                        # ind = (np.abs(rfV.stats.taxis - tt)).argmin()
+                        # trace = rfV.copy()
+                        # thilb = hilbert(trace.data)
+                        # tphase = np.arctan2(thilb.imag, thilb.real)
+                        # weight += np.exp(1j*tphase[ind])
+                        # amp[i] = trace.data[ind]
 
                     weight = abs(weight/len(self.rfV1))**4
                     sig[ih, ik, ip] = np.var(amp)*np.real(weight)
@@ -447,16 +457,10 @@ class HkStack(object):
         # Extent of plots
         extent = (H.min(), H.max(), k.min(), k.max())
 
-        # Multiply pws by weights
-        ps = self.pws[:, :, 0]*self.weights[0]
-        try:
-            pps = self.pws[:, :, 1]*self.weights[1]
-        except:
-            pps = None
-        try:
-            pss = self.pws[:, :, 2]*self.weights[2]
-        except:
-            pss = None
+        # Extract phase stacks
+        ps = self.pws[:, :, 0]
+        pps = self.pws[:, :, 1]
+        pss = self.pws[:, :, 2]
 
         if self.typ == 'product':
             # Zero out negative values
@@ -481,19 +485,22 @@ class HkStack(object):
         im = ax1.imshow(np.rot90(ps), cmap=cmap,
                         extent=extent, vmin=-vmax, vmax=vmax, aspect='auto')
         ax1.set_ylabel('Vp/Vs')
-        ax1.set_title('Ps')
+        ax1.set_title('Ps - weight: {0:.1f}'.format(
+            self.weights[0]), fontsize=10)
 
         # Second subplot: Pps
         vmax = np.abs(max(pps.max(), pps.min(), key=abs))
         im = ax2.imshow(np.rot90(pps), cmap=cmap,
                         extent=extent, vmin=-vmax, vmax=vmax, aspect='auto')
-        ax2.set_title('Pps')
+        ax2.set_title('Pps - weight: {0:.1f}'.format(
+            self.weights[1]), fontsize=10)
 
         # Third subplot: Pss
         vmax = np.abs(max(pss.max(), pss.min(), key=abs))
         im = ax3.imshow(np.rot90(pss), cmap=cmap,
                         extent=extent, vmin=-vmax, vmax=vmax, aspect='auto')
-        ax3.set_title('Pss')
+        ax3.set_title('Pss - weight: {0:.1f}'.format(
+            self.weights[2]), fontsize=10)
         ax3.set_ylabel('Vp/Vs')
         ax3.set_xlabel('Thickness (km)')
 

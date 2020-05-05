@@ -279,8 +279,12 @@ def main():
                 ccpimage = pickle.load(open(prestack_file, "rb"))
                 ccpimage.ccp()
                 if opts.linear:
+                    if opts.weights:
+                        ccpimage.weights = opts.weights
                     ccpimage.linear_stack(typ='ccp')
                 elif opts.pws:
+                    if opts.weights:
+                        ccpimage.weights = opts.weights
                     ccpimage.phase_weighted_stack(typ='ccp')
                 ccpimage.save(ccp_file)
                 print()
@@ -317,11 +321,14 @@ def main():
                     print()
 
                 ccpimage = pickle.load(open(prestack_file, "rb"))
-                ccpimage.weights = [1., 3., -3.]
                 ccpimage.gccp(wlen=opts.wlen)
                 if opts.linear:
+                    if opts.weights:
+                        ccpimage.weights = opts.weights
                     ccpimage.linear_stack(typ='gccp')
                 elif opts.pws:
+                    if opts.weights:
+                        ccpimage.weights = opts.weights
                     ccpimage.phase_weighted_stack(typ='gccp')
                 ccpimage.save(gccp_file)
                 print()

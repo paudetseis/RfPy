@@ -110,7 +110,7 @@ class CCPimage(object):
                  weights=[1., 3., -3.],
                  dep=np.array([0., 4., 8., 14., 30., 35., 45., 110.]),
                  vp=np.array([4.0, 5.9, 6.2, 6.3, 6.8, 7.2, 8.0, 8.1]),
-                 vpvs=1.73, dx=2.5, dz=1.):
+                 vs=None, vpvs=1.73, dx=2.5, dz=1.):
 
         self.radialRF = []
         self.dep = dep
@@ -140,7 +140,12 @@ class CCPimage(object):
         self.zarray = np.arange(self.nz)*self.dz
 
         # Interpolate Vp and Vs models on depth grid
-        vs = vp/vpvs
+        if vs is None:
+            vs = vp/vpvs
+        else:
+            if not vp.shape == vs.shape:
+                raise(Exception("vp and vs arrays have a different shape"))
+
         self.vp = sp.interpolate.interp1d(dep, vp, kind='linear')(self.zarray)
         self.vs = sp.interpolate.interp1d(dep, vs, kind='linear')(self.zarray)
 
@@ -229,7 +234,7 @@ class CCPimage(object):
             # Bin RFs into back-azimuth and slowness bins to speed up
             # calculations
             RFbin = binning.bin_baz_slow(
-                RF, nbaz=nbaz, nslow=nslow, pws=True)[0]
+                RF, nbaz=nbaz, nslow=nslow)[0]
             n_traces = len(RFbin)
             total_traces += n_traces
 
@@ -462,9 +467,9 @@ class CCPimage(object):
                     amps_pss = self.xs_amps_pss[iz, ix, 0:nonzero_count]
                     xs_pss_avg[iz, ix] = np.mean(amps_pss)
 
-        self.xs_ps_avg = xs_ps_avg*self.weights[0]
-        self.xs_pps_avg = xs_pps_avg*self.weights[1]
-        self.xs_pss_avg = xs_pss_avg*self.weights[2]
+        self.xs_ps_avg = xs_ps_avg
+        self.xs_pps_avg = xs_pps_avg
+        self.xs_pss_avg = xs_pss_avg
 
         del self.xs_amps_ps
         del self.xs_amps_pps
@@ -537,15 +542,15 @@ class CCPimage(object):
         if typ=='ccp':
             if not hasattr(self, "xs_ps_avg"):
                 self.ccp()
-            xs_ps = self.xs_ps_avg
-            xs_pps = self.xs_pps_avg
-            xs_pss = self.xs_pss_avg
+            xs_ps = self.xs_ps_avg*self.weights[0]
+            xs_pps = self.xs_pps_avg*self.weights[1]
+            xs_pss = self.xs_pss_avg*self.weights[2]
         elif typ=='gccp':
             if not hasattr(self, 'xs_gauss_ps'):
                 self.gccp()
-            xs_ps = self.xs_gauss_ps
-            xs_pps = self.xs_gauss_pps
-            xs_pss = self.xs_gauss_pss
+            xs_ps = self.xs_gauss_ps*self.weights[0]
+            xs_pps = self.xs_gauss_pps*self.weights[1]
+            xs_pss = self.xs_gauss_pss*self.weights[2]
 
         for ix in range(self.nx):
             ps_trace = xs_ps[:, ix]
@@ -580,15 +585,15 @@ class CCPimage(object):
         if typ=='ccp':
             if not hasattr(self, "xs_ps_avg"):
                 self.ccp()
-            xs_ps = self.xs_ps_avg
-            xs_pps = self.xs_pps_avg
-            xs_pss = self.xs_pss_avg
+            xs_ps = self.xs_ps_avg*self.weights[0]
+            xs_pps = self.xs_pps_avg*self.weights[1]
+            xs_pss = self.xs_pss_avg*self.weights[2]
         elif typ=='gccp':
             if not hasattr(self, 'xs_gauss_ps'):
                 self.gccp()
-            xs_ps = self.xs_gauss_ps
-            xs_pps = self.xs_gauss_pps
-            xs_pss = self.xs_gauss_pss
+            xs_ps = self.xs_gauss_ps*self.weights[0]
+            xs_pps = self.xs_gauss_pps*self.weights[1]
+            xs_pss = self.xs_gauss_pss*self.weights[2]
 
         for ix in range(self.nx):
             ps_trace = xs_ps[:, ix]
@@ -664,7 +669,8 @@ class CCPimage(object):
 
         # plt.pcolormesh(xarray,zarray,xs_ps_avg,cmap=cm.coolwarm,vmin=vmin,vmax=vmax)
         im1 = ax1.pcolormesh(self.xarray, self.zarray,
-                             self.xs_ps_avg, cmap=cm.RdBu_r,
+                             self.xs_ps_avg*self.weights[0], 
+                             cmap=cm.RdBu_r,
                              vmin=vmin, vmax=vmax)
         bar = plt.colorbar(im1, ax=ax1)
         ax1.set_xlim((min(self.xarray)),
@@ -678,7 +684,8 @@ class CCPimage(object):
 
         # plt.pcolormesh(xarray,zarray,xs_pps_avg,cmap=cm.coolwarm,vmin=vmin,vmax=vmax)
         im2 = ax2.pcolormesh(self.xarray, self.zarray,
-                             self.xs_pps_avg, cmap=cm.RdBu_r,
+                             self.xs_pps_avg*self.weights[1], 
+                             cmap=cm.RdBu_r,
                              vmin=vmin, vmax=vmax)
         bar = plt.colorbar(im2, ax=ax2)
         ax2.set_xlim((min(self.xarray)),
@@ -691,7 +698,8 @@ class CCPimage(object):
         ax2.invert_yaxis()
 
         im3 = ax3.pcolormesh(self.xarray, self.zarray,
-                             self.xs_pss_avg, cmap=cm.RdBu_r,
+                             self.xs_pss_avg*self.weights[2], 
+                             cmap=cm.RdBu_r,
                              vmin=vmin, vmax=vmax)
         bar = plt.colorbar(im3, ax=ax3)
         ax3.set_xlim((min(self.xarray)),
@@ -751,7 +759,8 @@ class CCPimage(object):
 
         # plt.pcolormesh(xarray,zarray,xs_ps_avg,cmap=cm.coolwarm,vmin=vmin,vmax=vmax)
         im1 = ax1.pcolormesh(self.xarray, self.zarray,
-                             self.xs_gauss_ps, cmap=cm.RdBu_r,
+                             self.xs_gauss_ps*self.weights[0], 
+                             cmap=cm.RdBu_r,
                              vmin=vmin, vmax=vmax)
         bar = plt.colorbar(im1, ax=ax1)
         ax1.set_xlim((min(self.xarray)),
@@ -765,7 +774,8 @@ class CCPimage(object):
 
         # plt.pcolormesh(xarray,zarray,xs_pps_avg,cmap=cm.coolwarm,vmin=vmin,vmax=vmax)
         im2 = ax2.pcolormesh(self.xarray, self.zarray,
-                             self.xs_gauss_pps, cmap=cm.RdBu_r,
+                             self.xs_gauss_pps*self.weights[1], 
+                             cmap=cm.RdBu_r,
                              vmin=vmin, vmax=vmax)
         bar = plt.colorbar(im2, ax=ax2)
         ax2.set_xlim((min(self.xarray)),
@@ -778,7 +788,8 @@ class CCPimage(object):
         ax2.invert_yaxis()
 
         im3 = ax3.pcolormesh(self.xarray, self.zarray,
-                             self.xs_gauss_pss, cmap=cm.RdBu_r,
+                             self.xs_gauss_pss*self.weights[2], 
+                             cmap=cm.RdBu_r,
                              vmin=vmin, vmax=vmax)
         bar = plt.colorbar(im3, ax=ax3)
         ax3.set_xlim((min(self.xarray)),

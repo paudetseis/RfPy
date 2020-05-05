@@ -198,18 +198,24 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
                 for tr in stream2:
                     tr.data /= norm
             if btyp == 'baz':
-                maxval = 5.
+                maxval = 7.5
+                maxvalT = maxval
             elif btyp == 'slow':
                 maxval = 0.001
+                maxvalT = 2.*maxval
             elif btyp == 'dist':
                 maxval = 1
+                maxvalT = maxval
         else:
             if btyp == 'baz':
                 maxval = 100
+                maxvalT = maxval
             elif btyp == 'slow':
                 maxval = 0.02
+                maxvalT = maxval
             elif btyp == 'dist':
                 maxval = 20
+                maxvalT = maxval
 
     # Time axis
     nn = stream1[0].stats.npts
@@ -243,14 +249,20 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
         ax1.fill_between(
             time, 0., tr1.data,
             where=tr1.data+1e-6 <= 0.,
-            facecolor='blue',
+            facecolor='grey',
             linewidth=0)
         ax1.fill_between(
             time, 0., tr1.data,
             where=tr1.data+1e-6 >= 0.,
             facecolor='red',
             linewidth=0)
+        ax1.plot(time, tr1.data,
+            linewidth=0.25, c='k')
         ylim = np.max([np.max(np.abs(tr1.data)), np.max(np.abs(tr2.data))])
+        if btyp=='slow':
+            ylimT = ylim/2.
+        else:
+            ylimT = ylim
         ax1.set_ylim(-1.*ylim, ylim)
         ax1.set_yticks(())
         ax1.set_xticks(())
@@ -272,13 +284,15 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
         ax2.fill_between(
             time, y, y+tr.data*maxval,
             where=tr.data+1e-6 <= 0.,
-            facecolor='blue',
+            facecolor='grey',
             linewidth=0)
         ax2.fill_between(
             time, y, y+tr.data*maxval,
             where=tr.data+1e-6 >= 0.,
             facecolor='red',
             linewidth=0)
+        ax2.plot(time, y+tr.data*maxval,
+            linewidth=0.25, c='k')
 
     ax2.set_xlim(tmin, tmax)
 
@@ -297,7 +311,7 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
         ax2.set_xlabel('Time (sec)')
     elif xtyp == 'depth':
         ax2.set_xlabel('Depth (km)')
-    ax2.grid()
+    ax2.grid(ls=':')
     if not ax1:
         ax2.set_title('Radial')
 
@@ -307,15 +321,17 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
         ax3.fill_between(
             time, 0., tr2.data,
             where=tr2.data+1e-6 <= 0.,
-            facecolor='blue',
+            facecolor='grey',
             linewidth=0)
         ax3.fill_between(
             time, 0., tr2.data,
             where=tr2.data+1e-6 >= 0.,
             facecolor='red',
             linewidth=0)
+        ax3.plot(time, tr2.data,
+            linewidth=0.25, c='k')
         ax3.set_xlim(tmin, tmax)
-        ax3.set_ylim(-1.*ylim, ylim)
+        ax3.set_ylim(-1.*ylimT, ylimT)
         ax3.set_yticks(())
         ax3.set_xticks(())
         ax3.set_title('Transverse')
@@ -334,23 +350,25 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
 
             # Fill positive in red, negative in blue
             ax4.fill_between(
-                time, y, y+tr.data*maxval,
+                time, y, y+tr.data*maxvalT,
                 where=tr.data+1e-6 <= 0.,
-                facecolor='blue',
+                facecolor='grey',
                 linewidth=0)
             ax4.fill_between(
-                time, y, y+tr.data*maxval,
+                time, y, y+tr.data*maxvalT,
                 where=tr.data+1e-6 >= 0.,
                 facecolor='red',
                 linewidth=0)
+            ax4.plot(time, y+tr.data*maxvalT,
+                linewidth=0.25, c='k')
 
         ax4.set_xlim(tmin, tmax)
 
         if btyp == 'baz':
             ax4.set_ylim(-5, 370)
         elif btyp == 'slow':
-            ax4.set_ylim(0.08, 0.13)
-            # ax4.set_ylim(0.038, 0.082)
+            # ax4.set_ylim(0.08, 0.13)
+            ax4.set_ylim(0.038, 0.082)
         elif btyp == 'dist':
             ax4.set_ylim(28., 92.)
 
@@ -359,7 +377,7 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
         elif xtyp == 'depth':
             ax4.set_xlabel('Depth (km)')
         ax4.set_yticklabels([])
-        ax4.grid()
+        ax4.grid(ls=':')
         if not ax3:
             ax4.set_title('Transverse')
 

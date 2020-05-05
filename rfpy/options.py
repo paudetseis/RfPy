@@ -1633,6 +1633,14 @@ def get_ccp_options():
         default=False,
         help="Step 5b. Set this option to produce a phase weighted stack " +
         "for the final [G]CCP image. [Default False]")
+    CCPGroup.add_option(
+        "--weights",
+        action="store",
+        dest="weights",
+        default=None,
+        help="Option to define weights for each of the three phases: "+
+        "Ps, Pps and Pss, by specifying three comma-separated floats. "+
+        "[Default 1., 3., -3.]")
 
     FigGroup = OptionGroup(
         parser,
@@ -1704,6 +1712,15 @@ def get_ccp_options():
         opts.listphase = ['S', 'SKS']
     else:
         opts.listphase = [opts.phase]
+
+    if opts.weights is None:
+        opts.weights = [1., 3., -3.]
+    else:
+        opts.weights = [float(val) for val in opts.weights.split(',')]
+        if (len(opts.weights)) != 3:
+            parser.error(
+                "Error: --weights should contain 3 " +
+                "comma-separated floats")
 
     if opts.load and opts.coord_start is None:
         parser.error("--start=lon,lat is required")
