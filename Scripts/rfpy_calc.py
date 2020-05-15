@@ -25,7 +25,6 @@
 
 # Import modules and functions
 import numpy as np
-import os.path
 import pickle
 import glob
 import stdb
@@ -50,7 +49,7 @@ def main():
     print()
 
     # Run Input Parser
-    args = options.get_calc_arguments()
+    args = arguments.get_calc_arguments()
 
     # Load Database
     db = stdb.io.load_db(fname=args.indb)
