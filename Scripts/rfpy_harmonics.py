@@ -25,14 +25,13 @@
 
 # Import modules and functions
 import numpy as np
-import os.path
 import pickle
-import glob
 import stdb
 from obspy.clients.fdsn import Client
 from obspy.core import Stream, UTCDateTime
-from rfpy import options, binning, plotting
+from rfpy import arguments, binning, plotting
 from rfpy import Harmonics
+from pathlib import Path
 
 
 def main():
@@ -42,7 +41,8 @@ def main():
     print("#        __                 _                                      _           #")
     print("#  _ __ / _|_ __  _   _    | |__   __ _ _ __ _ __ ___   ___  _ __ (_) ___ ___  #")
     print("# | '__| |_| '_ \| | | |   | '_ \ / _` | '__| '_ ` _ \ / _ \| '_ \| |/ __/ __| #")
-    print("# | |  |  _| |_) | |_| |   | | | | (_| | |  | | | | | | (_) | | | | | (__\__ \ #")
+    print(
+        "# | |  |  _| |_) | |_| |   | | | | (_| | |  | | | | | | (_) | | | | | (__\__ \ #")
     print("# |_|  |_| | .__/ \__, |___|_| |_|\__,_|_|  |_| |_| |_|\___/|_| |_|_|\___|___/ #")
     print("#          |_|    |___/_____|                                                  #")
     print("#                                                                              #")
@@ -50,19 +50,19 @@ def main():
     print()
 
     # Run Input Parser
-    (opts, indb) = options.get_harmonics_options()
+    args = arguments.get_harmonics_arguments()
 
     # Load Database
-    db = stdb.io.load_db(fname=indb)
+    db = stdb.io.load_db(fname=args.indb)
 
     # Construct station key loop
     allkeys = db.keys()
     sorted(allkeys)
 
     # Extract key subset
-    if len(opts.stkeys) > 0:
+    if len(args.stkeys) > 0:
         stkeys = []
-        for skey in opts.stkeys:
+        for skey in args.stkeys:
             stkeys.extend([s for s in allkeys if skey in s])
     else:
         stkeys = db.keys()
@@ -75,21 +75,22 @@ def main():
         sta = db[stkey]
 
         # Define path to see if it exists
-        datapath = 'DATA/' + stkey
-        if not os.path.isdir(datapath):
-            raise(Exception('Path to '+datapath+' doesn`t exist - aborting'))
+        datapath = Path('DATA') / stkey
+        if not datapath.is_dir():
+            raise(Exception('Path to '+str(datapath) +
+                            ' doesn`t exist - aborting'))
 
         # Get search start time
-        if opts.startT is None:
+        if args.startT is None:
             tstart = sta.startdate
         else:
-            tstart = opts.startT
+            tstart = args.startT
 
         # Get search end time
-        if opts.endT is None:
+        if args.endT is None:
             tend = sta.enddate
         else:
-            tend = opts.endT
+            tend = args.endT
 
         if tstart > sta.enddate or tend < sta.startdate:
             continue
@@ -127,13 +128,14 @@ def main():
         rfRstream = Stream()
         rfTstream = Stream()
 
-        for folder in os.listdir(datapath):
+        datafiles = [x for x in datapath.iterdir() if x.is_dir()]
+        for folder in datafiles:
 
             # Skip hidden folders
-            if folder.startswith('.'):
+            if folder.name.startswith('.'):
                 continue
 
-            date = folder.split('_')[0]
+            date = folder.name.split('_')[0]
             year = date[0:4]
             month = date[4:6]
             day = date[6:8]
@@ -141,22 +143,22 @@ def main():
 
             if dateUTC > tstart and dateUTC < tend:
 
-                filename = datapath+"/"+folder+"/RF_Data.pkl"
-                if os.path.isfile(filename):
+                filename = folder / "RF_Data.pkl"
+                if filename.is_file():
                     file = open(filename, "rb")
                     rfdata = pickle.load(file)
-                    if rfdata[0].stats.snrh > opts.snrh and rfdata[0].stats.snr and \
-                            rfdata[0].stats.cc > opts.cc:
+                    if rfdata[0].stats.snrh > args.snrh and rfdata[0].stats.snr and \
+                            rfdata[0].stats.cc > args.cc:
 
                         rfRstream.append(rfdata[1])
                         rfTstream.append(rfdata[2])
 
                     file.close()
-                    
+
             else:
                 continue
 
-        if opts.no_outl:
+        if args.no_outl:
             # Remove outliers wrt variance
             varR = np.array([np.var(tr.data) for tr in rfRstream])
 
@@ -164,61 +166,56 @@ def main():
             medvarR = np.median(varR)
             madvarR = 1.4826*np.median(np.abs(varR-medvarR))
             robustR = np.abs((varR-medvarR)/madvarR)
-            outliersR = np.arange(len(rfRstream))[robustR>2.]
+            outliersR = np.arange(len(rfRstream))[robustR > 2.]
             for i in outliersR[::-1]:
-                rfRstream.remove(rfRstream[i])      
-                rfTstream.remove(rfTstream[i])    
+                rfRstream.remove(rfRstream[i])
+                rfTstream.remove(rfTstream[i])
 
             # Do the same for transverse
             varT = np.array([np.var(tr.data) for tr in rfTstream])
             medvarT = np.median(varT)
             madvarT = 1.4826*np.median(np.abs(varT-medvarT))
             robustT = np.abs((varT-medvarT)/madvarT)
-            outliersT = np.arange(len(rfTstream))[robustT>2.]
+            outliersT = np.arange(len(rfTstream))[robustT > 2.]
             for i in outliersT[::-1]:
-                rfRstream.remove(rfRstream[i])      
-                rfTstream.remove(rfTstream[i])       
+                rfRstream.remove(rfRstream[i])
+                rfTstream.remove(rfTstream[i])
 
         # Try binning if specified
-        if opts.nbin is not None:
+        if args.nbin is not None:
             rf_tmp = binning.bin(rfRstream, rfTstream,
-                                 typ='baz', nbin=opts.nbin+1)
+                                 typ='baz', nbin=args.nbin+1)
             rfRstream = rf_tmp[0]
             rfTstream = rf_tmp[1]
 
         # Filter original streams
-        rfRstream.filter('bandpass', freqmin=opts.bp[0],
-                         freqmax=opts.bp[1], corners=2,
+        rfRstream.filter('bandpass', freqmin=args.bp[0],
+                         freqmax=args.bp[1], corners=2,
                          zerophase=True)
-        rfTstream.filter('bandpass', freqmin=opts.bp[0],
-                         freqmax=opts.bp[1], corners=2,
+        rfTstream.filter('bandpass', freqmin=args.bp[0],
+                         freqmax=args.bp[1], corners=2,
                          zerophase=True)
 
         # Initialize the HkStack object
         harmonics = Harmonics(rfRstream, rfTstream)
 
         # Stack with or without dip
-        if opts.find_azim:
-            harmonics.dcomp_find_azim(xmin=opts.trange[0], xmax=opts.trange[1])
-            print("Optimal azimuth for trange between "+\
-                str(opts.trange[0])+" and "+str(opts.trange[1])+\
-                    "is: "+str(harmonics.azim))
+        if args.find_azim:
+            harmonics.dcomp_find_azim(xmin=args.trange[0], xmax=args.trange[1])
+            print("Optimal azimuth for trange between " +
+                  str(args.trange[0])+" and "+str(args.trange[1]) +
+                  "is: "+str(harmonics.azim))
         else:
-            harmonics.dcomp_fix_azim(azim=opts.azim)
+            harmonics.dcomp_fix_azim(azim=args.azim)
 
-        if opts.plot:
-            harmonics.plot(opts.ymax, opts.scale, opts.save_plot, opts.title, opts.form)
+        if args.plot:
+            harmonics.plot(args.ymax, args.scale,
+                           args.save_plot, args.title, args.form)
 
-        if opts.save:
-            filename = datapath + "/" + hkstack.hstream[0].stats.station + \
-                ".harmonics.pkl"
+        if args.save:
+            filename = datapath / (hkstack.hstream[0].stats.station +
+                                   ".harmonics.pkl")
             harmonics.save()
-
-        # Save the hkstack object to file.
-        # Add check at beginning to see if file is present.
-        # If it is (and overwrite is specified), load it
-        # and add the option to simply try another stacking method, weights,
-        # and/or plotting
 
 
 if __name__ == "__main__":
