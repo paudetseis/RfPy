@@ -108,7 +108,7 @@ def main():
         for folder in datafiles:
 
             # Skip hidden folders
-            if str(folder).startswith('.'):
+            if folder.name.startswith('.'):
                 continue
 
             # Re-initialize RFData object
