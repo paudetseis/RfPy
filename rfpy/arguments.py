@@ -472,6 +472,10 @@ def get_recalc_arguments(argv=None):
 
     # General Settings
     parser.add_argument(
+        "indb",
+        help="Station Database to process from.",
+        type=str)
+    parser.add_argument(
         "--keys",
         action="store",
         type=str,
@@ -646,6 +650,10 @@ def get_hk_arguments(argv=None):
         "for H-k stacking.")
 
     # General Settings
+    parser.add_argument(
+        "indb",
+        help="Station Database to process from.",
+        type=str)
     parser.add_argument(
         "--keys",
         action="store",
@@ -1074,6 +1082,10 @@ def get_harmonics_arguments(argv=None):
 
     # General Settings
     parser.add_argument(
+        "indb",
+        help="Station Database to process from.",
+        type=str)
+    parser.add_argument(
         "--keys",
         action="store",
         type=str,
@@ -1336,6 +1348,10 @@ def get_ccp_arguments(argv=None):
         "for common-conversion-point (CCP) imaging.")
 
     # General Settings
+    parser.add_argument(
+        "indb",
+        help="Station Database to process from.",
+        type=str)
     parser.add_argument(
         "--keys",
         action="store",
@@ -1707,6 +1723,10 @@ def get_plot_arguments(argv=None):
         description="Script used to plot receiver function data ")
 
     # General Settings
+    parser.add_argument(
+        "indb",
+        help="Station Database to process from.",
+        type=str)
     parser.add_argument(
         "--keys",
         action="store",
