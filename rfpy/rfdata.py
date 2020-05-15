@@ -24,7 +24,7 @@
 from math import ceil
 import numpy as np
 from obspy import Trace, Stream, UTCDateTime
-from rfpy import options, utils
+from rfpy import utils
 
 
 class Meta(object):
