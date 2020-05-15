@@ -25,14 +25,13 @@
 
 # Import modules and functions
 import numpy as np
-import os.path
 import pickle
-import glob
 import stdb
 from obspy.clients.fdsn import Client
 from obspy.core import Stream, UTCDateTime
-from rfpy import options, binning, plotting
+from rfpy import arguments, binning, plotting
 from rfpy import HkStack
+from pathlib import Path
 
 
 def main():
@@ -50,19 +49,19 @@ def main():
     print()
 
     # Run Input Parser
-    (opts, indb) = options.get_hk_options()
+    args = arguments.get_hk_arguments()
 
     # Load Database
-    db = stdb.io.load_db(fname=indb)
+    db = stdb.io.load_db(fname=args.indb)
 
     # Construct station key loop
     allkeys = db.keys()
     sorted(allkeys)
 
     # Extract key subset
-    if len(opts.stkeys) > 0:
+    if len(args.stkeys) > 0:
         stkeys = []
-        for skey in opts.stkeys:
+        for skey in args.stkeys:
             stkeys.extend([s for s in allkeys if skey in s])
     else:
         stkeys = db.keys()
@@ -75,32 +74,32 @@ def main():
         sta = db[stkey]
 
         # Define path to see if it exists
-        if opts.phase in ['P', 'PP', 'allP']:
-            datapath = 'P_DATA/' + stkey
-        elif opts.phase in ['S', 'SKS', 'allS']:
-            datapath = 'S_DATA/' + stkey
-        if not os.path.isdir(datapath):
-            print('Path to ' + datapath + ' doesn`t exist - continuing')
+        if args.phase in ['P', 'PP', 'allP']:
+            datapath = Path('P_DATA') / stkey
+        elif args.phase in ['S', 'SKS', 'allS']:
+            datapath = Path('S_DATA') / stkey
+        if not datapath.is_dir():
+            print('Path to ' + str(datapath) + ' doesn`t exist - continuing')
             continue
 
         # Define save path
-        if opts.save:
-            savepath = 'HK_DATA/' + stkey
-            if not os.path.isdir(savepath):
-                print('Path to '+savepath+' doesn`t exist - creating it')
-                os.makedirs(savepath)
+        if args.save:
+            savepath = Path('HK_DATA') / stkey
+            if not savepath.is_dir():
+                print('Path to '+str(savepath)+' doesn`t exist - creating it')
+                savepath.mkdir()
 
         # Get search start time
-        if opts.startT is None:
+        if args.startT is None:
             tstart = sta.startdate
         else:
-            tstart = opts.startT
+            tstart = args.startT
 
         # Get search end time
-        if opts.endT is None:
+        if args.endT is None:
             tend = sta.enddate
         else:
-            tend = opts.endT
+            tend = args.endT
 
         if tstart > sta.enddate or tend < sta.startdate:
             continue
@@ -137,13 +136,14 @@ def main():
 
         rfRstream = Stream()
 
-        for folder in os.listdir(datapath):
+        datafiles = [x for x in datapath.iterdir() if x.is_dir()]
+        for folder in datafiles:
 
             # Skip hidden folders
-            if folder.startswith('.'):
+            if folder.name.startswith('.'):
                 continue
 
-            date = folder.split('_')[0]
+            date = folder.name.split('_')[0]
             year = date[0:4]
             month = date[4:6]
             day = date[6:8]
@@ -152,32 +152,32 @@ def main():
             if dateUTC > tstart and dateUTC < tend:
 
                 # Load meta data
-                if not os.path.isfile(datapath+"/"+folder+"/Meta_Data.pkl"):
+                metafile = folder / "Meta_Data.pkl"
+                if not metafile.is_file():
                     continue
-                meta = pickle.load(open(
-                    datapath + "/" + folder + "/Meta_Data.pkl", 'rb'))
+                meta = pickle.load(open(metafile, 'rb'))
 
                 # Skip data not in list of phases
-                if meta.phase not in opts.listphase:
+                if meta.phase not in args.listphase:
                     continue
 
                 # QC Thresholding
-                if meta.snrh < opts.snrh:
+                if meta.snrh < args.snrh:
                     continue
-                if meta.snr < opts.snr:
+                if meta.snr < args.snr:
                     continue
-                if meta.cc < opts.cc:
+                if meta.cc < args.cc:
                     continue
 
                 # # Check bounds on data
-                # if meta.slow < opts.slowbound[0] and meta.slow > opts.slowbound[1]:
+                # if meta.slow < args.slowbound[0] and meta.slow > args.slowbound[1]:
                 #     continue
-                # if meta.baz < opts.bazbound[0] and meta.baz > opts.bazbound[1]:
+                # if meta.baz < args.bazbound[0] and meta.baz > args.bazbound[1]:
                 #     continue
 
                 # If everything passed, load the RF data
-                filename = datapath + "/" + folder + "/RF_Data.pkl"
-                if os.path.isfile(filename):
+                filename = folder / "RF_Data.pkl"
+                if filename.is_file():
                     file = open(filename, "rb")
                     rfdata = pickle.load(file)
                     rfRstream.append(rfdata[1])
@@ -188,7 +188,7 @@ def main():
         if len(rfRstream) == 0:
             continue
 
-        if opts.no_outl:
+        if args.no_outl:
             t1 = 0.
             t2 = 30.
 
@@ -212,77 +212,77 @@ def main():
         print('')
 
         # Try binning if specified
-        if opts.calc_dip:
+        if args.calc_dip:
             rf_tmp = binning.bin_baz_slow(rfRstream,
-                                          nbaz=opts.nbaz+1,
-                                          nslow=opts.nslow+1, 
-                                          pws=opts.pws)
+                                          nbaz=args.nbaz+1,
+                                          nslow=args.nslow+1, 
+                                          pws=args.pws)
             rfRstream = rf_tmp[0]
         else:
             rf_tmp = binning.bin(rfRstream,
                                  typ='slow',
-                                 nbin=opts.nslow+1, 
-                                 pws=opts.pws)
+                                 nbin=args.nslow+1, 
+                                 pws=args.pws)
             rfRstream = rf_tmp[0]
 
         # Get a copy of the radial component and filter
-        if opts.copy:
+        if args.copy:
             rfRstream_copy = rfRstream.copy()
-            rfRstream_copy.filter('bandpass', freqmin=opts.bp_copy[0],
-                                  freqmax=opts.bp_copy[1], corners=2,
+            rfRstream_copy.filter('bandpass', freqmin=args.bp_copy[0],
+                                  freqmax=args.bp_copy[1], corners=2,
                                   zerophase=True)
 
         # Check bin counts:
         for tr in rfRstream:
-            if (tr.stats.nbin < opts.binlim):
+            if (tr.stats.nbin < args.binlim):
                 rfRstream.remove(tr)
 
         # Continue if stream is too short
         if len(rfRstream) < 5:
             continue
 
-        if opts.save_plot and not os.path.isdir('HK_PLOTS'):
-            os.makedirs('HK_PLOTS')
+        if args.save_plot and not Path('HK_PLOTS').is_dir():
+            Path('HK_PLOTS').mkdir()
 
         print('')
         print("Number of radial RF bins: " + str(len(rfRstream)))
         print('')
 
         # Filter original stream
-        rfRstream.filter('bandpass', freqmin=opts.bp[0],
-                         freqmax=opts.bp[1], corners=2,
+        rfRstream.filter('bandpass', freqmin=args.bp[0],
+                         freqmax=args.bp[1], corners=2,
                          zerophase=True)
 
         # Initialize the HkStack object
         try:
             hkstack = HkStack(rfRstream, rfV2=rfRstream_copy,
-                              strike=opts.strike, dip=opts.dip, vp=opts.vp)
+                              strike=args.strike, dip=args.dip, vp=args.vp)
         except:
             hkstack = HkStack(rfRstream,
-                              strike=opts.strike, dip=opts.dip, vp=opts.vp)
+                              strike=args.strike, dip=args.dip, vp=args.vp)
 
         # Update attributes
-        hkstack.hbound = opts.hbound
-        hkstack.kbound = opts.kbound
-        hkstack.dh = opts.dh
-        hkstack.dk = opts.dk
-        hkstack.weights = opts.weights
+        hkstack.hbound = args.hbound
+        hkstack.kbound = args.kbound
+        hkstack.dh = args.dh
+        hkstack.dk = args.dk
+        hkstack.weights = args.weights
 
         # Stack with or without dip
-        if opts.calc_dip:
+        if args.calc_dip:
             hkstack.stack_dip()
         else:
             hkstack.stack()
 
         # Average stacks
-        hkstack.average(typ=opts.typ)
+        hkstack.average(typ=args.typ)
 
-        if opts.plot:
-            hkstack.plot(opts.save_plot, opts.title, opts.form)
+        if args.plot:
+            hkstack.plot(args.save_plot, args.title, args.form)
 
-        if opts.save:
-            filename = savepath + "/" + hkstack.rfV1[0].stats.station + \
-                ".hkstack."+opts.typ+".pkl"
+        if args.save:
+            filename = savepath / (hkstack.rfV1[0].stats.station + \
+                ".hkstack."+args.typ+".pkl")
 
             hkstack.save(file=filename)
 

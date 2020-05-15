@@ -26,7 +26,6 @@
 # Import modules and functions
 import numpy as np
 import pickle
-import glob
 import stdb
 from rfpy import arguments
 from rfpy import RFData
