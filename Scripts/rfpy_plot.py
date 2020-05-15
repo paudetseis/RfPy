@@ -25,12 +25,11 @@
 
 # Import modules and functions
 import numpy as np
-import os.path
 import pickle
-import glob
 import stdb
 from obspy import Stream
-from rfpy import options, binning, plotting
+from rfpy import arguments, binning, plotting
+from pathlib import Path
 
 
 def main():
@@ -48,7 +47,7 @@ def main():
     print()
 
     # Run Input Parser
-    (opts, indb) = options.get_plot_options()
+    args = arguments.get_plot_arguments()
 
     # Load Database
     db = stdb.io.load_db(fname=indb)
@@ -57,9 +56,9 @@ def main():
     allkeys = db.keys()
 
     # Extract key subset
-    if len(opts.stkeys) > 0:
+    if len(args.stkeys) > 0:
         stkeys = []
-        for skey in opts.stkeys:
+        for skey in args.stkeys:
             stkeys.extend([s for s in allkeys if skey in s])
     else:
         stkeys = db.keys()
@@ -71,12 +70,12 @@ def main():
         sta = db[stkey]
 
         # Define path to see if it exists
-        if opts.phase in ['P', 'PP', 'allP']:
-            datapath = 'P_DATA/' + stkey
-        elif opts.phase in ['S', 'SKS', 'allS']:
-            datapath = 'S_DATA/' + stkey
-        if not os.path.isdir(datapath):
-            print('Path to ' + datapath + ' doesn`t exist - continuing')
+        if args.phase in ['P', 'PP', 'allP']:
+            datapath = Path('P_DATA') / stkey
+        elif args.phase in ['S', 'SKS', 'allS']:
+            datapath = Path('S_DATA') / stkey
+        if not datapath.is_dir():
+            print('Path to ' + str(datapath) + ' doesn`t exist - continuing')
             continue
 
         # Temporary print locations
@@ -105,62 +104,63 @@ def main():
         rfRstream = Stream()
         rfTstream = Stream()
 
-        for folder in os.listdir(datapath):
+        datafiles = [x for x in datapath.iterdir() if x.is_dir()]
+        for folder in datafiles:
 
             # Skip hidden folders
-            if folder.startswith('.'):
+            if folder.name.startswith('.'):
                 continue
 
             # Load meta data
-            filename = datapath+"/"+folder+"/Meta_Data.pkl"
-            if not os.path.isfile(filename):
+            filename = folder / "Meta_Data.pkl"
+            if not filename.is_file():
                 continue
-            meta = pickle.load(open(filename, 'rb'))
+            metafile = open(filename, 'rb')
+            meta = pickle.load(metafile)
+            metafile.close()
 
             # Skip data not in list of phases
-            if meta.phase not in opts.listphase:
+            if meta.phase not in args.listphase:
                 continue
 
             # QC Thresholding
-            if meta.snrh < opts.snrh:
+            if meta.snrh < args.snrh:
                 continue
-            if meta.snr < opts.snr:
+            if meta.snr < args.snr:
                 continue
-            if meta.cc < opts.cc:
+            if meta.cc < args.cc:
                 continue
 
             # Check bounds on data
-            if meta.slow < opts.slowbound[0] or meta.slow > opts.slowbound[1]:
+            if meta.slow < args.slowbound[0] or meta.slow > args.slowbound[1]:
                 continue
-            if meta.baz < opts.bazbound[0] or meta.baz > opts.bazbound[1]:
+            if meta.baz < args.bazbound[0] or meta.baz > args.bazbound[1]:
                 continue
 
             # If everything passed, load the RF data
-            filename = datapath + "/" + folder + "/RF_Data.pkl"
-            if os.path.isfile(filename):
+            filename = folder / "RF_Data.pkl"
+            if filename.is_file():
                 file = open(filename, "rb")
                 rfdata = pickle.load(file)
-                if opts.phase in ['P', 'PP', 'allP']:
+                if args.phase in ['P', 'PP', 'allP']:
                     Rcmp = 1
                     Tcmp = 2
-                elif opts.phase in ['S', 'SKS', 'allS']:
+                elif args.phase in ['S', 'SKS', 'allS']:
                     Rcmp = 1
                     Tcmp = 2
                 rfRstream.append(rfdata[Rcmp])
                 rfTstream.append(rfdata[Tcmp])
                 file.close()
-            # print(folder)
-            # print(rfdata[1].stats.npts)
 
         if len(rfRstream) == 0:
             continue
 
-        if opts.no_outl:
+        if args.no_outl:
 
             varR = []
             for i in range(len(rfRstream)):
                 taxis = rfRstream[i].stats.taxis
-                tselect = (taxis > opts.trange[0]) & (taxis < opts.trange[1])
+                tselect = (taxis > args.trange[0]) & (taxis < args.trange[1])
                 varR.append(np.var(rfRstream[i].data[tselect]))
             varR = np.array(varR)
 
@@ -177,7 +177,7 @@ def main():
             varT = []
             for i in range(len(rfRstream)):
                 taxis = rfRstream[i].stats.taxis
-                tselect = (taxis > opts.trange[0]) & (taxis < opts.trange[1])
+                tselect = (taxis > args.trange[0]) & (taxis < args.trange[1])
                 varT.append(np.var(rfTstream[i].data[tselect]))
             varT = np.array(varT)
 
@@ -190,52 +190,52 @@ def main():
                 rfTstream.remove(rfTstream[i])
 
         # Filter
-        if opts.bp:
-            rfRstream.filter('bandpass', freqmin=opts.bp[0],
-                             freqmax=opts.bp[1], corners=2,
+        if args.bp:
+            rfRstream.filter('bandpass', freqmin=args.bp[0],
+                             freqmax=args.bp[1], corners=2,
                              zerophase=True)
-            rfTstream.filter('bandpass', freqmin=opts.bp[0],
-                             freqmax=opts.bp[1], corners=2,
+            rfTstream.filter('bandpass', freqmin=args.bp[0],
+                             freqmax=args.bp[1], corners=2,
                              zerophase=True)
 
-        if opts.saveplot and not os.path.isdir('RF_PLOTS'):
-            os.makedirs('RF_PLOTS')
+        if args.saveplot and not Path('RF_PLOTS').is_dir():
+            Path('RF_PLOTS').mkdir()
 
         print('')
         print("Number of radial RF data: " + str(len(rfRstream)))
         print("Number of transverse RF data: " + str(len(rfTstream)))
         print('')
 
-        if opts.nbaz:
+        if args.nbaz:
             # Bin according to BAZ
             rf_tmp = binning.bin(rfRstream, rfTstream,
-                                 typ='baz', nbin=opts.nbaz+1,
-                                 pws=opts.pws)
+                                 typ='baz', nbin=args.nbaz+1,
+                                 pws=args.pws)
 
-        elif opts.nslow:
+        elif args.nslow:
             # Bin according to slowness
             rf_tmp = binning.bin(rfRstream, rfTstream,
-                                 typ='slow', nbin=opts.nslow+1,
-                                 pws=opts.pws)
+                                 typ='slow', nbin=args.nslow+1,
+                                 pws=args.pws)
 
         # Check bin counts:
         for tr in rf_tmp[0]:
-            if (tr.stats.nbin < opts.binlim):
+            if (tr.stats.nbin < args.binlim):
                 rf_tmp[0].remove(tr)
         for tr in rf_tmp[1]:
-            if (tr.stats.nbin < opts.binlim):
+            if (tr.stats.nbin < args.binlim):
                 rf_tmp[1].remove(tr)
 
         # Show a stacked trace on top OR normalize option specified
-        if opts.stacked or opts.norm:
-            st_tmp = binning.bin_all(rf_tmp[0], rf_tmp[1], pws=opts.pws)
+        if args.stacked or args.norm:
+            st_tmp = binning.bin_all(rf_tmp[0], rf_tmp[1], pws=args.pws)
             tr1 = st_tmp[0]
             tr2 = st_tmp[1]
             # Find normalization constant
             normR = np.amax(np.abs(
-                tr1.data[(taxis > opts.trange[0]) & (taxis < opts.trange[1])]))
+                tr1.data[(taxis > args.trange[0]) & (taxis < args.trange[1])]))
             normT = np.amax(np.abs(
-                tr2.data[(taxis > opts.trange[0]) & (taxis < opts.trange[1])]))
+                tr2.data[(taxis > args.trange[0]) & (taxis < args.trange[1])]))
             norm = np.max([normR, normT])
         else:
             norm = None
@@ -243,23 +243,23 @@ def main():
             tr2 = None
 
         # Now plot
-        if opts.nbaz:
+        if args.nbaz:
             plotting.wiggle_bins(rf_tmp[0], rf_tmp[1], tr1=tr1, tr2=tr2,
-                                 btyp='baz', scale=opts.scale,
-                                 tmin=opts.trange[0], tmax=opts.trange[1],
-                                 norm=norm, save=opts.saveplot,
-                                 title=opts.titleplot, form=opts.form)
-        elif opts.nslow:
+                                 btyp='baz', scale=args.scale,
+                                 tmin=args.trange[0], tmax=args.trange[1],
+                                 norm=norm, save=args.saveplot,
+                                 title=args.titleplot, form=args.form)
+        elif args.nslow:
             plotting.wiggle_bins(rf_tmp[0], rf_tmp[1], tr1=tr1, tr2=tr2,
-                                 btyp='slow', scale=opts.scale,
-                                 tmin=opts.trange[0], tmax=opts.trange[1],
-                                 norm=norm, save=opts.saveplot,
-                                 title=opts.titleplot, form=opts.form)
+                                 btyp='slow', scale=args.scale,
+                                 tmin=args.trange[0], tmax=args.trange[1],
+                                 norm=norm, save=args.saveplot,
+                                 title=args.titleplot, form=args.form)
 
         # Event distribution
-        if opts.plot_event_dist:
-            plotting.event_dist(rfRstream, phase=opts.phase, save=opts.saveplot,
-                                title=opts.titleplot, form=opts.form)
+        if args.plot_event_dist:
+            plotting.event_dist(rfRstream, phase=args.phase, save=args.saveplot,
+                                title=args.titleplot, form=args.form)
 
 if __name__ == "__main__":
 
