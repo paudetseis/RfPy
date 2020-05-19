@@ -199,7 +199,7 @@ def main():
                              zerophase=True)
 
         if args.saveplot and not Path('RF_PLOTS').is_dir():
-            Path('RF_PLOTS').mkdir()
+            Path('RF_PLOTS').mkdir(parents=True)
 
         print('')
         print("Number of radial RF data: " + str(len(rfRstream)))

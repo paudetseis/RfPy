@@ -77,9 +77,9 @@ def main():
             datapath = Path('P_DATA') / stkey
         elif args.phase in ['S', 'SKS']:
             datapath = Path('S_DATA') / stkey
-        if not datapath.is_dir():
+        if not datapath.exists():
             print('Path to '+str(datapath)+' doesn`t exist - creating it')
-            datapath.mkdir()
+            datapath.mkdir(parents=True)
 
         # Establish client for data
         if len(args.UserAuth) == 0:
@@ -220,7 +220,7 @@ def main():
                 else:
                     inum = nevtT - iev + 1
                 print(" ")
-                print("**************************************************")
+                print("*"*50)
                 print("* #{0:d} ({1:d}/{2:d}):  {3:13s} {4}".format(
                     nevK, inum, nevtT, rfdata.meta.time.strftime(
                         "%Y%m%d_%H%M%S"), stkey))
@@ -263,8 +263,8 @@ def main():
                     continue
 
                 # Create Folder if it doesn't exist
-                if evtdir.exists():
-                    evtdir.mkdir()
+                if not evtdir.exists():
+                    evtdir.mkdir(parents=True)
 
                 # Save ZNE Traces
                 pickle.dump(rfdata.data, open(ZNEfile, "wb"))
@@ -282,7 +282,7 @@ def main():
                 if np.isnan(rfdata.meta.snr):
                     if args.verb:
                         print("* SNR NaN...Skipping")
-                    print("**************************************************")
+                    print("*"*50)
                     continue
 
                 # Deconvolve data
@@ -313,7 +313,7 @@ def main():
                 if args.verb:
                     print("* Wrote Output Files to: ")
                     print("*     "+str(evtdir))
-                print("**************************************************")
+                print("*"*50)
 
 
 if __name__ == "__main__":
