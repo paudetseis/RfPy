@@ -42,7 +42,7 @@ def get_calc_arguments(argv=None):
     """
 
     parser = ArgumentParser(
-        usage="Usage: %prog [options] <station database>",
+        usage="%(prog)s [arguments] <station database>",
         description="Script used to download and pre-process " +
         "three-component (Z, N, and E), seismograms for individual " +
         "events and calculate teleseismic P-wave receiver functions" +
@@ -431,7 +431,7 @@ def get_calc_arguments(argv=None):
                 "Error: --pre-filt should contain 2 " +
                 "comma-separated floats")
 
-    # Check alignment options
+    # Check alignment arguments
     if args.align is None:
         args.align = 'ZRT'
     elif args.align not in ['ZRT', 'LQT', 'PVH']:
@@ -461,7 +461,7 @@ def get_recalc_arguments(argv=None):
     """
 
     parser = ArgumentParser(
-        usage="Usage: %prog [options] <station database>",
+        usage="%(prog)s [arguments] <station database>",
         description="Script used to download and pre-process " +
         "three-component (Z, N, and E), seismograms for individual " +
         "events and calculate teleseismic P-wave receiver functions" +
@@ -645,7 +645,7 @@ def get_hk_arguments(argv=None):
     """
 
     parser = ArgumentParser(
-        usage="Usage: %prog [options] <station database>",
+        usage="%(prog)s [arguments] <station database>",
         description="Script used to process receiver function data " +
         "for H-k stacking.")
 
@@ -1076,7 +1076,7 @@ def get_harmonics_arguments(argv=None):
     """
 
     parser = ArgumentParser(
-        usage="Usage: %prog [options] <station database>",
+        usage="%(prog)s [arguments] <station database>",
         description="Script used to process receiver function data " +
         "for harmonic decomposition.")
 
@@ -1343,7 +1343,7 @@ def get_ccp_arguments(argv=None):
     """
 
     parser = ArgumentParser(
-        usage="Usage: %prog [options] <station database>",
+        usage="%(prog)s [arguments] <station database>",
         description="Script used to process receiver function data " +
         "for common-conversion-point (CCP) imaging.")
 
@@ -1719,7 +1719,7 @@ def get_plot_arguments(argv=None):
     """
 
     parser = ArgumentParser(
-        usage="Usage: %prog [options] <station database>",
+        usage="%(prog)s [arguments] <station database>",
         description="Script used to plot receiver function data ")
 
     # General Settings
