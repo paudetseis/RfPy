@@ -1,7 +1,7 @@
 Scripts
 =======
 
-There are several Python scripts that accompany :mod:`~rfpy`. These can be used
+There are several Python scripts that accompany :mod:`~rfpy`, which can be used
 in bash scripts to automate data processing. These include scripts to download 
 three-component seismogram data and calculate receiver functions, and perform 
 post-processing for `H-k` stacking and harmonic decomposition. All of them use 
@@ -17,7 +17,7 @@ Description
 Downloads three-component ('Z', 'N' and 'E') seismograms based
 on available times of earthquakes and performs `P`-wave receiver function
 calculation. Station selection is specified by a network and 
-station code. The database is provided as a :class:`~stdb.StDb` dictionary.
+station code. The database is provided as a pwd dictionary.
 
 Usage
 -----
