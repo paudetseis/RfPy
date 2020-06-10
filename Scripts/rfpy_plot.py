@@ -50,7 +50,7 @@ def main():
     args = arguments.get_plot_arguments()
 
     # Load Database
-    db = stdb.io.load_db(fname=indb)
+    db = stdb.io.load_db(fname=args.indb)
 
     # Construct station key loop
     allkeys = db.keys()
