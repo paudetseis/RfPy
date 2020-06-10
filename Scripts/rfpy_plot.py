@@ -189,6 +189,9 @@ def main():
                 rfRstream.remove(rfRstream[i])
                 rfTstream.remove(rfTstream[i])
 
+        else:
+            taxis = rfRstream[0].stats.taxis
+
         # Filter
         if args.bp:
             rfRstream.filter('bandpass', freqmin=args.bp[0],
