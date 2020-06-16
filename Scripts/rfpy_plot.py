@@ -234,12 +234,27 @@ def main():
             st_tmp = binning.bin_all(rf_tmp[0], rf_tmp[1], pws=args.pws)
             tr1 = st_tmp[0]
             tr2 = st_tmp[1]
-            # Find normalization constant
-            normR = np.amax(np.abs(
-                tr1.data[(taxis > args.trange[0]) & (taxis < args.trange[1])]))
-            normT = np.amax(np.abs(
-                tr2.data[(taxis > args.trange[0]) & (taxis < args.trange[1])]))
-            norm = np.max([normR, normT])
+            if args.norm:
+                # Find normalization constant
+                # st_tmp = binning.bin_all(rf_tmp[0], rf_tmp[1], pws=args.pws)
+                # tr1 = st_tmp[0]
+                # tr2 = st_tmp[1]
+                # tmp1 = tr1.data[(taxis > args.trange[0]) & (
+                #     taxis < args.trange[1])]
+                # tmp2 = tr2.data[(taxis > args.trange[0]) & (
+                #     taxis < args.trange[1])]
+                # normR = np.amax(np.abs(tmp1))
+                # normT = np.amax(np.abs(tmp2))
+                # norm = np.max([normR, normT])
+                tmp1 = np.array([tr.data[(taxis > args.trange[0]) & (
+                    taxis < args.trange[1])] for tr in rf_tmp[0]])
+                tmp2 = np.array([tr.data[(taxis > args.trange[0]) & (
+                    taxis < args.trange[1])] for tr in rf_tmp[1]])
+                normR = np.amax(np.abs(tmp1))
+                normT = np.amax(np.abs(tmp2))
+                norm = np.max([normR, normT])
+            else:
+                norm = None
         else:
             norm = None
             tr1 = None
@@ -263,6 +278,7 @@ def main():
         if args.plot_event_dist:
             plotting.event_dist(rfRstream, phase=args.phase, save=args.saveplot,
                                 title=args.titleplot, form=args.form)
+
 
 if __name__ == "__main__":
 

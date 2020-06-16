@@ -11,6 +11,7 @@ RfPy is a software to calculate single event-station receiver functions from the
 Installation, Usage, API documentation and scripts are described at 
 https://paudetseis.github.io/RfPy/.
 
+Authors: [`Pascal Audet`](https://www.uogeophysics.com/authors/admin/) (Developer and Maintainer) and [`Jeremy Gosselin`](https://www.uogeophysics.com/authors/gosselin/) (Contributor)
 <!-- #### Citing
 
 If you use `SplitPy` in your work, please cite the 
