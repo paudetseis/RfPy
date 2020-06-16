@@ -50,7 +50,7 @@ def main():
     args = arguments.get_plot_arguments()
 
     # Load Database
-    db = stdb.io.load_db(fname=indb)
+    db = stdb.io.load_db(fname=args.indb)
 
     # Construct station key loop
     allkeys = db.keys()
@@ -189,6 +189,9 @@ def main():
                 rfRstream.remove(rfRstream[i])
                 rfTstream.remove(rfTstream[i])
 
+        else:
+            taxis = rfRstream[0].stats.taxis
+
         # Filter
         if args.bp:
             rfRstream.filter('bandpass', freqmin=args.bp[0],
@@ -199,7 +202,7 @@ def main():
                              zerophase=True)
 
         if args.saveplot and not Path('RF_PLOTS').is_dir():
-            Path('RF_PLOTS').mkdir()
+            Path('RF_PLOTS').mkdir(parents=True)
 
         print('')
         print("Number of radial RF data: " + str(len(rfRstream)))
@@ -231,12 +234,27 @@ def main():
             st_tmp = binning.bin_all(rf_tmp[0], rf_tmp[1], pws=args.pws)
             tr1 = st_tmp[0]
             tr2 = st_tmp[1]
-            # Find normalization constant
-            normR = np.amax(np.abs(
-                tr1.data[(taxis > args.trange[0]) & (taxis < args.trange[1])]))
-            normT = np.amax(np.abs(
-                tr2.data[(taxis > args.trange[0]) & (taxis < args.trange[1])]))
-            norm = np.max([normR, normT])
+            if args.norm:
+                # Find normalization constant
+                # st_tmp = binning.bin_all(rf_tmp[0], rf_tmp[1], pws=args.pws)
+                # tr1 = st_tmp[0]
+                # tr2 = st_tmp[1]
+                # tmp1 = tr1.data[(taxis > args.trange[0]) & (
+                #     taxis < args.trange[1])]
+                # tmp2 = tr2.data[(taxis > args.trange[0]) & (
+                #     taxis < args.trange[1])]
+                # normR = np.amax(np.abs(tmp1))
+                # normT = np.amax(np.abs(tmp2))
+                # norm = np.max([normR, normT])
+                tmp1 = np.array([tr.data[(taxis > args.trange[0]) & (
+                    taxis < args.trange[1])] for tr in rf_tmp[0]])
+                tmp2 = np.array([tr.data[(taxis > args.trange[0]) & (
+                    taxis < args.trange[1])] for tr in rf_tmp[1]])
+                normR = np.amax(np.abs(tmp1))
+                normT = np.amax(np.abs(tmp2))
+                norm = np.max([normR, normT])
+            else:
+                norm = None
         else:
             norm = None
             tr1 = None
@@ -260,6 +278,7 @@ def main():
         if args.plot_event_dist:
             plotting.event_dist(rfRstream, phase=args.phase, save=args.saveplot,
                                 title=args.titleplot, form=args.form)
+
 
 if __name__ == "__main__":
 

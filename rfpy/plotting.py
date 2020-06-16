@@ -198,7 +198,7 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
                 for tr in stream2:
                     tr.data /= norm
             if btyp == 'baz':
-                maxval = 7.5
+                maxval = 10.
                 maxvalT = maxval
             elif btyp == 'slow':
                 maxval = 0.001

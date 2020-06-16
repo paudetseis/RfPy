@@ -87,7 +87,7 @@ def main():
             savepath = Path('HK_DATA') / stkey
             if not savepath.is_dir():
                 print('Path to '+str(savepath)+' doesn`t exist - creating it')
-                savepath.mkdir()
+                savepath.mkdir(parents=True)
 
         # Get search start time
         if args.startT is None:
@@ -242,7 +242,7 @@ def main():
             continue
 
         if args.save_plot and not Path('HK_PLOTS').is_dir():
-            Path('HK_PLOTS').mkdir()
+            Path('HK_PLOTS').mkdir(parents=True)
 
         print('')
         print("Number of radial RF bins: " + str(len(rfRstream)))

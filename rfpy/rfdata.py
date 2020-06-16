@@ -427,10 +427,7 @@ class RFData(object):
             align = self.meta.align
 
         if align == 'ZNE':
-            # Rotating from 1,2 to N,E is the negative of
-            # rotation from RT to NE, with
-            # baz corresponding to azim of component 1
-            from obspy.signal.rotate import rotate_rt_ne
+            from obspy.signal.rotate import rotate2zne
 
             # Copy traces
             trZ = self.data.select(component='Z')[0].copy()
@@ -438,9 +435,11 @@ class RFData(object):
             trE = self.data.select(component='2')[0].copy()
 
             azim = self.sta.azcorr
-            N, E = rotate_rt_ne(trN.data, trE.data, azim)
-            trN.data = -1.*N
-            trE.data = -1.*E
+
+            Z, N, E = rotate2zne(trZ.data, 0., -90., trN.data,
+                                 azim, 0., trE.data, azim+90., 0.)
+            trN.data = N
+            trE.data = E
 
             # Update stats of streams
             trN.stats.channel = trN.stats.channel[:-1] + 'N'
