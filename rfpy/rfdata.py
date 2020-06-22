@@ -372,15 +372,17 @@ class RFData(object):
                 tr2 = stream.select(component='2')[0]
                 trZ = stream.select(component='Z')[0]
                 self.data = Stream(traces=[trZ, tr1, tr2])
-                self.dataZ12 = Stream(traces=[trZ, tr1, tr2])
-
-                # Rotate from Z12 to ZNE using StDb azcorr attribute
-                self.rotate(align='ZNE')
 
                 # Filter Traces and resample
                 self.data.filter('lowpass', freq=0.5*new_sr,
                                  corners=2, zerophase=True)
                 self.data.resample(new_sr, no_filter=False)
+
+                # Save Z12 components in case it's necessary for later
+                self.dataZ12 = self.data.copy()
+
+                # Rotate from Z12 to ZNE using StDb azcorr attribute
+                self.rotate(align='ZNE')
 
             except:
                 self.meta.accept = False

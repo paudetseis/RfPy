@@ -269,6 +269,11 @@ def main():
                 # Save ZNE Traces
                 pickle.dump(rfdata.data, open(ZNEfile, "wb"))
 
+                # Save Z12 if components exist
+                if rfdata.dataZ12:
+                    Z12file = evtdir / 'Z12_Data.pkl'
+                    pickle.dump(rfdata.dataZ12, open(Z12file, "wb"))
+
                 # Rotate from ZNE to 'align' ('ZRT', 'LQT', or 'PVH')
                 rfdata.rotate(vp=args.vp, vs=args.vs, align=args.align)
 
