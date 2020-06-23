@@ -141,6 +141,13 @@ def get_calc_arguments(argv=None):
         "search for local data (sometimes for CN stations " +
         "the dictionary name for a station may disagree with that " +
         "in the filename. [Default Network used]")
+    DataGroup.add_argument(
+        "--save-Z12",
+        action="store_true",
+        dest="saveZ12",
+        default=False,
+        help="Specify to save Z12 (un-rotated) components. [Default "+
+        "False]")
 
     # Event Selection Criteria
     EventGroup = parser.add_argument_group(
