@@ -13,6 +13,8 @@ Harmonic decomposition and CCP imaging. The code uses
 the ``StDb`` package for querying and building a station database 
 used in command-line scripts.
 
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3905414.svg
+   :target: https://doi.org/10.5281/zenodo.3905414
 .. image:: https://travis-ci.com/paudetseis/RfPy.svg?branch=master
     :target: https://travis-ci.com/paudetseis/RfPy
 .. image:: https://codecov.io/gh/paudetseis/RfPy/branch/master/graph/badge.svg
