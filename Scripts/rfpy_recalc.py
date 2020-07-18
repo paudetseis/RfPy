@@ -127,9 +127,24 @@ def main():
             if args.verb:
                 print("* Station: {0}; folder: {1}".format(stkey, folder))
 
-            # Load ZNE data
-            ZNEfile = folder / "ZNE_Data.pkl"
-            rfdata.data = pickle.load(open(ZNEfile, 'rb'))
+            if args.Z12:
+                try:
+                    # Try loading Z12_Data
+                    Z12file = folder / "Z12_Data.pkl"
+                    rfdata.data = pickle.load(open(Z12file, 'rb'))
+                    # Remove rotated flag and snr flag
+                    rfdata.meta.rotated = False
+                    rfdata.rotate(align='ZNE')
+                except:
+
+                    print("Z12_Data.pkl not available - using ZNE_Data.pkl")
+                    # Load ZNE data
+                    ZNEfile = folder / "ZNE_Data.pkl"
+                    rfdata.data = pickle.load(open(ZNEfile, 'rb'))
+            else:
+                # Load ZNE data
+                ZNEfile = folder / "ZNE_Data.pkl"
+                rfdata.data = pickle.load(open(ZNEfile, 'rb'))
 
             # Remove rotated flag and snr flag
             rfdata.meta.rotated = False
@@ -163,6 +178,11 @@ def main():
             # Save RF Traces
             RFfile = folder / "RF_Data.pkl"
             pickle.dump(rfstream, open(RFfile, "wb"))
+
+            # Save Meta data
+            metafile = folder / "Meta_Data.pkl"
+            pickle.dump(rfdata.meta, open(metafile, 'wb'))
+
 
             # Update
             if args.verb:

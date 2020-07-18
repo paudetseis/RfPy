@@ -28,4 +28,12 @@ Examples of straightforward contributions include editing the documentation or a
 
 - Audet, P. (2010) Temporal Variations in Crustal Scattering Structure near Parkfield, California, Using Receiver Functions, Bulletin of the Seismological Society of America (2010) 100 (3): 1356-1362. https://doi.org/10.1785/0120090299
 
+- Audet, P. (2015) Layered crustal anisotropy around the San Andreas Fault near Parkfield, California, J. Geophys. Res. Solid Earth, 120, 3527-3543, https://doi.org/10.1002/2014JB011821
+
+- Cossette, E., Audet, P., and Schneider, D.A. (2016) Structure and anisotropy of the crust in the Cyclades, Greece, using receiver functions constrained by in situ rock textural data, J. Geophys. Res. Solid Earth, 121, 2661-2678, https://doi.org/10.1002/2015JB012460
+
 - Tarayoun, A., P. Audet, S. Mazzotti, and A. Ashoori (2017) Architecture of the crust and uppermost mantle in the northern Canadian Cordillera from receiver functions, J. Geophys. Res. Solid Earth, 122, 5268–5287, https://doi.org/10.1002/2017JB014284.
+
+#### Use cases
+
+- Audet, P., Schutt, D., Schaeffer, A.J., Estève, C., Aster, R., and Cubley, J. (2020). Moho variations across the northern Canadian Cordillera, Seism. Res. Lett., accepted.

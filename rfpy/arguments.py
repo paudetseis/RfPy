@@ -506,6 +506,12 @@ def get_recalc_arguments(argv=None):
         title='Parameter Settings',
         description="Miscellaneous default values and settings")
     ConstGroup.add_argument(
+        "--Z12",
+        action="store_true",
+        dest="Z12",
+        default=False,
+        help="Use Z12 data if available. [Default uses ZNE data]")
+    ConstGroup.add_argument(
         "--phase",
         action="store",
         type=str,

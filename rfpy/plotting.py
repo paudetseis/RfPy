@@ -190,6 +190,7 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
     # Figure out scaling here
     if scale:
         maxval = scale
+        maxvalT = maxval
     else:
         if norm:
             for tr in stream1:
@@ -249,12 +250,14 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
         ax1.fill_between(
             time, 0., tr1.data,
             where=tr1.data+1e-6 <= 0.,
-            facecolor='grey',
+            # facecolor='grey',
+            facecolor='red',
             linewidth=0)
         ax1.fill_between(
             time, 0., tr1.data,
             where=tr1.data+1e-6 >= 0.,
-            facecolor='red',
+            # facecolor='red',
+            facecolor='k',
             linewidth=0)
         ax1.plot(time, tr1.data,
             linewidth=0.25, c='k')
@@ -284,12 +287,14 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
         ax2.fill_between(
             time, y, y+tr.data*maxval,
             where=tr.data+1e-6 <= 0.,
-            facecolor='grey',
+            # facecolor='grey',
+            facecolor='red',
             linewidth=0)
         ax2.fill_between(
             time, y, y+tr.data*maxval,
             where=tr.data+1e-6 >= 0.,
-            facecolor='red',
+            facecolor='k',
+            # facecolor='red',
             linewidth=0)
         ax2.plot(time, y+tr.data*maxval,
             linewidth=0.25, c='k')
@@ -321,12 +326,14 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
         ax3.fill_between(
             time, 0., tr2.data,
             where=tr2.data+1e-6 <= 0.,
-            facecolor='grey',
+            # facecolor='grey',
+            facecolor='red',
             linewidth=0)
         ax3.fill_between(
             time, 0., tr2.data,
             where=tr2.data+1e-6 >= 0.,
-            facecolor='red',
+            facecolor='k',
+            # facecolor='red',
             linewidth=0)
         ax3.plot(time, tr2.data,
             linewidth=0.25, c='k')
@@ -352,12 +359,14 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
             ax4.fill_between(
                 time, y, y+tr.data*maxvalT,
                 where=tr.data+1e-6 <= 0.,
-                facecolor='grey',
+                facecolor='red',
+                # facecolor='grey',
                 linewidth=0)
             ax4.fill_between(
                 time, y, y+tr.data*maxvalT,
                 where=tr.data+1e-6 >= 0.,
-                facecolor='red',
+                # facecolor='red',
+                facecolor='k',
                 linewidth=0)
             ax4.plot(time, y+tr.data*maxvalT,
                 linewidth=0.25, c='k')
@@ -391,6 +400,49 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
         plt.show()
 
     plt.close()
+
+
+def wiggle_single_event(rfdata, filt=None, pre_filt=None, trange=None):
+
+    lqtcopy = rfdata.data.copy()
+    rfcopy = rfdata.rf.copy()
+    nn = lqtdata[0].stats.npts
+    sr = lqtdata[0].stats.sampling_rate
+    taxis = np.arange(-nn/2., nn/2.)/sr
+
+    if pre_filt:
+        lqtcopy.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1])
+
+    if filt:
+        rfcopy.filter('bandpass', freqmin=filt[0], freqmax=filt[1])
+
+    fig, (ax1, ax2, ax3, ax4) = plt.subplots(4,1, figsize=(7,5))
+
+    ax1.plot(taxis, lqtcopy[0], label=lqtcopy[0].stats.channel, lw=1)
+    ax2.plot(taxis, lqtcopy[1], label=lqtcopy[0].stats.channel, lw=1)
+    ax3.plot(taxis, lqtcopy[2], label=lqtcopy[0].stats.channel, lw=1)
+
+    ax1.legend()
+    ax2.legend()
+    ax3.legend()
+
+    nn = rfcopy[0].stats.npts
+    sr = rfcopy[0].stats.sampling_rate
+    taxis = np.arange(-nn/2., nn/2.)/sr
+
+    ax4.plot(taxis, rfcopy[0], label=rfcopy[0].stats.channel, lw=1)
+    ax4.set_ylim(-1., 1.)
+    ax4.plot(taxis, rfcopy[1], label=rfcopy[0].stats.channel, lw=1)
+    ax4.plot(taxis, rfcopy[2], label=rfcopy[0].stats.channel, lw=1)
+    if trange:
+        ax4.set_xlim(trange[0], trange[1])
+    ax4.legend()
+    plt.suptitle(
+        'AZ corr: {0:.1f}; BAZ: {1:.1f}\n SNR: {2:.1f}; CC: {3:.1f}'.format(
+            rfdata.sta.azcorr, rfdata.meta.baz, 
+            rfdata.meta.snr, rfdata.meta.cc))
+
+    plt.show()
 
 
 def event_dist(stream, phase='P', save=False, title=None, form='png'):

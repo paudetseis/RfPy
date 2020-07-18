@@ -533,11 +533,10 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
 
     # Three components successfully retrieved
     else:
-
         
 
         # Detrend and apply taper
-        st.detrend('linear').taper(max_percentage=0.05, max_length=5.)
+        st.detrend('demean').detrend('linear').taper(max_percentage=0.05, max_length=5.)
 
         # Check start times
         if not np.all([tr.stats.starttime == start for tr in st]):

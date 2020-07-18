@@ -438,8 +438,12 @@ class RFData(object):
 
             azim = self.sta.azcorr
 
+            # Try EBS with left handed system
             Z, N, E = rotate2zne(trZ.data, 0., -90., trN.data,
                                  azim, 0., trE.data, azim+90., 0.)
+
+            # Z, N, E = rotate2zne(trZ.data, 0., -90., trN.data,
+            #                      azim, 0., trE.data, azim+90., 0.)
             trN.data = N
             trE.data = E
 
@@ -667,7 +671,8 @@ class RFData(object):
             # Wiener or Water level deconvolution
             if method == 'wiener' or method == 'water':
 
-                npad = _npow2(nn*2)
+                # npad = _npow2(nn*2)
+                npad = nn
                 freqs = np.fft.fftfreq(npad, d=dt)
 
                 # Fourier transform
@@ -753,9 +758,13 @@ class RFData(object):
             rfp.data = np.fft.fftshift(np.real(np.fft.ifft(
                 gauss*Spp/Sdenom))/gnorm)
             rfd1.data = np.fft.fftshift(np.real(np.fft.ifft(
-                gauss*Sd1p/Sdenom))/np.amax(rfp.data)/gnorm)
+                gauss*Sd1p/Sdenom))/gnorm)
             rfd2.data = np.fft.fftshift(np.real(np.fft.ifft(
-                gauss*Sd2p/Sdenom))/np.amax(rfp.data)/gnorm)
+                gauss*Sd2p/Sdenom))/gnorm)
+            # rfd1.data = np.fft.fftshift(np.real(np.fft.ifft(
+            #     gauss*Sd1p/Sdenom))/np.amax(rfp.data)/gnorm)
+            # rfd2.data = np.fft.fftshift(np.real(np.fft.ifft(
+            #     gauss*Sd2p/Sdenom))/np.amax(rfp.data)/gnorm)
 
             return rfp, rfd1, rfd2
 
@@ -785,6 +794,7 @@ class RFData(object):
         trNq = self.data.select(component=cQ)[0].copy()
 
         if phase == 'P' or 'PP':
+
             # Get signal length (i.e., seismogram to deconvolve) from trace length
             dts = len(trL.data)*trL.stats.delta/2.
             nn = int(round((dts-5.)*trL.stats.sampling_rate)) + 1
@@ -825,13 +835,19 @@ class RFData(object):
                       self.meta.time+self.meta.ttime-dts/2.)
 
         # Demean, detrend, taper, demean, detrend
-        trL.detrend().taper(max_percentage=0.05, max_length=2.)
-        trQ.detrend().taper(max_percentage=0.05, max_length=2.)
-        trT.detrend().taper(max_percentage=0.05, max_length=2.)
-        trNl.detrend().taper(max_percentage=0.05, max_length=2.)
-        trNq.detrend().taper(max_percentage=0.05, max_length=2.)
+        trL.detrend('demean').detrend('linear').taper(max_percentage=0.05, max_length=2.)
+        trQ.detrend('demean').detrend('linear').taper(max_percentage=0.05, max_length=2.)
+        trT.detrend('demean').detrend('linear').taper(max_percentage=0.05, max_length=2.)
+        trNl.detrend('demean').detrend('linear').taper(max_percentage=0.05, max_length=2.)
+        trNq.detrend('demean').detrend('linear').taper(max_percentage=0.05, max_length=2.)
+        trL.detrend('demean').detrend('linear')
+        trQ.detrend('demean').detrend('linear')
+        trT.detrend('demean').detrend('linear')
+        trNl.detrend('demean').detrend('linear')
+        trNq.detrend('demean').detrend('linear')
+        # Stream(traces=[trL, trQ, trT, trNl, trNq]).plot(size=(600,300))
 
-        # This follows the pre-processing in Lim et al., GJI, 2017
+        # Pre-filter waveforms before deconvolution
         if pre_filt:
             trL.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1],
                        corners=2, zerophase=True)
@@ -839,6 +855,19 @@ class RFData(object):
                        corners=2, zerophase=True)
             trT.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1],
                        corners=2, zerophase=True)
+            trNl.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1],
+                       corners=2, zerophase=True)
+            trNq.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1],
+                       corners=2, zerophase=True)
+        # Stream(traces=[trL, trQ, trT, trNl, trNq]).plot(size=(600,300))
+
+            # Demean, detrend, taper, demean, detrend
+            trL.detrend('linear').taper(max_percentage=0.05, max_length=2.).detrend('linear')
+            trQ.detrend('linear').taper(max_percentage=0.05, max_length=2.).detrend('linear')
+            trT.detrend('linear').taper(max_percentage=0.05, max_length=2.).detrend('linear')
+            trNl.detrend('linear').taper(max_percentage=0.05, max_length=2.).detrend('linear')
+            trNq.detrend('linear').taper(max_percentage=0.05, max_length=2.).detrend('linear')
+        # Stream(traces=[trL, trQ, trT, trNl, trNq]).plot(size=(600,300))
 
         # Deconvolve
         if phase == 'P' or 'PP':
@@ -846,6 +875,7 @@ class RFData(object):
 
         elif phase == 'S' or 'SKS':
             rfQ, rfL, rfT = _decon(trQ, trL, trT, trNq, nn, method)
+        # Stream(traces=[rfQ, rfL, rfT]).plot(size=(600,300))
 
         # Update stats of streams
         rfL.stats.channel = 'RF' + self.meta.align[0]
