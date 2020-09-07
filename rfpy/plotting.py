@@ -86,7 +86,7 @@ def wiggle(stream1, stream2=None, sort=None, tmin=0., tmax=30, normalize=True,
         ntr = len(stream1)
         maxamp = np.median(
             [np.max(np.abs(
-                tr.data[time > tmin and time < tmax])) for tr in stream1])
+                tr.data[(time > tmin) & (time < tmax)])) for tr in stream1])
 
     f = plt.figure()
 
