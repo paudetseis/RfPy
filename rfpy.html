@@ -422,30 +422,32 @@ consider the demo data provided with the package and process them using all defa
 </div>
 <p>Now import an event:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span><span class="s1">&#39;demo&#39;</span><span class="p">)</span>
-<span class="go">2015-07-03T06:43:22.840000Z | +10.139, +125.977 | 6.1 MW</span>
+<span class="go">2014-06-30T19:55:33.710000Z | +28.391, +138.873 | 6.2 MW</span>
 </pre></div>
 </div>
 <p>Print the content of the object meta data</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>  <span class="o">&gt;&gt;&gt;</span> <span class="n">rfdata</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="vm">__dict__</span>
-<span class="p">{</span><span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="mi">2015</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">03</span><span class="n">T06</span><span class="p">:</span><span class="mi">43</span><span class="p">:</span><span class="mf">22.840000</span><span class="n">Z</span><span class="p">,</span>
- <span class="s1">&#39;lon&#39;</span><span class="p">:</span> <span class="mf">125.977</span><span class="p">,</span>
- <span class="s1">&#39;lat&#39;</span><span class="p">:</span> <span class="mf">10.1385</span><span class="p">,</span>
- <span class="s1">&#39;dep&#39;</span><span class="p">:</span> <span class="mf">50.8</span><span class="p">,</span>
- <span class="s1">&#39;mag&#39;</span><span class="p">:</span> <span class="mf">6.1</span><span class="p">,</span>
- <span class="s1">&#39;epi_dist&#39;</span><span class="p">:</span> <span class="mf">9654.95322183263</span><span class="p">,</span>
- <span class="s1">&#39;az&#39;</span><span class="p">:</span> <span class="mf">26.754776375134075</span><span class="p">,</span>
- <span class="s1">&#39;baz&#39;</span><span class="p">:</span> <span class="mf">286.03267562515674</span><span class="p">,</span>
- <span class="s1">&#39;gac&#39;</span><span class="p">:</span> <span class="mf">86.82908036528741</span><span class="p">,</span>
- <span class="s1">&#39;ttime&#39;</span><span class="p">:</span> <span class="mf">766.29205941718612</span><span class="p">,</span>
- <span class="s1">&#39;ph&#39;</span><span class="p">:</span> <span class="s1">&#39;P&#39;</span><span class="p">,</span>
- <span class="s1">&#39;slow&#39;</span><span class="p">:</span> <span class="mf">0.043863956666625202</span><span class="p">,</span>
- <span class="s1">&#39;inc&#39;</span><span class="p">:</span> <span class="mf">14.712262941689376</span><span class="p">,</span>
- <span class="s1">&#39;accept&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
- <span class="s1">&#39;vp&#39;</span><span class="p">:</span> <span class="mf">6.0</span><span class="p">,</span>
- <span class="s1">&#39;vs&#39;</span><span class="p">:</span> <span class="mf">3.6</span><span class="p">,</span>
- <span class="s1">&#39;align&#39;</span><span class="p">:</span> <span class="s1">&#39;ZRT&#39;</span><span class="p">,</span>
- <span class="s1">&#39;rotated&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
- <span class="s1">&#39;snr&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="vm">__dict__</span>
+<span class="go">{&#39;time&#39;: 2014-06-30T19:55:33.710000Z,</span>
+<span class="go"> &#39;lon&#39;: 138.8727,</span>
+<span class="go"> &#39;lat&#39;: 28.3906,</span>
+<span class="go"> &#39;dep&#39;: 527.4,</span>
+<span class="go"> &#39;mag&#39;: 6.2,</span>
+<span class="go"> &#39;epi_dist&#39;: 7236.909875705126,</span>
+<span class="go"> &#39;az&#39;: 30.556903955991746,</span>
+<span class="go"> &#39;baz&#39;: 283.91831389584587,</span>
+<span class="go"> &#39;gac&#39;: 65.08309411308255,</span>
+<span class="go"> &#39;ttime&#39;: 588.38610458337996,</span>
+<span class="go"> &#39;slow&#39;: 0.056707554238157355,</span>
+<span class="go"> &#39;inc&#39;: 19.167277207756957,</span>
+<span class="go"> &#39;phase&#39;: &#39;P&#39;,</span>
+<span class="go"> &#39;accept&#39;: True,</span>
+<span class="go"> &#39;vp&#39;: 6.0,</span>
+<span class="go"> &#39;vs&#39;: 3.5,</span>
+<span class="go"> &#39;align&#39;: &#39;ZRT&#39;,</span>
+<span class="go"> &#39;rotated&#39;: False,</span>
+<span class="go"> &#39;snr&#39;: None,</span>
+<span class="go"> &#39;snrh&#39;: None,</span>
+<span class="go"> &#39;cc&#39;: None}</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -464,48 +466,45 @@ of <code class="docutils literal notranslate"><span class="pre">meta</span></cod
 </div>
 </div>
 <p>Now add data to the object:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>  <span class="o">&gt;&gt;&gt;</span> <span class="n">rfdata</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="s1">&#39;demo&#39;</span><span class="p">)</span>
-<span class="mi">3</span> <span class="n">Trace</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="ow">in</span> <span class="n">Stream</span><span class="p">:</span>
-<span class="n">NY</span><span class="o">.</span><span class="n">MMPY</span><span class="o">..</span><span class="n">HHZ</span> <span class="o">|</span> <span class="mi">2015</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">03</span><span class="n">T06</span><span class="p">:</span><span class="mi">54</span><span class="p">:</span><span class="mf">09.140000</span><span class="n">Z</span> <span class="o">-</span> <span class="mi">2015</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">03</span><span class="n">T06</span><span class="p">:</span><span class="mi">58</span><span class="p">:</span><span class="mf">08.940000</span><span class="n">Z</span> <span class="o">|</span> <span class="mf">5.0</span> <span class="n">Hz</span><span class="p">,</span> <span class="mi">1200</span> <span class="n">samples</span>
-<span class="n">NY</span><span class="o">.</span><span class="n">MMPY</span><span class="o">..</span><span class="n">HHN</span> <span class="o">|</span> <span class="mi">2015</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">03</span><span class="n">T06</span><span class="p">:</span><span class="mi">54</span><span class="p">:</span><span class="mf">09.140000</span><span class="n">Z</span> <span class="o">-</span> <span class="mi">2015</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">03</span><span class="n">T06</span><span class="p">:</span><span class="mi">58</span><span class="p">:</span><span class="mf">08.940000</span><span class="n">Z</span> <span class="o">|</span> <span class="mf">5.0</span> <span class="n">Hz</span><span class="p">,</span> <span class="mi">1200</span> <span class="n">samples</span>
-<span class="n">NY</span><span class="o">.</span><span class="n">MMPY</span><span class="o">..</span><span class="n">HHE</span> <span class="o">|</span> <span class="mi">2015</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">03</span><span class="n">T06</span><span class="p">:</span><span class="mi">54</span><span class="p">:</span><span class="mf">09.140000</span><span class="n">Z</span> <span class="o">-</span> <span class="mi">2015</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">03</span><span class="n">T06</span><span class="p">:</span><span class="mi">58</span><span class="p">:</span><span class="mf">08.940000</span><span class="n">Z</span> <span class="o">|</span> <span class="mf">5.0</span> <span class="n">Hz</span><span class="p">,</span> <span class="mi">1200</span> <span class="n">samples</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="s1">&#39;demo&#39;</span><span class="p">)</span>
+<span class="go">3 Trace(s) in Stream:</span>
+<span class="go">NY.MMPY..HHZ | 2014-06-30T20:02:52.096105Z - 2014-06-30T20:07:51.896105Z | 5.0 Hz, 1500 samples</span>
+<span class="go">NY.MMPY..HHN | 2014-06-30T20:02:52.096105Z - 2014-06-30T20:07:51.896105Z | 5.0 Hz, 1500 samples</span>
+<span class="go">NY.MMPY..HHE | 2014-06-30T20:02:52.096105Z - 2014-06-30T20:07:51.896105Z | 5.0 Hz, 1500 samples</span>
 </pre></div>
 </div>
 <p>Perform receiver function deconvolution using default values:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">deconvolve</span><span class="p">()</span>
 <span class="go">Warning: Data have not been rotated yet - rotating now</span>
-<span class="go">Warning: SNR has not been calculated - calculating now using</span>
+<span class="go">Warning: SNR has not been calculated - calculating now using default</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span><span class="o">.</span><span class="n">rf</span>
 <span class="go">3 Trace(s) in Stream:</span>
-<span class="go">NY.MMPY..RFZ | 2015-07-03T06:56:04.140000Z - 2015-07-03T06:57:59.140000Z | 5.0 Hz, 576 samples</span>
-<span class="go">NY.MMPY..RFR | 2015-07-03T06:56:04.140000Z - 2015-07-03T06:57:59.140000Z | 5.0 Hz, 576 samples</span>
-<span class="go">NY.MMPY..RFT | 2015-07-03T06:56:04.140000Z - 2015-07-03T06:57:59.140000Z | 5.0 Hz, 576 samples</span>
+<span class="go">NY.MMPY..RFZ | 2014-06-30T20:05:17.096105Z - 2014-06-30T20:07:42.096105Z | 5.0 Hz, 726 samples</span>
+<span class="go">NY.MMPY..RFR | 2014-06-30T20:05:17.096105Z - 2014-06-30T20:07:42.096105Z | 5.0 Hz, 726 samples</span>
+<span class="go">NY.MMPY..RFT | 2014-06-30T20:05:17.096105Z - 2014-06-30T20:07:42.096105Z | 5.0 Hz, 726 samples</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span> <span class="o">=</span> <span class="n">rfdata</span><span class="o">.</span><span class="n">to_stream</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span>
 <span class="go">3 Trace(s) in Stream:</span>
-<span class="go">NY.MMPY..RFZ | 2015-07-03T06:56:04.140000Z - 2015-07-03T06:57:59.140000Z | 5.0 Hz, 576 samples</span>
-<span class="go">NY.MMPY..RFR | 2015-07-03T06:56:04.140000Z - 2015-07-03T06:57:59.140000Z | 5.0 Hz, 576 samples</span>
-<span class="go">NY.MMPY..RFT | 2015-07-03T06:56:04.140000Z - 2015-07-03T06:57:59.140000Z | 5.0 Hz, 576 samples</span>
+<span class="go">NY.MMPY..RFZ | 2014-06-30T20:05:17.096105Z - 2014-06-30T20:07:42.096105Z | 5.0 Hz, 726 samples</span>
+<span class="go">NY.MMPY..RFR | 2014-06-30T20:05:17.096105Z - 2014-06-30T20:07:42.096105Z | 5.0 Hz, 726 samples</span>
+<span class="go">NY.MMPY..RFT | 2014-06-30T20:05:17.096105Z - 2014-06-30T20:07:42.096105Z | 5.0 Hz, 726 samples</span>
 </pre></div>
 </div>
 <p>Check out new stats in traces</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">snr</span>
-<span class="go">10.799614447256117</span>
+<span class="go">18.271607454697513</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">slow</span>
-<span class="go">0.043863956666625202</span>
+<span class="go">0.056707554238157355</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">baz</span>
-<span class="go">286.03267562515674</span>
+<span class="go">283.91831389584587</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">is_rf</span>
 <span class="go">True</span>
 </pre></div>
 </div>
 <p>Plot filtered and trimmed <code class="docutils literal notranslate"><span class="pre">rfstream</span></code></p>
-<p>..sourcecode:: python</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;bandpass&#39;</span><span class="p">,</span> <span class="n">freqmin</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">freqmax</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">t1</span> <span class="o">=</span> <span class="n">rfstream</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">starttime</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="n">t1</span><span class="o">+</span><span class="mf">30.</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;bandpass&#39;</span><span class="p">,</span> <span class="n">freqmin</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">freqmax</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">corners</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">zerophase</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -606,8 +605,8 @@ of the individual phase stacks, using weights defined as object attributes:</p>
 </div>
 <p>To produce a final stack that consists of the product of the positive parts
 of individual phase stacks (to enhance normal-polarity Moho arrivals and ignore
-un-modelled negative polarity signals), use the <code class="docutils literal notranslate"><span class="pre">typ='prod'</span></code> argument:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">typ</span><span class="o">=</span><span class="s1">&#39;prod&#39;</span><span class="p">)</span>
+un-modelled negative polarity signals), use the <code class="docutils literal notranslate"><span class="pre">typ='product'</span></code> argument:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">typ</span><span class="o">=</span><span class="s1">&#39;product&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The estimates of <cite>H</cite> and <cite>k</cite> are determined from the maximum value in the final
@@ -629,13 +628,13 @@ and error contour around the solution.</p>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Check content of object</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="vm">__dict__</span>
-<span class="go">{&#39;rfV1&#39;: 66 Trace(s) in Stream:</span>
+<span class="go">{&#39;rfV1&#39;: 198 Trace(s) in Stream:</span>
 
-<span class="go">NY.MMPY..RFV | 2016-05-31T10:11:49.520000Z - 2016-05-31T10:13:44.520000Z | 5.0 Hz, 576 samples</span>
+<span class="go">NY.MMPY..RFR | 2014-06-29T17:27:39.906888Z - 2014-06-29T17:28:52.306888Z | 5.0 Hz, 363 samples</span>
 <span class="gp">...</span>
-<span class="go">(64 other traces)</span>
+<span class="go">(196 other traces)</span>
 <span class="gp">...</span>
-<span class="go">NY.MMPY..RFV | 2015-06-08T06:10:13.330000Z - 2015-06-08T06:12:08.330000Z | 5.0 Hz, 576 samples</span>
+<span class="go">NY.MMPY..RFR | 2014-07-15T16:51:48.381573Z - 2014-07-15T16:53:00.781573Z | 5.0 Hz, 363 samples</span>
 
 <span class="go">[Use &quot;print(Stream.__str__(extended=True))&quot; to print all Traces],</span>
 <span class="go"> &#39;rfV2&#39;: None,</span>
@@ -680,11 +679,11 @@ with a different frequency corner as another attribute <code class="docutils lit
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">h0</span>
 <span class="go">34.0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">err_h0</span>
-<span class="go">5.5</span>
+<span class="go">3.5</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">k0</span>
-<span class="go">1.72</span>
+<span class="go">1.74</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">err_k0</span>
-<span class="go">0.14</span>
+<span class="go">0.13</span>
 </pre></div>
 </div>
 <p>Plot the stacks with error contours</p>
@@ -785,27 +784,27 @@ as attributes of type <code class="xref py py-class docutils literal notranslate
 
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Check content of object</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="vm">__dict__</span>
-<span class="go">{&#39;strV&#39;: 66 Trace(s) in Stream:</span>
+<span class="go">{&#39;radialRF&#39;: 198 Trace(s) in Stream:</span>
 
-<span class="go">NY.MMPY..RFV | 2016-05-31T10:11:49.520000Z - 2016-05-31T10:13:44.520000Z | 5.0 Hz, 576 samples</span>
+<span class="go">NY.MMPY..RFR | 2014-06-29T17:27:39.906888Z - 2014-06-29T17:30:04.906888Z | 5.0 Hz, 726 samples</span>
 <span class="gp">...</span>
-<span class="go">(64 other traces)</span>
+<span class="go">(196 other traces)</span>
 <span class="gp">...</span>
-<span class="go">NY.MMPY..RFV | 2015-06-08T06:10:13.330000Z - 2015-06-08T06:12:08.330000Z | 5.0 Hz, 576 samples</span>
+<span class="go">NY.MMPY..RFR | 2014-07-15T16:51:48.381573Z - 2014-07-15T16:54:13.381573Z | 5.0 Hz, 726 samples</span>
 
 <span class="go">[Use &quot;print(Stream.__str__(extended=True))&quot; to print all Traces],</span>
-<span class="go"> &#39;strH&#39;: 66 Trace(s) in Stream:</span>
+<span class="go"> &#39;transvRF&#39;: 198 Trace(s) in Stream:</span>
 
-<span class="go">NY.MMPY..RFH | 2016-05-31T10:11:49.520000Z - 2016-05-31T10:13:44.520000Z | 5.0 Hz, 576 samples</span>
+<span class="go">NY.MMPY..RFT | 2014-06-29T17:27:39.906888Z - 2014-06-29T17:30:04.906888Z | 5.0 Hz, 726 samples</span>
 <span class="gp">...</span>
-<span class="go">(64 other traces)</span>
+<span class="go">(196 other traces)</span>
 <span class="gp">...</span>
-<span class="go">NY.MMPY..RFH | 2015-06-08T06:10:13.330000Z - 2015-06-08T06:12:08.330000Z | 5.0 Hz, 576 samples</span>
+<span class="go">NY.MMPY..RFT | 2014-07-15T16:51:48.381573Z - 2014-07-15T16:54:13.381573Z | 5.0 Hz, 726 samples</span>
 
 <span class="go">[Use &quot;print(Stream.__str__(extended=True))&quot; to print all Traces],</span>
 <span class="go"> &#39;azim&#39;: 0,</span>
 <span class="go"> &#39;xmin&#39;: 0.0,</span>
-<span class="go"> &#39;xmax&#39;: 40.0}</span>
+<span class="go"> &#39;xmax&#39;: 10.0}</span>
 </pre></div>
 </div>
 <p>As with the <a class="reference internal" href="api.html#rfpy.hk.HkStack" title="rfpy.hk.HkStack"><code class="xref py py-class docutils literal notranslate"><span class="pre">HkStack</span></code></a> object, these receiver functions have been obtained
