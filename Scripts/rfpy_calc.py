@@ -259,6 +259,7 @@ def main():
                     ndval=args.ndval, new_sr=args.new_sampling_rate,
                     returned=True, verbose=args.verb)
 
+                print(has_data)
                 if not has_data:
                     continue
 
@@ -270,7 +271,7 @@ def main():
                 pickle.dump(rfdata.data, open(ZNEfile, "wb"))
 
                 # Save Z12 if components exist
-                if rfdata.dataZ12:
+                if hasattr(rfdata, "dataZ12"):
                     Z12file = evtdir / 'Z12_Data.pkl'
                     pickle.dump(rfdata.dataZ12, open(Z12file, "wb"))
 

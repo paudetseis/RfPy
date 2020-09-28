@@ -220,8 +220,8 @@ class RFData(object):
             client = Client()
             # Get catalogue using deployment start and end
             event = client.get_events(
-                starttime=UTCDateTime('2015-07-03T06:00:00'),
-                endtime=UTCDateTime('2015-07-03T07:00:00'),
+                starttime=UTCDateTime('2014-06-30T19:00:00'),
+                endtime=UTCDateTime('2014-06-30T21:00:00'),
                 minmagnitude=6.0,
                 maxmagnitude=6.5)[0]
             print(event.short_str())
@@ -362,7 +362,7 @@ class RFData(object):
             # Filter Traces and resample
             self.data.filter('lowpass', freq=0.5*new_sr,
                              corners=2, zerophase=True)
-            self.data.resample(new_sr, no_filter=False)
+            self.data.resample(new_sr, no_filter=True)
 
         # If there is no ZNE, perhaps there is Z12?
         except:
@@ -376,7 +376,7 @@ class RFData(object):
                 # Filter Traces and resample
                 self.data.filter('lowpass', freq=0.5*new_sr,
                                  corners=2, zerophase=True)
-                self.data.resample(new_sr, no_filter=False)
+                self.data.resample(new_sr, no_filter=True)
 
                 # Save Z12 components in case it's necessary for later
                 self.dataZ12 = self.data.copy()

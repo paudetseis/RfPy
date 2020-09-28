@@ -272,32 +272,34 @@ Now import an event:
 .. sourcecode:: python
 
     >>> rfdata.add_event('demo')
-    2015-07-03T06:43:22.840000Z | +10.139, +125.977 | 6.1 MW
+    2014-06-30T19:55:33.710000Z | +28.391, +138.873 | 6.2 MW
 
 Print the content of the object meta data
 
 .. sourcecode:: python
 
     >>> rfdata.meta.__dict__
-  {'time': 2015-07-03T06:43:22.840000Z,
-   'lon': 125.977,
-   'lat': 10.1385,
-   'dep': 50.8,
-   'mag': 6.1,
-   'epi_dist': 9654.95322183263,
-   'az': 26.754776375134075,
-   'baz': 286.03267562515674,
-   'gac': 86.82908036528741,
-   'ttime': 766.29205941718612,
-   'ph': 'P',
-   'slow': 0.043863956666625202,
-   'inc': 14.712262941689376,
-   'accept': True,
-   'vp': 6.0,
-   'vs': 3.6,
-   'align': 'ZRT',
-   'rotated': False,
-   'snr': None}
+    {'time': 2014-06-30T19:55:33.710000Z,
+     'lon': 138.8727,
+     'lat': 28.3906,
+     'dep': 527.4,
+     'mag': 6.2,
+     'epi_dist': 7236.909875705126,
+     'az': 30.556903955991746,
+     'baz': 283.91831389584587,
+     'gac': 65.08309411308255,
+     'ttime': 588.38610458337996,
+     'slow': 0.056707554238157355,
+     'inc': 19.167277207756957,
+     'phase': 'P',
+     'accept': True,
+     'vp': 6.0,
+     'vs': 3.5,
+     'align': 'ZRT',
+     'rotated': False,
+     'snr': None,
+     'snrh': None,
+     'cc': None}
 
 .. note::
 
