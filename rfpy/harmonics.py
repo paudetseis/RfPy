@@ -451,14 +451,15 @@ class Harmonics(object):
         ax1 = fig.add_subplot(111)
 
         for i, trace in enumerate(self.hstream):
+            print(i)
             # i += 1
             ax1.fill_betweenx(
-                y, i+1, i+1+trace.data*scale,
+                y, i, i+trace.data*scale,
                 where=trace.data+1e-6 <= 0.,
                 facecolor='blue',
                 linewidth=0)
             ax1.fill_betweenx(
-                y, i+1, i+1+trace.data*scale,
+                y, i, i+trace.data*scale,
                 where=trace.data+1e-6 >= 0.,
                 facecolor='red',
                 linewidth=0)
@@ -468,13 +469,16 @@ class Harmonics(object):
         if title:
             ax1.set_title(title)
 
-        labels = [item.get_text() for item in ax1.get_xticklabels()]
-        labels[1] = '$A$'
-        labels[2] = '$B_1$'
-        labels[3] = '$B_2$'
-        labels[4] = '$C_1$'
-        labels[5] = '$C_2$'
-        ax1.set_xticklabels(labels)
+        ax1.set_xticks([0, 1, 2, 3, 4], minor=False)
+        ax1.set_xticklabels(['$A$', '$B_1$', '$B_2$', '$C_1$', '$C_2$'], minor=False)
+        # labels = [item.get_text() for item in ax1.get_xticklabels()]
+        # print(labels)
+        # labels[1] = '$A$'
+        # labels[2] = '$B_1$'
+        # labels[3] = '$B_2$'
+        # labels[4] = '$C_1$'
+        # labels[5] = '$C_2$'
+        # ax1.set_xticklabels(labels)
         off = ax1.xaxis.get_offset_text()
         ax1.tick_params(axis=u'x', pad=10)
         ax1.grid()

@@ -515,11 +515,11 @@ Initialize object with demo data for station `MMPY <http://ds.iris.edu/mda/NY/MM
 
     >>> # Check content of object
     >>> hkstack.__dict__
-    {'rfV1': 223 Trace(s) in Stream:
+    {'rfV1': 198 Trace(s) in Stream:
 
     NY.MMPY..RFR | 2014-06-29T17:27:39.906888Z - 2014-06-29T17:28:52.306888Z | 5.0 Hz, 363 samples
     ...
-    (221 other traces)
+    (196 other traces)
     ...
     NY.MMPY..RFR | 2014-07-15T16:51:48.381573Z - 2014-07-15T16:53:00.781573Z | 5.0 Hz, 363 samples
 
@@ -534,7 +534,7 @@ Initialize object with demo data for station `MMPY <http://ds.iris.edu/mda/NY/MM
      'dh': 0.5,
      'weights': [0.5, 2.0, -1.0],
      'phases': ['ps', 'pps', 'pss']}
- 
+
 These receiver functions have been obtained by adding :class:`~rfpy.rfdata.RFData` objects
 as streams to an :class:`~obspy.core.Stream` object, without other processing. Note that they
 are aligned in the ``'PVH'`` coordinate system, as specified in the channel name (i.e., ``'RFV'`` for
@@ -574,11 +574,11 @@ The final estimates are available as attributes
     >>> hkstack.h0
     34.0
     >>> hkstack.err_h0
-    5.5
+    3.5
     >>> hkstack.k0
-    1.72
+    1.74
     >>> hkstack.err_k0
-    0.14
+    0.13
 
 Plot the stacks with error contours
 
@@ -698,27 +698,27 @@ Initialize object with demo data for station `MMPY <http://ds.iris.edu/mda/NY/MM
 
     >>> # Check content of object
     >>> harmonics.__dict__
-    {'strV': 66 Trace(s) in Stream:
+    {'radialRF': 198 Trace(s) in Stream:
 
-    NY.MMPY..RFV | 2016-05-31T10:11:49.520000Z - 2016-05-31T10:13:44.520000Z | 5.0 Hz, 576 samples
+    NY.MMPY..RFR | 2014-06-29T17:27:39.906888Z - 2014-06-29T17:30:04.906888Z | 5.0 Hz, 726 samples
     ...
-    (64 other traces)
+    (196 other traces)
     ...
-    NY.MMPY..RFV | 2015-06-08T06:10:13.330000Z - 2015-06-08T06:12:08.330000Z | 5.0 Hz, 576 samples
+    NY.MMPY..RFR | 2014-07-15T16:51:48.381573Z - 2014-07-15T16:54:13.381573Z | 5.0 Hz, 726 samples
 
     [Use "print(Stream.__str__(extended=True))" to print all Traces],
-     'strH': 66 Trace(s) in Stream:
+     'transvRF': 198 Trace(s) in Stream:
 
-    NY.MMPY..RFH | 2016-05-31T10:11:49.520000Z - 2016-05-31T10:13:44.520000Z | 5.0 Hz, 576 samples
+    NY.MMPY..RFT | 2014-06-29T17:27:39.906888Z - 2014-06-29T17:30:04.906888Z | 5.0 Hz, 726 samples
     ...
-    (64 other traces)
+    (196 other traces)
     ...
-    NY.MMPY..RFH | 2015-06-08T06:10:13.330000Z - 2015-06-08T06:12:08.330000Z | 5.0 Hz, 576 samples
+    NY.MMPY..RFT | 2014-07-15T16:51:48.381573Z - 2014-07-15T16:54:13.381573Z | 5.0 Hz, 726 samples
 
     [Use "print(Stream.__str__(extended=True))" to print all Traces],
      'azim': 0,
      'xmin': 0.0,
-     'xmax': 40.0}
+     'xmax': 10.0}
 
 As with the :class:`~rfpy.hk.HkStack` object, these receiver functions have been obtained 
 by adding :class:`~rfpy.rfdata.RFData` objects
