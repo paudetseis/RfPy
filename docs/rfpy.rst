@@ -337,38 +337,36 @@ Perform receiver function deconvolution using default values:
 
     >>> rfdata.rf
     3 Trace(s) in Stream:
-    NY.MMPY..RFZ | 2015-07-03T06:56:04.140000Z - 2015-07-03T06:57:59.140000Z | 5.0 Hz, 576 samples
-    NY.MMPY..RFR | 2015-07-03T06:56:04.140000Z - 2015-07-03T06:57:59.140000Z | 5.0 Hz, 576 samples
-    NY.MMPY..RFT | 2015-07-03T06:56:04.140000Z - 2015-07-03T06:57:59.140000Z | 5.0 Hz, 576 samples    
+    NY.MMPY..RFZ | 2014-06-30T20:05:17.096105Z - 2014-06-30T20:07:42.096105Z | 5.0 Hz, 726 samples
+    NY.MMPY..RFR | 2014-06-30T20:05:17.096105Z - 2014-06-30T20:07:42.096105Z | 5.0 Hz, 726 samples
+    NY.MMPY..RFT | 2014-06-30T20:05:17.096105Z - 2014-06-30T20:07:42.096105Z | 5.0 Hz, 726 samples
 
     >>> rfstream = rfdata.to_stream()
     >>> rfstream
     3 Trace(s) in Stream:
-    NY.MMPY..RFZ | 2015-07-03T06:56:04.140000Z - 2015-07-03T06:57:59.140000Z | 5.0 Hz, 576 samples
-    NY.MMPY..RFR | 2015-07-03T06:56:04.140000Z - 2015-07-03T06:57:59.140000Z | 5.0 Hz, 576 samples
-    NY.MMPY..RFT | 2015-07-03T06:56:04.140000Z - 2015-07-03T06:57:59.140000Z | 5.0 Hz, 576 samples
+    NY.MMPY..RFZ | 2014-06-30T20:05:17.096105Z - 2014-06-30T20:07:42.096105Z | 5.0 Hz, 726 samples
+    NY.MMPY..RFR | 2014-06-30T20:05:17.096105Z - 2014-06-30T20:07:42.096105Z | 5.0 Hz, 726 samples
+    NY.MMPY..RFT | 2014-06-30T20:05:17.096105Z - 2014-06-30T20:07:42.096105Z | 5.0 Hz, 726 samples
 
 Check out new stats in traces
 
 .. sourcecode:: python
 
     >>> rfstream[0].stats.snr
-    10.799614447256117
+    18.271607454697513
     >>> rfstream[0].stats.slow
-    0.043863956666625202
+    0.056707554238157355
     >>> rfstream[0].stats.baz
-    286.03267562515674
+    283.91831389584587
     >>> rfstream[0].stats.is_rf
     True
 
 Plot filtered and trimmed ``rfstream``
 
 
-..sourcecode:: python
+.. sourcecode:: python
 
-    >>> rfstream.filter('bandpass', freqmin=0.05, freqmax=0.5)
-    >>> t1 = rfstream[0].stats.starttime
-    >>> rfstream.trim(t1, t1+30.)
+    >>> rfstream.filter('bandpass', freqmin=0.05, freqmax=0.5, corners=2, zerophase=True)
     >>> rfstream.plot()
 
 .. figure:: ../rfpy/examples/data/Figure_rfdata_demo.png
@@ -485,11 +483,11 @@ of the individual phase stacks, using weights defined as object attributes:
 
 To produce a final stack that consists of the product of the positive parts
 of individual phase stacks (to enhance normal-polarity Moho arrivals and ignore
-un-modelled negative polarity signals), use the ``typ='prod'`` argument:
+un-modelled negative polarity signals), use the ``typ='product'`` argument:
 
 .. sourcecode:: python
 
-    >>> hkstack.average(typ='prod')
+    >>> hkstack.average(typ='product')
 
 The estimates of `H` and `k` are determined from the maximum value in the final
 stack as attributes ``hkstack.h0`` and ``hkstack.k0``. The method will also 
@@ -517,13 +515,13 @@ Initialize object with demo data for station `MMPY <http://ds.iris.edu/mda/NY/MM
 
     >>> # Check content of object
     >>> hkstack.__dict__
-    {'rfV1': 66 Trace(s) in Stream:
+    {'rfV1': 223 Trace(s) in Stream:
 
-    NY.MMPY..RFV | 2016-05-31T10:11:49.520000Z - 2016-05-31T10:13:44.520000Z | 5.0 Hz, 576 samples
+    NY.MMPY..RFR | 2014-06-29T17:27:39.906888Z - 2014-06-29T17:28:52.306888Z | 5.0 Hz, 363 samples
     ...
-    (64 other traces)
+    (221 other traces)
     ...
-    NY.MMPY..RFV | 2015-06-08T06:10:13.330000Z - 2015-06-08T06:12:08.330000Z | 5.0 Hz, 576 samples
+    NY.MMPY..RFR | 2014-07-15T16:51:48.381573Z - 2014-07-15T16:53:00.781573Z | 5.0 Hz, 363 samples
 
     [Use "print(Stream.__str__(extended=True))" to print all Traces],
      'rfV2': None,
@@ -536,7 +534,7 @@ Initialize object with demo data for station `MMPY <http://ds.iris.edu/mda/NY/MM
      'dh': 0.5,
      'weights': [0.5, 2.0, -1.0],
      'phases': ['ps', 'pps', 'pss']}
-
+ 
 These receiver functions have been obtained by adding :class:`~rfpy.rfdata.RFData` objects
 as streams to an :class:`~obspy.core.Stream` object, without other processing. Note that they
 are aligned in the ``'PVH'`` coordinate system, as specified in the channel name (i.e., ``'RFV'`` for

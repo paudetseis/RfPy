@@ -109,9 +109,12 @@ class HkStack(object):
             for tr in rfV1:
                 tr.data = np.fft.fftshift(tr.data)[0:int(nn/2)]
                 tr.stats.taxis = np.fft.fftshift(tr.data)[0:int(nn/2)]
-            for tr in rfV2:
-                tr.data = np.fft.fftshift(tr.data)[0:int(nn/2)]
-                tr.stats.taxis = np.fft.fftshift(tr.data)[0:int(nn/2)]
+            try:
+                for tr in rfV2:
+                    tr.data = np.fft.fftshift(tr.data)[0:int(nn/2)]
+                    tr.stats.taxis = np.fft.fftshift(tr.data)[0:int(nn/2)]
+            except:
+                pass
 
         self.rfV1 = rfV1
         self.rfV2 = rfV2
