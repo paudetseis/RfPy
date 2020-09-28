@@ -322,10 +322,10 @@ Now add data to the object:
 .. sourcecode:: python
 
     >>> rfdata.add_data('demo')
-  3 Trace(s) in Stream:
-  NY.MMPY..HHZ | 2015-07-03T06:54:09.140000Z - 2015-07-03T06:58:08.940000Z | 5.0 Hz, 1200 samples
-  NY.MMPY..HHN | 2015-07-03T06:54:09.140000Z - 2015-07-03T06:58:08.940000Z | 5.0 Hz, 1200 samples
-  NY.MMPY..HHE | 2015-07-03T06:54:09.140000Z - 2015-07-03T06:58:08.940000Z | 5.0 Hz, 1200 samples
+    3 Trace(s) in Stream:
+    NY.MMPY..HHZ | 2014-06-30T20:02:52.096105Z - 2014-06-30T20:07:51.896105Z | 5.0 Hz, 1500 samples
+    NY.MMPY..HHN | 2014-06-30T20:02:52.096105Z - 2014-06-30T20:07:51.896105Z | 5.0 Hz, 1500 samples
+    NY.MMPY..HHE | 2014-06-30T20:02:52.096105Z - 2014-06-30T20:07:51.896105Z | 5.0 Hz, 1500 samples
 
 Perform receiver function deconvolution using default values:
 
@@ -333,7 +333,7 @@ Perform receiver function deconvolution using default values:
 
     >>> rfdata.deconvolve()
     Warning: Data have not been rotated yet - rotating now
-    Warning: SNR has not been calculated - calculating now using 
+    Warning: SNR has not been calculated - calculating now using default
 
     >>> rfdata.rf
     3 Trace(s) in Stream:

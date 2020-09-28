@@ -287,9 +287,10 @@ class RFData(object):
                 self.meta.accept = False
 
             # Filter Traces
-            self.data.filter('lowpass', freq=0.5*new_sr,
-                             corners=2, zerophase=True)
-            self.data.resample(new_sr, no_filter=False)
+            if not stream[0].stats.sampling_rate == new_sr:
+                self.data.filter('lowpass', freq=0.5*new_sr,
+                                 corners=2, zerophase=True)
+                self.data.resample(new_sr, no_filter=True)
 
         except:
             print("Error: Not all channels are available")
