@@ -194,7 +194,7 @@ Now let's make a plot of all P receiver functions, this time sorted by slowness 
 
     $ rfpy_plot.py --no-outlier --bp=0.05,0.5 --nslow=20 --normalize --trange=-2.,30. MMPY.pkl
 
-.. figure:: ../rfpy/examples/figures/Figure_1.png
+.. figure:: ../rfpy/examples/figures/Figure_2.png
    :align: center
 
 4. Moho depth and Vp/Vs from ``H-k`` stacking
