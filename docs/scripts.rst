@@ -25,6 +25,7 @@ Usage
 .. code-block::
 
     $ rfpy_calc.py -h
+    
     ##############################################
     #        __                          _       #
     #  _ __ / _|_ __  _   _     ___ __ _| | ___  #
@@ -158,6 +159,89 @@ Usage
                             None]
       --wlevel WLEVEL       Specify the water level, used in the 'water' method.
                             [Default 0.01]
+
+
+``rfpy_recalc.py``
+++++++++++++++++
+
+Description
+-----------
+
+Looks for available receiver functions on disk and re-calculates them
+using different processing options. Station selection is specified by 
+a network and station code. The database is provided as a `~stdb.StDb` 
+dictionary.
+
+Usage
+-----
+
+.. code-block::
+
+    $ rfpy_recalc.py -h
+
+    ########################################################
+    #                                                      #
+    #        __                                    _       #
+    #  _ __ / _|_ __  _   _     _ __ ___  ___ __ _| | ___  #
+    # | '__| |_| '_ \| | | |   | '__/ _ \/ __/ _` | |/ __| #
+    # | |  |  _| |_) | |_| |   | | |  __/ (_| (_| | | (__  #
+    # |_|  |_| | .__/ \__, |___|_|  \___|\___\__,_|_|\___| #
+    #          |_|    |___/_____|                          #
+    #                                                      #
+    ########################################################
+
+    usage: rfpy_recalc.py [arguments] <station database>
+
+    Script used to re-calculate receiver functions that already exist on disk, but
+    using different processing options. The stations are processed one by one and
+    the data are stored to disk. Note: The sampling rate cannot be changed to a
+    new rate
+
+    positional arguments:
+      indb                 Station Database to process from.
+
+    optional arguments:
+      -h, --help           show this help message and exit
+      --keys STKEYS        Specify a comma separated list of station keys for
+                           which to perform the analysis. These must be contained
+                           within the station database. Partial keys will be used
+                           to match against those in the dictionary. For instance,
+                           providing IU will match with all stations in the IU
+                           network [Default processes all stations in the
+                           database]
+      -v, -V, --verbose    Specify to increase verbosity.
+
+    Parameter Settings:
+      Miscellaneous default values and settings
+
+      --Z12                Use Z12 data if available. [Default uses ZNE data]
+      --phase PHASE        Specify the phase name to use. Be careful with the
+                           distance. setting. Options are 'P', 'PP', 'allP', 'S',
+                           'SKS' or 'allS'. [Default 'allP']
+      --align ALIGN        Specify component alignment key. Can be either ZRT,
+                           LQT, or PVH. [Default ZRT]
+      --vp VP              Specify near-surface Vp to use with --align=PVH (km/s).
+                           [Default 6.0]
+      --vs VS              Specify near-surface Vs to use with --align=PVH (km/s).
+                           [Default 3.5]
+      --dt-snr DT_SNR      Specify the window length over which to calculate the
+                           SNR in sec. [Default 30.]
+      --pre-filt PRE_FILT  Specify two floats with low and high frequency corners
+                           for pre-filter (before deconvolution). [Default None]
+      --fmin FMIN          Specify the minimum frequency corner for SNR filter
+                           (Hz). [Default 0.05]
+      --fmax FMAX          Specify the maximum frequency corner for SNR filter
+                           (Hz). [Default 1.0]
+
+    Deconvolution Settings:
+      Parameters for deconvolution
+
+      --method METHOD      Specify the deconvolution method. Available methods
+                           include 'wiener', 'water' and 'multitaper'. [Default
+                           'wiener']
+      --gfilt GFILT        Specify the Gaussian filter width in Hz. [Default None]
+      --wlevel WLEVEL      Specify the water level, used in the 'water' method.
+                           [Default 0.01]
 
 
 ``rfpy_hk.py``

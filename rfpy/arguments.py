@@ -44,7 +44,7 @@ def get_calc_arguments(argv=None):
     parser = ArgumentParser(
         usage="%(prog)s [arguments] <station database>",
         description="Script used to download and pre-process " +
-        "three-component (Z, N, and E), seismograms for individual " +
+        "three-component ('Z', 'N', and 'E'), seismograms for individual " +
         "events and calculate teleseismic P-wave receiver functions" +
         "This version requests data on the fly for a given date " +
         "range. Data are requested from the internet using the " +
@@ -469,13 +469,12 @@ def get_recalc_arguments(argv=None):
 
     parser = ArgumentParser(
         usage="%(prog)s [arguments] <station database>",
-        description="Script used to download and pre-process " +
-        "three-component (Z, N, and E), seismograms for individual " +
-        "events and calculate teleseismic P-wave receiver functions" +
-        "This version requests data on the fly for a given date " +
-        "range. Data are requested from the internet using the " +
-        "client services framework. The stations are processed one " +
-        "by one and the data are stored to disk.")
+        description="Script used to re-calculate receiver functions " +
+        "that already exist on disk, but using different " +
+        "processing options. The stations are processed one " +
+        "by one and the data are stored to disk. " + 
+        " \n" +
+        "Note: The sampling rate cannot be changed to a new rate")
 
     # General Settings
     parser.add_argument(
