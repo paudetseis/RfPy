@@ -17,7 +17,7 @@ Description
 Downloads three-component ('Z', 'N' and 'E') seismograms based
 on available times of earthquakes and performs `P`-wave receiver function
 calculation. Station selection is specified by a network and 
-station code. The database is provided as a `~stdb.StDb` dictionary.
+station code. The database is provided as a :class:`~stdb.StDb` dictionary.
 
 Usage
 -----
@@ -169,7 +169,7 @@ Description
 
 Looks for available receiver functions on disk and re-calculates them
 using different processing options. Station selection is specified by 
-a network and station code. The database is provided as a `~stdb.StDb` 
+a network and station code. The database is provided as a :class:`~stdb.StDb` 
 dictionary.
 
 Usage
@@ -357,7 +357,7 @@ Description
 -----------
 
 Loads radial-component receiver function data available on disk
-and calculates Moho depth (H) and Vp/Vs (k) of the assumed 1D
+and calculates Moho depth ('H') and Vp/Vs ('k') of the assumed 1D
 crustal structure. Station selection is specified by a network and 
 station code. The database is provided as a :class:`~stdb.StDb` dictionary.
 
@@ -367,13 +367,27 @@ Usage
 .. code-block::
 
     $ rfpy_hk.py -h
-    Usage: rfpy_hk.py [options] <station database>
+
+    #########################################
+    #        __                 _     _     #
+    #  _ __ / _|_ __  _   _    | |__ | | __ #
+    # | '__| |_| '_ \| | | |   | '_ \| |/ / #
+    # | |  |  _| |_) | |_| |   | | | |   <  #
+    # |_|  |_| | .__/ \__, |___|_| |_|_|\_\ #
+    #          |_|    |___/_____|           #
+    #                                       #
+    #########################################
+
+    usage: rfpy_hk.py [arguments] <station database>
 
     Script used to process receiver function data for H-k stacking.
 
-    Options:
+    positional arguments:
+      indb                  Station Database to process from.
+
+    optional arguments:
       -h, --help            show this help message and exit
-      --keys=STKEYS         Specify a comma separated list of station keys for
+      --keys STKEYS         Specify a comma separated list of station keys for
                             which to perform the analysis. These must be contained
                             within the station database. Partial keys will be used
                             to match against those in the dictionary. For
@@ -384,59 +398,92 @@ Usage
       -O, --overwrite       Force the overwriting of pre-existing data. [Default
                             False]
 
-      Time Settings:
-        Settings associated with refining the times to include in searching
-        for receiver function data
+    Time Settings:
+      Settings associated with refining the times to include in searching for
+      receiver function data
 
-        --start=STARTT      Specify a UTCDateTime compatible string representing
+      --start STARTT        Specify a UTCDateTime compatible string representing
                             the start time for the search. This will override any
                             station start times. [Default start date of station]
-        --end=ENDT          Specify a UTCDateTime compatible string representing
+      --end ENDT            Specify a UTCDateTime compatible string representing
                             the end time for the search. This will override any
                             station end times [Default end date of station]
 
-      Pre-processing Settings:
-        Options for pre-processing of receiver function data prior to H-k
-        stacking
+    Pre-processing Settings:
+      Options for pre-processing of receiver function data prior to H-k stacking
 
-        --freqs=FREQS       Specify a list of two floats with the minimum and
-                            maximum frequency corner for the bandpass filter (Hz).
-                            [Default [0.05, 0.5]]
-        --bin=NBIN          Specify integer number of slowness bins to consider.
-                            Use realistic bin number around 20 to start. [Default
-                            does not bin data]
-        --copy              Set this option to use a copy of the radial component
+      --binlim BINLIM       Specify the minimum number of RFs in each bin.
+                            [Default 3]
+      --bp BP               Specify the corner frequencies for the bandpass
+                            filter. [Default 0.05,0.5]
+      --nbaz NBAZ           Specify integer number of back-azimuth bins to
+                            consider. [Default 36]
+      --nslow NSLOW         Specify integer number of slowness bins to consider.
+                            [Default 40]
+      --snr SNR             Specify the SNR threshold for extracting receiver
+                            functions. [Default None]
+      --snrh SNRH           Specify the horizontal component SNR threshold for
+                            extracting receiver functions. [Default None]
+      --cc CC               Specify the CC threshold for extracting receiver
+                            functions. [Default None]
+      --no-outlier          Set this option to delete outliers based on the MAD on
+                            the variance. [Default False]
+      --slowbound SLOWBOUND
+                            Specify a list of two floats with minimum and
+                            maximumbounds on slowness (s/km). [Default [0.04,
+                            0.08]]
+      --bazbound BAZBOUND   Specify a list of two floats with minimum and
+                            maximumbounds on back azimuth (degrees). [Default [0,
+                            360]]
+      --pws                 Set this option to use phase-weighted stacking during
+                            binning [Default False]
+      --phase PHASE         Specify the phase name to plot. Options are 'P', 'PP',
+                            'allP', 'S', 'SKS' or 'allS'. [Default 'allP']
+      --copy                Set this option to use a copy of the radial component
                             filtered at different corners for the Pps and Pss
                             phases. [Default False]
-        --freqs_copy=FREQS_COPY
-                            Specify a list of two floats with minimum and
+      --bp-copy BP_COPY     Specify a list of two floats with minimum and
                             maximumfrequency for the copies stream (Hz). [Default
                             [0.05, 0.35]]
 
-      Settings for H-k Stacking:
-        Specify parameters of H-k search, includingbounds on search, weights,
-        type of stacking, etc.
+    Settings for H-k Stacking:
+      Specify parameters of H-k search, includingbounds on search, weights, type
+      of stacking, etc.
 
-        --hbound=HBOUND     Specify a list of two floats with minimum and
-                            maximumbounds on Moho depth (H; km). [Default [20.,
+      --hbound HBOUND       Specify a list of two floats with minimum and
+                            maximumbounds on Moho depth (H, in km). [Default [20.,
                             50.]]
-        --dh=DH             Specify interval in H for search (km). [Default 0.5]
-        --kbound=KBOUND     Specify a list of two floats with minimum and
-                            maximumbounds on Moho depth (H; km). [Default [1.56,
-                            2.1]]
-        --dk=DK             Specify interval in k for search. [Default 0.02]
-        --weights=WEIGHTS   Specify a list of three floats with for Ps, Pps and
+      --dh DH               Specify search interval for H (km). [Default 0.5]
+      --kbound KBOUND       Specify a list of two floats with minimum and
+                            maximumbounds on Vp/Vs (k). [Default [1.56, 2.1]]
+      --dk DK               Specify search interval for k. [Default 0.02]
+      --weights WEIGHTS     Specify a list of three floats with for Ps, Pps and
                             Pass weights in final stack. [Default [0.5, 2., -1.]]
-        --type=TYP          Specify type of final stacking. Options are: 'sum' for
-                            a weighted average (using weights), or 'prod' for the
-                            product of positive values in stacks. [Default 'sum']
+      --type TYP            Specify type of final stacking. Options are: 'sum' for
+                            a weighted average (using weights), or 'product' for
+                            the product of positive values in stacks. [Default
+                            'sum']
+      --save                Set this option to save the HkStack object to file.
+                            [Default doesn't save]
 
-      Model Settings:
-        Miscellaneous default values and settings
+    Model Settings:
+      Miscellaneous default values and settings
 
-        --vp=VP             Specify mean crustal Vp (km/s). [Default 6.0]
-        --strike=STRIKE     Specify the strike of dipping Moho. [Default None]
-        --dip=DIP           Specify the dip of dipping Moho. [Default None]
+      --vp VP               Specify mean crustal Vp (km/s). [Default 6.0]
+      --strike STRIKE       Specify the strike of dipping Moho. [Default None]
+      --dip DIP             Specify the dip of dipping Moho. [Default None]
+
+    Settings for plotting results:
+      Specify parameters for plotting the H-k stacks.
+
+      --plot                Set this option to produce a plot of the stacks
+                            [Default does not produce plot]
+      --save-plot           Set this option to save the plot [Default doesn't
+                            save]
+      --title TITLE         Specify plot title [Default has no title]
+      --format FORM         Specify format of figure. Can be any one of the
+                            validmatplotlib formats: 'png', 'jpg', 'eps', 'pdf'.
+                            [Default 'png']
 
 
 ``rfpy_harmonics.py``
@@ -456,13 +503,27 @@ Usage
 .. code-block::
 
     $ rfpy_harmonics.py -h
-    Usage: rfpy_harmonics.py [options] <station database>
+
+    ################################################################################
+    #        __                 _                                      _           #
+    #  _ __ / _|_ __  _   _    | |__   __ _ _ __ _ __ ___   ___  _ __ (_) ___ ___  #
+    # | '__| |_| '_ \| | | |   | '_ \ / _` | '__| '_ ` _ \ / _ \| '_ \| |/ __/ __| #
+    # | |  |  _| |_) | |_| |   | | | | (_| | |  | | | | | | (_) | | | | | (__\__ \ #
+    # |_|  |_| | .__/ \__, |___|_| |_|\__,_|_|  |_| |_| |_|\___/|_| |_|_|\___|___/ #
+    #          |_|    |___/_____|                                                  #
+    #                                                                              #
+    ################################################################################
+
+    usage: rfpy_harmonics.py [arguments] <station database>
 
     Script used to process receiver function data for harmonic decomposition.
 
-    Options:
+    positional arguments:
+      indb               Station Database to process from.
+
+    optional arguments:
       -h, --help         show this help message and exit
-      --keys=STKEYS      Specify a comma separated list of station keys for which
+      --keys STKEYS      Specify a comma separated list of station keys for which
                          to perform the analysis. These must be contained within
                          the station database. Partial keys will be used to match
                          against those in the dictionary. For instance, providing
@@ -472,39 +533,63 @@ Usage
       -O, --overwrite    Force the overwriting of pre-existing data. [Default
                          False]
 
-      Time Settings:
-        Settings associated with refining the times to include in searching
-        for receiver function data
+    Time Settings:
+      Settings associated with refining the times to include in searching for
+      receiver function data
 
-        --start=STARTT   Specify a UTCDateTime compatible string representing the
+      --start STARTT     Specify a UTCDateTime compatible string representing the
                          start time for the search. This will override any station
                          start times. [Default start date of station]
-        --end=ENDT       Specify a UTCDateTime compatible string representing the
+      --end ENDT         Specify a UTCDateTime compatible string representing the
                          end time for the search. This will override any station
                          end times [Default end date of station]
 
-      Pre-processing Settings:
-        Options for pre-processing of receiver function data prior to harmonic
-        decomposition
+    Pre-processing Settings:
+      Options for pre-processing of receiver function data prior to harmonic
+      decomposition
 
-        --freqs=FREQS    Specify a list of two floats with the minimum and maximum
-                         frequency corner for the bandpass filter (Hz). [Default
-                         [0.05, 0.5]]
-        --bin=NBIN       Specify integer number of back-azimuth bins to consider
+      --bp BP            Specify the corner frequencies for the bandpass filter.
+                         [Default 0.05,0.5]
+      --bin NBIN         Specify integer number of back-azimuth bins to consider
                          (typically 36 or 72). [Default does not bin data]
+      --snr SNR          Specify the SNR threshold for extracting receiver
+                         functions. [Default None]
+      --snrh SNRH        Specify the horizontal component SNR threshold for
+                         extracting receiver functions. [Default None]
+      --cc CC            Specify the CC threshold for extracting receiver
+                         functions. [Default None]
+      --no-outlier       Set this option to delete outliers based on the MAD on
+                         the variance. [Default False]
 
-      Settings for harmonic decomposition:
-        Specify parameters for the decomposition, e.g. a fixed azimuth, depth
-        range for finding the optimal azimuth, etc.
+    Settings for harmonic decomposition:
+      Specify parameters for the decomposition, e.g. a fixed azimuth, depth
+      range for finding the optimal azimuth, etc.
 
-        --azim=AZIM      Specify the azimuth angle along with to perform the
+      --azim AZIM        Specify the azimuth angle along with to perform the
                          decomposition. [Default 0.]
-        --find-azim      Set this option to calculate the optimal azimuth.
+      --find-azim        Set this option to calculate the optimal azimuth.
                          [Default uses the '--azim' value]
-        --trange=TRANGE  Specify a list of two floats with minimum and
+      --trange TRANGE    Specify a list of two floats with minimum and
                          maximumbounds on time range for finding the optimal
                          azimuth (sec). [Default [0., 10.] when '--find-azim' is
                          set]
+      --save             Set this option to save the Harmonics object to a pickled
+                         file. [Default does not save object]
+
+    Settings for plotting results:
+      Specify parameters for plotting the back-azimuth harmonics.
+
+      --plot             Set this option to produce a plot of the back-azimuth
+                         harmonics
+      --ymax YMAX        Specify the maximum y axis value for the plot in units of
+                         thedependent variable (e.g., sec). [Default 30.]
+      --scale SCALE      Specify the scaling value that multiplies the amplitude
+                         of the harmonic components. [Default 10.]
+      --save-plot        Set this option to save the plot [Default doesn't save]
+      --title TITLE      Specify plot title [Default has no title]
+      --format FORM      Specify format of figure. Can be any one of the
+                         validmatplotlib formats: 'png', 'jpg', 'eps', 'pdf'.
+                         [Default 'png']
 
 
 ``rfpy_ccp.py``
@@ -535,85 +620,112 @@ Usage
 .. code-block::
 
     $ rfpy_ccp.py -h
-    Usage: rfpy_ccp.py [options] <station database>
+
+    ############################################
+    #        __                                #
+    #  _ __ / _|_ __  _   _     ___ ___ _ __   #
+    # | '__| |_| '_ \| | | |   / __/ __| '_ \  #
+    # | |  |  _| |_) | |_| |  | (_| (__| |_) | #
+    # |_|  |_| | .__/ \__, |___\___\___| .__/  #
+    #          |_|    |___/_____|      |_|     #
+    #                                          #
+    ############################################
+
+    usage: rfpy_ccp.py [arguments] <station database>
 
     Script used to process receiver function data for common-conversion-point
     (CCP) imaging.
 
-    Options:
-      -h, --help            show this help message and exit
-      --keys=STKEYS         Specify a comma separated list of station keys for
-                            which to perform the analysis. These must be contained
-                            within the station database. Partial keys will be used
-                            to match against those in the dictionary. For
-                            instance, providing IU will match with all stations in
-                            the IU network [Default processes all stations in the
-                            database]
-      -v, -V, --verbose     Specify to increase verbosity.
-      -O, --overwrite       Force the overwriting of pre-existing data. [Default
-                            False]
+    positional arguments:
+      indb                 Station Database to process from.
 
-      Line Geometry Settings:
-        Options for defining the line along which to produce the CCP image
+    optional arguments:
+      -h, --help           show this help message and exit
+      --keys STKEYS        Specify a comma separated list of station keys for
+                           which to perform the analysis. These must be contained
+                           within the station database. Partial keys will be used
+                           to match against those in the dictionary. For instance,
+                           providing IU will match with all stations in the IU
+                           network [Default processes all stations in the
+                           database]
+      -v, -V, --verbose    Specify to increase verbosity.
+      -O, --overwrite      Force the overwriting of pre-existing data. [Default
+                           False]
 
-        --start=COORD_START
-                            Specify a list of two floats with the latitude and
-                            longitude of the start point, in this respective
-                            order. [Exception raised if not specified]
-        --end=COORD_END     Specify a list of two floats with the latitude and
-                            longitudeof the end point, in this respective order.
-                            [Exception raised if not specified]
-        --dz=DZ             Specify vertical cell size in km. [Default 1.]
-        --dx=DX             Specify horizontal cell size in km. [Default 2.5]
+    Line Geometry Settings:
+      Options for defining the line along which to produce the CCP image
 
-      Pre-processing Settings:
-        Options for pre-processing of receiver function data for CCP stacking
+      --start COORD_START  Specify a list of two floats with the latitude and
+                           longitude of the start point, in this respective order.
+                           [Exception raised if not specified]
+      --end COORD_END      Specify a list of two floats with the latitude and
+                           longitudeof the end point, in this respective order.
+                           [Exception raised if not specified]
+      --dz DZ              Specify vertical cell size in km. [Default 1.]
+      --dx DX              Specify horizontal cell size in km. [Default 2.5]
 
-        --snr=SNR           Specify the SNR threshold for extracting receiver
-                            functions. [Default 5.]
-        --f1=F1             Specify the low frequency corner for the bandpass
-                            filter for all phases (Hz). [Default [0.05]]
-        --f2ps=F2PS         Specify the high frequency corner for the bandpass
-                            filter for the Ps phase (Hz). [Default [0.75]]
-        --f2pps=F2PPS       Specify the high frequency corner for the bandpass
-                            filter for the Pps phase (Hz). [Default [0.36]]
-        --f2pss=F2PSS       Specify the high frequency corner for the bandpass
-                            filter for the Pss phase (Hz). [Default [0.3]]
-        --nbaz=NBAZ         Specify integer number of back-azimuth bins to
-                            consider. [Default 36]
-        --nslow=NSLOW       Specify integer number of slowness bins to consider.
-                            [Default 40]
-        --wlen=WLEN         Specify wavelength of P-wave as sensitivity (km).
-                            [Default 35.]
+    Pre-processing Settings:
+      Options for pre-processing of receiver function data for CCP stacking
 
-      CCP Settings:
-        Options for specifying the type of CCP stacking to perform
+      --snr SNR            Specify the SNR threshold for extracting receiver
+                           functions. [Default None]
+      --snrh SNRH          Specify the horizontal component SNR threshold for
+                           extracting receiver functions. [Default None]
+      --cc CC              Specify the CC threshold for extracting receiver
+                           functions. [Default None]
+      --no-outlier         Set this option to delete outliers based on the MAD on
+                           the variance. [Default False]
+      --binlim BINLIM      Specify the minimum number of RFs in each bin. [Default
+                           3]
+      --f1 F1              Specify the low frequency corner for the bandpass
+                           filter for all phases (Hz). [Default [0.05]]
+      --f2ps F2PS          Specify the high frequency corner for the bandpass
+                           filter for the Ps phase (Hz). [Default [0.75]]
+      --f2pps F2PPS        Specify the high frequency corner for the bandpass
+                           filter for the Pps phase (Hz). [Default [0.36]]
+      --f2pss F2PSS        Specify the high frequency corner for the bandpass
+                           filter for the Pss phase (Hz). [Default [0.3]]
+      --nbaz NBAZ          Specify integer number of back-azimuth bins to
+                           consider. [Default 36]
+      --nslow NSLOW        Specify integer number of slowness bins to consider.
+                           [Default 40]
+      --wlen WLEN          Specify wavelength of P-wave as sensitivity (km).
+                           [Default 35.]
+      --phase PHASE        Specify the phase name to plot. Options are 'P', 'PP',
+                           'allP', 'S', 'SKS' or 'allS'. [Default 'allP']
 
-        --load              Step 1. Set this option to load rfstreams into
-                            CCPimage object. [Default False]
-        --prep              Step 2. Set this option to prepare CCPimage before
-                            pre-stacking. [Default False]
-        --prestack          Step 3. Set this option to prestack all phases before
-                            CCP averaging. [Default False]
-        --ccp               Step 4a. Set this option for standard CCP stacking
-                            with multiples. [Default False]
-        --gccp              Step 4b. Set this option for Gaussian-weighted CCP
-                            stacking with multiples. [Default False]
-        --linear            Step 5a. Set this option to produce a linear, weighted
-                            stack for the final [G]CCP image. [Default True unless
-                            --phase is set]
-        --phase             Step 5b. Set this option to produce a phase weighted
-                            stack for the final [G]CCP image. [Default False]
+    CCP Settings:
+      Options for specifying the type of CCP stacking to perform
 
-      Figure Settings:
-        Options for specifying the settings for the final figure
+      --load               Step 1. Set this option to load rfstreams into CCPimage
+                           object. [Default False]
+      --prep               Step 2. Set this option to prepare CCPimage before pre-
+                           stacking. [Default False]
+      --prestack           Step 3. Set this option to prestack all phases before
+                           CCP averaging. [Default False]
+      --ccp                Step 4a. Set this option for standard CCP stacking with
+                           multiples. [Default False]
+      --gccp               Step 4b. Set this option for Gaussian-weighted CCP
+                           stacking with multiples. [Default False]
+      --linear             Step 5a. Set this option to produce a linear, weighted
+                           stack for the final [G]CCP image. [Default True unless
+                           --phase is set]
+      --pws                Step 5b. Set this option to produce a phase weighted
+                           stack for the final [G]CCP image. [Default False]
+      --weights WEIGHTS    Option to define weights for each of the three phases:
+                           Ps, Pps and Pss, by specifying three comma-separated
+                           floats. [Default 1., 3., -3.]
 
-        --figure            Set this option to plot the final [G]CCP figure.
-                            [Default False]
-        --save-fig          Set this option to save the final [G]CCP figure. This
-                            option can only be set if --figure is also
-                            set.[Default False]
-        --cbound=CBOUND     Set the maximum value for the color palette. [Default
-                            0.05 for --ccp or 0.015 for --gccp]
-        --format=FMT        Set format of figure. You can choose among 'png',
-                            'jpg', 'eps', 'pdf'. [Default 'png']
+    Figure Settings:
+      Options for specifying the settings for the final figure
+
+      --figure             Set this option to plot the final [G]CCP figure.
+                           [Default False]
+      --cbound CBOUND      Set the maximum value for the color palette. [Default
+                           0.05 for --ccp or 0.015 for --gccp]
+      --save-fig           Set this option to save the final [G]CCP figure. This
+                           option can only be set if --figure is also set.[Default
+                           False]
+      --title TITLE        Set Figure title. [Default None]
+      --format FMT         Set format of figure. You can choose among 'png',
+                           'jpg', 'eps', 'pdf'. [Default 'png']
