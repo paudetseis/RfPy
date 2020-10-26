@@ -25,7 +25,7 @@ Usage
 .. code-block::
 
     $ rfpy_calc.py -h
-    
+
     ##############################################
     #        __                          _       #
     #  _ __ / _|_ __  _   _     ___ __ _| | ___  #
@@ -242,6 +242,112 @@ Usage
       --gfilt GFILT        Specify the Gaussian filter width in Hz. [Default None]
       --wlevel WLEVEL      Specify the water level, used in the 'water' method.
                            [Default 0.01]
+
+
+``rfpy_plot.py``
+++++++++++++++++
+
+Description
+-----------
+
+Script used to make plots of receiver function panels sorted by
+back-azimuth (averaging all slowness information) or by slowness
+(averaging all back-azimuth information).
+
+Usage
+-----
+
+.. code-block::
+
+    $ rfpy_recalc.py -h
+
+    #################################################
+    #        __                        _       _    #
+    #  _ __ / _|_ __  _   _      _ __ | | ___ | |_  #
+    # | '__| |_| '_ \| | | |    | '_ \| |/ _ \| __| #
+    # | |  |  _| |_) | |_| |    | |_) | | (_) | |_  #
+    # |_|  |_| | .__/ \__, |____| .__/|_|\___/ \__| #
+    #          |_|    |___/_____|_|                 #
+    #                                               #
+    #################################################
+
+    usage: rfpy_plot.py [arguments] <station database>
+
+    Script used to plot receiver function data
+
+    positional arguments:
+      indb                  Station Database to process from.
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      --keys STKEYS         Specify a comma separated list of station keys for
+                            which to perform the analysis. These must be contained
+                            within the station database. Partial keys will be used
+                            to match against those in the dictionary. For
+                            instance, providing IU will match with all stations in
+                            the IU network [Default processes all stations in the
+                            database]
+      -v, -V, --verbose     Specify to increase verbosity.
+      -O, --overwrite       Force the overwriting of pre-existing figures.
+                            [Default False]
+
+    Pre-processing Settings:
+      Options for pre-processing of receiver function data before plotting
+
+      --snr SNR             Specify the vertical component SNR threshold for
+                            extracting receiver functions. [Default 5.]
+      --snrh SNRH           Specify the horizontal component SNR threshold for
+                            extracting receiver functions. [Default None]
+      --cc CC               Specify the CC threshold for extracting receiver
+                            functions. [Default None]
+      --no-outlier          Set this option to delete outliers based on the MAD on
+                            the variance. [Default False]
+      --binlim BINLIM       Specify the minimum number of RFs in each bin.
+                            [Default 3]
+      --bp BP               Specify the corner frequencies for the bandpass
+                            filter. [Default no filtering]
+      --pws                 Set this option to use phase-weighted stacking during
+                            binning [Default False]
+      --nbaz NBAZ           Specify integer number of back-azimuth bins to
+                            consider (typically 36 or 72). If not None, the plot
+                            will show receiver functions sorted by back-azimuth
+                            values. [Default None]
+      --nslow NSLOW         Specify integer number of slowness bins to consider
+                            (typically 20 or 40). If not None, the plot will show
+                            receiver functions sorted by slowness values. [Default
+                            None]
+      --slowbound SLOWBOUND
+                            Specify a list of two floats with minimum and
+                            maximumbounds on slowness (s/km). [Default [0.04,
+                            0.08]]
+      --bazbound BAZBOUND   Specify a list of two floats with minimum and
+                            maximumbounds on back azimuth (degrees). [Default [0,
+                            360]]
+      --phase PHASE         Specify the phase name to plot. Options are 'P', 'PP',
+                            'allP', 'S', 'SKS' or 'allS'. [Default 'allP']
+
+    Plot Settings:
+      Options for plot format
+
+      --scale SCALE         Specify the scaling factor for the amplitude of the
+                            receiver functions in the wiggle plots. [Default 100.
+                            for a back-azimuth plot, 0.02 for a slowness plot]
+      --normalize           Set this option to produce receiver functions
+                            normalized by the max amplitude of stacked RFs.
+                            [Default False]
+      --trange TRANGE       Specify the time range for the x-axis (sec). Negative
+                            times are allowed [Default 0., 30.]
+      --stacked             Set this option to plot a stack of all traces in top
+                            panel. [Default does not plot stacked traces]
+      --save                Set this option if you wish to save the figure.
+                            [Default does not save figure]
+      --title TITLEPLOT     Specify title of figure. [Default None]
+      --format FORM         Specify format of figure. Can be any one of the
+                            validmatplotlib formats: 'png', 'jpg', 'eps', 'pdf'.
+                            [Default 'png']
+      --plot-event-dist     Plot distribution of events on map. Other Plotting
+                            Options will be applied to this figure (title, save,
+                            etc.). [Default no plot]
 
 
 ``rfpy_hk.py``
