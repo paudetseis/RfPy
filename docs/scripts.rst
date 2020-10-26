@@ -17,7 +17,7 @@ Description
 Downloads three-component ('Z', 'N' and 'E') seismograms based
 on available times of earthquakes and performs `P`-wave receiver function
 calculation. Station selection is specified by a network and 
-station code. The database is provided as a pwd dictionary.
+station code. The database is provided as a `~stdb.StDb` dictionary.
 
 Usage
 -----
@@ -25,17 +25,30 @@ Usage
 .. code-block::
 
     $ rfpy_calc.py -h
-    Usage: rfpy_calc.py [options] <station database>
+    ##############################################
+    #        __                          _       #
+    #  _ __ / _|_ __  _   _     ___ __ _| | ___  #
+    # | '__| |_| '_ \| | | |   / __/ _` | |/ __| #
+    # | |  |  _| |_) | |_| |  | (_| (_| | | (__  #
+    # |_|  |_| | .__/ \__, |___\___\__,_|_|\___| #
+    #          |_|    |___/_____|                #
+    #                                            #
+    ##############################################
 
-    Script used to download and pre-process three-component (Z, N, and E),
+    usage: rfpy_calc.py [arguments] <station database>
+
+    Script used to download and pre-process three-component ('Z', 'N', and 'E'),
     seismograms for individual events and calculate teleseismic P-wave receiver
     functionsThis version requests data on the fly for a given date range. Data
     are requested from the internet using the client services framework. The
     stations are processed one by one and the data are stored to disk.
 
-    Options:
+    positional arguments:
+      indb                  Station Database to process from.
+
+    optional arguments:
       -h, --help            show this help message and exit
-      --keys=STKEYS         Specify a comma separated list of station keys for
+      --keys STKEYS         Specify a comma separated list of station keys for
                             which to perform the analysis. These must be contained
                             within the station database. Partial keys will be used
                             to match against those in the dictionary. For
@@ -46,80 +59,105 @@ Usage
       -O, --overwrite       Force the overwriting of pre-existing data. [Default
                             False]
 
-      Server Settings:
-        Settings associated with which datacenter to log into.
+    Server Settings:
+      Settings associated with which datacenter to log into.
 
-        -S SERVER, --Server=SERVER
+      -S SERVER, --Server SERVER
                             Specify the server to connect to. Options include:
                             BGR, ETH, GEONET, GFZ, INGV, IPGP, IRIS, KOERI, LMU,
                             NCEDC, NEIP, NERIES, ODC, ORFEUS, RESIF, SCEDC, USGS,
                             USP. [Default IRIS]
-        -U USERAUTH, --User-Auth=USERAUTH
+      -U USERAUTH, --User-Auth USERAUTH
                             Enter your IRIS Authentification Username and Password
                             (--User-Auth='username:authpassword') to access and
                             download restricted data. [Default no user and
                             password]
 
-      Local Data Settings:
-        Settings associated with defining and using a local data base of pre-
-        downloaded day-long SAC files.
+    Local Data Settings:
+      Settings associated with defining and using a local data base of pre-
+      downloaded day-long SAC files.
 
-        --local-data=LOCALDATA
+      --local-data LOCALDATA
                             Specify a comma separated list of paths containing
                             day-long sac files of data already downloaded. If data
                             exists for a seismogram is already present on disk, it
                             is selected preferentially over downloading the data
                             using the Client interface
-        --no-data-zero      Specify to force missing data to be set as zero,
+      --no-data-zero        Specify to force missing data to be set as zero,
                             rather than default behaviour which sets to nan.
+      --no-local-net        Specify to prevent using the Network code in the
+                            search for local data (sometimes for CN stations the
+                            dictionary name for a station may disagree with that
+                            in the filename. [Default Network used]
+      --save-Z12            Specify to save Z12 (un-rotated) components. [Default
+                            False]
 
-      Event Settings:
-        Settings associated with refining the events to include in matching
-        station pairs
+    Event Settings:
+      Settings associated with refining the events to include in matching event-
+      station pairs
 
-        --start=STARTT      Specify a UTCDateTime compatible string representing
+      --start STARTT        Specify a UTCDateTime compatible string representing
                             the start time for the event search. This will
                             override any station start times. [Default start date
                             of station]
-        --end=ENDT          Specify a UTCDateTime compatible string representing
+      --end ENDT            Specify a UTCDateTime compatible string representing
                             the end time for the event search. This will override
                             any station end times [Default end date of station]
-        -R, --reverse       Reverse order of events. Default behaviour starts at
+      --reverse, -R         Reverse order of events. Default behaviour starts at
                             oldest event and works towards most recent. Specify
                             reverse order and instead the program will start with
                             the most recent events and work towards older
-        --minmag=MINMAG     Specify the minimum magnitude of event for which to
+      --minmag MINMAG       Specify the minimum magnitude of event for which to
                             search. [Default 6.0]
-        --maxmag=MAXMAG     Specify the maximum magnitude of event for which to
+      --maxmag MAXMAG       Specify the maximum magnitude of event for which to
                             search. [Default None, i.e. no limit]
-        --dts=DTS           Specify the window length in sec (symmetric about
-                            arrival time). [Default 120.]
 
-      Geometry Settings:
-        Settings associatd with the event-station geometries
+    Geometry Settings:
+      Settings associatd with the event-station geometries for the specified
+      phase
 
-        --mindist=MINDIST   Specify the minimum great circle distance (degrees)
-                            between the station and event. [Default 30.]
-        --maxdist=MAXDIST   Specify the maximum great circle distance (degrees)
-                            between the station and event. [Default 120.]
+      --phase PHASE         Specify the phase name to use. Be careful with the
+                            distance. setting. Options are 'P' or 'PP'. [Default
+                            'P']
+      --mindist MINDIST     Specify the minimum great circle distance (degrees)
+                            between the station and event. [Default depends on
+                            phase]
+      --maxdist MAXDIST     Specify the maximum great circle distance (degrees)
+                            between the station and event. [Default depends on
+                            phase]
 
-      Parameter Settings:
-        Miscellaneous default values and settings
+    Parameter Settings:
+      Miscellaneous default values and settings
 
-        --sampling-rate=NEW_SAMPLING_RATE
-                            Specify new sampling rate in Hz. [Default 5.]
-        --align=ALIGN       Specify component alignment key. Can be either ZRT,
+      --sampling-rate NEW_SAMPLING_RATE
+                            Specify new sampling rate in Hz. [Default 10.]
+      --dts DTS             Specify the window length in sec (symmetric about
+                            arrival time). [Default 150.]
+      --align ALIGN         Specify component alignment key. Can be either ZRT,
                             LQT, or PVH. [Default ZRT]
-        --vp=VP             Specify near-surface Vp (km/s). [Default 6.0]
-        --vs=VS             Specify near-surface Vs (km/s). [Default 3.6]
-        --dt_snr=DT_SNR     Specify the window length over which to calculate the
+      --vp VP               Specify near-surface Vp to use with --align=PVH
+                            (km/s). [Default 6.0]
+      --vs VS               Specify near-surface Vs to use with --align=PVH
+                            (km/s). [Default 3.5]
+      --dt-snr DT_SNR       Specify the window length over which to calculate the
                             SNR in sec. [Default 30.]
-        --fmin=FMIN         Specify the minimum frequency corner for SNR filter
-                            (Hz). [Default 0.1]
-        --fmax=FMAX         Specify the maximum frequency corner for SNR filter
-                            (Hz). [Default 1.0]
-        --twin=TWIN         Specify the source time duration for deconvolution
-                            (sec). [Default 30.]
+      --pre-filt PRE_FILT   Specify two floats with low and high frequency corners
+                            for pre-filter (before deconvolution). [Default None]
+      --fmin FMIN           Specify the minimum frequency corner for SNR and CC
+                            filter (Hz). [Default 0.05]
+      --fmax FMAX           Specify the maximum frequency corner for SNR and CC
+                            filter (Hz). [Default 1.0]
+
+    Deconvolution Settings:
+      Parameters for deconvolution
+
+      --method METHOD       Specify the deconvolution method. Available methods
+                            include 'wiener', 'water' and 'multitaper'. [Default
+                            'wiener']
+      --gfilt GFILT         Specify the Gaussian filter width in Hz. [Default
+                            None]
+      --wlevel WLEVEL       Specify the water level, used in the 'water' method.
+                            [Default 0.01]
 
 
 ``rfpy_hk.py``

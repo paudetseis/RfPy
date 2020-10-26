@@ -411,10 +411,12 @@ def wiggle_single_event(rfdata, filt=None, pre_filt=None, trange=None):
     taxis = np.arange(-nn/2., nn/2.)/sr
 
     if pre_filt:
-        lqtcopy.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1])
+        lqtcopy.filter('bandpass', freqmin=pre_filt[0], 
+            freqmax=pre_filt[1], corners=2, zerophase=True)
 
     if filt:
-        rfcopy.filter('bandpass', freqmin=filt[0], freqmax=filt[1])
+        rfcopy.filter('bandpass', freqmin=filt[0], 
+            freqmax=filt[1], corners=2, zerophase=True)
 
     fig, (ax1, ax2, ax3, ax4) = plt.subplots(4,1, figsize=(7,5))
 

@@ -901,9 +901,9 @@ class RFData(object):
         # Filter using SNR bandpass
         obs_L.detrend().taper(max_percentage=0.05, max_length=2.)
         obs_Q.detrend().taper(max_percentage=0.05, max_length=2.)
-        obs_L.filter('bandpass', freqmin=0.05, freqmax=1.)
-        obs_Q.filter('bandpass', freqmin=0.05, freqmax=1.)
-        obs_rfQ.filter('bandpass', freqmin=0.05, freqmax=1.)
+        obs_L.filter('bandpass', freqmin=0.05, freqmax=1., corners=2, zerophase=True)
+        obs_Q.filter('bandpass', freqmin=0.05, freqmax=1., corners=2, zerophase=True)
+        obs_rfQ.filter('bandpass', freqmin=0.05, freqmax=1., corners=2, zerophase=True)
 
         # Convolve L with rfQ to obtain predicted Q
         pred_Q = obs_Q.copy()
