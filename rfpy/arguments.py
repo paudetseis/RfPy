@@ -725,7 +725,7 @@ def get_hk_arguments(argv=None):
         action="store",
         type=float,
         dest="binlim",
-        default=3,
+        default=1,
         help="Specify the minimum number of RFs in each bin. [Default 3]")
     PreGroup.add_argument(
         "--bp",
@@ -1469,7 +1469,7 @@ def get_ccp_arguments(argv=None):
         action="store",
         type=float,
         dest="binlim",
-        default=3,
+        default=1,
         help="Specify the minimum number of RFs in each bin. [Default 3]")
     PreGroup.add_argument(
         "--f1",
@@ -1805,7 +1805,7 @@ def get_plot_arguments(argv=None):
         action="store",
         type=float,
         dest="binlim",
-        default=3,
+        default=1,
         help="Specify the minimum number of RFs in each bin. [Default 3]")
     PreGroup.add_argument(
         "--bp",
