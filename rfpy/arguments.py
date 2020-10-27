@@ -1198,6 +1198,15 @@ def get_harmonics_arguments(argv=None):
         default=False,
         help="Set this option to delete outliers based on the MAD " +
         "on the variance. [Default False]")
+    PreGroup.add_argument(
+        "--phase",
+        action="store",
+        type=str,
+        dest="phase",
+        default='allP',
+        help="Specify the phase name to plot.  " +
+        "Options are 'P', 'PP', 'allP', 'S', 'SKS' or 'allS'. " +
+        "[Default 'allP']")
 
     HarmonicGroup = parser.add_argument_group(
         title='Settings for harmonic decomposition',
@@ -1314,6 +1323,16 @@ def get_harmonics_arguments(argv=None):
                 args.endT)
     else:
         args.endT = None
+
+    if args.phase not in ['P', 'PP', 'allP', 'S', 'SKS', 'allS']:
+        parser.error(
+            "Error: choose between 'P', 'PP', 'allP', 'S', 'SKS' and 'allS'.")
+    if args.phase == 'allP':
+        args.listphase = ['P', 'PP']
+    elif args.phase == 'allS':
+        args.listphase = ['S', 'SKS']
+    else:
+        args.listphase = [args.phase]
 
     if args.bp is None:
         args.bp = [0.05, 0.5]

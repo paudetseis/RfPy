@@ -75,10 +75,13 @@ def main():
         sta = db[stkey]
 
         # Define path to see if it exists
-        datapath = Path('DATA') / stkey
+        if args.phase in ['P', 'PP', 'allP']:
+            datapath = Path('P_DATA') / stkey
+        elif args.phase in ['S', 'SKS', 'allS']:
+            datapath = Path('S_DATA') / stkey
         if not datapath.is_dir():
-            raise(Exception('Path to '+str(datapath) +
-                            ' doesn`t exist - aborting'))
+            print('Path to ' + str(datapath) + ' doesn`t exist - continuing')
+            continue
 
         # Get search start time
         if args.startT is None:
