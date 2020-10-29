@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Tutorial &mdash; Home 0.0.1 documentation</title>
+  <title>Tutorials &mdash; Home 0.0.1 documentation</title>
   
 
   
@@ -103,7 +103,7 @@
 <p class="caption"><span class="caption-text">Scripts &amp; Tutorials</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="scripts.html">Scripts</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorials</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#creating-the-stdb-database">0. Creating the <code class="docutils literal notranslate"><span class="pre">StDb</span></code> Database</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#download-and-process-receiver-functions">1. Download and process receiver functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#re-calculate-with-different-options">2. Re-calculate with different options</a></li>
@@ -112,7 +112,11 @@
 <li class="toctree-l3"><a class="reference internal" href="#slowness-panel">Slowness panel</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#moho-depth-and-vp-vs-from-h-k-stacking">4. Moho depth and Vp/Vs from <code class="docutils literal notranslate"><span class="pre">H-k</span></code> stacking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#post-processing">4. Post-processing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#a-moho-depth-and-vp-vs-from-h-k-stacking">4a. Moho depth and Vp/Vs from <code class="docutils literal notranslate"><span class="pre">H-k</span></code> stacking</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#b-harmonic-decomposition">4b. Harmonic decomposition</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -161,13 +165,13 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>Tutorial</li>
+      <li>Tutorials</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/tutorial.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/tutorials.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -180,18 +184,18 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="tutorial">
-<h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="tutorials">
+<h1>Tutorials<a class="headerlink" href="#tutorials" title="Permalink to this headline">¶</a></h1>
 <p>In this tutorial we will process and post-process receiver function data for station
 MMPY. This will include calculating receiver functions using all default arguments,
 re-calculating the receiver functions for different processing arguments, plotting
-them, and post-processing them using the <cite>H-k</cite> stacking technique and applying
+them, and post-processing them using the H-k stacking technique and applying
 the harmonic decomposition method.</p>
 <div class="section" id="creating-the-stdb-database">
 <h2>0. Creating the <code class="docutils literal notranslate"><span class="pre">StDb</span></code> Database<a class="headerlink" href="#creating-the-stdb-database" title="Permalink to this headline">¶</a></h2>
 <p>All the scripts provided require a <code class="docutils literal notranslate"><span class="pre">StDb</span></code> database containing station
 information and metadata. Let’s first create this database for station
-<cite>MMPY</cite> and send the prompt to a logfile</p>
+<code class="docutils literal notranslate"><span class="pre">MMPY</span></code> and send the prompt to a logfile</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ query_fdsn_stdb.py -N NY -S MMPY MMPY &gt; logfile
 </pre></div>
 </div>
@@ -296,7 +300,8 @@ different processing options (see below). However, some parameters cannot be cha
 easily without re-downloading the raw data (e.g., length of processing window,
 sampling rate). If you want to change those parameters, run the previous command with
 <code class="docutils literal notranslate"><span class="pre">-O</span></code> to override anything that exists on disk.</p>
-<p>Note that you can get more data by either specifying a new phase to analyze (e.g., <code class="docutils literal notranslate"><span class="pre">--phase=PP</span></code>), going to lower magnitudes (e.g., <code class="docutils literal notranslate"><span class="pre">--minmag=5.</span> <span class="pre">--maxmag=5.5</span></code>), by
+<p>Note that you can get more data by either specifying a new phase to analyze (e.g.,
+<code class="docutils literal notranslate"><span class="pre">--phase=PP</span></code>), going to lower magnitudes (e.g., <code class="docutils literal notranslate"><span class="pre">--minmag=5.</span> <span class="pre">--maxmag=5.5</span></code>), by
 running the same line of command with those additional arguments.</p>
 </div>
 <div class="section" id="re-calculate-with-different-options">
@@ -354,8 +359,10 @@ and normalize all traces to that of the stacks.</p>
 </div>
 </div>
 </div>
-<div class="section" id="moho-depth-and-vp-vs-from-h-k-stacking">
-<h2>4. Moho depth and Vp/Vs from <code class="docutils literal notranslate"><span class="pre">H-k</span></code> stacking<a class="headerlink" href="#moho-depth-and-vp-vs-from-h-k-stacking" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="post-processing">
+<h2>4. Post-processing<a class="headerlink" href="#post-processing" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="a-moho-depth-and-vp-vs-from-h-k-stacking">
+<h3>4a. Moho depth and Vp/Vs from <code class="docutils literal notranslate"><span class="pre">H-k</span></code> stacking<a class="headerlink" href="#a-moho-depth-and-vp-vs-from-h-k-stacking" title="Permalink to this headline">¶</a></h3>
 <p>With these receiver functions, we can easily estimate Moho depth and crustal Vp/Vs
 using the simple H-k stacking method. There are several options to choose from. Let’s
 examine the default options.</p>
@@ -429,6 +436,87 @@ correspond to the default values but are not used in the final stack.</p>
 </div>
 <p>Finally, could also perform H-k stacking using a known orientation (strike and dip
 angles) of a dipping interface using additional arguments.</p>
+</div>
+<div class="section" id="b-harmonic-decomposition">
+<h3>4b. Harmonic decomposition<a class="headerlink" href="#b-harmonic-decomposition" title="Permalink to this headline">¶</a></h3>
+<p>Receiver functions are often characterized by significant amplitude variations as a function
+of back-azimuth of the incoming teleseismic wave. The variations are observed on both radial
+and transverse components, with a 90-degree shift (in back-azimuth) between the two
+components. The harmonic decomposition method exploits these variations by decomposing the
+amplitude (at each time interval) into a set of harmonic components that describe the
+periodicity in receiver function amplitudes. See <a class="reference external" href="https://agupubs.onlinelibrary.wiley.com/doi/full/10.1002/2014JB011821">Audet (2015)</a> for details on the
+methodology.</p>
+<p>The default arguments will perform the decomposition over all receiver functin data at a
+fixed azimuth of 0 degrees (i.e., North), such that the second and third components
+represent 1-theta variations oriented in the N-S and E-W directions, calculated over the
+first 10 seconds of the receiver function data:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_harmonics.py MMPY.pkl
+</pre></div>
+</div>
+<p>This command simply runs the decomposition algorithm but does not return anything, unless
+you specify the <code class="docutils literal notranslate"><span class="pre">--save</span></code> and/or the <code class="docutils literal notranslate"><span class="pre">--plot</span></code> command. Instead of the default 0-degree
+azimuth, you can set the azimuth at which you wish to perform the decomposition by setting
+the <code class="docutils literal notranslate"><span class="pre">--azim=</span></code> argument. It is also possible to estimate the azimuth at which one of the
+harmonic components will be minimized (typically the second or third term), in order to
+reveal the dominant orientation of the receiver function amplitudes. This is accomplished
+using the <code class="docutils literal notranslate"><span class="pre">--find-azim</span></code> argument. Finally, you can also set the range of lag times over
+which to calculate the decomposition (<code class="docutils literal notranslate"><span class="pre">--trange=</span></code>; default is from 0 to 10 seconds) and
+perform the decomposition for a selected date range (<code class="docutils literal notranslate"><span class="pre">--start=</span></code> and <code class="docutils literal notranslate"><span class="pre">--end=</span></code>). Other QC
+control arguments are similar to previous scripts.</p>
+<p>Let’s perform the decomposition by estimating the dominant azimuth using a time range of 2
+to 10 seconds (to avoid the large zero-lag pulse):</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Warning!! This command is particularly slow, especially for large data sets.</p>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_harmonics.py --no-outlier --find-azim --trange=2.,10. MMPY.pkl
+
+################################################################################
+#        __                 _                                      _           #
+#  _ __ / _|_ __  _   _    | |__   __ _ _ __ _ __ ___   ___  _ __ (_) ___ ___  #
+# | &#39;__| |_| &#39;_ \| | | |   | &#39;_ \ / _` | &#39;__| &#39;_ ` _ \ / _ \| &#39;_ \| |/ __/ __| #
+# | |  |  _| |_) | |_| |   | | | | (_| | |  | | | | | | (_) | | | | | (__\__ \ #
+# |_|  |_| | .__/ \__, |___|_| |_|\__,_|_|  |_| |_| |_|\___/|_| |_|_|\___|___/ #
+#          |_|    |___/_____|                                                  #
+#                                                                              #
+################################################################################
+
+
+
+|===============================================|
+|===============================================|
+|                       MMPY                    |
+|===============================================|
+|===============================================|
+|  Station: NY.MMPY                             |
+|      Channel: HH; Locations: --               |
+|      Lon: -131.26; Lat:  62.62                |
+|      Start time: 2013-07-01 00:00:00          |
+|      End time:   2020-10-26 15:28:46          |
+|-----------------------------------------------|
+
+Decomposing receiver functions into baz harmonics
+Optimal azimuth for trange between 2.0 and 10.0 seconds is: 178.0
+</pre></div>
+</div>
+<p>Now that we have the estimated azimuth, we can re-calculate the decomposition using
+<code class="docutils literal notranslate"><span class="pre">--azim=</span></code> and plot them over the first 20 seconds.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_harmonics.py --no-outlier --azim=178. --trange=2.,10., --plot --ymax=20. --title=&quot;Decomposition at azimuth 178 degrees&quot; MMPY.pkl
+</pre></div>
+</div>
+<p>This command will produce the following figure:</p>
+<div class="figure align-center">
+<img alt="_images/Figure_5.png" src="_images/Figure_5.png" />
+</div>
+<p>The first component (<code class="docutils literal notranslate"><span class="pre">A</span></code>) shows the amplitudes that do not vary with back-azimuth (i.e.,
+the ‘constant’ term), with the main Ps and Pps Moho-related pulses at 3. and 15. seconds.
+The second component (<code class="docutils literal notranslate"><span class="pre">B1</span></code>) has been minimized between 2. and 10. seconds and does not
+show any significant signal. The third component (<code class="docutils literal notranslate"><span class="pre">B2</span></code>) shows the amplitudes at the
+optimal azimuth of 178 degrees, with a pair of positive-negative pulses at around 7 and 8
+seconds. Finally, the fourth component (<code class="docutils literal notranslate"><span class="pre">C1</span></code>) shows some high-amplitude signals between
+2.5 and 6 seconds, which correspond to hexagonal anisotropy with a horizontal axis of
+symmetry.</p>
+</div>
 </div>
 </div>
 
