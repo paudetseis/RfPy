@@ -1,10 +1,10 @@
-Tutorial
-========
+Tutorials
+=========
 
 In this tutorial we will process and post-process receiver function data for station
 MMPY. This will include calculating receiver functions using all default arguments,
 re-calculating the receiver functions for different processing arguments, plotting
-them, and post-processing them using the `H-k` stacking technique and applying 
+them, and post-processing them using the H-k stacking technique and applying 
 the harmonic decomposition method. 
 
 0. Creating the ``StDb`` Database
@@ -12,7 +12,7 @@ the harmonic decomposition method.
 
 All the scripts provided require a ``StDb`` database containing station
 information and metadata. Let's first create this database for station
-`MMPY` and send the prompt to a logfile
+``MMPY`` and send the prompt to a logfile
 
 .. code-block::
 
@@ -131,7 +131,8 @@ easily without re-downloading the raw data (e.g., length of processing window,
 sampling rate). If you want to change those parameters, run the previous command with 
 ``-O`` to override anything that exists on disk. 
 
-Note that you can get more data by either specifying a new phase to analyze (e.g., ``--phase=PP``), going to lower magnitudes (e.g., ``--minmag=5. --maxmag=5.5``), by
+Note that you can get more data by either specifying a new phase to analyze (e.g., 
+``--phase=PP``), going to lower magnitudes (e.g., ``--minmag=5. --maxmag=5.5``), by
 running the same line of command with those additional arguments.
 
 2. Re-calculate with different options
@@ -197,8 +198,11 @@ Now let's make a plot of all P receiver functions, this time sorted by slowness 
 .. figure:: ../rfpy/examples/figures/Figure_2.png
    :align: center
 
-4. Moho depth and Vp/Vs from ``H-k`` stacking
-+++++++++++++++++++++++++++++++++++++++++++++
+4. Post-processing
+++++++++++++++++++
+
+4a. Moho depth and Vp/Vs from ``H-k`` stacking
+----------------------------------------------
 
 With these receiver functions, we can easily estimate Moho depth and crustal Vp/Vs 
 using the simple H-k stacking method. There are several options to choose from. Let's 
@@ -282,3 +286,94 @@ correspond to the default values but are not used in the final stack.
 
 Finally, could also perform H-k stacking using a known orientation (strike and dip 
 angles) of a dipping interface using additional arguments.
+
+4b. Harmonic decomposition
+--------------------------
+
+Receiver functions are often characterized by significant amplitude variations as a function 
+of back-azimuth of the incoming teleseismic wave. The variations are observed on both radial 
+and transverse components, with a 90-degree shift (in back-azimuth) between the two 
+components. The harmonic decomposition method exploits these variations by decomposing the 
+amplitude (at each time interval) into a set of harmonic components that describe the 
+periodicity in receiver function amplitudes. See `Audet (2015) 
+<https://agupubs.onlinelibrary.wiley.com/doi/full/10.1002/2014JB011821>`_ for details on the 
+methodology.
+
+The default arguments will perform the decomposition over all receiver functin data at a 
+fixed azimuth of 0 degrees (i.e., North), such that the second and third components 
+represent 1-theta variations oriented in the N-S and E-W directions, calculated over the 
+first 10 seconds of the receiver function data:
+
+.. code-block::
+
+    $ rfpy_harmonics.py MMPY.pkl
+
+This command simply runs the decomposition algorithm but does not return anything, unless 
+you specify the ``--save`` and/or the ``--plot`` command. Instead of the default 0-degree 
+azimuth, you can set the azimuth at which you wish to perform the decomposition by setting 
+the ``--azim=`` argument. It is also possible to estimate the azimuth at which one of the 
+harmonic components will be minimized (typically the second or third term), in order to 
+reveal the dominant orientation of the receiver function amplitudes. This is accomplished 
+using the ``--find-azim`` argument. Finally, you can also set the range of lag times over 
+which to calculate the decomposition (``--trange=``; default is from 0 to 10 seconds) and 
+perform the decomposition for a selected date range (``--start=`` and ``--end=``). Other QC 
+control arguments are similar to previous scripts.
+
+Let's perform the decomposition by estimating the dominant azimuth using a time range of 2 
+to 10 seconds (to avoid the large zero-lag pulse):
+
+.. note::
+
+    Warning!! This command is particularly slow, especially for large data sets.
+
+.. code-block::
+
+    $ rfpy_harmonics.py --no-outlier --find-azim --trange=2.,10. MMPY.pkl
+
+    ################################################################################
+    #        __                 _                                      _           #
+    #  _ __ / _|_ __  _   _    | |__   __ _ _ __ _ __ ___   ___  _ __ (_) ___ ___  #
+    # | '__| |_| '_ \| | | |   | '_ \ / _` | '__| '_ ` _ \ / _ \| '_ \| |/ __/ __| #
+    # | |  |  _| |_) | |_| |   | | | | (_| | |  | | | | | | (_) | | | | | (__\__ \ #
+    # |_|  |_| | .__/ \__, |___|_| |_|\__,_|_|  |_| |_| |_|\___/|_| |_|_|\___|___/ #
+    #          |_|    |___/_____|                                                  #
+    #                                                                              #
+    ################################################################################
+
+     
+     
+    |===============================================|
+    |===============================================|
+    |                       MMPY                    |
+    |===============================================|
+    |===============================================|
+    |  Station: NY.MMPY                             |
+    |      Channel: HH; Locations: --               |
+    |      Lon: -131.26; Lat:  62.62                |
+    |      Start time: 2013-07-01 00:00:00          |
+    |      End time:   2020-10-26 15:28:46          |
+    |-----------------------------------------------|
+
+    Decomposing receiver functions into baz harmonics
+    Optimal azimuth for trange between 2.0 and 10.0 seconds is: 178.0
+
+Now that we have the estimated azimuth, we can re-calculate the decomposition using 
+``--azim=`` and plot them over the first 20 seconds.
+
+.. code-block::
+
+    $ rfpy_harmonics.py --no-outlier --azim=178. --trange=2.,10., --plot --ymax=20. --title="Decomposition at azimuth 178 degrees" MMPY.pkl
+
+This command will produce the following figure:
+
+.. figure:: ../rfpy/examples/figures/Figure_5.png
+   :align: center
+
+The first component (``A``) shows the amplitudes that do not vary with back-azimuth (i.e., 
+the 'constant' term), with the main Ps and Pps Moho-related pulses at 3. and 15. seconds. 
+The second component (``B1``) has been minimized between 2. and 10. seconds and does not 
+show any significant signal. The third component (``B2``) shows the amplitudes at the 
+optimal azimuth of 178 degrees, with a pair of positive-negative pulses at around 7 and 8 
+seconds. Finally, the fourth component (``C1``) shows some high-amplitude signals between 
+2.5 and 6 seconds, which correspond to hexagonal anisotropy with a horizontal axis of 
+symmetry.

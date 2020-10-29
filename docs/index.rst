@@ -56,4 +56,4 @@ used in command-line scripts.
    :caption: Scripts & Tutorials
 
    scripts
-   tutorial
+   tutorials

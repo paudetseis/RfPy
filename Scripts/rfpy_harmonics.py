@@ -207,7 +207,7 @@ def main():
             harmonics.dcomp_find_azim(xmin=args.trange[0], xmax=args.trange[1])
             print("Optimal azimuth for trange between " +
                   str(args.trange[0])+" and "+str(args.trange[1]) +
-                  "is: "+str(harmonics.azim))
+                  " seconds is: "+str(harmonics.azim))
         else:
             harmonics.dcomp_fix_azim(azim=args.azim)
 

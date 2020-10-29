@@ -472,7 +472,7 @@ def get_recalc_arguments(argv=None):
         description="Script used to re-calculate receiver functions " +
         "that already exist on disk, but using different " +
         "processing options. The stations are processed one " +
-        "by one and the data are stored to disk. " + 
+        "by one and the data are stored to disk. " +
         " \n" +
         "Note: The sampling rate cannot be changed to a new rate")
 
@@ -1354,7 +1354,6 @@ def get_harmonics_arguments(argv=None):
         if args.trange is None:
             args.trange = [0., 10.]
         else:
-            print(args.trange.split(','))
             args.trange = [float(val) for val in args.trange.split(',')]
             args.trange = sorted(args.trange)
             if (len(args.trange)) != 2:

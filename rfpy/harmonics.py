@@ -36,10 +36,10 @@ class Harmonics(object):
     radial and transverse component receiver functions into
     back-azimuth harmonics. The object is initialized with two
     :class:`~obspy.core.Stream` objects containing observed (or synthetised)
-    radial and transverse receiver functions. The methods available 
+    radial and transverse receiver functions. The methods available
     can decompose the receiver functions along a fixed azimuth, or
     search for the optimal azimuth within a time range by minimizing
-    one component. 
+    one component.
 
     Note
     ----
@@ -53,10 +53,10 @@ class Harmonics(object):
     ----------
     radialRF : :class:`~obspy.core.Stream`
         Stream object containing the radial-component receiver function
-        seismograms 
+        seismograms
     transvRF : :class:`~obspy.core.Stream`
         Stream object containing the transverse-component receiver function
-        seismograms 
+        seismograms
     azim : float
         Direction (azimuth) along which the B1 component of the stream
         is minimized (between ``xmin`` and ``xmax``)
@@ -93,7 +93,7 @@ class Harmonics(object):
         if not transvRF:
             raise TypeError("__init__() missing 1 required positional argument: 'transvRF'")
 
-        # fftshift if the time axis starts at negative lags 
+        # fftshift if the time axis starts at negative lags
         if radialRF[0].stats.taxis[0]<0.:
             for tr in radialRF:
                 tr.data = np.fft.fftshift(tr.data)
@@ -108,8 +108,8 @@ class Harmonics(object):
 
     def dcomp_find_azim(self, xmin=None, xmax=None):
         """
-        Method to decompose radial and transverse receiver function 
-        streams into back-azimuth harmonics and determine the main 
+        Method to decompose radial and transverse receiver function
+        streams into back-azimuth harmonics and determine the main
         orientation ``azim``, obtained by minimizing the B1 component
         between ``xmin`` and ``xmax`` (i.e., time or depth).
 
@@ -236,7 +236,7 @@ class Harmonics(object):
 
     def dcomp_fix_azim(self, azim=None):
         """
-        Method to decompose radial and transverse receiver function 
+        Method to decompose radial and transverse receiver function
         streams into back-azimuth harmonics along direction ``azim``.
 
         Parameters
@@ -331,9 +331,9 @@ class Harmonics(object):
     def forward(self, baz_list=None):
         """
         Method to forward calculate radial and transverse component
-        receiver functions given the 5 pre-determined harmonics and 
-        a list of back-azimuth values. The receiver function signal 
-        parameters (length, sampling rate, etc.) will be identical 
+        receiver functions given the 5 pre-determined harmonics and
+        a list of back-azimuth values. The receiver function signal
+        parameters (length, sampling rate, etc.) will be identical
         to those in the stream of harmonic components.
 
         Parameters
@@ -423,14 +423,14 @@ class Harmonics(object):
         Parameters
         ----------
         ymax : float
-            Maximum y axis value (time or depth) over which to 
+            Maximum y axis value (time or depth) over which to
             plot the harmonic components
         scale : float
             Scaling factor for the amplitudes (typically > 1)
         save : bool
             Whether or not to save the plot
         title : str
-            Title of plot, to be used in the Figure and the 
+            Title of plot, to be used in the Figure and the
             file name (if ``save==True``)
 
         """
@@ -451,7 +451,6 @@ class Harmonics(object):
         ax1 = fig.add_subplot(111)
 
         for i, trace in enumerate(self.hstream):
-            print(i)
             # i += 1
             ax1.fill_betweenx(
                 y, i, i+trace.data*scale,
@@ -471,14 +470,6 @@ class Harmonics(object):
 
         ax1.set_xticks([0, 1, 2, 3, 4], minor=False)
         ax1.set_xticklabels(['$A$', '$B_1$', '$B_2$', '$C_1$', '$C_2$'], minor=False)
-        # labels = [item.get_text() for item in ax1.get_xticklabels()]
-        # print(labels)
-        # labels[1] = '$A$'
-        # labels[2] = '$B_1$'
-        # labels[3] = '$B_2$'
-        # labels[4] = '$C_1$'
-        # labels[5] = '$C_2$'
-        # ax1.set_xticklabels(labels)
         off = ax1.xaxis.get_offset_text()
         ax1.tick_params(axis=u'x', pad=10)
         ax1.grid()
