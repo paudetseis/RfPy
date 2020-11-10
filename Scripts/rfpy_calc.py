@@ -31,6 +31,435 @@ from obspy.clients.fdsn import Client
 from rfpy import arguments, utils
 from rfpy import RFData
 from pathlib import Path
+from argparse import ArgumentParser
+from os.path import exists as exist
+from obspy import UTCDateTime
+from numpy import nan
+
+def get_calc_arguments(argv=None):
+    """
+    Get Options from :class:`~optparse.OptionParser` objects.
+
+    This function is used for data processing on-the-fly (requires web connection)
+
+    """
+
+    parser = ArgumentParser(
+        usage="%(prog)s [arguments] <station database>",
+        description="Script used to download and pre-process " +
+        "three-component ('Z', 'N', and 'E'), seismograms for individual " +
+        "events and calculate teleseismic P-wave receiver functions" +
+        "This version requests data on the fly for a given date " +
+        "range. Data are requested from the internet using the " +
+        "client services framework. The stations are processed one " +
+        "by one and the data are stored to disk.")
+
+    # General Settings
+    parser.add_argument(
+        "indb",
+        help="Station Database to process from.",
+        type=str)
+    parser.add_argument(
+        "--keys",
+        action="store",
+        type=str,
+        dest="stkeys",
+        default="",
+        help="Specify a comma separated list of station keys for " +
+        "which to perform the analysis. These must be " +
+        "contained within the station database. Partial keys will " +
+        "be used to match against those in the dictionary. For " +
+        "instance, providing IU will match with all stations in " +
+        "the IU network [Default processes all stations in the database]")
+    parser.add_argument(
+        "-v", "-V", "--verbose",
+        action="store_true",
+        dest="verb",
+        default=False,
+        help="Specify to increase verbosity.")
+    parser.add_argument(
+        "-O", "--overwrite",
+        action="store_true",
+        dest="ovr",
+        default=False,
+        help="Force the overwriting of pre-existing data. " +
+        "[Default False]")
+
+    # Server Settings
+    ServerGroup = parser.add_argument_group(
+        title="Server Settings",
+        description="Settings associated with which "
+        "datacenter to log into.")
+    ServerGroup.add_argument(
+        "-S", "--Server",
+        action="store",
+        type=str,
+        dest="Server",
+        default="IRIS",
+        help="Specify the server to connect to. Options include: " +
+        "BGR, ETH, GEONET, GFZ, INGV, IPGP, IRIS, KOERI, " +
+        "LMU, NCEDC, NEIP, NERIES, ODC, ORFEUS, RESIF, SCEDC, USGS, USP. " +
+        "[Default IRIS]")
+    ServerGroup.add_argument(
+        "-U", "--User-Auth",
+        action="store",
+        type=str,
+        dest="UserAuth",
+        default="",
+        help="Enter your IRIS Authentification Username and Password " +
+        "(--User-Auth='username:authpassword') to " +
+        "access and download restricted data. " +
+        "[Default no user and password]")
+
+    # Database Settings
+    DataGroup = parser.add_argument_group(
+        title="Local Data Settings",
+        description="Settings associated with defining " +
+        "and using a local data base of pre-downloaded " +
+        "day-long SAC files.")
+    DataGroup.add_argument(
+        "--local-data",
+        action="store",
+        type=str,
+        dest="localdata",
+        default=None,
+        help="Specify a comma separated list of paths containing " +
+        "day-long sac files of data already downloaded. " +
+        "If data exists for a seismogram is already present on disk, " +
+        "it is selected preferentially over downloading " +
+        "the data using the Client interface")
+    DataGroup.add_argument(
+        "--no-data-zero",
+        action="store_true",
+        dest="ndval",
+        default=False,
+        help="Specify to force missing data to be set as zero, rather " +
+        "than default behaviour which sets to nan.")
+    DataGroup.add_argument(
+        "--no-local-net",
+        action="store_false",
+        dest="useNet",
+        default=True,
+        help="Specify to prevent using the Network code in the " +
+        "search for local data (sometimes for CN stations " +
+        "the dictionary name for a station may disagree with that " +
+        "in the filename. [Default Network used]")
+    DataGroup.add_argument(
+        "--save-Z12",
+        action="store_true",
+        dest="saveZ12",
+        default=False,
+        help="Specify to save Z12 (un-rotated) components. [Default "+
+        "False]")
+
+    # Event Selection Criteria
+    EventGroup = parser.add_argument_group(
+        title="Event Settings",
+        description="Settings associated with refining " +
+        "the events to include in matching event-station pairs")
+    EventGroup.add_argument(
+        "--start",
+        action="store",
+        type=str,
+        dest="startT",
+        default="",
+        help="Specify a UTCDateTime compatible string representing " +
+        "the start time for the event search. This will override any " +
+        "station start times. [Default start date of station]")
+    EventGroup.add_argument(
+        "--end",
+        action="store",
+        type=str,
+        dest="endT",
+        default="",
+        help="Specify a UTCDateTime compatible string representing " +
+        "the end time for the event search. This will override any " +
+        "station end times [Default end date of station]")
+    EventGroup.add_argument(
+        "--reverse", "-R",
+        action="store_true",
+        dest="reverse",
+        default=False,
+        help="Reverse order of events. Default behaviour starts at " +
+        "oldest event and works towards most recent. Specify reverse " +
+        "order and instead the program will start with the most recent " +
+        "events and work towards older")
+    EventGroup.add_argument(
+        "--minmag",
+        action="store",
+        type=float,
+        dest="minmag",
+        default=6.0,
+        help="Specify the minimum magnitude of event for which to search. " +
+        "[Default 6.0]")
+    EventGroup.add_argument(
+        "--maxmag",
+        action="store",
+        type=float,
+        dest="maxmag",
+        default=9.0,
+        help="Specify the maximum magnitude of event for which to search. " +
+        "[Default None, i.e. no limit]")
+
+    # Geometry Settings
+    PhaseGroup = parser.add_argument_group(
+        title="Geometry Settings",
+        description="Settings associatd with the "
+        "event-station geometries for the specified phase")
+    PhaseGroup.add_argument(
+        "--phase",
+        action="store",
+        type=str,
+        dest="phase",
+        default='P',
+        help="Specify the phase name to use. Be careful with the distance. " +
+        "setting. Options are 'P' or 'PP'. [Default 'P']")
+    PhaseGroup.add_argument(
+        "--mindist",
+        action="store",
+        type=float,
+        dest="mindist",
+        default=None,
+        help="Specify the minimum great circle distance (degrees) between " +
+        "the station and event. [Default depends on phase]")
+    PhaseGroup.add_argument(
+        "--maxdist",
+        action="store",
+        type=float,
+        dest="maxdist",
+        default=None,
+        help="Specify the maximum great circle distance (degrees) between " +
+        "the station and event. [Default depends on phase]")
+
+    # Constants Settings
+    ConstGroup = parser.add_argument_group(
+        title='Parameter Settings',
+        description="Miscellaneous default values and settings")
+    ConstGroup.add_argument(
+        "--sampling-rate",
+        action="store",
+        type=float,
+        dest="new_sampling_rate",
+        default=10.,
+        help="Specify new sampling rate in Hz. [Default 10.]")
+    ConstGroup.add_argument(
+        "--dts",
+        action="store",
+        type=float,
+        dest="dts",
+        default=150.,
+        help="Specify the window length in sec (symmetric about arrival " +
+        "time). [Default 150.]")
+    ConstGroup.add_argument(
+        "--align",
+        action="store",
+        type=str,
+        dest="align",
+        default=None,
+        help="Specify component alignment key. Can be either " +
+        "ZRT, LQT, or PVH. [Default ZRT]")
+    ConstGroup.add_argument(
+        "--vp",
+        action="store",
+        type=float,
+        dest="vp",
+        default=6.0,
+        help="Specify near-surface Vp to use with --align=PVH (km/s). " +
+        "[Default 6.0]")
+    ConstGroup.add_argument(
+        "--vs",
+        action="store",
+        type=float,
+        dest="vs",
+        default=3.5,
+        help="Specify near-surface Vs to use with --align=PVH (km/s). " +
+        "[Default 3.5]")
+    ConstGroup.add_argument(
+        "--dt-snr",
+        action="store",
+        type=float,
+        dest="dt_snr",
+        default=30.,
+        help="Specify the window length over which to calculate " +
+        "the SNR in sec. [Default 30.]")
+    ConstGroup.add_argument(
+        "--pre-filt",
+        action="store",
+        type=str,
+        dest="pre_filt",
+        default=None,
+        help="Specify two floats with low and high frequency corners for " +
+        "pre-filter (before deconvolution). [Default None]")
+    ConstGroup.add_argument(
+        "--fmin",
+        action="store",
+        type=float,
+        dest="fmin",
+        default=0.05,
+        help="Specify the minimum frequency corner for SNR and CC " +
+        "filter (Hz). [Default 0.05]")
+    ConstGroup.add_argument(
+        "--fmax",
+        action="store",
+        type=float,
+        dest="fmax",
+        default=1.0,
+        help="Specify the maximum frequency corner for SNR and CC " +
+        "filter (Hz). [Default 1.0]")
+
+    # Constants Settings
+    DeconGroup = parser.add_argument_group(
+        title='Deconvolution Settings',
+        description="Parameters for deconvolution")
+    DeconGroup.add_argument(
+        "--method",
+        action="store",
+        dest="method",
+        type=str,
+        default="wiener",
+        help="Specify the deconvolution method. Available methods " +
+        "include 'wiener', 'water' and 'multitaper'. [Default 'wiener']")
+    DeconGroup.add_argument(
+        "--gfilt",
+        action="store",
+        dest="gfilt",
+        type=float,
+        default=None,
+        help="Specify the Gaussian filter width in Hz. " +
+        "[Default None]")
+    DeconGroup.add_argument(
+        "--wlevel",
+        action="store",
+        dest="wlevel",
+        type=float,
+        default=0.01,
+        help="Specify the water level, used in the 'water' method. " +
+        "[Default 0.01]")
+
+    args = parser.parse_args(argv)
+
+    # Check inputs
+    if not exist(args.indb):
+        parser.error("Input file " + args.indb + " does not exist")
+
+    # create station key list
+    if len(args.stkeys) > 0:
+        args.stkeys = args.stkeys.split(',')
+
+    # construct start time
+    if len(args.startT) > 0:
+        try:
+            args.startT = UTCDateTime(args.startT)
+        except:
+            parser.error(
+                "Cannot construct UTCDateTime from start time: " +
+                args.startT)
+    else:
+        args.startT = None
+
+    # construct end time
+    if len(args.endT) > 0:
+        try:
+            args.endT = UTCDateTime(args.endT)
+        except:
+            parser.error(
+                "Cannot construct UTCDateTime from end time: " +
+                args.endT)
+    else:
+        args.endT = None
+
+    # Parse User Authentification
+    if not len(args.UserAuth) == 0:
+        tt = args.UserAuth.split(':')
+        if not len(tt) == 2:
+            parser.error(
+                "Error: Incorrect Username and Password " +
+                "Strings for User Authentification")
+        else:
+            args.UserAuth = tt
+    else:
+        args.UserAuth = []
+
+    # Parse Local Data directories
+    if args.localdata is not None:
+        args.localdata = args.localdata.split(',')
+    else:
+        args.localdata = []
+
+    # Check NoData Value
+    if args.ndval:
+        args.ndval = 0.0
+    else:
+        args.ndval = nan
+
+    # Check distances for selected phase
+    if args.phase not in ['P', 'PP', 'S', 'SKS']:
+        parser.error(
+            "Error: choose between 'P', 'PP', 'S' and 'SKS'.")
+    if args.phase == 'P':
+        if not args.mindist:
+            args.mindist = 30.
+        if not args.maxdist:
+            args.maxdist = 100.
+        if args.mindist < 30. or args.maxdist > 100.:
+            parser.error(
+                "Distances should be between 30 and 100 deg. for " +
+                "teleseismic 'P' waves.")
+    elif args.phase == 'PP':
+        if not args.mindist:
+            args.mindist = 100.
+        if not args.maxdist:
+            args.maxdist = 180.
+        if args.mindist < 100. or args.maxdist > 180.:
+            parser.error(
+                "Distances should be between 100 and 180 deg. for " +
+                "teleseismic 'PP' waves.")
+    elif args.phase == 'S':
+        if not args.mindist:
+            args.mindist = 55.
+        if not args.maxdist:
+            args.maxdist = 85.
+        if args.mindist < 55. or args.maxdist > 85.:
+            parser.error(
+                "Distances should be between 55 and 85 deg. for " +
+                "teleseismic 'S' waves.")
+    elif args.phase == 'SKS':
+        if not args.mindist:
+            args.mindist = 85.
+        if not args.maxdist:
+            args.maxdist = 115.
+        if args.mindist < 85. or args.maxdist > 115.:
+            parser.error(
+                "Distances should be between 85 and 115 deg. for " +
+                "teleseismic 'SKS' waves.")
+
+    if args.pre_filt is not None:
+        args.pre_filt = [float(val) for val in args.pre_filt.split(',')]
+        args.pre_filt = sorted(args.pre_filt)
+        if (len(args.pre_filt)) != 2:
+            parser.error(
+                "Error: --pre-filt should contain 2 " +
+                "comma-separated floats")
+
+    # Check alignment arguments
+    if args.align is None:
+        args.align = 'ZRT'
+    elif args.align not in ['ZRT', 'LQT', 'PVH']:
+        parser.error(
+            "Error: Incorrect alignment specifier. Should be " +
+            "either 'ZRT', 'LQT', or 'PVH'.")
+
+    if args.dt_snr > args.dts:
+        args.dt_snr = args.dts - 10.
+        print("SNR window > data window. Defaulting to data " +
+              "window minus 10 sec.")
+
+    if args.method not in ['wiener', 'water', 'multitaper']:
+        parser.error(
+            "Error: 'method' should be either 'wiener', 'water' or " +
+            "'multitaper'")
+
+    return args
 
 
 def main():

@@ -27,9 +27,287 @@
 import numpy as np
 import pickle
 import stdb
-from obspy import Stream
+from obspy import Stream, UTCDateTime
 from rfpy import arguments, binning, plotting
 from pathlib import Path
+from argparse import ArgumentParser
+from os.path import exists as exist
+from numpy import nan
+
+def get_plot_arguments(argv=None):
+    """
+    Get Options from :class:`~optparse.OptionParser` objects.
+
+    This function is used for data processing on-the-fly (requires web connection)
+
+    """
+
+    parser = ArgumentParser(
+        usage="%(prog)s [arguments] <station database>",
+        description="Script used to plot receiver function data ")
+
+    # General Settings
+    parser.add_argument(
+        "indb",
+        help="Station Database to process from.",
+        type=str)
+    parser.add_argument(
+        "--keys",
+        action="store",
+        type=str,
+        dest="stkeys",
+        default="",
+        help="Specify a comma separated list of station keys for " +
+        "which to perform the analysis. These must be " +
+        "contained within the station database. Partial keys will " +
+        "be used to match against those in the dictionary. For " +
+        "instance, providing IU will match with all stations in " +
+        "the IU network [Default processes all stations in the database]")
+    parser.add_argument(
+        "-v", "-V", "--verbose",
+        action="store_true",
+        dest="verb",
+        default=False,
+        help="Specify to increase verbosity.")
+    parser.add_argument(
+        "-O", "--overwrite",
+        action="store_true",
+        dest="ovr",
+        default=False,
+        help="Force the overwriting of pre-existing figures. " +
+        "[Default False]")
+
+    PreGroup = parser.add_argument_group(
+        title='Pre-processing Settings',
+        description="Options for pre-processing of receiver function " +
+        "data before plotting")
+    PreGroup.add_argument(
+        "--snr",
+        action="store",
+        type=float,
+        dest="snr",
+        default=-9999.,
+        help="Specify the vertical component SNR threshold for extracting receiver functions. " +
+        "[Default 5.]")
+    PreGroup.add_argument(
+        "--snrh",
+        action="store",
+        type=float,
+        dest="snrh",
+        default=-9999.,
+        help="Specify the horizontal component SNR threshold for extracting receiver functions. " +
+        "[Default None]")
+    PreGroup.add_argument(
+        "--cc",
+        action="store",
+        type=float,
+        dest="cc",
+        default=-1.,
+        help="Specify the CC threshold for extracting receiver functions. " +
+        "[Default None]")
+    PreGroup.add_argument(
+        "--no-outlier",
+        action="store_true",
+        dest="no_outl",
+        default=False,
+        help="Set this option to delete outliers based on the MAD " +
+        "on the variance. [Default False]")
+    PreGroup.add_argument(
+        "--binlim",
+        action="store",
+        type=float,
+        dest="binlim",
+        default=1,
+        help="Specify the minimum number of RFs in each bin. [Default 3]")
+    PreGroup.add_argument(
+        "--bp",
+        action="store",
+        type=str,
+        dest="bp",
+        default=None,
+        help="Specify the corner frequencies for the bandpass filter. " +
+        "[Default no filtering]")
+    PreGroup.add_argument(
+        "--pws",
+        action="store_true",
+        dest="pws",
+        default=False,
+        help="Set this option to use phase-weighted stacking during binning " +
+        " [Default False]")
+    PreGroup.add_argument(
+        "--nbaz",
+        action="store",
+        dest="nbaz",
+        type=int,
+        default=None,
+        help="Specify integer number of back-azimuth bins to consider " +
+        "(typically 36 or 72). If not None, the plot will show receiver " +
+        "functions sorted by back-azimuth values. [Default None]")
+    PreGroup.add_argument(
+        "--nslow",
+        action="store",
+        dest="nslow",
+        type=int,
+        default=None,
+        help="Specify integer number of slowness bins to consider " +
+        "(typically 20 or 40). If not None, the plot will show receiver " +
+        "functions sorted by slowness values. [Default None]")
+    PreGroup.add_argument(
+        "--slowbound",
+        action="store",
+        dest="slowbound",
+        type=str,
+        default=None,
+        help="Specify a list of two floats with minimum and maximum" +
+        "bounds on slowness (s/km). [Default [0.04, 0.08]]")
+    PreGroup.add_argument(
+        "--bazbound",
+        action="store",
+        dest="bazbound",
+        type=str,
+        default=None,
+        help="Specify a list of two floats with minimum and maximum" +
+        "bounds on back azimuth (degrees). [Default [0, 360]]")
+    PreGroup.add_argument(
+        "--phase",
+        action="store",
+        type=str,
+        dest="phase",
+        default='allP',
+        help="Specify the phase name to plot.  " +
+        "Options are 'P', 'PP', 'allP', 'S', 'SKS' or 'allS'. " +
+        "[Default 'allP']")
+
+    PlotGroup = parser.add_argument_group(
+        title='Plot Settings',
+        description="Options for plot format")
+    PlotGroup.add_argument(
+        "--scale",
+        action="store",
+        dest="scale",
+        default=None,
+        type=float,
+        help="Specify the scaling factor for the amplitude of the " +
+        "receiver functions in the wiggle plots. [Default 100. for " +
+        "a back-azimuth plot, 0.02 for a slowness plot]")
+    PlotGroup.add_argument(
+        "--normalize",
+        action="store_true",
+        dest="norm",
+        default=False,
+        help="Set this option to produce receiver functions normalized " +
+        "by the max amplitude of stacked RFs. [Default False]")
+    PlotGroup.add_argument(
+        "--trange",
+        action="store",
+        default=None,
+        type=str,
+        dest="trange",
+        help="Specify the time range for the x-axis (sec). Negative times " +
+        "are allowed [Default 0., 30.]")
+    PlotGroup.add_argument(
+        "--stacked",
+        action="store_true",
+        dest="stacked",
+        default=False,
+        help="Set this option to plot a stack of all traces in top panel. " +
+        "[Default does not plot stacked traces]")
+    PlotGroup.add_argument(
+        "--save",
+        action="store_true",
+        dest="saveplot",
+        default=False,
+        help="Set this option if you wish to save the figure. [Default " +
+        "does not save figure]")
+    PlotGroup.add_argument(
+        "--title",
+        action="store",
+        dest="titleplot",
+        type=str,
+        default='',
+        help="Specify title of figure. [Default None]")
+    PlotGroup.add_argument(
+        "--format",
+        action="store",
+        type=str,
+        dest="form",
+        default="png",
+        help="Specify format of figure. Can be any one of the valid" +
+        "matplotlib formats: 'png', 'jpg', 'eps', 'pdf'. [Default 'png']")
+    PlotGroup.add_argument(
+        "--plot-event-dist",
+        action="store_true",
+        dest="plot_event_dist",
+        default=False,
+        help="Plot distribution of events on map. Other Plotting Options "+
+        "will be applied to this figure (title, save, etc.). "+
+        "[Default no plot]")
+
+
+    args = parser.parse_args(argv)
+
+    # Check inputs
+    if not exist(args.indb):
+        parser.error("Input file " + args.indb + " does not exist")
+
+    if args.slowbound is None:
+        args.slowbound = [0.04, 0.08]
+    else:
+        args.slowbound = [float(val) for val in args.slowbound.split(',')]
+        args.slowbound = sorted(args.slowbound)
+        if (len(args.slowbound)) != 2:
+            parser.error(
+                "Error: --slowbound should contain 2 " +
+                "comma-separated floats")
+
+    if args.bazbound is None:
+        args.bazbound = [0.0, 360.0]
+    else:
+        args.bazbound = [float(val) for val in args.bazbound.split(',')]
+        args.bazbound = sorted(args.bazbound)
+        if (len(args.bazbound)) != 2:
+            parser.error(
+                "Error: --bazbound should contain 2 " +
+                "comma-separated floats")
+
+    if args.phase not in ['P', 'PP', 'allP', 'S', 'SKS', 'allS']:
+        parser.error(
+            "Error: choose between 'P', 'PP', 'allP', 'S', 'SKS' and 'allS'.")
+    if args.phase == 'allP':
+        args.listphase = ['P', 'PP']
+    elif args.phase == 'allS':
+        args.listphase = ['S', 'SKS']
+    else:
+        args.listphase = [args.phase]
+
+    if args.bp is not None:
+        args.bp = [float(val) for val in args.bp.split(',')]
+        args.bp = sorted(args.bp)
+        if (len(args.bp)) != 2:
+            parser.error(
+                "Error: --bp should contain 2 " +
+                "comma-separated floats")
+
+    if args.trange is None:
+        args.trange = [0., 30.]
+    else:
+        args.trange = [float(val) for val in args.trange.split(',')]
+        args.trange = sorted(args.trange)
+        if (len(args.trange)) != 2:
+            parser.error(
+                "Error: --trange should contain 2 " +
+                "comma-separated floats")
+
+    # create station key list
+    if len(args.stkeys) > 0:
+        args.stkeys = args.stkeys.split(',')
+
+    if args.nbaz is None and args.nslow is None:
+        parser.error("Specify at least one of --nbaz or --nslow")
+    elif args.nbaz is not None and args.nslow is not None:
+        parser.error("Specify only one of --nbaz or --nslow")
+
+    return args
 
 
 def main():
