@@ -29,8 +29,7 @@ import pickle
 import stdb
 from obspy.clients.fdsn import Client
 from obspy.core import Stream, UTCDateTime
-from rfpy import arguments, binning, plotting
-from rfpy import HkStack
+from rfpy import binning, plotting, HkStack
 from pathlib import Path
 from argparse import ArgumentParser
 from os.path import exists as exist
@@ -482,7 +481,7 @@ def main():
     print()
 
     # Run Input Parser
-    args = arguments.get_hk_arguments()
+    args = get_hk_arguments()
 
     # Load Database
     db = stdb.io.load_db(fname=args.indb)
