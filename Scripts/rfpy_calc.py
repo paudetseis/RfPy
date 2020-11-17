@@ -687,7 +687,6 @@ def main():
                     ndval=args.ndval, new_sr=args.new_sampling_rate,
                     returned=True, verbose=args.verb)
 
-                print(has_data)
                 if not has_data:
                     continue
 

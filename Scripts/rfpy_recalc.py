@@ -29,7 +29,6 @@ from os.path import exists as exist
 import numpy as np
 import pickle
 import stdb
-from rfpy import arguments
 from rfpy import RFData
 from pathlib import Path
 
