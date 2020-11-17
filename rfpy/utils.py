@@ -40,7 +40,7 @@ def traceshift(trace, tt):
 
 def list_local_data_stn(lcldrs=list, sta=None, net=None, altnet=[]):
     """
-    Function to take the list of local directories and recursively 
+    Function to take the list of local directories and recursively
     find all data that matches the station name
 
     Parameters
@@ -404,7 +404,7 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
     by downloading data from the client object or alternatively first checking if the
     given data is already available locally.
 
-    Note 
+    Note
     ----
     Currently only supports NEZ Components!
 
@@ -431,7 +431,7 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
         Trace of North component of motion
     trE : :class:`~obspy.core.Trace`
         Trace of East component of motion
-    trZ : :class:`~obspy.core.Trace` 
+    trZ : :class:`~obspy.core.Trace`
         Trace of Vertical component of motion
 
     """
@@ -503,7 +503,7 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
                         sta.channel.upper() + '1,' + \
                         sta.channel.upper() + '2'
                     msg = "*          {1:2s}[Z12].{2:2s} - Checking Network".format(
-                            sta.station, sta.channel.upper(), tloc)
+                        sta.station, sta.channel.upper(), tloc)
                     print(msg)
                     try:
                         st = client.get_waveforms(
@@ -533,10 +533,10 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
 
     # Three components successfully retrieved
     else:
-        
 
         # Detrend and apply taper
-        st.detrend('demean').detrend('linear').taper(max_percentage=0.05, max_length=5.)
+        st.detrend('demean').detrend('linear').taper(
+            max_percentage=0.05, max_length=5.)
 
         # Check start times
         if not np.all([tr.stats.starttime == start for tr in st]):
@@ -564,16 +564,26 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
             st.trim(start, end)
         except:
             print("* Unable to trim")
-            print("* -> Aborting")
+            print("* -> Skipping")
             print("**************************************************")
             return True, None
 
-        # Check final lengths - they should all be equal if start times 
+        # Check final lengths - they should all be equal if start times
         # and sampling rates are all equal and traces have been trimmed
         if not np.allclose([tr.stats.npts for tr in st[1:]], st[0].stats.npts):
             print("* Lengths are incompatible: ")
             [print("*     "+str(tr.stats.npts)) for tr in st]
-            print("* -> Aborting")
+            print("* -> Skipping")
+            print("**************************************************")
+
+            return True, None
+
+        elif not np.allclose([st[0].stats.npts], int((end - start)*sr),
+                             atol=1):
+            print("* Length is too short: ")
+            print("*    "+str(st[0].stats.npts) +
+                  " ~= "+str(int((end - start)*sr)))
+            print("* -> Skipping")
             print("**************************************************")
 
             return True, None
