@@ -430,18 +430,7 @@ def main():
     args = get_ccp_arguments()
 
     # Load Database
-    db = stdb.io.load_db(fname=args.indb)
-
-    # Construct station key loop
-    allkeys = db.keys()
-
-    # Extract key subset
-    if len(args.stkeys) > 0:
-        stkeys = []
-        for skey in args.stkeys:
-            stkeys.extend([s for s in allkeys if skey in s])
-    else:
-        stkeys = db.keys()
+    db,stkeys = stdb.io.load_db(fname=args.indb,keys=args.stkeys)
 
     if args.load:
 

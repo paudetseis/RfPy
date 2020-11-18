@@ -29,7 +29,6 @@ from os.path import exists as exist
 import numpy as np
 import pickle
 import stdb
-from rfpy import arguments
 from rfpy import RFData
 from pathlib import Path
 
@@ -251,19 +250,7 @@ def main():
     args = get_recalc_arguments()
 
     # Load Database
-    db = stdb.io.load_db(fname=args.indb)
-
-    # Construct station key loop
-    allkeys = db.keys()
-    sorted(allkeys)
-
-    # Extract key subset
-    if len(args.stkeys) > 0:
-        stkeys = []
-        for skey in args.stkeys:
-            stkeys.extend([s for s in allkeys if skey in s])
-    else:
-        stkeys = db.keys()
+    db,stkeys = stdb.io.load_db(fname=args.indb,keys=args.stkeys)
 
     # Loop over station keys
     for stkey in list(stkeys):

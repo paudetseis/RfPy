@@ -25,14 +25,14 @@ setup(
     author_email='pascal.audet@uottawa.ca',
     maintainer='Pascal Audet',
     maintainer_email='pascal.audet@uottawa.ca',
-    url='https://github.com/paudetseis/OrientPy',
+    url='https://github.com/paudetseis/RfPy',
     classifiers=[
          'Development Status :: 3 - Alpha',
          'License :: OSI Approved :: MIT License',
          'Programming Language :: Python :: 3.6',
          'Programming Language :: Python :: 3.7',
          'Programming Language :: Python :: 3.8'],
-    install_requires=['numpy', 'obspy', 'stdb', 'cartopy'],
+    install_requires=['numpy', 'obspy', 'stdb>=0.1.4', 'cartopy'],
     python_requires='>=3.6',
     packages=['rfpy'],
     scripts=scripts)
