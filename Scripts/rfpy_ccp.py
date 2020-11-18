@@ -368,7 +368,7 @@ def get_ccp_arguments(argv=None):
         if (len(args.coord_start)) != 2:
             parser.error(
                 "Error: --start should contain 2 " +
-                "comma-separated floats")
+                "comma-separated floats using '--load'")
 
     if args.load and args.coord_end is None:
         parser.error("--end=lon,lat is required")
@@ -377,7 +377,7 @@ def get_ccp_arguments(argv=None):
         if (len(args.coord_end)) != 2:
             parser.error(
                 "Error: --end should contain 2 " +
-                "comma-separated floats")
+                "comma-separated floats using '--load'")
 
     if not (args.load or args.prep or args.prestack or args.ccp
             or args.gccp):

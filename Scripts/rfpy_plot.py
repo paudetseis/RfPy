@@ -288,6 +288,14 @@ def get_plot_arguments(argv=None):
                 "Error: --bp should contain 2 " +
                 "comma-separated floats")
 
+    if args.nbaz is None and args.nslow is None:
+        args.nbaz = 72
+        print("'nbaz' or 'nslow' not specified - plotting using " +
+            "'nbaz=72'")
+    elif args.nbas is not None and args.nslow is not None:
+        parser.error(
+            "Error: Cannot specify both 'nbaz' and 'nslow'")
+
     if args.trange is None:
         args.trange = [0., 30.]
     else:
@@ -481,7 +489,6 @@ def main():
             rf_tmp = binning.bin(rfRstream, rfTstream,
                                  typ='baz', nbin=args.nbaz+1,
                                  pws=args.pws)
-            print(rfRstream)
 
         elif args.nslow:
             # Bin according to slowness
