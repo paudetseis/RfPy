@@ -336,7 +336,7 @@ def main():
             # Resample if requested
             if args.resample:
                 rfdata.data.resample(
-                    args.resample, no_filter=False, strict_length=True)
+                    args.resample, no_filter=False)
 
             # Remove rotated flag and snr flag
             rfdata.meta.rotated = False
