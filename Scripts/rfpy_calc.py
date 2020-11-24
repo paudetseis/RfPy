@@ -479,7 +479,7 @@ def main():
     args = get_calc_arguments()
 
     # Load Database
-    db,stkeys = stdb.io.load_db(fname=args.indb,keys=args.stkeys)
+    db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
 
     # Loop over station keys
     for stkey in list(stkeys):

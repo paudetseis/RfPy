@@ -194,8 +194,7 @@ Usage
 
     Script used to re-calculate receiver functions that already exist on disk, but
     using different processing options. The stations are processed one by one and
-    the data are stored to disk. Note: The sampling rate cannot be changed to a
-    new rate
+    the data are over-written to disk. 
 
     positional arguments:
       indb                 Station Database to process from.
@@ -218,6 +217,10 @@ Usage
       --phase PHASE        Specify the phase name to use. Be careful with the
                            distance. setting. Options are 'P', 'PP', 'allP', 'S',
                            'SKS' or 'allS'. [Default 'allP']
+      --resample RESAMPLE  Specify the new sampling-rate for the receiver
+                           functions. Note the sampling rate of the original data
+                           (ZNE or Z12) stored on disk is unchanged. [Default
+                           None]      
       --align ALIGN        Specify component alignment key. Can be either ZRT,
                            LQT, or PVH. [Default ZRT]
       --vp VP              Specify near-surface Vp to use with --align=PVH (km/s).
