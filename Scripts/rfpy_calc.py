@@ -35,6 +35,7 @@ from os.path import exists as exist
 from obspy import UTCDateTime
 from numpy import nan
 
+
 def get_calc_arguments(argv=None):
     """
     Get Options from :class:`~optparse.OptionParser` objects.
@@ -84,14 +85,14 @@ def get_calc_arguments(argv=None):
         help="Force the overwriting of pre-existing data. " +
         "[Default False]")
     parser.add_argument(
-        "-L","--long-name",
+        "-L", "--long-name",
         action="store_true",
         dest="lkey",
         default=False,
         help="Force folder names to use long-key form (NET.STN.CHN). " +
-        "Default behaviour uses short key form (NET.STN) for the folder "+
-        "names, regardless of the key type of the database." 
-        )
+        "Default behaviour uses short key form (NET.STN) for the folder " +
+        "names, regardless of the key type of the database."
+    )
 
     # Server Settings
     ServerGroup = parser.add_argument_group(
@@ -157,7 +158,7 @@ def get_calc_arguments(argv=None):
         action="store_true",
         dest="saveZ12",
         default=False,
-        help="Specify to save Z12 (un-rotated) components. [Default "+
+        help="Specify to save Z12 (un-rotated) components. [Default " +
         "False]")
 
     # Event Selection Criteria
@@ -496,9 +497,10 @@ def main():
         # Extract station information from dictionary
         sta = db[stkey]
 
-        #-- Construct Folder Name
-        stfld=stkey
-        if not args.lkey : stfld=stkey.split('.')[0]+"."+stkey.split('.')[1]
+        # Construct Folder Name
+        stfld = stkey
+        if not args.lkey:
+            stfld = stkey.split('.')[0]+"."+stkey.split('.')[1]
 
         # Define path to see if it exists
         if args.phase in ['P', 'PP']:
@@ -662,10 +664,11 @@ def main():
                     print(
                         "*   Dep: {0:6.2f} km;     Mag: {1:3.1f}".format(
                             rfdata.meta.dep, rfdata.meta.mag))
-                    print("*   Dist: {0:7.2f} km;".format(rfdata.meta.epi_dist) +
-                          "   Epi dist: {0:6.2f} deg\n".format(rfdata.meta.gac) +
-                          "*   Baz:  {0:6.2f} deg;".format(rfdata.meta.baz) +
-                          "   Az: {0:6.2f} deg".format(rfdata.meta.az))
+                    print(
+                        "*   Dist: {0:7.2f} km;".format(rfdata.meta.epi_dist) +
+                        "   Epi dist: {0:6.2f} deg\n".format(rfdata.meta.gac) +
+                        "*   Baz:  {0:6.2f} deg;".format(rfdata.meta.baz) +
+                        "   Az: {0:6.2f} deg".format(rfdata.meta.az))
 
                 # Event Folder
                 timekey = rfdata.meta.time.strftime("%Y%m%d_%H%M%S")
