@@ -345,26 +345,10 @@ def main():
     args = get_plot_arguments()
 
     # Load Database
-    # stdb=0.1.4
-    try:
-        db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
+    db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
 
-    # stdb=0.1.3
-    except:
-        db = stdb.io.load_db(fname=args.indb)
-
-        # Construct station key loop
-        allkeys = db.keys()
-        sorted(allkeys)
-
-        # Extract key subset
-        if len(args.stkeys) > 0:
-            stkeys = []
-            for skey in args.stkeys:
-                stkeys.extend([s for s in allkeys if skey in s])
-        else:
-            stkeys = db.keys()
-            sorted(stkeys)
+    # Track processed folders
+    procfold=[]
 
     # Loop over station keys
     for stkey in list(stkeys):
@@ -407,6 +391,11 @@ def main():
         print("|      Lon: {0:7.2f}; Lat: {1:6.2f}                |".format(
             sta.longitude, sta.latitude))
         print("|-----------------------------------------------|")
+
+        #-- Check for folder already processed
+        if stfld in procfold:
+            print('  {0} already processed...skipping   '.format(stfld))
+            continue
 
         rfRstream = Stream()
         rfTstream = Stream()
@@ -581,6 +570,9 @@ def main():
                                  tmin=args.trange[0], tmax=args.trange[1],
                                  norm=norm, save=args.saveplot,
                                  title=args.titleplot, form=args.form)
+
+        #-- update processed folders
+        procfold.append(stfld)
 
         # Event distribution
         if args.plot_event_dist:

@@ -439,26 +439,10 @@ def main():
     args = get_ccp_arguments()
 
     # Load Database
-    # stdb=0.1.4
-    try:
-        db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
+    db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
 
-    # stdb=0.1.3
-    except:
-        db = stdb.io.load_db(fname=args.indb)
-
-        # Construct station key loop
-        allkeys = db.keys()
-        sorted(allkeys)
-
-        # Extract key subset
-        if len(args.stkeys) > 0:
-            stkeys = []
-            for skey in args.stkeys:
-                stkeys.extend([s for s in allkeys if skey in s])
-        else:
-            stkeys = db.keys()
-            sorted(stkeys)
+    # Track processed folders
+    procfold=[]
 
     if args.load:
 
@@ -498,6 +482,11 @@ def main():
                 #-- Construct Folder Name
                 stfld=stkey
                 if not args.lkey : stfld=stkey.split('.')[0]+"."+stkey.split('.')[1]
+
+                #-- Check for folder already processed
+                if stfld in procfold:
+                    print('{0} already processed...skipping   '.format(stfld))
+                    continue
 
                 # Define path to see if it exists
                 if args.phase in ['P', 'PP', 'allP']:
@@ -582,6 +571,9 @@ def main():
                     continue
 
                 ccpimage.add_rfstream(rfRstream)
+
+                #-- update processed folders
+                procfold.append(stfld)
 
             if len(ccpimage.radialRF) > 0:
                 ccpimage.save("CCP_load.pkl")

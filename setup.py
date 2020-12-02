@@ -32,7 +32,7 @@ setup(
          'Programming Language :: Python :: 3.6',
          'Programming Language :: Python :: 3.7',
          'Programming Language :: Python :: 3.8'],
-    install_requires=['numpy', 'obspy', 'stdb>=0.1.4', 'cartopy'],
+    install_requires=['numpy', 'obspy', 'stdb>=0.2.0', 'cartopy'],
     python_requires='>=3.6',
     packages=['rfpy'],
     scripts=scripts)
