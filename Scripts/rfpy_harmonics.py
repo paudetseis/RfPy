@@ -35,6 +35,7 @@ from argparse import ArgumentParser
 from os.path import exists as exist
 from numpy import nan
 
+
 def get_harmonics_arguments(argv=None):
     """
     Get Options from :class:`~optparse.OptionParser` objects.
@@ -78,6 +79,15 @@ def get_harmonics_arguments(argv=None):
         default=False,
         help="Force the overwriting of pre-existing data. " +
         "[Default False]")
+    parser.add_argument(
+        "-L", "--long-name",
+        action="store_true",
+        dest="lkey",
+        default=False,
+        help="Force folder names to use long-key form (NET.STN.CHN). " +
+        "Default behaviour uses short key form (NET.STN) for the folder " +
+        "names, regardless of the key type of the database."
+    )
 
     # Event Selection Criteria
     TimeGroup = parser.add_argument_group(
@@ -320,7 +330,6 @@ def get_harmonics_arguments(argv=None):
     return args
 
 
-
 def main():
 
     print()
@@ -340,26 +349,10 @@ def main():
     args = get_harmonics_arguments()
 
     # Load Database
-    # stdb=0.1.4
-    try:
-        db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
+    db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
 
-    # stdb=0.1.3
-    except:
-        db = stdb.io.load_db(fname=args.indb)
-
-        # Construct station key loop
-        allkeys = db.keys()
-        sorted(allkeys)
-
-        # Extract key subset
-        if len(args.stkeys) > 0:
-            stkeys = []
-            for skey in args.stkeys:
-                stkeys.extend([s for s in allkeys if skey in s])
-        else:
-            stkeys = db.keys()
-            sorted(stkeys)
+    # Track processed folders
+    procfold = []
 
     # Loop over station keys
     for stkey in list(stkeys):
@@ -367,13 +360,19 @@ def main():
         # Extract station information from dictionary
         sta = db[stkey]
 
+        # Construct Folder Name
+        stfld = stkey
+        if not args.lkey:
+            stfld = stkey.split('.')[0]+"."+stkey.split('.')[1]
+
         # Define path to see if it exists
         if args.phase in ['P', 'PP', 'allP']:
-            datapath = Path('P_DATA') / stkey
+            datapath = Path('P_DATA') / stfld
         elif args.phase in ['S', 'SKS', 'allS']:
-            datapath = Path('S_DATA') / stkey
+            datapath = Path('S_DATA') / stfld
         if not datapath.is_dir():
-            print('Path to ' + str(datapath) + ' doesn`t exist - continuing')
+            print('Path to ' + str(datapath) +
+                  ' doesn`t exist - continuing')
             continue
 
         # Get search start time
@@ -421,6 +420,11 @@ def main():
             sta.enddate.strftime("%Y-%m-%d %H:%M:%S")))
         print("|-----------------------------------------------|")
 
+        # Check for folder already processed
+        if stfld in procfold:
+            print('  {0} already processed...skipping   '.format(stfld))
+            continue
+
         rfRstream = Stream()
         rfTstream = Stream()
 
@@ -443,7 +447,8 @@ def main():
                 if filename.is_file():
                     file = open(filename, "rb")
                     rfdata = pickle.load(file)
-                    if rfdata[0].stats.snrh > args.snrh and rfdata[0].stats.snr and \
+                    if rfdata[0].stats.snrh > args.snrh and \
+                            rfdata[0].stats.snr and \
                             rfdata[0].stats.cc > args.cc:
 
                         rfRstream.append(rfdata[1])
@@ -512,6 +517,9 @@ def main():
             filename = datapath / (hkstack.hstream[0].stats.station +
                                    ".harmonics.pkl")
             harmonics.save()
+
+        # Update processed folders
+        procfold.append(stfld)
 
 
 if __name__ == "__main__":

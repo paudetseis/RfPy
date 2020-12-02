@@ -35,6 +35,7 @@ from argparse import ArgumentParser
 from os.path import exists as exist
 from numpy import nan
 
+
 def get_hk_arguments(argv=None):
     """
     Get Options from :class:`~optparse.OptionParser` objects.
@@ -78,6 +79,15 @@ def get_hk_arguments(argv=None):
         default=False,
         help="Force the overwriting of pre-existing data. " +
         "[Default False]")
+    parser.add_argument(
+        "-L", "--long-name",
+        action="store_true",
+        dest="lkey",
+        default=False,
+        help="Force folder names to use long-key form (NET.STN.CHN). " +
+        "Default behaviour uses short key form (NET.STN) for the folder " +
+        "names, regardless of the key type of the database."
+    )
 
     # Event Selection Criteria
     TimeGroup = parser.add_argument_group(
@@ -484,26 +494,10 @@ def main():
     args = get_hk_arguments()
 
     # Load Database
-    # stdb=0.1.4
-    try:
-        db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
+    db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
 
-    # stdb=0.1.3
-    except:
-        db = stdb.io.load_db(fname=args.indb)
-
-        # Construct station key loop
-        allkeys = db.keys()
-        sorted(allkeys)
-
-        # Extract key subset
-        if len(args.stkeys) > 0:
-            stkeys = []
-            for skey in args.stkeys:
-                stkeys.extend([s for s in allkeys if skey in s])
-        else:
-            stkeys = db.keys()
-            sorted(stkeys)
+    # Track processed folders
+    procfold = []
 
     # Loop over station keys
     for stkey in list(stkeys):
@@ -511,18 +505,23 @@ def main():
         # Extract station information from dictionary
         sta = db[stkey]
 
+        # Construct Folder Name
+        stfld = stkey
+        if not args.lkey:
+            stfld = stkey.split('.')[0]+"."+stkey.split('.')[1]
+
         # Define path to see if it exists
         if args.phase in ['P', 'PP', 'allP']:
-            datapath = Path('P_DATA') / stkey
+            datapath = Path('P_DATA') / stfld
         elif args.phase in ['S', 'SKS', 'allS']:
-            datapath = Path('S_DATA') / stkey
+            datapath = Path('S_DATA') / stfld
         if not datapath.is_dir():
             print('Path to ' + str(datapath) + ' doesn`t exist - continuing')
             continue
 
         # Define save path
         if args.save:
-            savepath = Path('HK_DATA') / stkey
+            savepath = Path('HK_DATA') / stfld
             if not savepath.is_dir():
                 print('Path to '+str(savepath)+' doesn`t exist - creating it')
                 savepath.mkdir(parents=True)
@@ -572,6 +571,11 @@ def main():
             sta.enddate.strftime("%Y-%m-%d %H:%M:%S")))
         print("|-----------------------------------------------|")
 
+        # Check for folder already processed
+        if stfld in procfold:
+            print('  {0} already processed...skipping   '.format(stfld))
+            continue
+
         rfRstream = Stream()
 
         datafiles = [x for x in datapath.iterdir() if x.is_dir()]
@@ -607,11 +611,12 @@ def main():
                 if meta.cc < args.cc:
                     continue
 
-                # # Check bounds on data
+                ''' # Check bounds on data
                 # if meta.slow < args.slowbound[0] and meta.slow > args.slowbound[1]:
                 #     continue
                 # if meta.baz < args.bazbound[0] and meta.baz > args.bazbound[1]:
                 #     continue
+                '''
 
                 # If everything passed, load the RF data
                 filename = folder / "RF_Data.pkl"
@@ -719,10 +724,13 @@ def main():
             hkstack.plot(args.save_plot, args.title, args.form)
 
         if args.save:
-            filename = savepath / (hkstack.rfV1[0].stats.station + \
-                ".hkstack."+args.typ+".pkl")
+            filename = savepath / (hkstack.rfV1[0].stats.station +
+                                   ".hkstack."+args.typ+".pkl")
 
             hkstack.save(file=filename)
+
+        # Update processed folders
+        procfold.append(stfld)
 
 
 if __name__ == "__main__":

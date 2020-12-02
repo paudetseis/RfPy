@@ -73,6 +73,15 @@ def get_recalc_arguments(argv=None):
         dest="verb",
         default=False,
         help="Specify to increase verbosity.")
+    parser.add_argument(
+        "-L", "--long-name",
+        action="store_true",
+        dest="lkey",
+        default=False,
+        help="Force folder names to use long-key form (NET.STN.CHN). " +
+        "Default behaviour uses short key form (NET.STN) for the folder " +
+        "names, regardless of the key type of the database."
+    )
 
     # Constants Settings
     ConstGroup = parser.add_argument_group(
@@ -250,26 +259,10 @@ def main():
     args = get_recalc_arguments()
 
     # Load Database
-    # stdb=0.1.4
-    try:
-        db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
+    db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
 
-    # stdb=0.1.3
-    except:
-        db = stdb.io.load_db(fname=args.indb)
-
-        # Construct station key loop
-        allkeys = db.keys()
-        sorted(allkeys)
-
-        # Extract key subset
-        if len(args.stkeys) > 0:
-            stkeys = []
-            for skey in args.stkeys:
-                stkeys.extend([s for s in allkeys if skey in s])
-        else:
-            stkeys = db.keys()
-            sorted(stkeys)
+    # Track processed folders
+    procfold = []
 
     # Loop over station keys
     for stkey in list(stkeys):
@@ -277,11 +270,16 @@ def main():
         # Extract station information from dictionary
         sta = db[stkey]
 
+        # Construct Folder Name
+        stfld = stkey
+        if not args.lkey:
+            stfld = stkey.split('.')[0]+"."+stkey.split('.')[1]
+
         # Define path to see if it exists
         if args.phase in ['P', 'PP', 'allP']:
-            datapath = Path('P_DATA') / stkey
+            datapath = Path('P_DATA') / stfld
         elif args.phase in ['S', 'SKS', 'allS']:
-            datapath = Path('S_DATA') / stkey
+            datapath = Path('S_DATA') / stfld
         if not datapath.is_dir():
             print('Path to ' + str(datapath) + ' doesn`t exist - continuing')
             continue
@@ -309,6 +307,11 @@ def main():
         print("|      Lon: {0:7.2f}; Lat: {1:6.2f}                |".format(
             sta.longitude, sta.latitude))
         print("|-----------------------------------------------|")
+
+        # Check for folder already processed
+        if stfld in procfold:
+            print('  {0} already processed...skipping   '.format(stfld))
+            continue
 
         datafiles = [x for x in datapath.iterdir() if x.is_dir()]
         for folder in datafiles:
@@ -398,6 +401,9 @@ def main():
             if args.verb:
                 print("* Output files written")
                 print("**************************************************")
+
+            # Update processed folders
+            procfold.append(stfld)
 
 
 if __name__ == "__main__":
