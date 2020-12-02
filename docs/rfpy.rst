@@ -67,7 +67,9 @@ Install remaining dependencies using ``pip`` inside the ``rfpy`` environment:
 Installing from Pypi
 --------------------
 
-*This option is not available at this time*
+.. sourcecode:: bash
+
+   pip install rfpy
 
 Installing from source
 ----------------------
