@@ -259,7 +259,26 @@ def main():
     args = get_recalc_arguments()
 
     # Load Database
-    db,stkeys = stdb.io.load_db(fname=args.indb,keys=args.stkeys)
+    # stdb=0.1.4
+    try:
+        db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
+
+    # stdb=0.1.3
+    except:
+        db = stdb.io.load_db(fname=args.indb)
+
+        # Construct station key loop
+        allkeys = db.keys()
+        sorted(allkeys)
+
+        # Extract key subset
+        if len(args.stkeys) > 0:
+            stkeys = []
+            for skey in args.stkeys:
+                stkeys.extend([s for s in allkeys if skey in s])
+        else:
+            stkeys = db.keys()
+            sorted(stkeys)
 
     # Loop over station keys
     for stkey in list(stkeys):
@@ -349,7 +368,7 @@ def main():
             # Resample if requested
             if args.resample:
                 rfdata.data.resample(
-                    args.resample, no_filter=False, strict_length=True)
+                    args.resample, no_filter=False)
 
             # Remove rotated flag and snr flag
             rfdata.meta.rotated = False
