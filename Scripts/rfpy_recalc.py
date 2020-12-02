@@ -74,14 +74,14 @@ def get_recalc_arguments(argv=None):
         default=False,
         help="Specify to increase verbosity.")
     parser.add_argument(
-        "-L","--long-name",
+        "-L", "--long-name",
         action="store_true",
         dest="lkey",
         default=False,
         help="Force folder names to use long-key form (NET.STN.CHN). " +
-        "Default behaviour uses short key form (NET.STN) for the folder "+
-        "names, regardless of the key type of the database." 
-        )
+        "Default behaviour uses short key form (NET.STN) for the folder " +
+        "names, regardless of the key type of the database."
+    )
 
     # Constants Settings
     ConstGroup = parser.add_argument_group(
@@ -262,7 +262,7 @@ def main():
     db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
 
     # Track processed folders
-    procfold=[]
+    procfold = []
 
     # Loop over station keys
     for stkey in list(stkeys):
@@ -270,9 +270,10 @@ def main():
         # Extract station information from dictionary
         sta = db[stkey]
 
-        #-- Construct Folder Name
-        stfld=stkey
-        if not args.lkey : stfld=stkey.split('.')[0]+"."+stkey.split('.')[1]
+        # Construct Folder Name
+        stfld = stkey
+        if not args.lkey:
+            stfld = stkey.split('.')[0]+"."+stkey.split('.')[1]
 
         # Define path to see if it exists
         if args.phase in ['P', 'PP', 'allP']:
@@ -307,7 +308,7 @@ def main():
             sta.longitude, sta.latitude))
         print("|-----------------------------------------------|")
 
-        #-- Check for folder already processed
+        # Check for folder already processed
         if stfld in procfold:
             print('  {0} already processed...skipping   '.format(stfld))
             continue
@@ -401,7 +402,7 @@ def main():
                 print("* Output files written")
                 print("**************************************************")
 
-            #-- update processed folders
+            # Update processed folders
             procfold.append(stfld)
 
 

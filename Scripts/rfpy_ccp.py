@@ -79,15 +79,15 @@ def get_ccp_arguments(argv=None):
         default=False,
         help="Force the overwriting of pre-existing data. " +
         "[Default False]")
-        parser.add_argument(
-        "-L","--long-name",
+    parser.add_argument(
+        "-L", "--long-name",
         action="store_true",
         dest="lkey",
         default=False,
         help="Force folder names to use long-key form (NET.STN.CHN). " +
-        "Default behaviour uses short key form (NET.STN) for the folder "+
-        "names, regardless of the key type of the database." 
-        )
+        "Default behaviour uses short key form (NET.STN) for the folder " +
+        "names, regardless of the key type of the database."
+    )
 
     LineGroup = parser.add_argument_group(
         title='Line Geometry Settings',
@@ -295,8 +295,8 @@ def get_ccp_arguments(argv=None):
         action="store",
         dest="weights",
         default=None,
-        help="Option to define weights for each of the three phases: "+
-        "Ps, Pps and Pss, by specifying three comma-separated floats. "+
+        help="Option to define weights for each of the three phases: " +
+        "Ps, Pps and Pss, by specifying three comma-separated floats. " +
         "[Default 1., 3., -3.]")
 
     FigGroup = parser.add_argument_group(
@@ -442,7 +442,7 @@ def main():
     db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
 
     # Track processed folders
-    procfold=[]
+    procfold = []
 
     if args.load:
 
@@ -461,9 +461,9 @@ def main():
             print("|-----------------------------------------------|")
             print("| Gridding: ")
             print("|     start    = {0:5.1f},{1:6.1f}".format(
-                args.coord_start[0],args.coord_start[1]))
+                args.coord_start[0], args.coord_start[1]))
             print("|     end      = {0:5.1f},{1:6.1f}".format(
-                args.coord_end[0],args.coord_end[1]))
+                args.coord_end[0], args.coord_end[1]))
             print("|     dz    = {0} (km)".format(str(args.dz)))
             print("|     dx    = {0} (km)".format(str(args.dx)))
             print()
@@ -479,11 +479,12 @@ def main():
                 # Extract station information from dictionary
                 sta = db[stkey]
 
-                #-- Construct Folder Name
-                stfld=stkey
-                if not args.lkey : stfld=stkey.split('.')[0]+"."+stkey.split('.')[1]
+                # Construct Folder Name
+                stfld = stkey
+                if not args.lkey:
+                    stfld = stkey.split('.')[0]+"."+stkey.split('.')[1]
 
-                #-- Check for folder already processed
+                # Check for folder already processed
                 if stfld in procfold:
                     print('{0} already processed...skipping   '.format(stfld))
                     continue
@@ -494,7 +495,8 @@ def main():
                 elif args.phase in ['S', 'SKS', 'allS']:
                     datapath = Path('S_DATA') / stfld
                 if not datapath.is_dir():
-                    print('Path to ' + str(datapath) + ' doesn`t exist - continuing')
+                    print('Path to ' + str(datapath) +
+                          ' doesn`t exist - continuing')
                     continue
 
                 # Temporary print locations
@@ -567,12 +569,12 @@ def main():
 
                 print("Station: {0:>2s}.{1:5s} -  {2} traces loaded".format(
                     sta.network, sta.station, len(rfRstream)))
-                if len(rfRstream)==0:
+                if len(rfRstream) == 0:
                     continue
 
                 ccpimage.add_rfstream(rfRstream)
 
-                #-- update processed folders
+                # Update processed folders
                 procfold.append(stfld)
 
             if len(ccpimage.radialRF) > 0:
@@ -611,7 +613,7 @@ def main():
                 print("|     nslow = {0}".format(str(args.nslow)))
                 print()
 
-                ccpfile = open(load_file,"rb")
+                ccpfile = open(load_file, "rb")
                 ccpimage = pickle.load(ccpfile)
                 ccpfile.close()
                 ccpimage.prep_data(f1=args.f1, f2ps=args.f2ps,
@@ -624,7 +626,6 @@ def main():
 
     else:
         pass
-
 
     if args.prestack:
 
@@ -698,7 +699,7 @@ def main():
 
         if args.ccp_figure:
             ccpimage.plot_ccp(save=args.save_figure, fmt=args.fmt,
-                vmin=-1.*args.cbound, vmax=args.cbound, title=args.title)
+                              vmin=-1.*args.cbound, vmax=args.cbound, title=args.title)
 
     else:
         pass
@@ -746,7 +747,7 @@ def main():
 
         if args.ccp_figure:
             ccpimage.plot_gccp(save=args.save_figure, fmt=args.fmt,
-                vmin=-1.*args.cbound, vmax=args.cbound, title=args.title)
+                               vmin=-1.*args.cbound, vmax=args.cbound, title=args.title)
 
     else:
         pass

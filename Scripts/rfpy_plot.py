@@ -34,6 +34,7 @@ from argparse import ArgumentParser
 from os.path import exists as exist
 from numpy import nan
 
+
 def get_plot_arguments(argv=None):
     """
     Get Options from :class:`~optparse.OptionParser` objects.
@@ -77,14 +78,14 @@ def get_plot_arguments(argv=None):
         help="Force the overwriting of pre-existing figures. " +
         "[Default False]")
     parser.add_argument(
-        "-L","--long-name",
+        "-L", "--long-name",
         action="store_true",
         dest="lkey",
         default=False,
         help="Force folder names to use long-key form (NET.STN.CHN). " +
-        "Default behaviour uses short key form (NET.STN) for the folder "+
-        "names, regardless of the key type of the database." 
-        )
+        "Default behaviour uses short key form (NET.STN) for the folder " +
+        "names, regardless of the key type of the database."
+    )
 
     PreGroup = parser.add_argument_group(
         title='Pre-processing Settings',
@@ -96,16 +97,16 @@ def get_plot_arguments(argv=None):
         type=float,
         dest="snr",
         default=-9999.,
-        help="Specify the vertical component SNR threshold for extracting receiver functions. " +
-        "[Default 5.]")
+        help="Specify the vertical component SNR threshold for " +
+        "extracting receiver functions. [Default 5.]")
     PreGroup.add_argument(
         "--snrh",
         action="store",
         type=float,
         dest="snrh",
         default=-9999.,
-        help="Specify the horizontal component SNR threshold for extracting receiver functions. " +
-        "[Default None]")
+        help="Specify the horizontal component SNR threshold for " +
+        "extracting receiver functions. [Default None]")
     PreGroup.add_argument(
         "--cc",
         action="store",
@@ -248,10 +249,9 @@ def get_plot_arguments(argv=None):
         action="store_true",
         dest="plot_event_dist",
         default=False,
-        help="Plot distribution of events on map. Other Plotting Options "+
-        "will be applied to this figure (title, save, etc.). "+
+        help="Plot distribution of events on map. Other Plotting Options " +
+        "will be applied to this figure (title, save, etc.). " +
         "[Default no plot]")
-
 
     args = parser.parse_args(argv)
 
@@ -300,7 +300,7 @@ def get_plot_arguments(argv=None):
     if args.nbaz is None and args.nslow is None:
         args.nbaz = 72
         print("'nbaz' or 'nslow' not specified - plotting using " +
-            "'nbaz=72'")
+              "'nbaz=72'")
     elif args.nbaz is not None and args.nslow is not None:
         parser.error(
             "Error: Cannot specify both 'nbaz' and 'nslow'")
@@ -348,7 +348,7 @@ def main():
     db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
 
     # Track processed folders
-    procfold=[]
+    procfold = []
 
     # Loop over station keys
     for stkey in list(stkeys):
@@ -356,9 +356,10 @@ def main():
         # Extract station information from dictionary
         sta = db[stkey]
 
-        #-- Construct Folder Name
-        stfld=stkey
-        if not args.lkey : stfld=stkey.split('.')[0]+"."+stkey.split('.')[1]
+        # Construct Folder Name
+        stfld = stkey
+        if not args.lkey:
+            stfld = stkey.split('.')[0]+"."+stkey.split('.')[1]
 
         # Define path to see if it exists
         if args.phase in ['P', 'PP', 'allP']:
@@ -392,7 +393,7 @@ def main():
             sta.longitude, sta.latitude))
         print("|-----------------------------------------------|")
 
-        #-- Check for folder already processed
+        # Check for folder already processed
         if stfld in procfold:
             print('  {0} already processed...skipping   '.format(stfld))
             continue
@@ -571,13 +572,14 @@ def main():
                                  norm=norm, save=args.saveplot,
                                  title=args.titleplot, form=args.form)
 
-        #-- update processed folders
+        # Update processed folders
         procfold.append(stfld)
 
         # Event distribution
         if args.plot_event_dist:
-            plotting.event_dist(rfRstream, phase=args.phase, save=args.saveplot,
-                                title=args.titleplot, form=args.form)
+            plotting.event_dist(
+                rfRstream, phase=args.phase, save=args.saveplot,
+                title=args.titleplot, form=args.form)
 
 
 if __name__ == "__main__":
