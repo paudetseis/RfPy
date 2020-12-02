@@ -83,6 +83,15 @@ def get_calc_arguments(argv=None):
         default=False,
         help="Force the overwriting of pre-existing data. " +
         "[Default False]")
+    parser.add_argument(
+        "-L","--long-name",
+        action="store_true",
+        dest="lkey",
+        default=False,
+        help="Force folder names to use long-key form (NET.STN.CHN). " +
+        "Default behaviour uses short key form (NET.STN) for the folder "+
+        "names, regardless of the key type of the database." 
+        )
 
     # Server Settings
     ServerGroup = parser.add_argument_group(
@@ -487,11 +496,15 @@ def main():
         # Extract station information from dictionary
         sta = db[stkey]
 
+        #-- Construct Folder Name
+        stfld=stkey
+        if not args.lkey : stfld=stkey.split('.')[0]+"."+stkey.split('.')[1]
+
         # Define path to see if it exists
         if args.phase in ['P', 'PP']:
-            datapath = Path('P_DATA') / stkey
+            datapath = Path('P_DATA') / stfld
         elif args.phase in ['S', 'SKS']:
-            datapath = Path('S_DATA') / stkey
+            datapath = Path('S_DATA') / stfld
         if not datapath.exists():
             print('Path to '+str(datapath)+' doesn`t exist - creating it')
             datapath.mkdir(parents=True)
