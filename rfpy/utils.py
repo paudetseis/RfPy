@@ -68,12 +68,12 @@ def list_local_data_stn(lcldrs=list, sta=None, net=None, dtype='SAC', altnet=[])
         return []
     else:
         if net is None:
-            sstrings = ['*.{0:s}.*.{1:s}'.format(sta,dtype.upper())]
+            sstrings = ['*.{0:s}.*.{1:s}'.format(sta,dtype)]
         else:
-            sstrings = ['*.{0:s}.{1:s}.*.{2:s}'.format(net, sta, dtype.upper())]
+            sstrings = ['*.{0:s}.{1:s}.*.{2:s}'.format(net, sta, dtype)]
             if len(altnet) > 0:
                 for anet in altnet:
-                    sstrings.append('*.{0:s}.{1:s}.*.{2:s}'.format(anet, sta, dtype.upper()))
+                    sstrings.append('*.{0:s}.{1:s}.*.{2:s}'.format(anet, sta, dtype))
 
     fpathmatch = []
     # Loop over all local data directories
