@@ -408,7 +408,7 @@ def get_calc_arguments(argv=None):
         args.localdata = []
 
     # Check Datatype specification
-    if (not args.dtype.upper() == 'MSEED') or  (not args.dtype.upper() == 'SAC'):
+    if (not args.dtype.upper() == 'MSEED') and  (not args.dtype.upper() == 'SAC'):
     	parser.error(
     		"Error: Local Data Archive must be of types 'SAC'" +
     		"or MSEED. These must match the file extensions for " +
