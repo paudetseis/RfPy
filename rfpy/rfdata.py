@@ -299,8 +299,8 @@ class RFData(object):
         if returned:
             return self.meta.accept
 
-    def download_data(self, client, stdata=[], ndval=np.nan, new_sr=5.,
-                      dts=120., returned=False, verbose=False):
+    def download_data(self, client, stdata=[], dtype='SAC', ndval=np.nan,
+                       new_sr=5.,dts=120., returned=False, verbose=False):
         """
         Downloads seismograms based on event origin time and
         P phase arrival.
@@ -350,7 +350,7 @@ class RFData(object):
         # Download data
         err, stream = utils.download_data(
             client=client, sta=self.sta, start=tstart, end=tend,
-            stdata=stdata, ndval=ndval, new_sr=new_sr,
+            stdata=stdata, dtype=dtype, ndval=ndval, new_sr=new_sr,
             verbose=verbose)
 
         # Store as attributes with traces in dictionary
