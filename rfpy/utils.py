@@ -422,11 +422,12 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
                         except:
                             pass
                     else:
-                        print(("*                 - Merge Failed: No " +
-                               "Overlap {0:s} - {1:s}".format(
-                                   st1[0].stats.endtime,
-                                   st2[0].stats.starttime -
-                                   st2[0].stats.delta)))
+                        st2ot = st2[0].stats.endtime-st2[0].stats.delta
+                        print("*                 - Merge Failed: No " +
+                              "Overlap {0:s} - {1:s}".format(
+                                  st1[0].stats.endtime.strftime(
+                                      "%Y-%m-%d %H:%M:%S"),
+                                  st2ot.strftime("%Y-%m-%d %H:%M:%S")))
 
     # If we got here, we did not get the data.
     print("*              - Data Unavailable")
