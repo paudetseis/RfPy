@@ -193,7 +193,7 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
             if dtype.upper() == 'MSEED':
                 if len(st) > 1:
                     st.merge(method=1, interpolation_samples=-
-                             1, fill_value=None)
+                             1, fill_value=-123456789)
 
             # Should only be one component, otherwise keep reading If more
             # than 1 component, error
@@ -201,24 +201,29 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
                 pass
 
             else:
-                eddt = False
-                # Check for NoData and convert to NaN if a SAC file
-                if dtype.upper() == 'SAC':
-                    stnd = st[0].stats.sac['user9']
-                    if (not stnd == 0.0) and (not stnd == -12345.0):
-                        st[0].data[st[0].data == stnd] = ndval
-                        eddt = True
-
                 # Check start/end times in range
                 if (st[0].stats.starttime <= start and
                         st[0].stats.endtime >= end):
                     st.trim(starttime=start, endtime=end)
 
-                    # Check for Nan in stream
+                    eddt = False
+                    # Check for NoData and convert to NaN if a SAC file
+                    if dtype.upper() == 'SAC':
+                        stnd = st[0].stats.sac['user9']
+                        if (not stnd == 0.0) and (not stnd == -12345.0):
+                            st[0].data[st[0].data == stnd] = ndval
+                            eddt = True
+
+                    # Check for Nan in stream for SAC
                     if True in isnan(st[0].data):
                         print(
                             "*          !!! Missing Data Present !!! " +
                             "Skipping (NaNs)")
+                    # Check for ND Val in stream for MSEED
+                    elif -123456789 in st[0].data:
+                        print(
+                            "*          !!! Missing Data Present !!! " +
+                            "Skipping (MSEED fill)")
                     else:
                         if eddt and (ndval == 0.0):
                             if any(st[0].data == 0.0):
@@ -330,7 +335,7 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
                 if dtype.upper() == 'MSEED':
                     if len(st1) > 1:
                         st1.merge(method=1, interpolation_samples=-
-                                  1, fill_value=None)
+                                  1, fill_value=-123456789)
 
                 # Loop over second day file options
                 for sacf2 in lclfiles2:
@@ -338,31 +343,31 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
                     if dtype.upper() == 'MSEED':
                         if len(st2) > 1:
                             st2.merge(
-                                method=1, interpolation_samples=-1, fill_value=None)
+                                method=1, interpolation_samples=-1, fill_value=-123456789)
 
                     # Check time overlap of the two files.
                     if st1[0].stats.endtime >= \
                             st2[0].stats.starttime-st2[0].stats.delta:
-                        eddt1 = False
-                        eddt2 = False
-                        if dtype.upper() == 'SAC':
-                            # Check for NoData and convert to NaN
-                            st1nd = st1[0].stats.sac['user9']
-                            st2nd = st2[0].stats.sac['user9']
-                            if (not st1nd == 0.0) and (not st1nd == -12345.0):
-                                st1[0].data[st1[0].data == st1nd] = ndval
-                                eddt1 = True
-                            if (not st2nd == 0.0) and (not st2nd == -12345.0):
-                                st2[0].data[st2[0].data == st2nd] = ndval
-                                eddt2 = True
+                        # eddt1 = False
+                        # eddt2 = False
+                        # if dtype.upper() == 'SAC':
+                        #     # Check for NoData and convert to NaN
+                        #     st1nd = st1[0].stats.sac['user9']
+                        #     st2nd = st2[0].stats.sac['user9']
+                        #     if (not st1nd == 0.0) and (not st1nd == -12345.0):
+                        #         st1[0].data[st1[0].data == st1nd] = ndval
+                        #         eddt1 = True
+                        #     if (not st2nd == 0.0) and (not st2nd == -12345.0):
+                        #         st2[0].data[st2[0].data == st2nd] = ndval
+                        #         eddt2 = True
 
                         st = st1 + st2
                         # Need to work on this HERE (AJS OCT 2015).
                         # If Calibration factors are different,
+                        # then the traces cannot be merged.
                         try:
-                                # then the traces cannot be merged.
                             st.merge(method=1, interpolation_samples=-
-                                     1, fill_value=None)
+                                     1, fill_value=-123456789)
 
                             # Should only be one component, otherwise keep
                             # reading If more than 1 component, error
@@ -375,11 +380,24 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
                                         st[0].stats.endtime >= end):
                                     st.trim(starttime=start, endtime=end)
 
-                                    # Check for Nan in stream
+                                    eddt = False
+                                    # Check for NoData and convert to NaN if a SAC file
+                                    if dtype.upper() == 'SAC':
+                                        stnd = st[0].stats.sac['user9']
+                                        if (not stnd == 0.0) and (not stnd == -12345.0):
+                                            st[0].data[st[0].data == stnd] = ndval
+                                            eddt = True
+
+                                    # Check for Nan in stream for SAC
                                     if True in isnan(st[0].data):
                                         print(
                                             "*          !!! Missing Data " +
                                             "Present !!! Skipping (NaNs)")
+                                    # Check for ND Val in stream for MSEED
+                                    elif -123456789 in st[0].data:
+                                        print(
+                                            "*          !!! Missing Data Present !!! " +
+                                            "Skipping (MSEED fill)")
                                     else:
                                         if (eddt1 or eddt2) and (ndval == 0.0):
                                             if any(st[0].data == 0.0):
