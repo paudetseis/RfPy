@@ -3,20 +3,25 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Scripts &mdash; Home 0.0.1 documentation</title>
+  <title>Scripts &mdash; Home 0.1.1 documentation</title>
   
 
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
 
   
   
+
   
+  
+
   
 
   
@@ -26,10 +31,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -51,7 +56,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> Home
+            <a href="index.html" class="icon icon-home"> Home
           
 
           
@@ -104,32 +109,32 @@
 <p class="caption"><span class="caption-text">Scripts &amp; Tutorials</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Scripts</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#rfpy-calc-py"><code class="docutils literal notranslate"><span class="pre">rfpy_calc.py</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#rfpy-calc"><code class="docutils literal notranslate"><span class="pre">rfpy_calc</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#description">Description</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#usage">Usage</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#rfpy-recalc-py"><code class="docutils literal notranslate"><span class="pre">rfpy_recalc.py</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#rfpy-recalc"><code class="docutils literal notranslate"><span class="pre">rfpy_recalc</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id1">Description</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id2">Usage</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#rfpy-plot-py"><code class="docutils literal notranslate"><span class="pre">rfpy_plot.py</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#rfpy-plot"><code class="docutils literal notranslate"><span class="pre">rfpy_plot</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id3">Description</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id4">Usage</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#rfpy-hk-py"><code class="docutils literal notranslate"><span class="pre">rfpy_hk.py</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#rfpy-hk"><code class="docutils literal notranslate"><span class="pre">rfpy_hk</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id5">Description</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id6">Usage</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#rfpy-harmonics-py"><code class="docutils literal notranslate"><span class="pre">rfpy_harmonics.py</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#rfpy-harmonics"><code class="docutils literal notranslate"><span class="pre">rfpy_harmonics</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id7">Description</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id8">Usage</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#rfpy-ccp-py"><code class="docutils literal notranslate"><span class="pre">rfpy_ccp.py</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#rfpy-ccp"><code class="docutils literal notranslate"><span class="pre">rfpy_ccp</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id9">Description</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id10">Usage</a></li>
 </ul>
@@ -177,6 +182,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -188,7 +195,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="_sources/scripts.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -209,8 +216,8 @@ in bash scripts to automate data processing. These include scripts to download
 three-component seismogram data and calculate receiver functions, and perform
 post-processing for <cite>H-k</cite> stacking and harmonic decomposition. All of them use
 a station database provided as a <code class="xref py py-class docutils literal notranslate"><span class="pre">StDb</span></code> dictionary.</p>
-<div class="section" id="rfpy-calc-py">
-<h2><code class="docutils literal notranslate"><span class="pre">rfpy_calc.py</span></code><a class="headerlink" href="#rfpy-calc-py" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="rfpy-calc">
+<h2><code class="docutils literal notranslate"><span class="pre">rfpy_calc</span></code><a class="headerlink" href="#rfpy-calc" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="description">
 <h3>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h3>
 <p>Downloads three-component (‘Z’, ‘N’ and ‘E’) seismograms based
@@ -220,7 +227,7 @@ station code. The database is provided as a <code class="xref py py-class docuti
 </div>
 <div class="section" id="usage">
 <h3>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_calc.py -h
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_calc -h
 
 ##############################################
 #        __                          _       #
@@ -232,7 +239,7 @@ station code. The database is provided as a <code class="xref py py-class docuti
 #                                            #
 ##############################################
 
-usage: rfpy_calc.py [arguments] &lt;station database&gt;
+usage: rfpy_calc [arguments] &lt;station database&gt;
 
 Script used to download and pre-process three-component (&#39;Z&#39;, &#39;N&#39;, and &#39;E&#39;),
 seismograms for individual events and calculate teleseismic P-wave receiver
@@ -359,8 +366,8 @@ Deconvolution Settings:
 </div>
 </div>
 </div>
-<div class="section" id="rfpy-recalc-py">
-<h2><code class="docutils literal notranslate"><span class="pre">rfpy_recalc.py</span></code><a class="headerlink" href="#rfpy-recalc-py" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="rfpy-recalc">
+<h2><code class="docutils literal notranslate"><span class="pre">rfpy_recalc</span></code><a class="headerlink" href="#rfpy-recalc" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="id1">
 <h3>Description<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <p>Looks for available receiver functions on disk and re-calculates them
@@ -370,7 +377,7 @@ dictionary.</p>
 </div>
 <div class="section" id="id2">
 <h3>Usage<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_recalc.py -h
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_recalc -h
 
 ########################################################
 #                                                      #
@@ -383,7 +390,7 @@ dictionary.</p>
 #                                                      #
 ########################################################
 
-usage: rfpy_recalc.py [arguments] &lt;station database&gt;
+usage: rfpy_recalc [arguments] &lt;station database&gt;
 
 Script used to re-calculate receiver functions that already exist on disk, but
 using different processing options. The stations are processed one by one and
@@ -442,8 +449,8 @@ Deconvolution Settings:
 </div>
 </div>
 </div>
-<div class="section" id="rfpy-plot-py">
-<h2><code class="docutils literal notranslate"><span class="pre">rfpy_plot.py</span></code><a class="headerlink" href="#rfpy-plot-py" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="rfpy-plot">
+<h2><code class="docutils literal notranslate"><span class="pre">rfpy_plot</span></code><a class="headerlink" href="#rfpy-plot" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="id3">
 <h3>Description<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <p>Script used to make plots of receiver function panels sorted by
@@ -452,7 +459,7 @@ back-azimuth (averaging all slowness information) or by slowness
 </div>
 <div class="section" id="id4">
 <h3>Usage<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_recalc.py -h
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_recalc -h
 
 #################################################
 #        __                        _       _    #
@@ -464,7 +471,7 @@ back-azimuth (averaging all slowness information) or by slowness
 #                                               #
 #################################################
 
-usage: rfpy_plot.py [arguments] &lt;station database&gt;
+usage: rfpy_plot [arguments] &lt;station database&gt;
 
 Script used to plot receiver function data
 
@@ -545,8 +552,8 @@ Plot Settings:
 </div>
 </div>
 </div>
-<div class="section" id="rfpy-hk-py">
-<h2><code class="docutils literal notranslate"><span class="pre">rfpy_hk.py</span></code><a class="headerlink" href="#rfpy-hk-py" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="rfpy-hk">
+<h2><code class="docutils literal notranslate"><span class="pre">rfpy_hk</span></code><a class="headerlink" href="#rfpy-hk" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="id5">
 <h3>Description<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <p>Loads radial-component receiver function data available on disk
@@ -556,7 +563,7 @@ station code. The database is provided as a <code class="xref py py-class docuti
 </div>
 <div class="section" id="id6">
 <h3>Usage<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_hk.py -h
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_hk -h
 
 #########################################
 #        __                 _     _     #
@@ -568,7 +575,7 @@ station code. The database is provided as a <code class="xref py py-class docuti
 #                                       #
 #########################################
 
-usage: rfpy_hk.py [arguments] &lt;station database&gt;
+usage: rfpy_hk [arguments] &lt;station database&gt;
 
 Script used to process receiver function data for H-k stacking.
 
@@ -678,8 +685,8 @@ Settings for plotting results:
 </div>
 </div>
 </div>
-<div class="section" id="rfpy-harmonics-py">
-<h2><code class="docutils literal notranslate"><span class="pre">rfpy_harmonics.py</span></code><a class="headerlink" href="#rfpy-harmonics-py" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="rfpy-harmonics">
+<h2><code class="docutils literal notranslate"><span class="pre">rfpy_harmonics</span></code><a class="headerlink" href="#rfpy-harmonics" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="id7">
 <h3>Description<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
 <p>Loads radial and transverse component receiver function data available on disk
@@ -689,7 +696,7 @@ dictionary.</p>
 </div>
 <div class="section" id="id8">
 <h3>Usage<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_harmonics.py -h
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_harmonics -h
 
 ################################################################################
 #        __                 _                                      _           #
@@ -701,7 +708,7 @@ dictionary.</p>
 #                                                                              #
 ################################################################################
 
-usage: rfpy_harmonics.py [arguments] &lt;station database&gt;
+usage: rfpy_harmonics [arguments] &lt;station database&gt;
 
 Script used to process receiver function data for harmonic decomposition.
 
@@ -781,8 +788,8 @@ Settings for plotting results:
 </div>
 </div>
 </div>
-<div class="section" id="rfpy-ccp-py">
-<h2><code class="docutils literal notranslate"><span class="pre">rfpy_ccp.py</span></code><a class="headerlink" href="#rfpy-ccp-py" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="rfpy-ccp">
+<h2><code class="docutils literal notranslate"><span class="pre">rfpy_ccp</span></code><a class="headerlink" href="#rfpy-ccp" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="id9">
 <h3>Description<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
 <p>Loads radial component receiver function data available on disk
@@ -803,7 +810,7 @@ normal to the line.</p>
 </div>
 <div class="section" id="id10">
 <h3>Usage<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_ccp.py -h
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_ccp -h
 
 ############################################
 #        __                                #
@@ -815,7 +822,7 @@ normal to the line.</p>
 #                                          #
 ############################################
 
-usage: rfpy_ccp.py [arguments] &lt;station database&gt;
+usage: rfpy_ccp [arguments] &lt;station database&gt;
 
 Script used to process receiver function data for common-conversion-point
 (CCP) imaging.
@@ -924,37 +931,29 @@ Figure Settings:
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="tutorials.html" class="btn btn-neutral float-right" title="Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="api.html" class="btn btn-neutral float-left" title="Classes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="tutorials.html" class="btn btn-neutral float-right" title="Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="api.html" class="btn btn-neutral float-left" title="Classes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2019, Pascal Audet
+        &#169; Copyright 2019, Pascal Audet.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 

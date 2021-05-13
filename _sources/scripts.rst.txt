@@ -8,7 +8,7 @@ post-processing for `H-k` stacking and harmonic decomposition. All of them use
 a station database provided as a :class:`~stdb.StDb` dictionary. 
 
 
-``rfpy_calc.py``
+``rfpy_calc``
 ++++++++++++++++
 
 Description
@@ -24,7 +24,7 @@ Usage
 
 .. code-block::
 
-    $ rfpy_calc.py -h
+    $ rfpy_calc -h
 
     ##############################################
     #        __                          _       #
@@ -36,7 +36,7 @@ Usage
     #                                            #
     ##############################################
 
-    usage: rfpy_calc.py [arguments] <station database>
+    usage: rfpy_calc [arguments] <station database>
 
     Script used to download and pre-process three-component ('Z', 'N', and 'E'),
     seismograms for individual events and calculate teleseismic P-wave receiver
@@ -161,7 +161,7 @@ Usage
                             [Default 0.01]
 
 
-``rfpy_recalc.py``
+``rfpy_recalc``
 ++++++++++++++++
 
 Description
@@ -177,7 +177,7 @@ Usage
 
 .. code-block::
 
-    $ rfpy_recalc.py -h
+    $ rfpy_recalc -h
 
     ########################################################
     #                                                      #
@@ -190,7 +190,7 @@ Usage
     #                                                      #
     ########################################################
 
-    usage: rfpy_recalc.py [arguments] <station database>
+    usage: rfpy_recalc [arguments] <station database>
 
     Script used to re-calculate receiver functions that already exist on disk, but
     using different processing options. The stations are processed one by one and
@@ -247,7 +247,7 @@ Usage
                            [Default 0.01]
 
 
-``rfpy_plot.py``
+``rfpy_plot``
 ++++++++++++++++
 
 Description
@@ -262,7 +262,7 @@ Usage
 
 .. code-block::
 
-    $ rfpy_recalc.py -h
+    $ rfpy_recalc -h
 
     #################################################
     #        __                        _       _    #
@@ -274,7 +274,7 @@ Usage
     #                                               #
     #################################################
 
-    usage: rfpy_plot.py [arguments] <station database>
+    usage: rfpy_plot [arguments] <station database>
 
     Script used to plot receiver function data
 
@@ -353,7 +353,7 @@ Usage
                             etc.). [Default no plot]
 
 
-``rfpy_hk.py``
+``rfpy_hk``
 ++++++++++++++
 
 Description
@@ -369,7 +369,7 @@ Usage
 
 .. code-block::
 
-    $ rfpy_hk.py -h
+    $ rfpy_hk -h
 
     #########################################
     #        __                 _     _     #
@@ -381,7 +381,7 @@ Usage
     #                                       #
     #########################################
 
-    usage: rfpy_hk.py [arguments] <station database>
+    usage: rfpy_hk [arguments] <station database>
 
     Script used to process receiver function data for H-k stacking.
 
@@ -489,7 +489,7 @@ Usage
                             [Default 'png']
 
 
-``rfpy_harmonics.py``
+``rfpy_harmonics``
 +++++++++++++++++++++
 
 Description
@@ -505,7 +505,7 @@ Usage
 
 .. code-block::
 
-    $ rfpy_harmonics.py -h
+    $ rfpy_harmonics -h
 
     ################################################################################
     #        __                 _                                      _           #
@@ -517,7 +517,7 @@ Usage
     #                                                                              #
     ################################################################################
 
-    usage: rfpy_harmonics.py [arguments] <station database>
+    usage: rfpy_harmonics [arguments] <station database>
 
     Script used to process receiver function data for harmonic decomposition.
 
@@ -595,7 +595,7 @@ Usage
                          [Default 'png']
 
 
-``rfpy_ccp.py``
+``rfpy_ccp``
 +++++++++++++++++++++
 
 Description
@@ -622,7 +622,7 @@ Usage
 
 .. code-block::
 
-    $ rfpy_ccp.py -h
+    $ rfpy_ccp -h
 
     ############################################
     #        __                                #
@@ -634,7 +634,7 @@ Usage
     #                                          #
     ############################################
 
-    usage: rfpy_ccp.py [arguments] <station database>
+    usage: rfpy_ccp [arguments] <station database>
 
     Script used to process receiver function data for common-conversion-point
     (CCP) imaging.

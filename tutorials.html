@@ -3,20 +3,25 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Tutorials &mdash; Home 0.0.1 documentation</title>
+  <title>Tutorials &mdash; Home 0.1.1 documentation</title>
   
 
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
 
   
   
+
   
+  
+
   
 
   
@@ -26,10 +31,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -50,7 +55,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> Home
+            <a href="index.html" class="icon icon-home"> Home
           
 
           
@@ -159,6 +164,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -170,7 +177,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="_sources/tutorials.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -196,11 +203,11 @@ the harmonic decomposition method.</p>
 <p>All the scripts provided require a <code class="docutils literal notranslate"><span class="pre">StDb</span></code> database containing station
 information and metadata. Let’s first create this database for station
 <code class="docutils literal notranslate"><span class="pre">MMPY</span></code> and send the prompt to a logfile</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ query_fdsn_stdb.py -N NY -S MMPY MMPY &gt; logfile
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ query_fdsn_stdb -N NY -S MMPY MMPY &gt; logfile
 </pre></div>
 </div>
-<p>To check the station info for MMPY, use the program <code class="docutils literal notranslate"><span class="pre">ls_stdb.py</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ls_stdb.py MMPY.pkl
+<p>To check the station info for MMPY, use the program <code class="docutils literal notranslate"><span class="pre">ls_stdb</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ls_stdb MMPY.pkl
 Listing Station Pickle: MMPY.pkl
 NY.MMPY
 --------------------------------------------------------------------------
@@ -222,20 +229,20 @@ NY.MMPY
 <p>You can see above that the station MMPY has been in operation between July 2013
 and October 2020 (Note: the date at which the tutorial was written). In theory,
 we could run the main script to perform the automatic processing of the seismic
-data (<code class="docutils literal notranslate"><span class="pre">rfpy_calc.py</span></code>) using for example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_calc.py MMPY.pkl
+data (<code class="docutils literal notranslate"><span class="pre">rfpy_calc</span></code>) using for example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_calc MMPY.pkl
 </pre></div>
 </div>
 <p>However, in this example we would be looking at over seven years of data,
 which is much more than we need for this tutorial. Note also that we didn’t specify
 a station key, since there is only one station in the data base. By default,
-<code class="docutils literal notranslate"><span class="pre">rfpy_calc.py</span></code> would process data for all teleseismic P-waves from earthquakes
+<code class="docutils literal notranslate"><span class="pre">rfpy_calc</span></code> would process data for all teleseismic P-waves from earthquakes
 with magnitudes between 6 and 9 and with epicentral distances between 30 and 90
 degrees that occurred between July 2013 and October 2020. The default component
 alignment is <code class="docutils literal notranslate"><span class="pre">ZRT</span></code> and the default deconvolution method is the <code class="docutils literal notranslate"><span class="pre">wiener</span></code> filter.</p>
 <p>Let’s run an example where we want to limit the time range, include earthquakes
 with magnitude down to 5.5, change the component alignment and the deconvolution method:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_calc.py --minmag=5.5 --start=2017-05-01 --end=2017-10-31 --align=LQT --method=multitaper
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_calc --minmag=5.5 --start=2017-05-01 --end=2017-10-31 --align=LQT --method=multitaper
 </pre></div>
 </div>
 <p>An example log printed on the terminal will look like:</p>
@@ -308,14 +315,14 @@ running the same line of command with those additional arguments.</p>
 <h2>2. Re-calculate with different options<a class="headerlink" href="#re-calculate-with-different-options" title="Permalink to this headline">¶</a></h2>
 <p>If later on you decide you want to try a different deconvolution method, component
 alignment or maybe try some pre-filtering options, you can always simply use the
-<code class="docutils literal notranslate"><span class="pre">rfpy_recalc.py</span></code> script to do so.</p>
+<code class="docutils literal notranslate"><span class="pre">rfpy_recalc</span></code> script to do so.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Re-calculating the receiver functions for different options will override any
 existing receiver function data. Be mindful of this when using this script.</p>
 </div>
 <p>This can be done by typing in the terminal:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_recalc.py --align=ZRT --method=wiener MMPY.pkl
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_recalc --align=ZRT --method=wiener MMPY.pkl
 </pre></div>
 </div>
 </div>
@@ -329,7 +336,7 @@ fuuntions are sorted by slowness and all back-azimuth information is lost. When
 plotting, you can decide whether to include all data, or set some quality control
 thresholds based on 1) SNR of vertical component, 2) CC value of predicted and
 observed radial components, and 3) outliers. If you don’t specify any thresholding,
-by default the script <code class="docutils literal notranslate"><span class="pre">rfpy_plot.py</span></code> will use all data in the plots. You also want
+by default the script <code class="docutils literal notranslate"><span class="pre">rfpy_plot</span></code> will use all data in the plots. You also want
 to set corner frequencies for filterig, otherwise it will be difficult to see
 anything. Typically you would choose a bandwidth that encompasses the dominant
 frequencies of teleseismic P waves (i.e., 0.05 to 1 Hz). Let’s examine
@@ -340,7 +347,7 @@ the two types of plots with examples:</p>
 using 36 back-azimuth bins. We plot the RFs from -2. to +30 seconds following the
 zero-lag (i.e., P-wave arrival) time, stack all traces to produce an averaged RF,
 and normalize all traces to that of the stacks.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_plot.py --no-outlier --bp=0.05,0.5 --nbaz=36 --normalize --trange=-2.,30. MMPY.pkl
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_plot --no-outlier --bp=0.05,0.5 --nbaz=36 --normalize --trange=-2.,30. MMPY.pkl
 </pre></div>
 </div>
 <div class="figure align-center">
@@ -351,7 +358,7 @@ and normalize all traces to that of the stacks.</p>
 <h3>Slowness panel<a class="headerlink" href="#slowness-panel" title="Permalink to this headline">¶</a></h3>
 <p>Now let’s make a plot of all P receiver functions, this time sorted by slowness using
 20 bins. Instead</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_plot.py --no-outlier --bp=0.05,0.5 --nslow=20 --normalize --trange=-2.,30. MMPY.pkl
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_plot --no-outlier --bp=0.05,0.5 --nslow=20 --normalize --trange=-2.,30. MMPY.pkl
 </pre></div>
 </div>
 <div class="figure align-center">
@@ -366,7 +373,7 @@ and normalize all traces to that of the stacks.</p>
 <p>With these receiver functions, we can easily estimate Moho depth and crustal Vp/Vs
 using the simple H-k stacking method. There are several options to choose from. Let’s
 examine the default options.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_hk.py MMPY.pkl
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_hk MMPY.pkl
 </pre></div>
 </div>
 <p>By default the script will use all available receiver functions (no thresholding), bin
@@ -380,7 +387,7 @@ the results to disk requires adding processing arguments.</p>
 <p>As an example, let’s remove outliers, using 20 slowness bins (instead of 40 to speed
 things up), change the weights to [1., 1., 0], change the Vp to 5.5 km/s, save the
 H-k object and make a plot with some title:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_hk.py --no-outlier --nslow=20 --weights=1.,1.,0. --vp=5.5 --save --plot --title=&#39;First attempt&#39; MMPY.pkl
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_hk --no-outlier --nslow=20 --weights=1.,1.,0. --vp=5.5 --save --plot --title=&#39;First attempt&#39; MMPY.pkl
 
 #########################################
 #        __                 _     _     #
@@ -425,7 +432,7 @@ gets rid of the subjective choice of weights. Let’s re-do the prevous example 
 number of changes: 1) use a copy of the RFs to use for the reverberations (Pps and
 Pss), 2) bandpass filter those at lower high-frequency corner, and 3) select the
 ‘product’ method.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_hk.py --no-outlier --nslow=20 --vp=5.5 --copy --bp-copy=0.05,0.35 --type=product --save --plot --title=&#39;Second attempt&#39; MMPY.pkl
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_hk --no-outlier --nslow=20 --vp=5.5 --copy --bp-copy=0.05,0.35 --type=product --save --plot --title=&#39;Second attempt&#39; MMPY.pkl
 </pre></div>
 </div>
 <p>The new figure is slightly different (there is no negative amplitude) but produces
@@ -450,7 +457,7 @@ methodology.</p>
 fixed azimuth of 0 degrees (i.e., North), such that the second and third components
 represent 1-theta variations oriented in the N-S and E-W directions, calculated over the
 first 10 seconds of the receiver function data:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_harmonics.py MMPY.pkl
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_harmonics MMPY.pkl
 </pre></div>
 </div>
 <p>This command simply runs the decomposition algorithm but does not return anything, unless
@@ -469,7 +476,7 @@ to 10 seconds (to avoid the large zero-lag pulse):</p>
 <p class="admonition-title">Note</p>
 <p>Warning!! This command is particularly slow, especially for large data sets.</p>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_harmonics.py --no-outlier --find-azim --trange=2.,10. MMPY.pkl
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_harmonics --no-outlier --find-azim --trange=2.,10. MMPY.pkl
 
 ################################################################################
 #        __                 _                                      _           #
@@ -501,7 +508,7 @@ Optimal azimuth for trange between 2.0 and 10.0 seconds is: 178.0
 </div>
 <p>Now that we have the estimated azimuth, we can re-calculate the decomposition using
 <code class="docutils literal notranslate"><span class="pre">--azim=</span></code> and plot them over the first 20 seconds.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_harmonics.py --no-outlier --azim=178. --trange=2.,10., --plot --ymax=20. --title=&quot;Decomposition at azimuth 178 degrees&quot; MMPY.pkl
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_harmonics --no-outlier --azim=178. --trange=2.,10., --plot --ymax=20. --title=&quot;Decomposition at azimuth 178 degrees&quot; MMPY.pkl
 </pre></div>
 </div>
 <p>This command will produce the following figure:</p>
@@ -525,35 +532,28 @@ symmetry.</p>
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-      
-        <a href="scripts.html" class="btn btn-neutral float-left" title="Scripts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="scripts.html" class="btn btn-neutral float-left" title="Scripts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2019, Pascal Audet
+        &#169; Copyright 2019, Pascal Audet.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
