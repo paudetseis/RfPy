@@ -49,7 +49,7 @@ where ``RfPy`` can be installed along with some of its dependencies.
 
 .. sourcecode:: bash
 
-   conda create -n rfpy python=3.7 obspy cartopy -c conda-forge
+   conda create -n rfpy python=3.9 obspy cartopy -c conda-forge
 
 Activate the newly created environment:
 

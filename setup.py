@@ -15,8 +15,6 @@ def find_version(*paths):
     raise RuntimeError("Unable to find version string.")
 
 
-scripts = [str(x) for x in Path('Scripts').iterdir() if x.is_file()]
-
 setup(
     name='rfpy',
     version=find_version('rfpy', '__init__.py'),
@@ -31,8 +29,15 @@ setup(
          'License :: OSI Approved :: MIT License',
          'Programming Language :: Python :: 3.6',
          'Programming Language :: Python :: 3.7',
-         'Programming Language :: Python :: 3.8'],
+         'Programming Language :: Python :: 3.8',
+         'Programming Language :: Python :: 3.9'],
     install_requires=['numpy', 'obspy', 'stdb>=0.2.0', 'cartopy'],
     python_requires='>=3.6',
     packages=['rfpy'],
-    scripts=scripts)
+    entry_points={'console_scripts':[
+    'rfpy_calc=rfpy.scripts.rfpy_calc:main',
+    'rfpy_recalc=rfpy.scripts.rfpy_recalc:main',
+    'rfpy_plot=rfpy.scripts.rfpy_plot:main',
+    'rfpy_harmonics=rfpy.scripts.rfpy_harmonics:main',
+    'rfpy_hk=rfpy.scripts.rfpy_hk:main',
+    'rfpy_ccp=rfpy.scripts.rfpy_ccp:main']})
