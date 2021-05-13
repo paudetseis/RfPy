@@ -43,16 +43,16 @@ To check the station info for MMPY, use the program ``ls_stdb``:
 You can see above that the station MMPY has been in operation between July 2013
 and October 2020 (Note: the date at which the tutorial was written). In theory,
 we could run the main script to perform the automatic processing of the seismic
-data (``rfpy_calc.py``) using for example:
+data (``rfpy_calc``) using for example:
 
 .. code-block::
 
-    $ rfpy_calc.py MMPY.pkl
+    $ rfpy_calc MMPY.pkl
 
 However, in this example we would be looking at over seven years of data, 
 which is much more than we need for this tutorial. Note also that we didn't specify
 a station key, since there is only one station in the data base. By default, 
-``rfpy_calc.py`` would process data for all teleseismic P-waves from earthquakes
+``rfpy_calc`` would process data for all teleseismic P-waves from earthquakes
 with magnitudes between 6 and 9 and with epicentral distances between 30 and 90
 degrees that occurred between July 2013 and October 2020. The default component 
 alignment is ``ZRT`` and the default deconvolution method is the ``wiener`` filter.
@@ -62,7 +62,7 @@ with magnitude down to 5.5, change the component alignment and the deconvolution
 
 .. code-block::
 
-    $ rfpy_calc.py --minmag=5.5 --start=2017-05-01 --end=2017-10-31 --align=LQT --method=multitaper
+    $ rfpy_calc --minmag=5.5 --start=2017-05-01 --end=2017-10-31 --align=LQT --method=multitaper
 
 An example log printed on the terminal will look like:
 
@@ -140,7 +140,7 @@ running the same line of command with those additional arguments.
 
 If later on you decide you want to try a different deconvolution method, component 
 alignment or maybe try some pre-filtering options, you can always simply use the
-``rfpy_recalc.py`` script to do so. 
+``rfpy_recalc`` script to do so. 
 
 .. note::
 
@@ -151,7 +151,7 @@ This can be done by typing in the terminal:
 
 .. code-block::
 
-    $ rfpy_recalc.py --align=ZRT --method=wiener MMPY.pkl
+    $ rfpy_recalc --align=ZRT --method=wiener MMPY.pkl
 
 3. Plot receiver functions by back-azimuth or slowness
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -164,7 +164,7 @@ fuuntions are sorted by slowness and all back-azimuth information is lost. When
 plotting, you can decide whether to include all data, or set some quality control 
 thresholds based on 1) SNR of vertical component, 2) CC value of predicted and 
 observed radial components, and 3) outliers. If you don't specify any thresholding, 
-by default the script ``rfpy_plot.py`` will use all data in the plots. You also want 
+by default the script ``rfpy_plot`` will use all data in the plots. You also want 
 to set corner frequencies for filterig, otherwise it will be difficult to see 
 anything. Typically you would choose a bandwidth that encompasses the dominant
 frequencies of teleseismic P waves (i.e., 0.05 to 1 Hz). Let's examine 
@@ -180,7 +180,7 @@ and normalize all traces to that of the stacks.
 
 .. code-block::
 
-    $ rfpy_plot.py --no-outlier --bp=0.05,0.5 --nbaz=36 --normalize --trange=-2.,30. MMPY.pkl
+    $ rfpy_plot --no-outlier --bp=0.05,0.5 --nbaz=36 --normalize --trange=-2.,30. MMPY.pkl
 
 .. figure:: ../rfpy/examples/figures/Figure_1.png
    :align: center
@@ -193,7 +193,7 @@ Now let's make a plot of all P receiver functions, this time sorted by slowness 
 
 .. code-block::
 
-    $ rfpy_plot.py --no-outlier --bp=0.05,0.5 --nslow=20 --normalize --trange=-2.,30. MMPY.pkl
+    $ rfpy_plot --no-outlier --bp=0.05,0.5 --nslow=20 --normalize --trange=-2.,30. MMPY.pkl
 
 .. figure:: ../rfpy/examples/figures/Figure_2.png
    :align: center
@@ -210,7 +210,7 @@ examine the default options.
 
 .. code-block::
 
-    $ rfpy_hk.py MMPY.pkl
+    $ rfpy_hk MMPY.pkl
 
 By default the script will use all available receiver functions (no thresholding), bin 
 them using 36 back-azimuth and 40 slowness bins, and stack them using H and k intervals
@@ -227,7 +227,7 @@ H-k object and make a plot with some title:
 
 .. code-block::
 
-    $ rfpy_hk.py --no-outlier --nslow=20 --weights=1.,1.,0. --vp=5.5 --save --plot --title='First attempt' MMPY.pkl
+    $ rfpy_hk --no-outlier --nslow=20 --weights=1.,1.,0. --vp=5.5 --save --plot --title='First attempt' MMPY.pkl
 
     #########################################
     #        __                 _     _     #
@@ -275,7 +275,7 @@ Pss), 2) bandpass filter those at lower high-frequency corner, and 3) select the
 
 .. code-block::
 
-    $ rfpy_hk.py --no-outlier --nslow=20 --vp=5.5 --copy --bp-copy=0.05,0.35 --type=product --save --plot --title='Second attempt' MMPY.pkl
+    $ rfpy_hk --no-outlier --nslow=20 --vp=5.5 --copy --bp-copy=0.05,0.35 --type=product --save --plot --title='Second attempt' MMPY.pkl
 
 The new figure is slightly different (there is no negative amplitude) but produces 
 much cleaner H and k estimates. Note that the labeled weights above each panel 
@@ -306,7 +306,7 @@ first 10 seconds of the receiver function data:
 
 .. code-block::
 
-    $ rfpy_harmonics.py MMPY.pkl
+    $ rfpy_harmonics MMPY.pkl
 
 This command simply runs the decomposition algorithm but does not return anything, unless 
 you specify the ``--save`` and/or the ``--plot`` command. Instead of the default 0-degree 
@@ -328,7 +328,7 @@ to 10 seconds (to avoid the large zero-lag pulse):
 
 .. code-block::
 
-    $ rfpy_harmonics.py --no-outlier --find-azim --trange=2.,10. MMPY.pkl
+    $ rfpy_harmonics --no-outlier --find-azim --trange=2.,10. MMPY.pkl
 
     ################################################################################
     #        __                 _                                      _           #
@@ -362,7 +362,7 @@ Now that we have the estimated azimuth, we can re-calculate the decomposition us
 
 .. code-block::
 
-    $ rfpy_harmonics.py --no-outlier --azim=178. --trange=2.,10., --plot --ymax=20. --title="Decomposition at azimuth 178 degrees" MMPY.pkl
+    $ rfpy_harmonics --no-outlier --azim=178. --trange=2.,10., --plot --ymax=20. --title="Decomposition at azimuth 178 degrees" MMPY.pkl
 
 This command will produce the following figure:
 
