@@ -16,13 +16,13 @@ information and metadata. Let's first create this database for station
 
 .. code-block::
 
-   $ query_fdsn_stdb.py -N NY -S MMPY MMPY > logfile
+   $ query_fdsn_stdb -N NY -S MMPY MMPY > logfile
 
-To check the station info for MMPY, use the program ``ls_stdb.py``:
+To check the station info for MMPY, use the program ``ls_stdb``:
 
 .. code-block::
 
-    $ ls_stdb.py MMPY.pkl
+    $ ls_stdb MMPY.pkl
     Listing Station Pickle: MMPY.pkl
     NY.MMPY
     --------------------------------------------------------------------------
