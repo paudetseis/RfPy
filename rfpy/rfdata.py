@@ -299,8 +299,8 @@ class RFData(object):
         if returned:
             return self.meta.accept
 
-    def download_data(self, client, stdata=[], ndval=np.nan, new_sr=5.,
-                      dts=120., returned=False, verbose=False):
+    def download_data(self, client, stdata=[], dtype='SAC', ndval=np.nan,
+                       new_sr=5.,dts=120., returned=False, verbose=False):
         """
         Downloads seismograms based on event origin time and
         P phase arrival.
@@ -350,7 +350,7 @@ class RFData(object):
         # Download data
         err, stream = utils.download_data(
             client=client, sta=self.sta, start=tstart, end=tend,
-            stdata=stdata, ndval=ndval, new_sr=new_sr,
+            stdata=stdata, dtype=dtype, ndval=ndval, new_sr=new_sr,
             verbose=verbose)
 
         # Store as attributes with traces in dictionary
@@ -439,7 +439,7 @@ class RFData(object):
 
             azim = self.sta.azcorr
 
-            # Try EBS with left handed system
+            # Try with left handed system
             Z, N, E = rotate2zne(trZ.data, 0., -90., trN.data,
                                  azim, 0., trE.data, azim+90., 0.)
 
@@ -526,6 +526,7 @@ class RFData(object):
         else:
             raise(Exception("incorrect 'align' argument"))
 
+
     def calc_snr(self, dt=30., fmin=0.05, fmax=1.):
         """
         Calculates signal-to-noise ratio on either Z, L or P component
@@ -611,11 +612,12 @@ class RFData(object):
         # Calculate signal/noise ratio in dB
         self.meta.snrh = 10*np.log10(srms*srms/nrms/nrms)
 
+
     def deconvolve(self, phase='P', vp=None, vs=None,
                    align=None, method='wiener', pre_filt=None,
                    gfilt=None, wlevel=0.01):
         """
-        Deconvolves three-compoent data using one component as the source wavelet.
+        Deconvolves three-component data using one component as the source wavelet.
         The source component is always taken as the dominant compressional 
         component, which can be either 'Z', 'L', or 'P'. 
 
@@ -629,8 +631,11 @@ class RFData(object):
             Alignment of coordinate system for rotation
             ('ZRT', 'LQT', or 'PVH')
         method : str
-            Method for deconvolution. Options are 'wiener' or 
+            Method for deconvolution. Options are 'wiener', 'water' or 
             'multitaper'
+        pre_filt : list of 2 floats
+            Low and High frequency corners of bandpass filter applied
+            before deconvolution
         gfilt : float
             Center frequency of Gaussian filter (Hz). 
         wlevel : float
@@ -756,16 +761,12 @@ class RFData(object):
             rfd2 = daughter2.copy()
 
             # Spectral division and inverse transform
-            rfp.data = np.fft.fftshift(np.real(np.fft.ifft(
+            rfp.data = np.fft.ifftshift(np.real(np.fft.ifft(
                 gauss*Spp/Sdenom))/gnorm)
-            rfd1.data = np.fft.fftshift(np.real(np.fft.ifft(
+            rfd1.data = np.fft.ifftshift(np.real(np.fft.ifft(
                 gauss*Sd1p/Sdenom))/gnorm)
-            rfd2.data = np.fft.fftshift(np.real(np.fft.ifft(
+            rfd2.data = np.fft.ifftshift(np.real(np.fft.ifft(
                 gauss*Sd2p/Sdenom))/gnorm)
-            # rfd1.data = np.fft.fftshift(np.real(np.fft.ifft(
-            #     gauss*Sd1p/Sdenom))/np.amax(rfp.data)/gnorm)
-            # rfd2.data = np.fft.fftshift(np.real(np.fft.ifft(
-            #     gauss*Sd2p/Sdenom))/np.amax(rfp.data)/gnorm)
 
             return rfp, rfd1, rfd2
 
@@ -800,75 +801,50 @@ class RFData(object):
             dts = len(trL.data)*trL.stats.delta/2.
             nn = int(round((dts-5.)*trL.stats.sampling_rate)) + 1
 
-            # Crop traces for signal (-5. to dts-10 sec)
-            trL.trim(self.meta.time+self.meta.ttime-5.,
-                     self.meta.time+self.meta.ttime+dts-10.,
-                     nearest_sample=False, pad=nn, fill_value=0.)
-            trQ.trim(self.meta.time+self.meta.ttime-5.,
-                     self.meta.time+self.meta.ttime+dts-10.,
-                     nearest_sample=False, pad=nn, fill_value=0.)
-            trT.trim(self.meta.time+self.meta.ttime-5.,
-                     self.meta.time+self.meta.ttime+dts-10.,
-                     nearest_sample=False, pad=nn, fill_value=0.)
-            # Crop trace for noise (-dts to -5 sec)
-            trNl.trim(self.meta.time+self.meta.ttime-dts,
-                      self.meta.time+self.meta.ttime-5.,
-                      nearest_sample=False, pad=nn, fill_value=0.)
-            trNq.trim(self.meta.time+self.meta.ttime-dts,
-                      self.meta.time+self.meta.ttime-5.,
-                      nearest_sample=False, pad=nn, fill_value=0.)
+            # Signal window (-5. to dts-10 sec)
+            sig_left = self.meta.time+self.meta.ttime-5.
+            sig_right = self.meta.time+self.meta.ttime+dts-10.
+
+            # Trim signal traces
+            [tr.trim(sig_left, sig_right, nearest_sample=False, 
+                pad=nn, fill_value=0.) for tr in [trL, trQ, trT]]
+
+            # Noise window (-dts to -5. sec)
+            noise_left = self.meta.time+self.meta.ttime-dts
+            noise_right = self.meta.time+self.meta.ttime-5.
+
+            # Trim noise traces
+            [tr.trim(noise_left, noise_right, nearest_sample=False, 
+                pad=nn, fill_value=0.) for tr in [trNl, trNq]]
 
         elif phase == 'S' or 'SKS':
+
             # Get signal length (i.e., seismogram to deconvolve) from trace length
             dts = len(trL.data)*trL.stats.delta/2.
 
-            # Crop traces for signal (-5. to dts-10 sec)
+            # Trim signal traces (-5. to dts-10 sec)
             trL.trim(self.meta.time+self.meta.ttime+25.-dts/2.,
                      self.meta.time+self.meta.ttime+25.)
             trQ.trim(self.meta.time+self.meta.ttime+25.-dts/2.,
                      self.meta.time+self.meta.ttime+25.)
             trT.trim(self.meta.time+self.meta.ttime+25.-dts/2.,
                      self.meta.time+self.meta.ttime+25.)
-            # Crop trace for noise (-dts to -5 sec)
+            
+            # Trim noise traces (-dts to -5 sec)
             trNl.trim(self.meta.time+self.meta.ttime-dts,
                       self.meta.time+self.meta.ttime-dts/2.)
             trNq.trim(self.meta.time+self.meta.ttime-dts,
                       self.meta.time+self.meta.ttime-dts/2.)
 
-        # Demean, detrend, taper, demean, detrend
-        trL.detrend('demean').detrend('linear').taper(max_percentage=0.05, max_length=2.)
-        trQ.detrend('demean').detrend('linear').taper(max_percentage=0.05, max_length=2.)
-        trT.detrend('demean').detrend('linear').taper(max_percentage=0.05, max_length=2.)
-        trNl.detrend('demean').detrend('linear').taper(max_percentage=0.05, max_length=2.)
-        trNq.detrend('demean').detrend('linear').taper(max_percentage=0.05, max_length=2.)
-        trL.detrend('demean').detrend('linear')
-        trQ.detrend('demean').detrend('linear')
-        trT.detrend('demean').detrend('linear')
-        trNl.detrend('demean').detrend('linear')
-        trNq.detrend('demean').detrend('linear')
-        # Stream(traces=[trL, trQ, trT, trNl, trNq]).plot(size=(600,300))
+        # Taper traces - only necessary processing after trimming
+        [tr.taper(max_percentage=0.05, max_length=2.) 
+         for tr in [trL, trQ, trT, trNl, trNq]]
 
         # Pre-filter waveforms before deconvolution
         if pre_filt:
-            trL.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1],
-                       corners=2, zerophase=True)
-            trQ.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1],
-                       corners=2, zerophase=True)
-            trT.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1],
-                       corners=2, zerophase=True)
-            trNl.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1],
-                       corners=2, zerophase=True)
-            trNq.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1],
-                       corners=2, zerophase=True)
-        # Stream(traces=[trL, trQ, trT, trNl, trNq]).plot(size=(600,300))
-
-            # Demean, detrend, taper, demean, detrend
-            trL.detrend('linear').taper(max_percentage=0.05, max_length=2.).detrend('linear')
-            trQ.detrend('linear').taper(max_percentage=0.05, max_length=2.).detrend('linear')
-            trT.detrend('linear').taper(max_percentage=0.05, max_length=2.).detrend('linear')
-            trNl.detrend('linear').taper(max_percentage=0.05, max_length=2.).detrend('linear')
-            trNq.detrend('linear').taper(max_percentage=0.05, max_length=2.).detrend('linear')
-        # Stream(traces=[trL, trQ, trT, trNl, trNq]).plot(size=(600,300))
+            [tr.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1],
+                       corners=2, zerophase=True) 
+             for tr in [trL, trQ, trT, trNl, trNq]]
 
         # Deconvolve
         if phase == 'P' or 'PP':
@@ -876,7 +852,6 @@ class RFData(object):
 
         elif phase == 'S' or 'SKS':
             rfQ, rfL, rfT = _decon(trQ, trL, trT, trNq, nn, method)
-        # Stream(traces=[rfQ, rfL, rfT]).plot(size=(600,300))
 
         # Update stats of streams
         rfL.stats.channel = 'RF' + self.meta.align[0]
@@ -884,6 +859,7 @@ class RFData(object):
         rfT.stats.channel = 'RF' + self.meta.align[2]
 
         self.rf = Stream(traces=[rfL, rfQ, rfT])
+
 
     def calc_cc(self):
 
@@ -921,9 +897,6 @@ class RFData(object):
         # Get cross correlation coefficient between observed and predicted Q
         self.meta.cc = np.corrcoef(obs_Q.data, pred_Q.data)[0][1]
 
-        # print(self.meta.cc)
-        # test = Stream(traces=[obs_L, obs_Q, pred_Q])
-        # test.plot()
 
     def to_stream(self):
         """
@@ -953,7 +926,7 @@ class RFData(object):
             trace.stats.is_rf = True
             nn = self.rf[0].stats.npts
             sr = self.rf[0].stats.sampling_rate
-            trace.stats.taxis = np.arange(-nn/2., nn/2.)/sr
+            trace.stats.taxis = np.fft.fftshift(np.fft.fftfreq(nn, sr)*nn)
             return trace
 
         if not hasattr(self, 'rf'):

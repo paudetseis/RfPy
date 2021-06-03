@@ -125,7 +125,7 @@ def get_calc_arguments(argv=None):
         title="Local Data Settings",
         description="Settings associated with defining " +
         "and using a local data base of pre-downloaded " +
-        "day-long SAC files.")
+        "day-long SAC or MSEED files.")
     DataGroup.add_argument(
         "--local-data",
         action="store",
@@ -133,17 +133,29 @@ def get_calc_arguments(argv=None):
         dest="localdata",
         default=None,
         help="Specify a comma separated list of paths containing " +
-        "day-long sac files of data already downloaded. " +
+        "day-long sac or mseed files of data already downloaded. " +
         "If data exists for a seismogram is already present on disk, " +
         "it is selected preferentially over downloading " +
         "the data using the Client interface")
+    DataGroup.add_argument(
+    	"--dtype",
+    	action="store",
+    	type=str,
+    	dest="dtype",
+    	default='SAC',
+    	help="Specify the data archive file type, either SAC " +
+    	" or MSEED. Note the default behaviour is to search for " +
+    	"SAC files. Local archive files must have extensions of '.SAC' "+
+    	" or '.MSEED. These are case dependent, so specify the correct case"+
+        "here.")
     DataGroup.add_argument(
         "--no-data-zero",
         action="store_true",
         dest="ndval",
         default=False,
         help="Specify to force missing data to be set as zero, rather " +
-        "than default behaviour which sets to nan.")
+        "than default behaviour which sets to nan. Note this is applied " +
+        "only to the SAC data")
     DataGroup.add_argument(
         "--no-local-net",
         action="store_false",
@@ -395,6 +407,13 @@ def get_calc_arguments(argv=None):
     else:
         args.localdata = []
 
+    # Check Datatype specification
+    if (not args.dtype.upper() == 'MSEED') and  (not args.dtype.upper() == 'SAC'):
+    	parser.error(
+    		"Error: Local Data Archive must be of types 'SAC'" +
+    		"or MSEED. These must match the file extensions for " +
+    		" the archived data.")
+
     # Check NoData Value
     if args.ndval:
         args.ndval = 0.0
@@ -600,14 +619,14 @@ def main():
             if args.useNet:
                 stalcllist = utils.list_local_data_stn(
                     lcldrs=args.localdata, sta=sta.station,
-                    net=sta.network, altnet=sta.altnet)
+                    net=sta.network, dtype=args.dtype, altnet=sta.altnet)
                 print("|   {0:>2s}.{1:5s}: {2:6d}".format(
                     sta.network, sta.station, len(stalcllist)) +
                     " files                      |")
-                print(stalcllist[0:10])
+                #print(stalcllist[0:10])
             else:
                 stalcllist = utils.list_local_data_stn(
-                    lcldrs=args.localdata, sta=sta.station)
+                    lcldrs=args.localdata, sta=sta.station, dtype=args.dtype)
                 print("|   {0:5s}: {1:6d} files                " +
                       "        |".format(
                           sta.station, len(stalcllist)))
@@ -687,7 +706,7 @@ def main():
                 # Get data
                 has_data = rfdata.download_data(
                     client=data_client, dts=args.dts, stdata=stalcllist,
-                    ndval=args.ndval, new_sr=args.new_sampling_rate,
+                    ndval=args.ndval, dtype=args.dtype, new_sr=args.new_sampling_rate,
                     returned=True, verbose=args.verb)
 
                 if not has_data:

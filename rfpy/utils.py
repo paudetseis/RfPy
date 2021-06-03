@@ -38,7 +38,7 @@ def traceshift(trace, tt):
     return rtrace
 
 
-def list_local_data_stn(lcldrs=list, sta=None, net=None, altnet=[]):
+def list_local_data_stn(lcldrs=list, sta=None, net=None, dtype='SAC', altnet=[]):
     """
     Function to take the list of local directories and recursively
     find all data that matches the station name
@@ -68,12 +68,13 @@ def list_local_data_stn(lcldrs=list, sta=None, net=None, altnet=[]):
         return []
     else:
         if net is None:
-            sstrings = ['*.{0:s}.*.SAC'.format(sta)]
+            sstrings = ['*.{0:s}.*.{1:s}'.format(sta, dtype)]
         else:
-            sstrings = ['*.{0:s}.{1:s}.*.SAC'.format(net, sta)]
+            sstrings = ['*.{0:s}.{1:s}.*.{2:s}'.format(net, sta, dtype)]
             if len(altnet) > 0:
                 for anet in altnet:
-                    sstrings.append('*.{0:s}.{1:s}.*.SAC'.format(anet, sta))
+                    sstrings.append(
+                        '*.{0:s}.{1:s}.*.{2:s}'.format(anet, sta, dtype))
 
     fpathmatch = []
     # Loop over all local data directories
@@ -90,7 +91,7 @@ def list_local_data_stn(lcldrs=list, sta=None, net=None, altnet=[]):
     return fpathmatch
 
 
-def parse_localdata_for_comp(comp='Z', stdata=[], sta=None,
+def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
                              start=UTCDateTime, end=UTCDateTime, ndval=nan):
     """
     Function to determine the path to data for a given component and alternate network
@@ -139,17 +140,17 @@ def parse_localdata_for_comp(comp='Z', stdata=[], sta=None,
         # Format 1
         lclfiles = list(filter(
             stdata,
-            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.{4:2s}{5:1s}.SAC'.format(
+            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.{4:2s}{5:1s}.{6:s}'.format(
                 styr, stjd, sta.network.upper(
                 ), sta.station.upper(), sta.channel.upper()[0:2],
-                comp.upper())))
+                comp.upper(), dtype)))
         # Format 2
         if len(lclfiles) == 0:
             lclfiles = list(filter(
                 stdata,
-                '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*{4:1s}.SAC'.format(
+                '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*{4:1s}.{5:s}'.format(
                     styr, stjd, sta.network.upper(), sta.station.upper(),
-                    comp.upper())))
+                    comp.upper(), dtype)))
 
         # Alternate Nets (for CN/PO issues) Format 1
         if len(lclfiles) == 0:
@@ -160,9 +161,9 @@ def parse_localdata_for_comp(comp='Z', stdata=[], sta=None,
                         filter(
                             stdata,
                             '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.' +
-                            '{4:2s}{5:1s}.SAC'.format(
+                            '{4:2s}{5:1s}.{6:s}'.format(
                                 styr, stjd, anet.upper(), sta.station.upper(),
-                                sta.channel.upper()[0:2], comp.upper()))))
+                                sta.channel.upper()[0:2], comp.upper(), dtype))))
 
         # Alternate Nets (for CN/PO issues) Format 2
         if len(lclfiles) == 0:
@@ -174,9 +175,9 @@ def parse_localdata_for_comp(comp='Z', stdata=[], sta=None,
                         filter(
                             stdata,
                             '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*' +
-                            '{4:1s}.SAC'.format(
+                            '{4:1s}.{5:s}'.format(
                                 styr, stjd, sta.network.upper(),
-                                sta.station.upper(), comp.upper()))))
+                                sta.station.upper(), comp.upper(), dtype))))
 
         # If still no Local files stop
         if len(lclfiles) == 0:
@@ -189,29 +190,40 @@ def parse_localdata_for_comp(comp='Z', stdata=[], sta=None,
             st = read(sacfile)
             # st = read(sacfile, format="SAC")
 
+            if dtype.upper() == 'MSEED':
+                if len(st) > 1:
+                    st.merge(method=1, interpolation_samples=-
+                             1, fill_value=-123456789)
+
             # Should only be one component, otherwise keep reading If more
             # than 1 component, error
             if len(st) != 1:
                 pass
 
             else:
-                # Check for NoData and convert to NaN
-                stnd = st[0].stats.sac['user9']
-                eddt = False
-                if (not stnd == 0.0) and (not stnd == -12345.0):
-                    st[0].data[st[0].data == stnd] = ndval
-                    eddt = True
-
                 # Check start/end times in range
                 if (st[0].stats.starttime <= start and
                         st[0].stats.endtime >= end):
                     st.trim(starttime=start, endtime=end)
 
-                    # Check for Nan in stream
+                    eddt = False
+                    # Check for NoData and convert to NaN if a SAC file
+                    if dtype.upper() == 'SAC':
+                        stnd = st[0].stats.sac['user9']
+                        if (not stnd == 0.0) and (not stnd == -12345.0):
+                            st[0].data[st[0].data == stnd] = ndval
+                            eddt = True
+
+                    # Check for Nan in stream for SAC
                     if True in isnan(st[0].data):
                         print(
                             "*          !!! Missing Data Present !!! " +
                             "Skipping (NaNs)")
+                    # Check for ND Val in stream for MSEED
+                    elif -123456789 in st[0].data:
+                        print(
+                            "*          !!! Missing Data Present !!! " +
+                            "Skipping (MSEED fill)")
                     else:
                         if eddt and (ndval == 0.0):
                             if any(st[0].data == 0.0):
@@ -235,16 +247,16 @@ def parse_localdata_for_comp(comp='Z', stdata=[], sta=None,
         # Day 1 Format 1
         lclfiles1 = list(
             filter(stdata,
-                   '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.{4:2s}{5:1s}.SAC'.format(
+                   '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.{4:2s}{5:1s}.{6:s}'.format(
                        styr, stjd, sta.network.upper(), sta.station.upper(),
-                       sta.channel.upper()[0:2], comp.upper())))
+                       sta.channel.upper()[0:2], comp.upper(), dtype)))
         # Day 1 Format 2
         if len(lclfiles1) == 0:
             lclfiles1 = list(
                 filter(stdata,
-                       '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*{4:1s}.SAC'.format(
+                       '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*{4:1s}.{5:s}'.format(
                            styr, stjd, sta.network.upper(),
-                           sta.station.upper(), comp.upper())))
+                           sta.station.upper(), comp.upper(), dtype)))
         # Day 1 Alternate Nets (for CN/PO issues) Format 1
         if len(lclfiles1) == 0:
             lclfiles1 = []
@@ -254,10 +266,10 @@ def parse_localdata_for_comp(comp='Z', stdata=[], sta=None,
                         filter(
                             stdata,
                             '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.' +
-                            '{4:2s}{5:1s}.SAC'.format(
+                            '{4:2s}{5:1s}.{6:s}'.format(
                                 styr, stjd, anet.upper(), sta.station.upper(
                                 ), sta.channel.upper()[0:2],
-                                comp.upper()))))
+                                comp.upper(), dtype))))
         # Day 1 Alternate Nets (for CN/PO issues) Format 2
         if len(lclfiles1) == 0:
             lclfiles1 = []
@@ -266,26 +278,26 @@ def parse_localdata_for_comp(comp='Z', stdata=[], sta=None,
                     list(
                         filter(
                             stdata,
-                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*{4:1s}.SAC'.format(
+                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*{4:1s}.{5:s}'.format(
                                 styr, stjd, anet.upper(),
-                                sta.station.upper(), comp.upper()))))
+                                sta.station.upper(), comp.upper(), dtype))))
 
         # Day 2 Format 1
         lclfiles2 = list(
             filter(stdata,
-                   '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.{4:2s}{5:1s}.SAC'.format(
+                   '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.{4:2s}{5:1s}.{6:s}'.format(
                        edyr, edjd, sta.network.upper(
                        ), sta.station.upper(), sta.channel.upper()[0:2],
-                       comp.upper())))
+                       comp.upper(), dtype)))
         # Day 2 Format 2
         if len(lclfiles2) == 0:
             lclfiles2 = list(
                 filter(stdata,
                        '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*' +
-                       '{4:1s}.SAC'.format(
+                       '{4:1s}.{5:s}'.format(
                            edyr, edjd, sta.network.upper(),
                            sta.station.upper(),
-                           comp.upper())))
+                           comp.upper(), dtype)))
         # Day 2 Alternate Nets (for CN/PO issues) Format 1
         if len(lclfiles2) == 0:
             lclfiles2 = []
@@ -295,9 +307,9 @@ def parse_localdata_for_comp(comp='Z', stdata=[], sta=None,
                         filter(
                             stdata,
                             '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.' +
-                            '{4:2s}{5:1s}.SAC'.format(
+                            '{4:2s}{5:1s}.{6:s}'.format(
                                 edyr, edjd, anet.upper(), sta.station.upper(),
-                                sta.channel.upper()[0:2], comp.upper()))))
+                                sta.channel.upper()[0:2], comp.upper(), dtype))))
         # Day 2 Alternate Nets (for CN/PO issues) Format 2
         if len(lclfiles2) == 0:
             lclfiles2 = []
@@ -306,9 +318,9 @@ def parse_localdata_for_comp(comp='Z', stdata=[], sta=None,
                     list(
                         filter(
                             stdata,
-                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*{4:1s}.SAC'.format(
+                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*{4:1s}.{5:s}'.format(
                                 edyr, edjd, anet.upper(), sta.station.upper(),
-                                comp.upper()))))
+                                comp.upper(), dtype))))
 
         # If still no Local files stop
         if len(lclfiles1) == 0 and len(lclfiles2) == 0:
@@ -319,32 +331,43 @@ def parse_localdata_for_comp(comp='Z', stdata=[], sta=None,
         if len(lclfiles1) > 0 and len(lclfiles2) > 0:
             # Loop over first day file options
             for sacf1 in lclfiles1:
-                st1 = read(sacf1, format='SAC')
+                st1 = read(sacf1)
+                if dtype.upper() == 'MSEED':
+                    if len(st1) > 1:
+                        st1.merge(method=1, interpolation_samples=-
+                                  1, fill_value=-123456789)
+
                 # Loop over second day file options
                 for sacf2 in lclfiles2:
-                    st2 = read(sacf2, format='SAC')
+                    st2 = read(sacf2)
+                    if dtype.upper() == 'MSEED':
+                        if len(st2) > 1:
+                            st2.merge(
+                                method=1, interpolation_samples=-1, fill_value=-123456789)
 
                     # Check time overlap of the two files.
                     if st1[0].stats.endtime >= \
                             st2[0].stats.starttime-st2[0].stats.delta:
-                        # Check for NoData and convert to NaN
-                        st1nd = st1[0].stats.sac['user9']
-                        st2nd = st2[0].stats.sac['user9']
-                        eddt1 = False
-                        eddt2 = False
-                        if (not st1nd == 0.0) and (not st1nd == -12345.0):
-                            st1[0].data[st1[0].data == st1nd] = ndval
-                            eddt1 = True
-                        if (not st2nd == 0.0) and (not st2nd == -12345.0):
-                            st2[0].data[st2[0].data == st2nd] = ndval
-                            eddt2 = True
+                        # eddt1 = False
+                        # eddt2 = False
+                        # if dtype.upper() == 'SAC':
+                        #     # Check for NoData and convert to NaN
+                        #     st1nd = st1[0].stats.sac['user9']
+                        #     st2nd = st2[0].stats.sac['user9']
+                        #     if (not st1nd == 0.0) and (not st1nd == -12345.0):
+                        #         st1[0].data[st1[0].data == st1nd] = ndval
+                        #         eddt1 = True
+                        #     if (not st2nd == 0.0) and (not st2nd == -12345.0):
+                        #         st2[0].data[st2[0].data == st2nd] = ndval
+                        #         eddt2 = True
 
                         st = st1 + st2
                         # Need to work on this HERE (AJS OCT 2015).
                         # If Calibration factors are different,
+                        # then the traces cannot be merged.
                         try:
-                                # then the traces cannot be merged.
-                            st.merge()
+                            st.merge(method=1, interpolation_samples=-
+                                     1, fill_value=-123456789)
 
                             # Should only be one component, otherwise keep
                             # reading If more than 1 component, error
@@ -357,11 +380,24 @@ def parse_localdata_for_comp(comp='Z', stdata=[], sta=None,
                                         st[0].stats.endtime >= end):
                                     st.trim(starttime=start, endtime=end)
 
-                                    # Check for Nan in stream
+                                    eddt = False
+                                    # Check for NoData and convert to NaN if a SAC file
+                                    if dtype.upper() == 'SAC':
+                                        stnd = st[0].stats.sac['user9']
+                                        if (not stnd == 0.0) and (not stnd == -12345.0):
+                                            st[0].data[st[0].data == stnd] = ndval
+                                            eddt = True
+
+                                    # Check for Nan in stream for SAC
                                     if True in isnan(st[0].data):
                                         print(
                                             "*          !!! Missing Data " +
                                             "Present !!! Skipping (NaNs)")
+                                    # Check for ND Val in stream for MSEED
+                                    elif -123456789 in st[0].data:
+                                        print(
+                                            "*          !!! Missing Data Present !!! " +
+                                            "Skipping (MSEED fill)")
                                     else:
                                         if (eddt1 or eddt2) and (ndval == 0.0):
                                             if any(st[0].data == 0.0):
@@ -386,11 +422,12 @@ def parse_localdata_for_comp(comp='Z', stdata=[], sta=None,
                         except:
                             pass
                     else:
-                        print(("*                 - Merge Failed: No " +
-                               "Overlap {0:s} - {1:s}".format(
-                                   st1[0].stats.endtime,
-                                   st2[0].stats.starttime -
-                                   st2[0].stats.delta)))
+                        st2ot = st2[0].stats.endtime-st2[0].stats.delta
+                        print("*                 - Merge Failed: No " +
+                              "Overlap {0:s} - {1:s}".format(
+                                  st1[0].stats.endtime.strftime(
+                                      "%Y-%m-%d %H:%M:%S"),
+                                  st2ot.strftime("%Y-%m-%d %H:%M:%S")))
 
     # If we got here, we did not get the data.
     print("*              - Data Unavailable")
@@ -398,7 +435,7 @@ def parse_localdata_for_comp(comp='Z', stdata=[], sta=None,
 
 
 def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
-                  stdata=[], ndval=nan, new_sr=0., verbose=False):
+                  stdata=[], dtype='SAC', ndval=nan, new_sr=0., verbose=False):
     """
     Function to build a stream object for a seismogram in a given time window either
     by downloading data from the client object or alternatively first checking if the
@@ -454,15 +491,15 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
         # Only a single day: Search for local data
         # Get Z localdata
         errZ, stZ = parse_localdata_for_comp(
-            comp='Z', stdata=stdata, sta=sta, start=start, end=end,
+            comp='Z', stdata=stdata, dtype=dtype, sta=sta, start=start, end=end,
             ndval=ndval)
         # Get N localdata
         errN, stN = parse_localdata_for_comp(
-            comp='N', stdata=stdata, sta=sta, start=start, end=end,
+            comp='N', stdata=stdata, dtype=dtype, sta=sta, start=start, end=end,
             ndval=ndval)
         # Get E localdata
         errE, stE = parse_localdata_for_comp(
-            comp='E', stdata=stdata, sta=sta, start=start, end=end,
+            comp='E', stdata=stdata, dtype=dtype, sta=sta, start=start, end=end,
             ndval=ndval)
         # Retreived Succesfully?
         erd = errZ or errN or errE
