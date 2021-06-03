@@ -497,7 +497,7 @@ def main():
                          freqmax=args.bp[1], corners=2,
                          zerophase=True)
 
-        # Initialize the HkStack object
+        # Initialize the Harmonics object
         harmonics = Harmonics(rfRstream, rfTstream)
 
         # Stack with or without dip
@@ -509,14 +509,17 @@ def main():
         else:
             harmonics.dcomp_fix_azim(azim=args.azim)
 
+        if args.save_plot and not Path('FIGURES').is_dir():
+             Path('FIGURES').mkdir(parents=True)
+
         if args.plot:
             harmonics.plot(args.ymax, args.scale,
                            args.save_plot, args.title, args.form)
 
         if args.save:
-            filename = datapath / (hkstack.hstream[0].stats.station +
+            filename = datapath / (harmonics.hstream[0].stats.station +
                                    ".harmonics.pkl")
-            harmonics.save()
+            harmonics.save(filename)
 
         # Update processed folders
         procfold.append(stfld)
