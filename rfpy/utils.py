@@ -552,9 +552,13 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
                             print("*              - Z12 Data Downloaded")
                         else:
                             st = None
-                    except:
+                    except Exception as e:
+                        print("* Met exception:")
+                        print("* " + e.__repr__())
                         st = None
-            except:
+            except Exception as e:
+                print("* Met exception:")
+                print("* " + e.__repr__())
                 st = None
 
             # Break if we successfully obtained 3 components in st
