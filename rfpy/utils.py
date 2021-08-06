@@ -84,7 +84,9 @@ def list_local_data_stn(lcldrs=list, sta=None, net=None, dtype='SAC', altnet=[])
             # Keep paths only for those matching the station
             for sstring in sstrings:
                 for filename in filter(filenames, sstring):
-                    fpathmatch.append(join(root, filename))
+                    # No hidden directories
+                    if not '/.' in root:
+                        fpathmatch.append(join(root, filename))
 
     fpathmatch.sort()
 
@@ -135,49 +137,34 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
         ("*          {0:2s}{1:1s} - Checking Disk".format(sta.channel.upper(),
                                                           comp.upper())))
 
+    # Possible naming conventions
+    f1 = '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.{4:2s}{5:1s}.{6:s}'
+    f2 = '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*{4:1s}.{5:s}'
+    f3 = '*/{0:4s}.{1:3s}.*.{2:s}.{3:s}.*.{4:2s}{5:1s}*.{6:s}'
+
     # Time Window Spans Single Day
     if stjd == edjd:
-        # Format 1
-        lclfiles = list(filter(
-            stdata,
-            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.{4:2s}{5:1s}.{6:s}'.format(
-                styr, stjd, sta.network.upper(
-                ), sta.station.upper(), sta.channel.upper()[0:2],
-                comp.upper(), dtype)))
-        # Format 2
-        if len(lclfiles) == 0:
-            lclfiles = list(filter(
-                stdata,
-                '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*{4:1s}.{5:s}'.format(
-                    styr, stjd, sta.network.upper(), sta.station.upper(),
-                    comp.upper(), dtype)))
 
-        # Alternate Nets (for CN/PO issues) Format 1
-        if len(lclfiles) == 0:
-            lclfiles = []
-            for anet in sta.altnet:
-                lclfiles.extend(
-                    list(
-                        filter(
-                            stdata,
-                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.' +
-                            '{4:2s}{5:1s}.{6:s}'.format(
-                                styr, stjd, anet.upper(), sta.station.upper(),
-                                sta.channel.upper()[0:2], comp.upper(), dtype))))
+        lclfiles = []
+        nets = [sta.network] + sta.altnet
+        for net in nets:
+            # Start day
+            s1 = f1.format(styr, stjd, net.upper(), sta.station.upper(),
+                           sta.channel.upper()[0:2], comp.upper(), dtype)
+            s2 = f2.format(styr, stjd, net.upper(), sta.station.upper(),
+                           comp.upper(), dtype)
+            s3 = f3.format(styr, stjd, net.upper(), sta.station.upper(),
+                           sta.channel.upper()[0:2], comp.upper(), dtype)
 
-        # Alternate Nets (for CN/PO issues) Format 2
-        if len(lclfiles) == 0:
-            # Check Alternate Networks
-            lclfiles = []
-            for anet in sta.altnet:
-                lclfiles.extend(
-                    list(
-                        filter(
-                            stdata,
-                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*' +
-                            '{4:1s}.{5:s}'.format(
-                                styr, stjd, sta.network.upper(),
-                                sta.station.upper(), comp.upper(), dtype))))
+            print("*          Trying formats:")
+            print("*          " + s1)
+            print("*          " + s2)
+            print("*          " + s3)
+            print("*          ")
+
+            lclfiles.extend(list(filter(stdata, s1)))
+            lclfiles.extend(list(filter(stdata, s2)))
+            lclfiles.extend(list(filter(stdata, s3)))
 
         # If still no Local files stop
         if len(lclfiles) == 0:
@@ -209,7 +196,10 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
                     eddt = False
                     # Check for NoData and convert to NaN if a SAC file
                     if dtype.upper() == 'SAC':
-                        stnd = st[0].stats.sac['user9']
+                        try:
+                            stnd = st[0].stats.sac['user9']
+                        except KeyError:
+                            stnd = 0.0
                         if (not stnd == 0.0) and (not stnd == -12345.0):
                             st[0].data[st[0].data == stnd] = ndval
                             eddt = True
@@ -244,83 +234,33 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
 
     # Time Window spans Multiple days
     else:
-        # Day 1 Format 1
-        lclfiles1 = list(
-            filter(stdata,
-                   '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.{4:2s}{5:1s}.{6:s}'.format(
-                       styr, stjd, sta.network.upper(), sta.station.upper(),
-                       sta.channel.upper()[0:2], comp.upper(), dtype)))
-        # Day 1 Format 2
-        if len(lclfiles1) == 0:
-            lclfiles1 = list(
-                filter(stdata,
-                       '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*{4:1s}.{5:s}'.format(
-                           styr, stjd, sta.network.upper(),
-                           sta.station.upper(), comp.upper(), dtype)))
-        # Day 1 Alternate Nets (for CN/PO issues) Format 1
-        if len(lclfiles1) == 0:
-            lclfiles1 = []
-            for anet in sta.altnet:
-                lclfiles1.extend(
-                    list(
-                        filter(
-                            stdata,
-                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.' +
-                            '{4:2s}{5:1s}.{6:s}'.format(
-                                styr, stjd, anet.upper(), sta.station.upper(
-                                ), sta.channel.upper()[0:2],
-                                comp.upper(), dtype))))
-        # Day 1 Alternate Nets (for CN/PO issues) Format 2
-        if len(lclfiles1) == 0:
-            lclfiles1 = []
-            for anet in sta.altnet:
-                lclfiles1.extend(
-                    list(
-                        filter(
-                            stdata,
-                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*{4:1s}.{5:s}'.format(
-                                styr, stjd, anet.upper(),
-                                sta.station.upper(), comp.upper(), dtype))))
+        lclfiles1 = []
+        lclfiles2 = []
+        nets = [sta.network] + sta.altnet
+        for net in nets:
+            # Start day
+            s1 = f1.format(styr, stjd, net.upper(), sta.station.upper(),
+                           sta.channel.upper()[0:2], comp.upper(), dtype)
+            s2 = f2.format(styr, stjd, net.upper(), sta.station.upper(),
+                           comp.upper(), dtype)
+            s3 = f3.format(styr, stjd, net.upper(), sta.station.upper(),
+                           sta.channel.upper()[0:2], comp.upper(), dtype)
 
-        # Day 2 Format 1
-        lclfiles2 = list(
-            filter(stdata,
-                   '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.{4:2s}{5:1s}.{6:s}'.format(
-                       edyr, edjd, sta.network.upper(
-                       ), sta.station.upper(), sta.channel.upper()[0:2],
-                       comp.upper(), dtype)))
-        # Day 2 Format 2
-        if len(lclfiles2) == 0:
-            lclfiles2 = list(
-                filter(stdata,
-                       '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*' +
-                       '{4:1s}.{5:s}'.format(
-                           edyr, edjd, sta.network.upper(),
-                           sta.station.upper(),
-                           comp.upper(), dtype)))
-        # Day 2 Alternate Nets (for CN/PO issues) Format 1
-        if len(lclfiles2) == 0:
-            lclfiles2 = []
-            for anet in sta.altnet:
-                lclfiles2.extend(
-                    list(
-                        filter(
-                            stdata,
-                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.' +
-                            '{4:2s}{5:1s}.{6:s}'.format(
-                                edyr, edjd, anet.upper(), sta.station.upper(),
-                                sta.channel.upper()[0:2], comp.upper(), dtype))))
-        # Day 2 Alternate Nets (for CN/PO issues) Format 2
-        if len(lclfiles2) == 0:
-            lclfiles2 = []
-            for anet in sta.altnet:
-                lclfiles2.extend(
-                    list(
-                        filter(
-                            stdata,
-                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*{4:1s}.{5:s}'.format(
-                                edyr, edjd, anet.upper(), sta.station.upper(),
-                                comp.upper(), dtype))))
+            lclfiles1.extend(list(filter(stdata, s1)))
+            lclfiles1.extend(list(filter(stdata, s2)))
+            lclfiles1.extend(list(filter(stdata, s3)))
+
+            # End day
+            s1 = f1.format(edyr, edjd, net.upper(), sta.station.upper(),
+                           sta.channel.upper()[0:2], comp.upper(), dtype)
+            s2 = f2.format(edyr, edjd, net.upper(), sta.station.upper(),
+                           comp.upper(), dtype)
+            s3 = f3.format(edyr, edjd, net.upper(), sta.station.upper(),
+                           sta.channel.upper()[0:2], comp.upper(), dtype)
+
+            lclfiles2.extend(list(filter(stdata, s1)))
+            lclfiles2.extend(list(filter(stdata, s2)))
+            lclfiles2.extend(list(filter(stdata, s3)))
 
         # If still no Local files stop
         if len(lclfiles1) == 0 and len(lclfiles2) == 0:
@@ -334,8 +274,8 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
                 st1 = read(sacf1)
                 if dtype.upper() == 'MSEED':
                     if len(st1) > 1:
-                        st1.merge(method=1, interpolation_samples=-
-                                  1, fill_value=-123456789)
+                        st1.merge(method=1, interpolation_samples=-1,
+                                  fill_value=-123456789)
 
                 # Loop over second day file options
                 for sacf2 in lclfiles2:
@@ -343,7 +283,8 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
                     if dtype.upper() == 'MSEED':
                         if len(st2) > 1:
                             st2.merge(
-                                method=1, interpolation_samples=-1, fill_value=-123456789)
+                                method=1, interpolation_samples=-1,
+                                fill_value=-123456789)
 
                     # Check time overlap of the two files.
                     if st1[0].stats.endtime >= \
@@ -383,7 +324,10 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
                                     eddt = False
                                     # Check for NoData and convert to NaN if a SAC file
                                     if dtype.upper() == 'SAC':
-                                        stnd = st[0].stats.sac['user9']
+                                        try:
+                                            stnd = st[0].stats.sac['user9']
+                                        except KeyError:
+                                            stnd = 0.0
                                         if (not stnd == 0.0) and (not stnd == -12345.0):
                                             st[0].data[st[0].data == stnd] = ndval
                                             eddt = True
