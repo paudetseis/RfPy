@@ -23,6 +23,7 @@
 # -*- coding: utf-8 -*-
 from math import ceil
 import logging
+import pickle
 import numpy as np
 from obspy import Trace, Stream, UTCDateTime
 from rfpy import utils
@@ -178,7 +179,6 @@ class RFData(object):
         if sta == 'demo' or sta == 'Demo':
             print("Uploading demo data - station NY.MMPY")
             import os
-            import pickle
             sta = pickle.load(
                 open(os.path.join(
                     os.path.dirname(__file__),
@@ -270,7 +270,6 @@ class RFData(object):
         # Load demo data
         if stream == 'demo' or stream == 'Demo':
             import os
-            import pickle
             file = open(os.path.join(
                 os.path.dirname(__file__),
                 "examples/data", "ZNE_Data.pkl"), "rb")
@@ -616,7 +615,7 @@ class RFData(object):
 
     def deconvolve(self, phase='P', vp=None, vs=None,
                    align=None, method='wiener', pre_filt=None,
-                   gfilt=None, wlevel=0.01):
+                   gfilt=None, wlevel=0.01, writeto=None):
         """
         Deconvolves three-component data using one component as the source wavelet.
         The source component is always taken as the dominant compressional 
@@ -641,6 +640,8 @@ class RFData(object):
             Center frequency of Gaussian filter (Hz). 
         wlevel : float
             Water level used in ``method='water'``.
+        writeto : str or None
+            Write wavelets for deconvolution to file.
 
         Attributes
         ----------
@@ -756,6 +757,11 @@ class RFData(object):
                 gauss = np.ones(npad)
                 gnorm = 1.
 
+            # Is this correct?
+            #parent de-noised = np.fft.ifftshift(np.real(np.fft.ifft(gauss*Sdenom))/gnorm)
+            #daughter1 de-noised = np.fft.ifftshift(np.real(np.fft.ifft( gauss*Sd1p))/gnorm)
+            #daughter2 de-noised = np.fft.ifftshift(np.real(np.fft.ifft( gauss*Sd2p))/gnorm)
+
             # Copy traces
             rfp = parent.copy()
             rfd1 = daughter1.copy()
@@ -795,6 +801,12 @@ class RFData(object):
         trT = self.data.select(component=cT)[0].copy()
         trNl = self.data.select(component=cL)[0].copy()
         trNq = self.data.select(component=cQ)[0].copy()
+
+        trL.stats.channel = 'WV' + self.meta.align[0]
+        trQ.stats.channel = 'WV' + self.meta.align[1]
+        trT.stats.channel = 'WV' + self.meta.align[2]
+        trNl.stats.channel = 'WV' + self.meta.align[0]
+        trNq.stats.channel = 'WV' + self.meta.align[1]
 
         if phase == 'P' or 'PP':
 
@@ -846,6 +858,10 @@ class RFData(object):
             [tr.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1],
                        corners=2, zerophase=True) 
              for tr in [trL, trQ, trT, trNl, trNq]]
+
+        if writeto:
+            with open(writeto, 'wb') as f:
+                pickle.dump(Stream(traces=[trL, trQ, trT]), f)
 
         # Deconvolve
         if phase == 'P' or 'PP':
@@ -950,7 +966,6 @@ class RFData(object):
 
         """
 
-        import pickle
         output = open(file, 'wb')
         pickle.dump(self, output)
         output.close()
