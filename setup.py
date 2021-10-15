@@ -1,3 +1,4 @@
+import setuptools
 import os.path
 from os import listdir
 import re
@@ -33,7 +34,7 @@ setup(
          'Programming Language :: Python :: 3.9'],
     install_requires=['numpy', 'obspy', 'stdb>=0.2.0'],
     python_requires='>=3.6',
-    packages=['rfpy'],
+    packages=setuptools.find_packages(),
     entry_points={'console_scripts':[
     'rfpy_calc=rfpy.scripts.rfpy_calc:main',
     'rfpy_recalc=rfpy.scripts.rfpy_recalc:main',
