@@ -614,7 +614,8 @@ class RFData(object):
 
 
     def deconvolve(self, phase='P', vp=None, vs=None,
-                   align=None, method='wiener', pre_filt=None,
+                   align=None, method='wiener', wavelet='complete',
+                   envelope_threshold=0.05, time=5, pre_filt=None,
                    gfilt=None, wlevel=0.01, writeto=None):
         """
         Deconvolves three-component data using one component as the source wavelet.
@@ -633,6 +634,13 @@ class RFData(object):
         method : str
             Method for deconvolution. Options are 'wiener', 'water' or 
             'multitaper'
+        wavelet : str
+            Type of wavelet for deconvolution. Options are 'complete', 'time' or 
+            'envelope'
+        envelope_threshold : float
+            Threshold [0-1] used in ``wavelet='envelope'``.
+        time : float
+            Window length used in ``wavelet='time'``.
         pre_filt : list of 2 floats
             Low and High frequency corners of bandpass filter applied
             before deconvolution
@@ -671,6 +679,84 @@ class RFData(object):
             gauss[nft21:] = np.flip(gauss[1:nft21-1])
             return gauss
 
+        def _wavelet(parent, method='complete', overhang=5,
+                envelope_threshold=0.05, time=5):
+
+            """
+            Select wavelet from the parent function for deconvolution using method.
+            parent: obspy.Trace
+                wavefrom to extract the wavelet from
+            method: str
+                'complete' use complete parent signal after P arrival  (current
+                    implementation)
+                'envelope' use only the part of the parent signal after the
+                    P arrival where
+                    envelope > envelope_threshold*max(envelope)
+                    fall back to 'complete' if condition not reached
+                'time' use only this many seonds after P arrival`
+                    fall back to 'complete' if longer than parent
+            overhang: float
+                seconds before start and after end of wavelet to be used for
+                tapering
+            envelope_threshold: float
+                fraction of the envelope that defines wavelet (for
+                method='envelope')
+            time: float
+                window (seconds) that defines the wavelet (for method='time')
+
+            Return:
+            left, right: (obspy.UTCDateTime) start and end time of wavelet
+            """
+            import obspy.signal.filter as osf
+
+            if method not in ['complete', 'envelope', 'time', 'noise']:
+                msg = 'Unknow method for wavelet extraction: ' + method
+                raise NotImplementedError(msg)
+
+            errflag = False
+
+            if method == 'envelope':
+                split = int((self.meta.time + self.meta.ttime -
+                    parent.stats.starttime) * parent.stats.sampling_rate)
+                env = osf.envelope(parent.data)
+                env = env[split:]  # only look after P
+                env /= max(env)  # normalize
+                try:
+                    i = np.nonzero(
+                            np.diff(
+                                np.array(
+                                    env > envelope_threshold, dtype=int))==-1)[0][0]
+                except IndexError:
+                    i = len(parent.data)-1
+                dts = i * parent.stats.delta
+                left = self.meta.time + self.meta.ttime - overhang
+                right = self.meta.time + self.meta.ttime + dts + overhang
+                if left < parent.stats.starttime or right > parent.stats.endtime:
+                    logging.info('Envelope wavelet longer than trace.')
+                    logging.info('Falling back to "complete" wavelet')
+                    errflag = True
+                # TODO: Test me!
+
+            if method == 'time':
+                left = self.meta.time + self.meta.ttime - overhang
+                right = self.meta.time + self.meta.ttime + time + overhang
+                if left < parent.stats.starttime or right > parent.stats.endtime:
+                    logging.info('Time wavelet longer than trace.')
+                    logging.info('Falling back to "complete" wavelet')
+                    errflag = True
+
+            if method == 'complete' or errflag:
+                dts = len(parent.data)*parent.stats.delta/2.
+                left = self.meta.time + self.meta.ttime - overhang
+                right = self.meta.time + self.meta.ttime + dts - 2*overhang
+            
+            if method == 'noise':
+                dts = len(parent.data)*parent.stats.delta/2.
+                left = self.meta.time + self.meta.ttime - dts
+                right = self.meta.time + self.meta.ttime - overhang
+
+            return left, right
+            
         def _decon(parent, daughter1, daughter2, noise, nn, method):
 
             # Get length, zero padding parameters and frequencies
@@ -811,24 +897,32 @@ class RFData(object):
         if phase == 'P' or 'PP':
 
             # Get signal length (i.e., seismogram to deconvolve) from trace length
-            dts = len(trL.data)*trL.stats.delta/2.
-            nn = int(round((dts-5.)*trL.stats.sampling_rate)) + 1
+            over = 5
+            dtsqt = len(trL.data)*trL.stats.delta/2.
 
-            # Signal window (-5. to dts-10 sec)
-            sig_left = self.meta.time+self.meta.ttime-5.
-            sig_right = self.meta.time+self.meta.ttime+dts-10.
+            # Traces will be paded to this length (samples)
+            nn = int(round((dtsqt+over)*trL.stats.sampling_rate)) + 1
+
+            sig_left, sig_right  = _wavelet(trL, method='envelope',
+                envelope_threshold=envelope_threshold, overhang=over)
+
+            # Trim wavelet
+            trL.trim(sig_left, sig_right, nearest_sample=False, pad=True,
+                fill_value=0.)
+
+            # Signal window (-5. to dtsqt-10 sec)
+            sig_left, sig_right  = _wavelet(trQ, method='complete', overhang=over)
 
             # Trim signal traces
             [tr.trim(sig_left, sig_right, nearest_sample=False, 
-                pad=nn, fill_value=0.) for tr in [trL, trQ, trT]]
+                pad=True, fill_value=0.) for tr in [trQ, trT]]
 
-            # Noise window (-dts to -5. sec)
-            noise_left = self.meta.time+self.meta.ttime-dts
-            noise_right = self.meta.time+self.meta.ttime-5.
+            # Noise window (-dtsqt to -5. sec)
+            noise_left, noise_right  = _wavelet(trQ, method='noise', overhang=over)
 
             # Trim noise traces
             [tr.trim(noise_left, noise_right, nearest_sample=False, 
-                pad=nn, fill_value=0.) for tr in [trNl, trNq]]
+                pad=True, fill_value=0.) for tr in [trNl, trNq]]
 
         elif phase == 'S' or 'SKS':
 
@@ -850,6 +944,7 @@ class RFData(object):
                       self.meta.time+self.meta.ttime-dts/2.)
 
         # Taper traces - only necessary processing after trimming
+        # TODO: What does this to the multitaper method
         [tr.taper(max_percentage=0.05, max_length=2.) 
          for tr in [trL, trQ, trT, trNl, trNq]]
 
