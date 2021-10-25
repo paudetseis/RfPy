@@ -22,7 +22,6 @@
 
 # -*- coding: utf-8 -*-
 from math import ceil
-import logging
 import pickle
 import numpy as np
 from obspy import Trace, Stream, UTCDateTime
@@ -116,9 +115,9 @@ class Meta(object):
                 source_depth_in_km=self.dep,
                 phase_list=[phase])
             if len(arrivals) > 1:
-                logging.warning("arrival has many entries: ", len(arrivals))
+                print("arrival has many entries: ", len(arrivals))
             elif len(arrivals) == 0:
-                logging.warning("no arrival found")
+                print("no arrival found")
                 self.accept = False
                 return
 
@@ -343,9 +342,9 @@ class RFData(object):
         tend = self.meta.time + self.meta.ttime + dts
 
         # Get waveforms
-        logging.info("* Requesting Waveforms: ")
-        logging.info("*    Startime: " + tstart.strftime("%Y-%m-%d %H:%M:%S"))
-        logging.info("*    Endtime:  " + tend.strftime("%Y-%m-%d %H:%M:%S"))
+        print("* Requesting Waveforms: ")
+        print("*    Startime: " + tstart.strftime("%Y-%m-%d %H:%M:%S"))
+        print("*    Endtime:  " + tend.strftime("%Y-%m-%d %H:%M:%S"))
 
         # Download data
         err, stream = utils.download_data(

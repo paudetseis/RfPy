@@ -1,5 +1,4 @@
 import math
-import logging
 from obspy import UTCDateTime
 from numpy import nan, isnan, abs
 import numpy as np
@@ -134,7 +133,7 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
     # Intialize to default positive error
     erd = True
 
-    logging.info(
+    print(
         ("*          {0:2s}{1:1s} - Checking Disk".format(sta.channel.upper(),
                                                           comp.upper())))
 
@@ -157,11 +156,11 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
             s3 = f3.format(styr, stjd, net.upper(), sta.station.upper(),
                            sta.channel.upper()[0:2], comp.upper(), dtype)
 
-            logging.debug("*          Trying formats:")
-            logging.debug("*          " + s1)
-            logging.debug("*          " + s2)
-            logging.debug("*          " + s3)
-            logging.debug("*          ")
+            print("*          Trying formats:")
+            print("*          " + s1)
+            print("*          " + s2)
+            print("*          " + s3)
+            print("*          ")
 
             lclfiles.extend(list(filter(stdata, s1)))
             lclfiles.extend(list(filter(stdata, s2)))
@@ -169,7 +168,7 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
 
         # If still no Local files stop
         if len(lclfiles) == 0:
-            logging.warning("*              - Data Unavailable")
+            print("*              - Data Unavailable")
             return erd, None
 
         # Process the local Files
@@ -207,18 +206,18 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
 
                     # Check for Nan in stream for SAC
                     if True in isnan(st[0].data):
-                        logging.warning(
+                        print(
                             "*          !!! Missing Data Present !!! " +
                             "Skipping (NaNs)")
                     # Check for ND Val in stream for MSEED
                     elif -123456789 in st[0].data:
-                        logging.warning(
+                        print(
                             "*          !!! Missing Data Present !!! " +
                             "Skipping (MSEED fill)")
                     else:
                         if eddt and (ndval == 0.0):
                             if any(st[0].data == 0.0):
-                                logging.warning(
+                                print(
                                     "*          !!! Missing Data Present " +
                                     "!!! (Set to Zero)")
 
@@ -228,7 +227,7 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
                             tloc = "--"
 
                         # Processed succesfully...Finish
-                        logging.info(("*          {1:3s}.{2:2s}  - From Disk".format(
+                        print(("*          {1:3s}.{2:2s}  - From Disk".format(
                             st[0].stats.station, st[0].stats.channel.upper(),
                             tloc)))
                         return False, st
@@ -265,7 +264,7 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
 
         # If still no Local files stop
         if len(lclfiles1) == 0 and len(lclfiles2) == 0:
-            logging.warning("*              - Data Unavailable")
+            print("*              - Data Unavailable")
             return erd, None
 
         # Now try to merge the two separate day files
@@ -314,8 +313,8 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
                             # Should only be one component, otherwise keep
                             # reading If more than 1 component, error
                             if len(st) != 1:
-                                logging.error(st)
-                                logging.error("merge failed?")
+                                print(st)
+                                print("merge failed?")
 
                             else:
                                 if (st[0].stats.starttime <= start and
@@ -335,18 +334,18 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
 
                                     # Check for Nan in stream for SAC
                                     if True in isnan(st[0].data):
-                                        logging.warning(
+                                        print(
                                             "*          !!! Missing Data " +
                                             "Present !!! Skipping (NaNs)")
                                     # Check for ND Val in stream for MSEED
                                     elif -123456789 in st[0].data:
-                                        logging.warning(
+                                        print(
                                             "*          !!! Missing Data Present !!! " +
                                             "Skipping (MSEED fill)")
                                     else:
                                         if (eddt1 or eddt2) and (ndval == 0.0):
                                             if any(st[0].data == 0.0):
-                                                logging.warning(
+                                                print(
                                                     "*          !!! Missing " +
                                                     "Data Present !!! (Set " +
                                                     "to Zero)")
@@ -357,8 +356,7 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
                                             tloc = "--"
 
                                         # Processed succesfully...Finish
-                                        logging.info((
-                                               "*          {1:3s}.{2:2s}  - " +
+                                        print(("*          {1:3s}.{2:2s}  - " +
                                                "From Disk".format(
                                                    st[0].stats.station,
                                                    st[0].stats.channel.upper(),
@@ -369,14 +367,14 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
                             pass
                     else:
                         st2ot = st2[0].stats.endtime-st2[0].stats.delta
-                        logging.warning("*                 - Merge Failed: No " +
+                        print("*                 - Merge Failed: No " +
                               "Overlap {0:s} - {1:s}".format(
                                   st1[0].stats.endtime.strftime(
                                       "%Y-%m-%d %H:%M:%S"),
                                   st2ot.strftime("%Y-%m-%d %H:%M:%S")))
 
     # If we got here, we did not get the data.
-    logging.warning("*              - Data Unavailable")
+    print("*              - Data Unavailable")
     return erd, None
 
 
@@ -426,7 +424,7 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
     from math import floor
 
     # Output
-    logging.info(("*     {0:s}.{1:2s} - ZNE:".format(sta.station,
+    print(("*     {0:s}.{1:2s} - ZNE:".format(sta.station,
                                               sta.channel.upper())))
 
     # Set Error Default to True
@@ -477,7 +475,7 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
                     channel=channelsZNE, starttime=start,
                     endtime=end+1., attach_response=False)
                 if len(st) == 3:
-                    logging.info("*              - ZNE Data Downloaded")
+                    print("*              - ZNE Data Downloaded")
 
                 # It's possible if len(st)==1 that data is Z12
                 else:
@@ -487,7 +485,7 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
                         sta.channel.upper() + '2'
                     msg = "*          {1:2s}[Z12].{2:2s} - Checking Network".format(
                         sta.station, sta.channel.upper(), tloc)
-                    logging.info(msg)
+                    print(msg)
                     try:
                         st = client.get_waveforms(
                             network=sta.network,
@@ -495,16 +493,16 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
                             channel=channelsZ12, starttime=start,
                             endtime=end+1., attach_response=False)
                         if len(st) == 3:
-                            logging.info("*              - Z12 Data Downloaded")
+                            print("*              - Z12 Data Downloaded")
                         else:
                             st = None
                     except Exception as e:
-                        logging.warning("* Met exception:")
-                        logging.warning("* " + e.__repr__())
+                        print("* Met exception:")
+                        print("* " + e.__repr__())
                         st = None
             except Exception as e:
-                logging.warning("* Met exception:")
-                logging.warning("* " + e.__repr__())
+                print("* Met exception:")
+                print("* " + e.__repr__())
                 st = None
 
             # Break if we successfully obtained 3 components in st
@@ -514,8 +512,8 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
 
     # Check the correct 3 components exist
     if st is None:
-        logging.warning("* Error retrieving waveforms")
-        logging.warning("**************************************************")
+        print("* Error retrieving waveforms")
+        print("**************************************************")
         return True, None
 
     # Three components successfully retrieved
@@ -527,12 +525,12 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
 
         # Check start times
         if not np.all([tr.stats.starttime == start for tr in st]):
-            logging.warning("* Start times are not all close to true start: ")
-            [logging.warning("*   "+tr.stats.channel+" " +
+            print("* Start times are not all close to true start: ")
+            [print("*   "+tr.stats.channel+" " +
                    str(tr.stats.starttime)+" " +
                    str(tr.stats.endtime)) for tr in st]
-            logging.warning("*   True start: "+str(start))
-            logging.warning("* -> Shifting traces to true start")
+            print("*   True start: "+str(start))
+            print("* -> Shifting traces to true start")
             delay = [tr.stats.starttime - start for tr in st]
             st_shifted = Stream(
                 traces=[traceshift(tr, dt) for tr, dt in zip(st, delay)])
@@ -542,39 +540,39 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
         sr = st[0].stats.sampling_rate
         sr_round = float(floor_decimal(sr, 0))
         if not sr == sr_round:
-            logging.warning("* Sampling rate is not an integer value: ", sr)
-            logging.warning("* -> Resampling")
+            print("* Sampling rate is not an integer value: ", sr)
+            print("* -> Resampling")
             st.resample(sr_round, no_filter=False)
 
         # Try trimming
         try:
             st.trim(start, end)
         except:
-            logging.error("* Unable to trim")
-            logging.error("* -> Skipping")
-            logging.error("**************************************************")
+            print("* Unable to trim")
+            print("* -> Skipping")
+            print("**************************************************")
             return True, None
 
         # Check final lengths - they should all be equal if start times
         # and sampling rates are all equal and traces have been trimmed
         if not np.allclose([tr.stats.npts for tr in st[1:]], st[0].stats.npts):
-            logging.error("* Lengths are incompatible: ")
-            [logging.error("*     "+str(tr.stats.npts)) for tr in st]
-            logging.error("* -> Skipping")
-            logging.error("**************************************************")
+            print("* Lengths are incompatible: ")
+            [print("*     "+str(tr.stats.npts)) for tr in st]
+            print("* -> Skipping")
+            print("**************************************************")
 
             return True, None
 
         elif not np.allclose([st[0].stats.npts], int((end - start)*sr),
                              atol=1):
-            logging.error("* Length is too short: ")
-            logging.error("*    "+str(st[0].stats.npts) +
+            print("* Length is too short: ")
+            print("*    "+str(st[0].stats.npts) +
                   " ~= "+str(int((end - start)*sr)))
-            logging.error("* -> Skipping")
-            logging.error("**************************************************")
+            print("* -> Skipping")
+            print("**************************************************")
 
             return True, None
 
         else:
-            logging.info("* Waveforms Retrieved...")
+            print("* Waveforms Retrieved...")
             return False, st
