@@ -641,6 +641,7 @@ class RFData(object):
             Threshold [0-1] used in ``wavelet='envelope'``.
         time : float
             Window length used in ``wavelet='time'``.
+            Minimum window length for ``wavelet='envelope'``.
         pre_filt : list of 2 floats
             Low and High frequency corners of bandpass filter applied
             before deconvolution
@@ -679,7 +680,7 @@ class RFData(object):
             gauss[nft21:] = np.flip(gauss[1:nft21-1])
             return gauss
 
-        def _wavelet(parent, method='complete', overhang=5,
+        def _Pwavelet(parent, method='complete', overhang=5,
                 envelope_threshold=0.05, time=5):
 
             """
@@ -703,10 +704,12 @@ class RFData(object):
                 method='envelope')
             time: float
                 window (seconds) that defines the wavelet (for method='time')
+                minimum time (seconds) of the wavelet (for method='envelope')
 
             Return:
             left, right: (obspy.UTCDateTime) start and end time of wavelet
             """
+
             import obspy.signal.filter as osf
 
             if method not in ['complete', 'envelope', 'time', 'noise']:
@@ -716,11 +719,12 @@ class RFData(object):
             errflag = False
 
             if method == 'envelope':
-                split = int((self.meta.time + self.meta.ttime -
-                    parent.stats.starttime) * parent.stats.sampling_rate)
+                split = int((self.meta.time + self.meta.ttime +
+                    time - parent.stats.starttime ) *
+                    parent.stats.sampling_rate)
                 env = osf.envelope(parent.data)
-                env = env[split:]  # only look after P
                 env /= max(env)  # normalize
+                env = env[split:]  # only look after P + time
                 try:
                     i = np.nonzero(
                             np.diff(
@@ -728,21 +732,20 @@ class RFData(object):
                                     env > envelope_threshold, dtype=int))==-1)[0][0]
                 except IndexError:
                     i = len(parent.data)-1
-                dts = i * parent.stats.delta
+                dts = i * parent.stats.delta + time
                 left = self.meta.time + self.meta.ttime - overhang
                 right = self.meta.time + self.meta.ttime + dts + overhang
                 if left < parent.stats.starttime or right > parent.stats.endtime:
-                    logging.info('Envelope wavelet longer than trace.')
-                    logging.info('Falling back to "complete" wavelet')
+                    print('Envelope wavelet longer than trace.')
+                    print('Falling back to "complete" wavelet')
                     errflag = True
-                # TODO: Test me!
 
             if method == 'time':
                 left = self.meta.time + self.meta.ttime - overhang
                 right = self.meta.time + self.meta.ttime + time + overhang
                 if left < parent.stats.starttime or right > parent.stats.endtime:
-                    logging.info('Time wavelet longer than trace.')
-                    logging.info('Falling back to "complete" wavelet')
+                    print('Time wavelet longer than trace.')
+                    print('Falling back to "complete" wavelet')
                     errflag = True
 
             if method == 'complete' or errflag:
@@ -900,25 +903,25 @@ class RFData(object):
             over = 5
             dtsqt = len(trL.data)*trL.stats.delta/2.
 
-            # Traces will be paded to this length (samples)
+            # Traces will be zero-paded to this length (samples)
             nn = int(round((dtsqt+over)*trL.stats.sampling_rate)) + 1
 
-            sig_left, sig_right  = _wavelet(trL, method='envelope',
-                envelope_threshold=envelope_threshold, overhang=over)
+            sig_left, sig_right  = _Pwavelet(trL, method=wavelet,
+                envelope_threshold=envelope_threshold, time=time, overhang=over)
 
             # Trim wavelet
             trL.trim(sig_left, sig_right, nearest_sample=False, pad=True,
                 fill_value=0.)
 
             # Signal window (-5. to dtsqt-10 sec)
-            sig_left, sig_right  = _wavelet(trQ, method='complete', overhang=over)
+            sig_left, sig_right  = _Pwavelet(trQ, method='complete', overhang=over)
 
             # Trim signal traces
             [tr.trim(sig_left, sig_right, nearest_sample=False, 
                 pad=True, fill_value=0.) for tr in [trQ, trT]]
 
             # Noise window (-dtsqt to -5. sec)
-            noise_left, noise_right  = _wavelet(trQ, method='noise', overhang=over)
+            noise_left, noise_right  = _Pwavelet(trQ, method='noise', overhang=over)
 
             # Trim noise traces
             [tr.trim(noise_left, noise_right, nearest_sample=False, 
