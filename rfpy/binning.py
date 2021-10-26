@@ -161,7 +161,7 @@ def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=False):
     stream2 : :class:`~obspy.core.Stream`
         Optionally stack a second stream in the same operation.
     nbaz : int
-        Number of bazk-azimuth samples in bins
+        Number of back-azimuth samples in bins
     nslow : int
         Number of slowness samples in bins
     pws : bool
