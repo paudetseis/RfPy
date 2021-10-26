@@ -45,10 +45,13 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False):
         a single trace.
     stream2 : :class:`~obspy.core.Stream`
         Optionally stack a second stream in the same operation.
-    dbaz : int
-        Number of bazk-azimuth samples in bins
-    dslow : int
-        Number of slowness samples in bins
+    typ: str
+        Attribute to bin
+        'baz': backazimuth (degree)
+        'slow': Horizontal slowness (s/km)
+        'dist': epicentral distance (degree)
+    nbin : int
+        Number of equally sized bins within data range
     pws : bool
         Whether or not to perform phase-weighted stacking
 
@@ -157,9 +160,9 @@ def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=False):
         a single trace.
     stream2 : :class:`~obspy.core.Stream`
         Optionally stack a second stream in the same operation.
-    dbaz : int
+    nbaz : int
         Number of bazk-azimuth samples in bins
-    dslow : int
+    nslow : int
         Number of slowness samples in bins
     pws : bool
         Whether or not to perform phase-weighted stacking
@@ -235,6 +238,7 @@ def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=False):
             continue
 
     return final_stream
+
 
 def bin_all(stream1, stream2=None, pws=False):
     """ 
