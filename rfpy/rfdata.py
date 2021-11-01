@@ -130,9 +130,9 @@ class Meta(object):
             self.phase = phase
             self.accept = True
         else:
-            self.ttime = None
-            self.slow = None
-            self.inc = None
+            self.ttime = np.nan
+            self.slow = np.nan
+            self.inc = np.nan
             self.phase = None
             self.accept = False
 
@@ -143,9 +143,9 @@ class Meta(object):
 
         # Attributes that get updated as analysis progresses
         self.rotated = False
-        self.snr = None
-        self.snrh = None
-        self.cc = None
+        self.snr = np.nan
+        self.snrh = np.nan
+        self.cc = np.nan
 
 
 class RFData(object):
@@ -551,9 +551,10 @@ class RFData(object):
         if not self.meta.accept:
             return
 
-        if self.meta.snr:
-            print("SNR already calculated - continuing")
-            return
+        if self.meta.snr:  # False if None (for backward compatibility)
+            if np.isfinite(self.meta.snr):  # False if nan (None throws error)
+                print("SNR already calculated - continuing")
+                return
 
         t1 = self.meta.time + self.meta.ttime
 
@@ -869,7 +870,8 @@ class RFData(object):
             print("Warning: Data have not been rotated yet - rotating now")
             self.rotate(vp=vp, vs=vs, align=align)
 
-        if not self.meta.snr:
+        #  v--True if None      v--True if nan, error if None
+        if not self.meta.snr or not np.isfinite(self.meta.snr):
             print("Warning: SNR has not been calculated - " +
                   "calculating now using default")
             self.calc_snr()
