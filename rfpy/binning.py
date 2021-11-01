@@ -32,7 +32,8 @@ from obspy.core import Stream, Trace
 from scipy.signal import hilbert
 
 
-def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False):
+def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False,
+        include_empty=False):
     """ 
     Function to stack receiver functions into (baz or slow) bins
     This can be done using a linear stack (i.e., simple
@@ -54,6 +55,8 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False):
         Number of equally sized bins within data range
     pws : bool
         Whether or not to perform phase-weighted stacking
+    include_empty : bool
+        Return empty bins as null traces (default omits them)
 
     Returns
     -------
@@ -113,7 +116,7 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False):
                         
                         continue
 
-                if nb > 0:
+                if nb > 0 or include_empty:
 
                     # Average and update stats
                     array /= nb
@@ -147,7 +150,8 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False):
     return final_stream
 
 
-def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=False):
+def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=False,
+                 include_empty=False):
     """ 
     Function to stack receiver functions into back-azimuth and slowness bins.
     This can be done using a linear stack (i.e., simple
@@ -166,6 +170,8 @@ def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=False):
         Number of slowness samples in bins
     pws : bool
         Whether or not to perform phase-weighted stacking
+    include_empty : bool
+        Return empty bins as null traces (default omits them)
 
     Returns
     -------
@@ -216,7 +222,7 @@ def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=False):
                             
                             continue
 
-                    if nbin > 0:
+                    if nbin > 0 or include_empty:
 
                         # Average and update stats
                         array /= nbin
