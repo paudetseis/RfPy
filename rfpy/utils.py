@@ -497,12 +497,14 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
                         else:
                             st = None
                     except Exception as e:
-                        print("* Met exception:")
-                        print("* " + e.__repr__())
+                        if verbose:
+                            print("* Met exception:")
+                            print("* " + e.__repr__())
                         st = None
             except Exception as e:
-                print("* Met exception:")
-                print("* " + e.__repr__())
+                if verbose:
+                    print("* Met exception:")
+                    print("* " + e.__repr__())
                 st = None
 
             # Break if we successfully obtained 3 components in st
