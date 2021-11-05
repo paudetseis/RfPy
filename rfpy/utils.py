@@ -379,7 +379,8 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
 
 
 def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
-                  stdata=[], dtype='SAC', ndval=nan, new_sr=0., verbose=False):
+                  stdata=[], dtype='SAC', ndval=nan, new_sr=0., verbose=False,
+                  remove_response=False):
     """
     Function to build a stream object for a seismogram in a given time window either
     by downloading data from the client object or alternatively first checking if the
@@ -403,6 +404,9 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
         Station list
     ndval : float or nan
         Default value for missing data
+    remove_response : bool
+        Remove instrument response from seismogram and resitute to true ground
+        velocity (m/s) using obspy.core.trace.Trace.remove_response()
 
     Returns
     -------
@@ -460,56 +464,45 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
             # Construct location name
             if len(tloc) == 0:
                 tloc = "--"
+
             # Construct Channel List
-            channelsZNE = sta.channel.upper() + 'Z,' + sta.channel.upper() + \
-                'N,' + sta.channel.upper() + 'E'
-            print(("*          {1:2s}[ZNE].{2:2s} - Checking Network".format(
-                sta.station, sta.channel.upper(), tloc)))
+            chaZNE = (sta.channel.upper() + 'Z,' +
+                      sta.channel.upper() + 'N,' +
+                      sta.channel.upper() + 'E')
+            msgZNE = "*          {1:2s}[ZNE].{2:2s} - Checking Network".format(
+                sta.station, sta.channel.upper(), tloc)
 
-            # Get waveforms, with extra 1 second to avoid
-            # traces cropped too short - traces are trimmed later
-            try:
-                st = client.get_waveforms(
-                    network=sta.network,
-                    station=sta.station, location=loc,
-                    channel=channelsZNE, starttime=start,
-                    endtime=end+1., attach_response=False)
-                if len(st) == 3:
-                    print("*              - ZNE Data Downloaded")
+            chaZ12 = (sta.channel.upper() + 'Z,' +
+                      sta.channel.upper() + '1,' +
+                      sta.channel.upper() + '2')
+            msgZ12 = "*          {1:2s}[Z12].{2:2s} - Checking Network".format(
+                sta.station, sta.channel.upper(), tloc)
 
-                # It's possible if len(st)==1 that data is Z12
+            # Loop over possible channels
+            for channel, msg in zip([chaZNE, chaZ12], [msgZNE, msgZ12]):
+                print(msg)
+
+                # Get waveforms, with extra 1 second to avoid
+                # traces cropped too short - traces are trimmed later
+                try:
+                    st = client.get_waveforms(
+                        network=sta.network,
+                        station=sta.station, location=loc,
+                        channel=channel, starttime=start,
+                        endtime=end+1., attach_response=remove_response)
+                except Exception as e:
+                    if verbose:
+                        print("* Met exception:")
+                        print("* " + e.__repr__())
+                    st = None
                 else:
-                    # Construct Channel List
-                    channelsZ12 = sta.channel.upper() + 'Z,' + \
-                        sta.channel.upper() + '1,' + \
-                        sta.channel.upper() + '2'
-                    msg = "*          {1:2s}[Z12].{2:2s} - Checking Network".format(
-                        sta.station, sta.channel.upper(), tloc)
-                    print(msg)
-                    try:
-                        st = client.get_waveforms(
-                            network=sta.network,
-                            station=sta.station, location=loc,
-                            channel=channelsZ12, starttime=start,
-                            endtime=end+1., attach_response=False)
-                        if len(st) == 3:
-                            print("*              - Z12 Data Downloaded")
-                        else:
-                            st = None
-                    except Exception as e:
-                        if verbose:
-                            print("* Met exception:")
-                            print("* " + e.__repr__())
-                        st = None
-            except Exception as e:
-                if verbose:
-                    print("* Met exception:")
-                    print("* " + e.__repr__())
-                st = None
+                    if len(st) == 3:
+                        # It's possible if len(st)==1 that data is Z12
+                        print("*              - ZNE Data Downloaded")
+                        break
 
             # Break if we successfully obtained 3 components in st
             if not erd:
-
                 break
 
     # Check the correct 3 components exist
@@ -519,62 +512,66 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
         return True, None
 
     # Three components successfully retrieved
+    if remove_response:
+        st.remove_response()
+        print("*")
+        print("* Restituted stream to true ground velocity.")
+        print("*")
+
+    # Detrend and apply taper
+    st.detrend('demean').detrend('linear').taper(
+        max_percentage=0.05, max_length=5.)
+
+    # Check start times
+    if not np.all([tr.stats.starttime == start for tr in st]):
+        print("* Start times are not all close to true start: ")
+        [print("*   "+tr.stats.channel+" " +
+               str(tr.stats.starttime)+" " +
+               str(tr.stats.endtime)) for tr in st]
+        print("*   True start: "+str(start))
+        print("* -> Shifting traces to true start")
+        delay = [tr.stats.starttime - start for tr in st]
+        st_shifted = Stream(
+            traces=[traceshift(tr, dt) for tr, dt in zip(st, delay)])
+        st = st_shifted.copy()
+
+    # Check sampling rate
+    sr = st[0].stats.sampling_rate
+    sr_round = float(floor_decimal(sr, 0))
+    if not sr == sr_round:
+        print("* Sampling rate is not an integer value: ", sr)
+        print("* -> Resampling")
+        st.resample(sr_round, no_filter=False)
+
+    # Try trimming
+    try:
+        st.trim(start, end)
+    except:
+        print("* Unable to trim")
+        print("* -> Skipping")
+        print("**************************************************")
+        return True, None
+
+    # Check final lengths - they should all be equal if start times
+    # and sampling rates are all equal and traces have been trimmed
+    if not np.allclose([tr.stats.npts for tr in st[1:]], st[0].stats.npts):
+        print("* Lengths are incompatible: ")
+        [print("*     "+str(tr.stats.npts)) for tr in st]
+        print("* -> Skipping")
+        print("**************************************************")
+
+        return True, None
+
+    elif not np.allclose([st[0].stats.npts], int((end - start)*sr),
+                         atol=1):
+        print("* Length is too short: ")
+        print("*    "+str(st[0].stats.npts) +
+              " ~= "+str(int((end - start)*sr)))
+        print("* -> Skipping")
+        print("**************************************************")
+
+        return True, None
+
     else:
-
-        # Detrend and apply taper
-        st.detrend('demean').detrend('linear').taper(
-            max_percentage=0.05, max_length=5.)
-
-        # Check start times
-        if not np.all([tr.stats.starttime == start for tr in st]):
-            print("* Start times are not all close to true start: ")
-            [print("*   "+tr.stats.channel+" " +
-                   str(tr.stats.starttime)+" " +
-                   str(tr.stats.endtime)) for tr in st]
-            print("*   True start: "+str(start))
-            print("* -> Shifting traces to true start")
-            delay = [tr.stats.starttime - start for tr in st]
-            st_shifted = Stream(
-                traces=[traceshift(tr, dt) for tr, dt in zip(st, delay)])
-            st = st_shifted.copy()
-
-        # Check sampling rate
-        sr = st[0].stats.sampling_rate
-        sr_round = float(floor_decimal(sr, 0))
-        if not sr == sr_round:
-            print("* Sampling rate is not an integer value: ", sr)
-            print("* -> Resampling")
-            st.resample(sr_round, no_filter=False)
-
-        # Try trimming
-        try:
-            st.trim(start, end)
-        except:
-            print("* Unable to trim")
-            print("* -> Skipping")
-            print("**************************************************")
-            return True, None
-
-        # Check final lengths - they should all be equal if start times
-        # and sampling rates are all equal and traces have been trimmed
-        if not np.allclose([tr.stats.npts for tr in st[1:]], st[0].stats.npts):
-            print("* Lengths are incompatible: ")
-            [print("*     "+str(tr.stats.npts)) for tr in st]
-            print("* -> Skipping")
-            print("**************************************************")
-
-            return True, None
-
-        elif not np.allclose([st[0].stats.npts], int((end - start)*sr),
-                             atol=1):
-            print("* Length is too short: ")
-            print("*    "+str(st[0].stats.npts) +
-                  " ~= "+str(int((end - start)*sr)))
-            print("* -> Skipping")
-            print("**************************************************")
-
-            return True, None
-
-        else:
-            print("* Waveforms Retrieved...")
-            return False, st
+        print("* Waveforms Retrieved...")
+        return False, st

@@ -299,7 +299,8 @@ class RFData(object):
             return self.meta.accept
 
     def download_data(self, client, stdata=[], dtype='SAC', ndval=np.nan,
-                       new_sr=5.,dts=120., returned=False, verbose=False):
+                       new_sr=5.,dts=120., remove_response=False,
+                       returned=False, verbose=False):
         """
         Downloads seismograms based on event origin time and
         P phase arrival.
@@ -316,8 +317,13 @@ class RFData(object):
             Time duration (sec)
         stdata : List
             Station list
+        remove_response : bool
+            Remove instrument response from seismogram and resitute to true ground
+            velocity (m/s) using obspy.core.trace.Trace.remove_response()
         returned : bool
             Whether or not to return the ``accept`` attribute
+        verbose : bool
+            Output diagnostics to screen
 
         Returns
         -------
@@ -350,7 +356,7 @@ class RFData(object):
         err, stream = utils.download_data(
             client=client, sta=self.sta, start=tstart, end=tend,
             stdata=stdata, dtype=dtype, ndval=ndval, new_sr=new_sr,
-            verbose=verbose)
+            remove_response=remove_response, verbose=verbose)
 
         # Store as attributes with traces in dictionary
         try:
