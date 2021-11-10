@@ -300,6 +300,7 @@ class RFData(object):
 
     def download_data(self, client, stdata=[], dtype='SAC', ndval=np.nan,
                        new_sr=5.,dts=120., remove_response=False,
+                       local_response_dir='',
                        returned=False, verbose=False):
         """
         Downloads seismograms based on event origin time and
@@ -356,7 +357,9 @@ class RFData(object):
         err, stream = utils.download_data(
             client=client, sta=self.sta, start=tstart, end=tend,
             stdata=stdata, dtype=dtype, ndval=ndval, new_sr=new_sr,
-            remove_response=remove_response, verbose=verbose)
+            remove_response=remove_response,
+            local_response_dir=local_response_dir,
+            verbose=verbose)
 
         # Store as attributes with traces in dictionary
         try:

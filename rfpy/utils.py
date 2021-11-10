@@ -2,7 +2,8 @@ import math
 from obspy import UTCDateTime
 from numpy import nan, isnan, abs
 import numpy as np
-from obspy.core import Stream, read
+from obspy import Stream, Inventory
+from obspy import read, read_inventory
 
 
 def floor_decimal(n, decimals=0):
@@ -378,9 +379,29 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
     return erd, None
 
 
+def attach_local_response_data(stream, local_response_dir):
+    """
+    Function to restrieve response data from locally stored dataless seed
+
+    Parameters
+    ----------
+    stream : obspy.Stream
+        Event seismogram
+    local_response_dir: str
+        Directory holding response information. All files containing the station
+        name are read.
+    """
+    stations = [t.stats.station for t in stream.traces]
+    inventory = Inventory()
+    for station in stations:
+        inventory += read_inventory(
+            '{:}/*{:}*'.format(local_response_dir, station))
+    stream.attach_response(inventories=inventory)
+
+
 def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
                   stdata=[], dtype='SAC', ndval=nan, new_sr=0., verbose=False,
-                  remove_response=False):
+                  remove_response=False, local_response_dir=''):
     """
     Function to build a stream object for a seismogram in a given time window either
     by downloading data from the client object or alternatively first checking if the
@@ -401,12 +422,16 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
     end : :class:`~obspy.core.utcdatetime.UTCDateTime`
         End time for request
     stdata : List
-        Station list
+        List of directories holding local waveform data
     ndval : float or nan
         Default value for missing data
     remove_response : bool
         Remove instrument response from seismogram and resitute to true ground
         velocity (m/s) using obspy.core.trace.Trace.remove_response()
+    local_response_dir: str
+        Directory holding response files to be read by obspy.read_inventory().
+        Required when ``remove_response`` and using locally stored waveform data
+        via ``stdata``.
 
     Returns
     -------
@@ -454,6 +479,15 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
         if not erd:
             # Combine Data
             st = stZ + stN + stE
+            if remove_response:
+                if local_response_dir:
+                    attach_local_response_data(st, local_response_dir)
+                else:
+                    print('*')
+                    print('* Warning: No local_response_dir given.')
+                    print('* Warning: Continuing without.')
+                    print('*')
+
 
     # No local data? Request using client
     if erd:
