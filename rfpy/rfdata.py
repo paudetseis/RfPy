@@ -338,6 +338,16 @@ class RFData(object):
 
         """
 
+        def _resample(tr, new_sr):
+
+            if tr.stats.sampling_rate > new_sr:
+                # only filter when downsampling
+                tr.filter('lowpass', freq=0.5*new_sr, corners=2, zerophase=True)
+
+            tr.resample(new_sr, no_filter=True)
+            return tr
+
+
         if self.meta is None:
             raise(Exception("Requires event data as attribute - aborting"))
 
@@ -366,26 +376,28 @@ class RFData(object):
             trE = stream.select(component='E')[0]
             trN = stream.select(component='N')[0]
             trZ = stream.select(component='Z')[0]
+
+            for tr in [trE, trN, trZ]:
+                tr = _resample(tr, new_sr)
+
             self.data = Stream(traces=[trZ, trN, trE])
 
-            # Filter Traces and resample
-            self.data.filter('lowpass', freq=0.5*new_sr,
-                             corners=2, zerophase=True)
-            self.data.resample(new_sr, no_filter=True)
-
         # If there is no ZNE, perhaps there is Z12?
-        except:
+        except Exception as e:
+            if verbose:
+                print('* Met exception: ')
+                print('* ' + str(e))
+                print('* Trying to access Z12 data. ')
 
             try:
                 tr1 = stream.select(component='1')[0]
                 tr2 = stream.select(component='2')[0]
                 trZ = stream.select(component='Z')[0]
-                self.data = Stream(traces=[trZ, tr1, tr2])
 
-                # Filter Traces and resample
-                self.data.filter('lowpass', freq=0.5*new_sr,
-                                 corners=2, zerophase=True)
-                self.data.resample(new_sr, no_filter=True)
+                for tr in [tr1, tr2, trZ]:
+                    tr = _resample(tr, new_sr)
+
+                self.data = Stream(traces=[trZ, tr1, tr2])
 
                 # Save Z12 components in case it's necessary for later
                 self.dataZ12 = self.data.copy()
@@ -393,7 +405,11 @@ class RFData(object):
                 # Rotate from Z12 to ZNE using StDb azcorr attribute
                 self.rotate(align='ZNE')
 
-            except:
+            except Exception as e:
+                if verbose:
+                    print('* Met exception: ')
+                    print('* ' + str(e))
+                    print('* Cannot process ')
                 self.meta.accept = False
 
         if returned:
@@ -854,11 +870,6 @@ class RFData(object):
             else:
                 gauss = np.ones(npad)
                 gnorm = 1.
-
-            # Is this correct?
-            #parent de-noised = np.fft.ifftshift(np.real(np.fft.ifft(gauss*Sdenom))/gnorm)
-            #daughter1 de-noised = np.fft.ifftshift(np.real(np.fft.ifft( gauss*Sd1p))/gnorm)
-            #daughter2 de-noised = np.fft.ifftshift(np.real(np.fft.ifft( gauss*Sd2p))/gnorm)
 
             # Copy traces
             rfp = parent.copy()
