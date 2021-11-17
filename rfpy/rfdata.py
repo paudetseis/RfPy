@@ -338,6 +338,16 @@ class RFData(object):
 
         """
 
+        def _resample(tr, new_sr):
+
+             if tr.stats.sampling_rate > new_sr:
+                 # only filter when downsampling
+                 tr.filter('lowpass', freq=0.5*new_sr, corners=2, zerophase=True)
+
+             tr.resample(new_sr, no_filter=True)
+             return tr
+
+
         if self.meta is None:
             raise(Exception("Requires event data as attribute - aborting"))
 
@@ -368,13 +378,19 @@ class RFData(object):
             trZ = stream.select(component='Z')[0]
             self.data = Stream(traces=[trZ, trN, trE])
 
-            # Filter Traces and resample
-            self.data.filter('lowpass', freq=0.5*new_sr,
-                             corners=2, zerophase=True)
+            # Filter Traces when downsampling
+            if self.data[0].stats.sampling_rate > new_sr:
+                self.data.filter('lowpass', freq=0.5*new_sr,
+                                 corners=2, zerophase=True)
+            # Resample
             self.data.resample(new_sr, no_filter=True)
 
         # If there is no ZNE, perhaps there is Z12?
-        except:
+        except Exception as e:
+            if verbose:
+                print('* Met exception: ')
+                print('* ' + str(e))
+                print('* Trying to access Z12 data.')
 
             try:
                 tr1 = stream.select(component='1')[0]
@@ -382,9 +398,11 @@ class RFData(object):
                 trZ = stream.select(component='Z')[0]
                 self.data = Stream(traces=[trZ, tr1, tr2])
 
-                # Filter Traces and resample
-                self.data.filter('lowpass', freq=0.5*new_sr,
-                                 corners=2, zerophase=True)
+                # Filter Traces when downsampling
+                if self.data[0].stats.sampling_rate > new_sr:
+                    self.data.filter('lowpass', freq=0.5*new_sr,
+                                     corners=2, zerophase=True)
+                # Resample
                 self.data.resample(new_sr, no_filter=True)
 
                 # Save Z12 components in case it's necessary for later
@@ -393,7 +411,11 @@ class RFData(object):
                 # Rotate from Z12 to ZNE using StDb azcorr attribute
                 self.rotate(align='ZNE')
 
-            except:
+            except Exception as e:
+                if verbose:
+                    print('* Met exception: ')
+                    print('* ' + str(e))
+                    print('* Cannot process')
                 self.meta.accept = False
 
         if returned:
