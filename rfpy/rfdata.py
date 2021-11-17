@@ -152,7 +152,7 @@ class RFData(object):
     """
     A RFData object contains Class attributes that associate
     station information with a single event (i.e., earthquake) 
-    metadata, corresponding raw and rotated seismograms and 
+    metadata, corresponding raw and rotated seismograms, spectra and 
     receiver functions.
 
     Note
@@ -338,16 +338,6 @@ class RFData(object):
 
         """
 
-        def _resample(tr, new_sr):
-
-            if tr.stats.sampling_rate > new_sr:
-                # only filter when downsampling
-                tr.filter('lowpass', freq=0.5*new_sr, corners=2, zerophase=True)
-
-            tr.resample(new_sr, no_filter=True)
-            return tr
-
-
         if self.meta is None:
             raise(Exception("Requires event data as attribute - aborting"))
 
@@ -376,28 +366,26 @@ class RFData(object):
             trE = stream.select(component='E')[0]
             trN = stream.select(component='N')[0]
             trZ = stream.select(component='Z')[0]
-
-            for tr in [trE, trN, trZ]:
-                tr = _resample(tr, new_sr)
-
             self.data = Stream(traces=[trZ, trN, trE])
 
+            # Filter Traces and resample
+            self.data.filter('lowpass', freq=0.5*new_sr,
+                             corners=2, zerophase=True)
+            self.data.resample(new_sr, no_filter=True)
+
         # If there is no ZNE, perhaps there is Z12?
-        except Exception as e:
-            if verbose:
-                print('* Met exception: ')
-                print('* ' + str(e))
-                print('* Trying to access Z12 data. ')
+        except:
 
             try:
                 tr1 = stream.select(component='1')[0]
                 tr2 = stream.select(component='2')[0]
                 trZ = stream.select(component='Z')[0]
-
-                for tr in [tr1, tr2, trZ]:
-                    tr = _resample(tr, new_sr)
-
                 self.data = Stream(traces=[trZ, tr1, tr2])
+
+                # Filter Traces and resample
+                self.data.filter('lowpass', freq=0.5*new_sr,
+                                 corners=2, zerophase=True)
+                self.data.resample(new_sr, no_filter=True)
 
                 # Save Z12 components in case it's necessary for later
                 self.dataZ12 = self.data.copy()
@@ -405,11 +393,7 @@ class RFData(object):
                 # Rotate from Z12 to ZNE using StDb azcorr attribute
                 self.rotate(align='ZNE')
 
-            except Exception as e:
-                if verbose:
-                    print('* Met exception: ')
-                    print('* ' + str(e))
-                    print('* Cannot process ')
+            except:
                 self.meta.accept = False
 
         if returned:
@@ -637,13 +621,13 @@ class RFData(object):
         # Calculate signal/noise ratio in dB
         self.meta.snrh = 10*np.log10(srms*srms/nrms/nrms)
 
-
-    def deconvolve(self, phase='P', vp=None, vs=None,
+    def calc_spectra(self, phase='P', vp=None, vs=None,
                    align=None, method='wiener', wavelet='complete',
-                   envelope_threshold=0.05, time=5, pre_filt=None,
-                   gfilt=None, wlevel=0.01, writeto=None):
+                   envelope_threshold=0.05, time=5., pre_filt=None,
+                   writeto=False):
         """
-        Deconvolves three-component data using one component as the source wavelet.
+        Calculate the numerators and denominator of the spectral division for receiver
+        function calculation using one component as the source wavelet.
         The source component is always taken as the dominant compressional 
         component, which can be either 'Z', 'L', or 'P'. 
 
@@ -679,8 +663,8 @@ class RFData(object):
 
         Attributes
         ----------
-        rf : :class:`~obspy.core.Stream`
-            Stream containing the receiver function traces
+        specs : :class:`~obspy.core.Stream`
+            Stream containing the cross spectral quantities
 
         """
 
@@ -705,8 +689,8 @@ class RFData(object):
             gauss[nft21:] = np.flip(gauss[1:nft21-1])
             return gauss
 
-        def _Pwavelet(parent, method='complete', overhang=5,
-                envelope_threshold=0.05, time=5):
+        def _Pwavelet(parent, method='complete', overhang=5.,
+                envelope_threshold=0.05, time=5.):
 
             """
             Select wavelet from the parent function for deconvolution using method.
@@ -785,7 +769,7 @@ class RFData(object):
 
             return left, right
             
-        def _decon(parent, daughter1, daughter2, noise, nn, method):
+        def _calc_specs(parent, daughter1, daughter2, noise, nn, method):
 
             # Get length, zero padding parameters and frequencies
             dt = parent.stats.delta
@@ -808,14 +792,6 @@ class RFData(object):
                 Sd1p = Fd1*np.conjugate(Fp)
                 Sd2p = Fd2*np.conjugate(Fp)
                 Snn = np.real(Fn*np.conjugate(Fn))
-
-                # Final processing depends on method
-                if method == 'wiener':
-                    Sdenom = Spp + Snn
-                elif method == 'water':
-                    phi = np.amax(Spp)*wlevel
-                    Sdenom = Spp
-                    Sdenom[Sdenom < phi] = phi
 
             # Multitaper deconvolution
             elif method == 'multitaper':
@@ -856,35 +832,12 @@ class RFData(object):
                 Sd2p = np.sum(Fd2*np.conjugate(Fp), axis=0)
                 Snn = np.sum(np.real(Fn*np.conjugate(Fn)), axis=0)
 
-                # Denominator
-                Sdenom = Spp + Snn
-
             else:
                 print("Method not implemented")
                 pass
 
-            # Apply Gaussian filter?
-            if gfilt:
-                gauss = _gauss_filt(dt, npad, gfilt)
-                gnorm = np.sum(gauss)*(freqs[1]-freqs[0])*dt
-            else:
-                gauss = np.ones(npad)
-                gnorm = 1.
+            return Spp, Sd1p, Sd2p, Snn
 
-            # Copy traces
-            rfp = parent.copy()
-            rfd1 = daughter1.copy()
-            rfd2 = daughter2.copy()
-
-            # Spectral division and inverse transform
-            rfp.data = np.fft.ifftshift(np.real(np.fft.ifft(
-                gauss*Spp/Sdenom))/gnorm)
-            rfd1.data = np.fft.ifftshift(np.real(np.fft.ifft(
-                gauss*Sd1p/Sdenom))/gnorm)
-            rfd2.data = np.fft.ifftshift(np.real(np.fft.ifft(
-                gauss*Sd2p/Sdenom))/gnorm)
-
-            return rfp, rfd1, rfd2
 
         if not self.meta.rotated:
             print("Warning: Data have not been rotated yet - rotating now")
@@ -948,31 +901,32 @@ class RFData(object):
             [tr.trim(noise_left, noise_right, nearest_sample=False, 
                 pad=True, fill_value=0.) for tr in [trNl, trNq]]
 
-        elif phase == 'S' or 'SKS':
+        # Can't deal with S phases right now ####
+        # elif phase == 'S' or 'SKS':
 
-            # Get signal length (i.e., seismogram to deconvolve) from trace length
-            dts = len(trL.data)*trL.stats.delta/2.
+        #     # Get signal length (i.e., seismogram to deconvolve) from trace length
+        #     dts = len(trL.data)*trL.stats.delta/2.
 
-            # Trim signal traces (-5. to dts-10 sec)
-            trL.trim(self.meta.time+self.meta.ttime+25.-dts/2.,
-                     self.meta.time+self.meta.ttime+25.)
-            trQ.trim(self.meta.time+self.meta.ttime+25.-dts/2.,
-                     self.meta.time+self.meta.ttime+25.)
-            trT.trim(self.meta.time+self.meta.ttime+25.-dts/2.,
-                     self.meta.time+self.meta.ttime+25.)
+        #     # Trim signal traces (-5. to dts-10 sec)
+        #     trL.trim(self.meta.time+self.meta.ttime+25.-dts/2.,
+        #              self.meta.time+self.meta.ttime+25.)
+        #     trQ.trim(self.meta.time+self.meta.ttime+25.-dts/2.,
+        #              self.meta.time+self.meta.ttime+25.)
+        #     trT.trim(self.meta.time+self.meta.ttime+25.-dts/2.,
+        #              self.meta.time+self.meta.ttime+25.)
             
-            # Trim noise traces (-dts to -5 sec)
-            trNl.trim(self.meta.time+self.meta.ttime-dts,
-                      self.meta.time+self.meta.ttime-dts/2.)
-            trNq.trim(self.meta.time+self.meta.ttime-dts,
-                      self.meta.time+self.meta.ttime-dts/2.)
+        #     # Trim noise traces (-dts to -5 sec)
+        #     trNl.trim(self.meta.time+self.meta.ttime-dts,
+        #               self.meta.time+self.meta.ttime-dts/2.)
+        #     trNq.trim(self.meta.time+self.meta.ttime-dts,
+        #               self.meta.time+self.meta.ttime-dts/2.)
 
         # Taper traces - only necessary processing after trimming
         # TODO: What does this to the multitaper method
         [tr.taper(max_percentage=0.05, max_length=2.) 
          for tr in [trL, trQ, trT, trNl, trNq]]
 
-        # Pre-filter waveforms before deconvolution
+        # Pre-filter waveforms before calculating spectra
         if pre_filt:
             [tr.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1],
                        corners=2, zerophase=True) 
@@ -982,17 +936,114 @@ class RFData(object):
             with open(writeto, 'wb') as f:
                 pickle.dump(Stream(traces=[trL, trQ, trT]), f)
 
-        # Deconvolve
+        # Calculate spectra
         if phase == 'P' or 'PP':
-            rfL, rfQ, rfT = _decon(trL, trQ, trT, trNl, nn, method)
+            spp, sd1p, sd2p, snn = _calc_specs(trL, trQ, trT, trNl, nn, method)
 
-        elif phase == 'S' or 'SKS':
-            rfQ, rfL, rfT = _decon(trQ, trL, trT, trNq, nn, method)
+        # Can't deal with S phases right now ####
+        # elif phase == 'S' or 'SKS':
+        #     rfQ, rfL, rfT = _calc_specs(trQ, trL, trT, trNq, nn, method)
+
+        # Copy traces
+        sLL = trL.copy()
+        sQL = trQ.copy()
+        sTL = trT.copy()
+        sNN = trNl.copy()
+        sLL.data = spp
+        sQL.data = sd1p
+        sTL.data = sd2p
+        sNN.data = snn
 
         # Update stats of streams
-        rfL.stats.channel = 'RF' + self.meta.align[0]
-        rfQ.stats.channel = 'RF' + self.meta.align[1]
-        rfT.stats.channel = 'RF' + self.meta.align[2]
+        sLL.stats.channel = 'S' + self.meta.align[0] + self.meta.align[0]
+        sQL.stats.channel = 'S' + self.meta.align[1] + self.meta.align[0]
+        sTL.stats.channel = 'S' + self.meta.align[2] + self.meta.align[0]
+        sNN.stats.channel = 'SNN'
+
+        self.specs = Stream(traces=[sLL, sQL, sTL, sNN])
+
+
+    def deconvolve(self, align=None, method='wiener',
+                   gfilt=None, wlevel=0.01, writeto=None):
+        """
+        Deconvolves three-component data using one component as the source wavelet.
+        The source component is always taken as the dominant compressional 
+        component, which can be either 'Z', 'L', or 'P'. 
+
+        Parameters
+        ----------
+        align : str
+            Alignment of coordinate system for rotation
+            ('ZRT', 'LQT', or 'PVH')
+        method : str
+            Method for deconvolution. Options are 'wiener', 'water' or 
+            'multitaper'
+        gfilt : float
+            Center frequency of Gaussian filter (Hz). 
+        wlevel : float
+            Water level used in ``method='water'``.
+        writeto : str or None
+            Write wavelets for deconvolution to file.
+
+        Attributes
+        ----------
+        rf : :class:`~obspy.core.Stream`
+            Stream containing the receiver function traces
+
+        """
+
+        try:
+            len(self.specs) > 0
+        except:
+            Exception("spectra have not been calculated")
+
+
+        # Make everything explicit
+        SLL = self.specs[0].copy()
+        SQL = self.specs[1].copy()
+        STL = self.specs[2].copy()
+        SNN = self.specs[3].copy()
+
+        dt = SLL.stats.delta
+        npad = SLL.stats.npts
+        freqs = np.fft.fftfreq(npad, d=dt)
+
+        # Wiener or Water level deconvolution
+        if method in ['wiener', 'multitaper']:
+
+            # Denominator (Spp + Snn)
+            Sdenom = SLL.data + SNN.data
+
+        elif method == 'water':
+            phi = np.amax(SLL)*wlevel
+            Sdenom = SLL.data
+            Sdenom[Sdenom < phi] = phi
+
+        # Apply Gaussian filter?
+        if gfilt:
+            gauss = _gauss_filt(dt, npad, gfilt)
+            gnorm = np.sum(gauss)*(freqs[1]-freqs[0])*dt
+        else:
+            gauss = np.ones(npad)
+            gnorm = 1.
+
+        # Copy traces
+        rfL = SLL.copy()
+        rfQ = SQL.copy()
+        rfT = STL.copy()
+
+        # Spectral division and inverse transform
+        rfL.data = np.fft.ifftshift(np.real(np.fft.ifft(
+            gauss*SLL.data/Sdenom))/gnorm)
+        rfQ.data = np.fft.ifftshift(np.real(np.fft.ifft(
+            gauss*SQL.data/Sdenom))/gnorm)
+        rfT.data = np.fft.ifftshift(np.real(np.fft.ifft(
+            gauss*STL.data/Sdenom))/gnorm)
+
+        # Update stats of streams
+        rfL.stats.channel = 'RF' + align[0]
+        rfQ.stats.channel = 'RF' + align[1]
+        rfT.stats.channel = 'RF' + align[2]
 
         self.rf = Stream(traces=[rfL, rfQ, rfT])
 
@@ -1034,7 +1085,7 @@ class RFData(object):
         self.meta.cc = np.corrcoef(obs_Q.data, pred_Q.data)[0][1]
 
 
-    def to_stream(self):
+    def to_stream(self, store=None):
         """
         Method to switch from RFData object to Stream object.
         This allows easier manipulation of the receiver functions
@@ -1045,7 +1096,7 @@ class RFData(object):
         if not self.meta.accept:
             return
 
-        def _add_rfstats(trace):
+        def _add_stats(trace, store):
             trace.stats.snr = self.meta.snr
             trace.stats.snrh = self.meta.snrh
             trace.stats.cc = self.meta.cc
@@ -1059,18 +1110,38 @@ class RFData(object):
             trace.stats.vp = self.meta.vp
             trace.stats.vs = self.meta.vs
             trace.stats.phase = self.meta.phase
-            trace.stats.is_rf = True
-            nn = self.rf[0].stats.npts
-            sr = self.rf[0].stats.sampling_rate
+            trace.stats.align = self.meta.align
+            nn = self.data[0].stats.npts
+            sr = self.data[0].stats.sampling_rate
             trace.stats.taxis = np.fft.fftshift(np.fft.fftfreq(nn, sr)*nn)
+
+            if store == 'rf':
+                trace.stats.is_rf = True
+            elif store == 'specs':
+                trace.stats.is_specs = True
+
             return trace
 
-        if not hasattr(self, 'rf'):
-            raise(Exception("Warning: Receiver functions are not available"))
+        if store is None:
+            stream = self.data
+            for tr in stream:
+                tr = _add_stats(tr, store)
 
-        stream = self.rf
-        for tr in stream:
-            tr = _add_rfstats(tr)
+        if store == 'rf':
+            if not hasattr(self, 'rf'):
+                raise(Exception("Warning: Receiver functions are not available"))
+            else:
+                stream = self.rf
+                for tr in stream:
+                    tr = _add_stats(tr, store)
+
+        elif store == 'specs':
+            if not hasattr(self, 'specs'):
+                raise(Exception("Warning: Spectra are not available"))
+            else:
+                stream = self.specs
+                for tr in stream:
+                    tr = _add_stats(tr, store)
 
         return stream
 
@@ -1088,3 +1159,4 @@ class RFData(object):
         output = open(file, 'wb')
         pickle.dump(self, output)
         output.close()
+

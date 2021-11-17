@@ -194,54 +194,59 @@ def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=False,
     islow = np.digitize(slow, slow_bins)
 
     final_stream = []
+    if stream2:
+        stream1 = [stream1, stream2]
+    else:
+        stream1 = [stream1]
 
-    for stream in [stream1, stream2]:
-        try:
-            # Define empty streams
-            binned_stream = Stream()
+    for stream in stream1:
+        # try:
+        # Define empty streams
+        binned_stream = Stream()
 
-            # Loop through baz_bins
-            for i in range(nbaz):
-                for j in range(nslow):
+        # Loop through baz_bins
+        for i in range(nbaz):
+            for j in range(nslow):
 
-                    nbin = 0
-                    array = np.zeros(len(stream[0].data))
-                    weight = np.zeros(len(stream[0].data), dtype=complex)
+                nbin = 0
+                array = np.zeros(len(stream[0].data), dtype=type(stream[0].data))
+                weight = np.zeros(len(stream[0].data), dtype=complex)
 
-                    # Loop all traces
-                    for k, tr in enumerate(stream):
+                # Loop all traces
+                for k, tr in enumerate(stream):
 
-                        # If index of baz_bins is equal to ibaz
-                        if i == ibaz[k] and j == islow[k]:
+                    # If index of baz_bins is equal to ibaz
+                    if i == ibaz[k] and j == islow[k]:
 
-                            nbin += 1
-                            array += tr.data
-                            hilb = hilbert(tr.data)
-                            phase = np.arctan2(hilb.imag, hilb.real)
-                            weight += np.exp(1j*phase)
-                            
-                            continue
+                        nbin += 1
+                        array += tr.data
+                        hilb = hilbert(np.real(tr.data))
+                        phase = np.arctan2(hilb.imag, hilb.real)
+                        weight += np.exp(1j*phase)
+                        
+                        continue
 
-                    if nbin > 0 or include_empty:
+                if nbin > 0 or include_empty:
 
-                        # Average and update stats
-                        array /= nbin
-                        weight = np.real(abs(weight/nbin))
+                    # Average and update stats
+                    array /= nbin
+                    weight = np.real(abs(weight/nbin))
 
-                        trace = Trace(header=stream[0].stats)
-                        trace.stats.baz = baz_bins[i]
-                        trace.stats.slow = slow_bins[j]
-                        trace.stats.nbin = nbin
+                    trace = Trace(header=stream[0].stats)
+                    trace.stats.baz = baz_bins[i]
+                    trace.stats.slow = slow_bins[j]
+                    trace.stats.nbin = nbin
 
-                        if not pws:
-                            weight = np.ones(len(stream[0].data))
-                        trace.data = weight*array
-                        binned_stream.append(trace)
+                    if not pws:
+                        weight = np.ones(len(stream[0].data))
+                    trace.data = weight*array
+                    binned_stream.append(trace)
 
-            final_stream.append(binned_stream)
+        final_stream.append(binned_stream)
 
-        except:
-            continue
+        # except:
+        #     final_stream = [Stream()]
+        #     continue
 
     return final_stream
 

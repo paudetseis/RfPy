@@ -36,7 +36,7 @@ from obspy import UTCDateTime
 from numpy import nan
 
 
-def get_calc_arguments(argv=None):
+def get_data_arguments(argv=None):
     """
     Get Options from :class:`~optparse.OptionParser` objects.
 
@@ -271,91 +271,6 @@ def get_calc_arguments(argv=None):
         default=150.,
         help="Specify the window length in sec (symmetric about arrival " +
         "time). [Default 150.]")
-    ConstGroup.add_argument(
-        "--align",
-        action="store",
-        type=str,
-        dest="align",
-        default=None,
-        help="Specify component alignment key. Can be either " +
-        "ZRT, LQT, or PVH. [Default ZRT]")
-    ConstGroup.add_argument(
-        "--vp",
-        action="store",
-        type=float,
-        dest="vp",
-        default=6.0,
-        help="Specify near-surface Vp to use with --align=PVH (km/s). " +
-        "[Default 6.0]")
-    ConstGroup.add_argument(
-        "--vs",
-        action="store",
-        type=float,
-        dest="vs",
-        default=3.5,
-        help="Specify near-surface Vs to use with --align=PVH (km/s). " +
-        "[Default 3.5]")
-    ConstGroup.add_argument(
-        "--dt-snr",
-        action="store",
-        type=float,
-        dest="dt_snr",
-        default=30.,
-        help="Specify the window length over which to calculate " +
-        "the SNR in sec. [Default 30.]")
-    ConstGroup.add_argument(
-        "--pre-filt",
-        action="store",
-        type=str,
-        dest="pre_filt",
-        default=None,
-        help="Specify two floats with low and high frequency corners for " +
-        "pre-filter (before deconvolution). [Default None]")
-    ConstGroup.add_argument(
-        "--fmin",
-        action="store",
-        type=float,
-        dest="fmin",
-        default=0.05,
-        help="Specify the minimum frequency corner for SNR and CC " +
-        "filter (Hz). [Default 0.05]")
-    ConstGroup.add_argument(
-        "--fmax",
-        action="store",
-        type=float,
-        dest="fmax",
-        default=1.0,
-        help="Specify the maximum frequency corner for SNR and CC " +
-        "filter (Hz). [Default 1.0]")
-
-    # Constants Settings
-    DeconGroup = parser.add_argument_group(
-        title='Deconvolution Settings',
-        description="Parameters for deconvolution")
-    DeconGroup.add_argument(
-        "--method",
-        action="store",
-        dest="method",
-        type=str,
-        default="wiener",
-        help="Specify the deconvolution method. Available methods " +
-        "include 'wiener', 'water' and 'multitaper'. [Default 'wiener']")
-    DeconGroup.add_argument(
-        "--gfilt",
-        action="store",
-        dest="gfilt",
-        type=float,
-        default=None,
-        help="Specify the Gaussian filter width in Hz. " +
-        "[Default None]")
-    DeconGroup.add_argument(
-        "--wlevel",
-        action="store",
-        dest="wlevel",
-        type=float,
-        default=0.01,
-        help="Specify the water level, used in the 'water' method. " +
-        "[Default 0.01]")
 
     args = parser.parse_args(argv)
 
@@ -461,32 +376,6 @@ def get_calc_arguments(argv=None):
                 "Distances should be between 85 and 115 deg. for " +
                 "teleseismic 'SKS' waves.")
 
-    if args.pre_filt is not None:
-        args.pre_filt = [float(val) for val in args.pre_filt.split(',')]
-        args.pre_filt = sorted(args.pre_filt)
-        if (len(args.pre_filt)) != 2:
-            parser.error(
-                "Error: --pre-filt should contain 2 " +
-                "comma-separated floats")
-
-    # Check alignment arguments
-    if args.align is None:
-        args.align = 'ZRT'
-    elif args.align not in ['ZRT', 'LQT', 'PVH']:
-        parser.error(
-            "Error: Incorrect alignment specifier. Should be " +
-            "either 'ZRT', 'LQT', or 'PVH'.")
-
-    if args.dt_snr > args.dts:
-        args.dt_snr = args.dts - 10.
-        print("SNR window > data window. Defaulting to data " +
-              "window minus 10 sec.")
-
-    if args.method not in ['wiener', 'water', 'multitaper']:
-        parser.error(
-            "Error: 'method' should be either 'wiener', 'water' or " +
-            "'multitaper'")
-
     return args
 
 
@@ -505,7 +394,7 @@ def main():
     print()
 
     # Run Input Parser
-    args = get_calc_arguments()
+    args = get_data_arguments()
 
     # Load Database
     db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
@@ -692,7 +581,6 @@ def main():
                 # Event Folder
                 timekey = rfdata.meta.time.strftime("%Y%m%d_%H%M%S")
                 evtdir = datapath / timekey
-                RFfile = evtdir / 'RF_Data.pkl'
                 ZNEfile = evtdir / 'ZNE_Data.pkl'
                 metafile = evtdir / 'Meta_Data.pkl'
                 stafile = evtdir / 'Station_Data.pkl'
@@ -724,50 +612,11 @@ def main():
                     Z12file = evtdir / 'Z12_Data.pkl'
                     pickle.dump(rfdata.dataZ12, open(Z12file, "wb"))
 
-                # Rotate from ZNE to 'align' ('ZRT', 'LQT', or 'PVH')
-                rfdata.rotate(vp=args.vp, vs=args.vs, align=args.align)
-
-                # Calculate snr over dt_snr seconds
-                rfdata.calc_snr(
-                    dt=args.dt_snr, fmin=args.fmin, fmax=args.fmax)
-                if args.verb:
-                    print("* SNR: {}".format(rfdata.meta.snr))
-
-                # Make sure no processing happens for NaNs
-                if np.isnan(rfdata.meta.snr):
-                    if args.verb:
-                        print("* SNR NaN...Skipping")
-                    print("*"*50)
-                    continue
-
-                # Calculate spectra
-                rfdata.calc_spectra(
-                    vp=args.vp, vs=args.vs,
-                    align=args.align, method=args.method,
-                    wavelet='complete', envelope_threshold=0.05, 
-                    time=5)
-
-                # Deconvolve data
-                rfdata.deconvolve(
-                    method=args.method, gfilt=args.gfilt, 
-                    wlevel=args.wlevel)
-
-                # Get cross-correlation QC
-                rfdata.calc_cc()
-                if args.verb:
-                    print("* CC: {}".format(rfdata.meta.cc))
-
-                # Convert to Stream
-                rfstream = rfdata.to_stream(store='rf')
-
                 # Save event meta data
                 pickle.dump(rfdata.meta, open(metafile, "wb"))
 
                 # Save Station Data
                 pickle.dump(rfdata.sta, open(stafile, "wb"))
-
-                # Save RF Traces
-                pickle.dump(rfstream, open(RFfile, "wb"))
 
                 # Update
                 if args.verb:

@@ -36,8 +36,10 @@ setup(
     python_requires='>=3.6',
     packages=setuptools.find_packages(),
     entry_points={'console_scripts':[
-    'rfpy_calc=rfpy.scripts.rfpy_calc:main',
-    'rfpy_recalc=rfpy.scripts.rfpy_recalc:main',
+    'rfpy_get_data=rfpy.scripts.rfpy_get_data:main',
+    'rfpy_calc_simdec=rfpy.scripts.rfpy_calc_simdec:main',
+    # 'rfpy_recalc=rfpy.scripts.rfpy_recalc:main',
+    'rfpy_calc_sse=rfpy.scripts.rfpy_recalc_sse:main',
     'rfpy_plot=rfpy.scripts.rfpy_plot:main',
     'rfpy_harmonics=rfpy.scripts.rfpy_harmonics:main',
     'rfpy_hk=rfpy.scripts.rfpy_hk:main',
