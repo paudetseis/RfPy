@@ -491,7 +491,7 @@ def main():
                     vp=args.vp, vs=args.vs,
                     align=args.align, method=args.method,
                     wavelet='complete', envelope_threshold=0.05, 
-                    time=5)
+                    time=5, norm=True)
 
             # Convert to Stream
             rfstream = rfdata.to_stream(store='specs')

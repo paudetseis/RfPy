@@ -646,7 +646,7 @@ class RFData(object):
     def calc_spectra(self, phase='P', vp=None, vs=None,
                    align=None, method='wiener', wavelet='complete',
                    envelope_threshold=0.05, time=5., pre_filt=None,
-                   writeto=False):
+                   writeto=False, norm=False):
         """
         Calculate the numerators and denominator of the spectral division for receiver
         function calculation using one component as the source wavelet.
@@ -953,6 +953,12 @@ class RFData(object):
             [tr.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1],
                        corners=2, zerophase=True) 
              for tr in [trL, trQ, trT, trNl, trNq]]
+
+        if norm:
+            # Standardize all trace data - useful in simdec
+            meanN = np.mean(trNl.data)
+            stdN = np.std(trNl.data)
+            [(tr.data - meanN)/stdN for tr in [trL, trQ, trT, trNl, trNq]]
 
         if writeto:
             with open(writeto, 'wb') as f:
