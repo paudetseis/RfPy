@@ -373,12 +373,16 @@ def main():
             if args.verb:
                 print("* SNR: {}".format(rfdata.meta.snr))
 
+            rfdata.calc_spectra(
+                    vp=args.vp, vs=args.vs,
+                    align=args.align, method=args.method,
+                    wavelet='complete', envelope_threshold=0.05, 
+                    time=5)
+
             # Deconvolve data
             rfdata.deconvolve(
-                vp=args.vp, vs=args.vs,
-                align=args.align, method=args.method,
-                gfilt=args.gfilt, wlevel=args.wlevel,
-                pre_filt=args.pre_filt)
+                    align=args.align, method=args.method,
+                    gfilt=args.gfilt, wlevel=args.wlevel)
 
             # Get cross-correlation QC
             rfdata.calc_cc()
@@ -387,7 +391,7 @@ def main():
                 print("* CC: {}".format(rfdata.meta.cc))
 
             # Convert to Stream
-            rfstream = rfdata.to_stream()
+            rfstream = rfdata.to_stream(store='rf')
 
             # Save RF Traces
             RFfile = folder / "RF_Data.pkl"

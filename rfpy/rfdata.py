@@ -793,7 +793,7 @@ class RFData(object):
             
         def _calc_specs(parent, daughter1, daughter2, noise, nn, method):
 
-            # Get length, zero padding parameters and frequencies
+            # Sampling interval
             dt = parent.stats.delta
 
             # Wiener or Water level deconvolution
