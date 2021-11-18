@@ -447,6 +447,78 @@ def wiggle_single_event(rfdata, filt=None, pre_filt=None, trange=None):
     plt.show()
 
 
+def panel(stream1, stream2, sort=None, tmin=0., tmax=30, normalize=True,
+           save=False, title=None, form='png'):
+
+    taxis = stream1[0].stats.taxis
+    tselect = (taxis > tmin) & (taxis < tmax)
+    nt = len(taxis[tselect])
+    # print(nt)
+    # print(taxis[tselect])
+    # print(len(stream1[0].data))
+    # print(len(stream1[0].data[tselect]))
+
+    baz_array = np.array([[i, tr.stats.baz] for i, tr in enumerate(stream1)])
+    slow_array = np.array([[i, tr.stats.slow] for i, tr in enumerate(stream1)])
+
+    # build panel
+    panelV = np.zeros((len(stream1), nt))
+    for i, tr in enumerate(stream1):
+        panelV[i,:] = tr.data[tselect]
+    panelH = np.zeros((len(stream2), nt))
+    for i, tr in enumerate(stream2):
+        panelH[i,:] = tr.data[tselect]
+
+    if normalize:
+        vmin = np.mean(panelV) - 3.*np.std(panelV)
+        vmax = np.mean(panelV) + 3.*np.std(panelV)
+    else:
+        vmin = -0.5
+        vmax = 0.5
+
+    plt.figure(figsize=(8,5))
+
+    plt.subplot(311)
+    plt.pcolor(panelV.T, cmap='bwr', vmin=vmin, vmax=vmax)
+    plt.xlim((0,len(stream1)))
+    plt.ylim((0,nt))
+    plt.gca().invert_yaxis()
+    plt.ylabel('Time (s)')
+    plt.gca().set_yticks(np.arange(0., 600.05, 200.))
+    plt.gca().set_yticklabels([str(0), str(10), str(20), str(30)])
+    plt.gca().set_xticklabels([])
+
+    plt.subplot(312)
+    plt.pcolor(panelH.T, cmap='bwr', vmin=vmin, vmax=vmax)
+    plt.xlim((0,len(stream1)))
+    plt.ylim((0,nt))
+    plt.gca().invert_yaxis()
+    plt.ylabel('Time (s)')
+    plt.gca().set_yticks(np.arange(0., 600.05, 200.))
+    plt.gca().set_yticklabels([str(0), str(10), str(20), str(30)])
+    plt.gca().set_xticklabels([])
+
+    plt.subplot(313)
+    plt.plot(baz_array[:,0], baz_array[:,1])
+    plt.xlim((0,len(stream1)))
+    plt.ylim((0,360))
+    plt.ylabel('Back-azimuth (deg)')
+    plt.xlabel('Receiver function #')
+    plt.twinx()
+    plt.plot(slow_array[:,0], slow_array[:,1], '.')
+    plt.ylabel('Slowness (s/km)')
+    plt.grid()
+
+    if title:
+        plt.suptitle(title)
+
+    if save:
+        plt.savefig('RF_PLOTS/' + stream1[0].stats.station +
+                    '.' + title + '.' + form, format=form)
+    else:
+        plt.show()
+
+
 def event_dist(stream, phase='P', save=False, title=None, form='png'):
 
     import cartopy.crs as ccrs

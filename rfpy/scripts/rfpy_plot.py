@@ -149,10 +149,10 @@ def get_plot_arguments(argv=None):
         action="store",
         dest="nbaz",
         type=int,
-        default=None,
+        default=36,
         help="Specify integer number of back-azimuth bins to consider " +
         "(typically 36 or 72). If not None, the plot will show receiver " +
-        "functions sorted by back-azimuth values. [Default None]")
+        "functions sorted by back-azimuth values. [Default 36]")
     PreGroup.add_argument(
         "--nslow",
         action="store",
@@ -301,9 +301,6 @@ def get_plot_arguments(argv=None):
         args.nbaz = 72
         print("'nbaz' or 'nslow' not specified - plotting using " +
               "'nbaz=72'")
-    elif args.nbaz is not None and args.nslow is not None:
-        parser.error(
-            "Error: Cannot specify both 'nbaz' and 'nslow'")
 
     if args.trange is None:
         args.trange = [0., 30.]
@@ -321,8 +318,6 @@ def get_plot_arguments(argv=None):
 
     if args.nbaz is None and args.nslow is None:
         parser.error("Specify at least one of --nbaz or --nslow")
-    elif args.nbaz is not None and args.nslow is not None:
-        parser.error("Specify only one of --nbaz or --nslow")
 
     return args
 
@@ -507,17 +502,23 @@ def main():
         print("Number of transverse RF data: " + str(len(rfTstream)))
         print('')
 
-        if args.nbaz:
+        if args.nbaz and args.nslow is None:
             # Bin according to BAZ
             rf_tmp = binning.bin(rfRstream, rfTstream,
                                  typ='baz', nbin=args.nbaz+1,
                                  pws=args.pws)
 
-        elif args.nslow:
+        elif args.nslow and args.nbaz is None:
             # Bin according to slowness
             rf_tmp = binning.bin(rfRstream, rfTstream,
                                  typ='slow', nbin=args.nslow+1,
                                  pws=args.pws)
+
+        elif args.nbaz is not None and args.nslow is not None:
+            # Bin into baz and slowness bins
+            rf_tmp = binning.bin_baz_slow(rfRstream, rfTstream, 
+                nbaz=args.nbaz+1, nslow=args.nslow+1,
+                pws=False)
 
         # Check bin counts:
         for tr in rf_tmp[0]:
@@ -559,18 +560,23 @@ def main():
             tr2 = None
 
         # Now plot
-        if args.nbaz:
+        if args.nbaz and args.nslow is None:
             plotting.wiggle_bins(rf_tmp[0], rf_tmp[1], tr1=tr1, tr2=tr2,
                                  btyp='baz', scale=args.scale,
                                  tmin=args.trange[0], tmax=args.trange[1],
                                  norm=norm, save=args.saveplot,
                                  title=args.titleplot, form=args.form)
-        elif args.nslow:
+        elif args.nslow and args.nbaz is None:
             plotting.wiggle_bins(rf_tmp[0], rf_tmp[1], tr1=tr1, tr2=tr2,
                                  btyp='slow', scale=args.scale,
                                  tmin=args.trange[0], tmax=args.trange[1],
                                  norm=norm, save=args.saveplot,
                                  title=args.titleplot, form=args.form)
+
+        elif args.nbaz is not None and args.nslow is not None:
+            plotting.panel(rf_tmp[0], rf_tmp[1], tmin=args.trange[0], tmax=args.trange[1],
+                normalize=True, save=args.saveplot,
+                title=args.titleplot, form=args.form)
 
         # Update processed folders
         procfold.append(stfld)

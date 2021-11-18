@@ -229,12 +229,60 @@ def get_simdec_arguments(argv=None):
         action="store",
         dest="nslow",
         type=int,
-        default=16,
+        default=20,
         help="Specify integer number of slowness bins to consider " +
         "(range of slowness values is 0.04 to 0.08). " + 
         "If not None, the plot will show receiver " +
-        "functions sorted by slowness values. [Default 16]")
+        "functions sorted by slowness values. [Default 20]")
+    PreGroup.add_argument(
+        "--bp",
+        action="store",
+        type=str,
+        dest="bp",
+        default=None,
+        help="Specify the corner frequencies for the bandpass filter. " +
+        "[Default no filtering]")
 
+    PlotGroup = parser.add_argument_group(
+        title='Plot Settings',
+        description="Options for plot format")
+    PlotGroup.add_argument(
+        "--normalize",
+        action="store_true",
+        dest="norm",
+        default=False,
+        help="Set this option to produce receiver functions normalized " +
+        "by the max amplitude of stacked RFs. [Default False]")
+    PlotGroup.add_argument(
+        "--trange",
+        action="store",
+        default=None,
+        type=str,
+        dest="trange",
+        help="Specify the time range for the x-axis (sec). Negative times " +
+        "are allowed [Default 0., 30.]")
+    PlotGroup.add_argument(
+        "--save",
+        action="store_true",
+        dest="saveplot",
+        default=False,
+        help="Set this option if you wish to save the figure. [Default " +
+        "does not save figure]")
+    PlotGroup.add_argument(
+        "--title",
+        action="store",
+        dest="titleplot",
+        type=str,
+        default='',
+        help="Specify title of figure. [Default None]")
+    PlotGroup.add_argument(
+        "--format",
+        action="store",
+        type=str,
+        dest="form",
+        default="png",
+        help="Specify format of figure. Can be any one of the valid" +
+        "matplotlib formats: 'png', 'jpg', 'eps', 'pdf'. [Default 'png']")
 
     args = parser.parse_args(argv)
 
@@ -267,6 +315,24 @@ def get_simdec_arguments(argv=None):
         parser.error(
             "Error: 'method' should be either 'wiener', 'water' or " +
             "'multitaper'")
+
+    if args.bp is not None:
+        args.bp = [float(val) for val in args.bp.split(',')]
+        args.bp = sorted(args.bp)
+        if (len(args.bp)) != 2:
+            parser.error(
+                "Error: --bp should contain 2 " +
+                "comma-separated floats")
+
+    if args.trange is None:
+        args.trange = [0., 30.]
+    else:
+        args.trange = [float(val) for val in args.trange.split(',')]
+        args.trange = sorted(args.trange)
+        if (len(args.trange)) != 2:
+            parser.error(
+                "Error: --trange should contain 2 " +
+                "comma-separated floats")
 
     if args.pre_filt is not None:
         args.pre_filt = [float(val) for val in args.pre_filt.split(',')]
@@ -437,15 +503,14 @@ def main():
             NNstreams.append(rfstream[3])
 
         # Bin into baz and slowness bins
-        LL_tmp, = binning.bin_baz_slow(LLstreams, nbaz=args.nbaz, nslow=args.nslow,
+        LL_tmp, = binning.bin_baz_slow(LLstreams, nbaz=args.nbaz+1, nslow=args.nslow+1,
             pws=False, include_empty=False)
-        QL_tmp, = binning.bin_baz_slow(QLstreams, nbaz=args.nbaz, nslow=args.nslow,
+        QL_tmp, = binning.bin_baz_slow(QLstreams, nbaz=args.nbaz+1, nslow=args.nslow+1,
             pws=False, include_empty=False)
-        TL_tmp, = binning.bin_baz_slow(TLstreams, nbaz=args.nbaz, nslow=args.nslow,
+        TL_tmp, = binning.bin_baz_slow(TLstreams, nbaz=args.nbaz+1, nslow=args.nslow+1,
             pws=False, include_empty=False)
-        NN_tmp, = binning.bin_baz_slow(NNstreams, nbaz=args.nbaz, nslow=args.nslow,
+        NN_tmp, = binning.bin_baz_slow(NNstreams, nbaz=args.nbaz+1, nslow=args.nslow+1,
             pws=False, include_empty=False)
-        print(QL_tmp)
 
         # Initialize new empty streams
         RFL = Stream()
@@ -471,6 +536,18 @@ def main():
             RFQ.append(rfdata.rf[1])
             RFT.append(rfdata.rf[2])
 
+        # Filter
+        if args.bp:
+            RFQ.filter('bandpass', freqmin=args.bp[0],
+                             freqmax=args.bp[1], corners=2,
+                             zerophase=True)
+            RFT.filter('bandpass', freqmin=args.bp[0],
+                             freqmax=args.bp[1], corners=2,
+                             zerophase=True)
+
+        plotting.panel(RFQ, RFT, tmin=args.trange[0], tmax=args.trange[1],
+            normalize=True, save=args.saveplot,
+                title=args.titleplot, form=args.form)
         # # Update processed folders
         # procfold.append(stfld)
 

@@ -1133,14 +1133,15 @@ class RFData(object):
             trace.stats.vs = self.meta.vs
             trace.stats.phase = self.meta.phase
             trace.stats.align = self.meta.align
-            nn = self.data[0].stats.npts
-            sr = self.data[0].stats.sampling_rate
-            trace.stats.taxis = np.fft.fftshift(np.fft.fftfreq(nn, sr)*nn)
-
             if store == 'rf':
                 trace.stats.is_rf = True
+                nn = self.rf[0].stats.npts
+                sr = self.rf[0].stats.sampling_rate
             elif store == 'specs':
                 trace.stats.is_specs = True
+                nn = self.specs[0].stats.npts
+                sr = self.specs[0].stats.sampling_rate
+            trace.stats.taxis = np.fft.fftshift(np.fft.fftfreq(nn, sr)*nn)
 
             return trace
 
