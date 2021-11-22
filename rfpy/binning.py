@@ -209,7 +209,7 @@ def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=False,
             for j in range(nslow):
 
                 nbin = 0
-                array = np.zeros(len(stream[0].data), dtype=type(stream[0].data))
+                array = np.zeros(len(stream[0].data), dtype=type(stream[0].data[0]))
                 weight = np.zeros(len(stream[0].data), dtype=complex)
 
                 # Loop all traces
