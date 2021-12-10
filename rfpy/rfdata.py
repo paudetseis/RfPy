@@ -693,6 +693,14 @@ class RFData(object):
         if not self.meta.accept:
             return
 
+        if not align:
+            try:
+                align = self.meta.align
+            except AttributeError:
+                msg = "No alignment found. "
+                msg += "Please supply via align keyword."
+                raise ValueError(msg)
+
         def _npow2(x):
             return 1 if x == 0 else 2**(x-1).bit_length()
 
@@ -992,7 +1000,7 @@ class RFData(object):
 
 
     def deconvolve(self, align=None, method='wiener',
-                   gfilt=None, wlevel=0.01, writeto=None):
+                   gfilt=None, wlevel=0.01):
         """
         Deconvolves three-component data using one component as the source wavelet.
         The source component is always taken as the dominant compressional 
@@ -1010,8 +1018,6 @@ class RFData(object):
             Center frequency of Gaussian filter (Hz). 
         wlevel : float
             Water level used in ``method='water'``.
-        writeto : str or None
-            Write wavelets for deconvolution to file.
 
         Attributes
         ----------
@@ -1020,10 +1026,18 @@ class RFData(object):
 
         """
 
-        try:
-            len(self.specs) > 0
-        except:
-            Exception("spectra have not been calculated")
+        if not hasattr(self, 'specs'):
+            msg = "Spectra have not been calculated."
+            msg += "Call RFData.calc_spectra() first."
+            raise Exception(msg)
+
+        if not align:
+            try:
+                align = self.meta.align
+            except AttributeError:
+                msg = "No alignment found. "
+                msg += "Please supply via align keyword."
+                raise ValueError(msg)
 
 
         # Make everything explicit
@@ -1147,11 +1161,14 @@ class RFData(object):
                 trace.stats.is_specs = True
                 nn = self.specs[0].stats.npts
                 sr = self.specs[0].stats.sampling_rate
+            else:
+                nn = self.data[0].stats.npts
+                sr = self.data[0].stats.sampling_rate
             trace.stats.taxis = np.fft.fftshift(np.fft.fftfreq(nn, sr)*nn)
 
             return trace
 
-        if store is None:
+        if store is None or store is 'data':
             stream = self.data
             for tr in stream:
                 tr = _add_stats(tr, store)
