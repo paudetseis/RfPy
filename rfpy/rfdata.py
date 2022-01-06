@@ -164,6 +164,8 @@ class RFData(object):
     ----------
     sta : object
         Object containing station information - from :mod:`~stdb` database.
+        When RFData is initialized without sta, functions requiring station info
+        coordinate will not be working.
     meta : :class:`~rfpy.rfdata.Meta`
         Object of metadata information for single event (initially set to None)
     data : :class:`~obspy.core.Stream`
@@ -172,7 +174,7 @@ class RFData(object):
 
     """
 
-    def __init__(self, sta):
+    def __init__(self, sta=None):
 
         # Load example data if initializing empty object
         if sta == 'demo' or sta == 'Demo':
@@ -184,7 +186,10 @@ class RFData(object):
                     "examples/data", "MMPY.pkl"), 'rb'))['NY.MMPY']
 
         # Attributes from parameters
-        self.sta = sta
+        if sta:
+            self.sta = sta
+        else:
+            self.sta = None
 
         # Initialize meta and data objects as None
         self.meta = None
