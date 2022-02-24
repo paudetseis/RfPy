@@ -110,9 +110,10 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False,
 
                         nb += 1
                         array += tr.data
-                        hilb = hilbert(tr.data)
-                        phase = np.arctan2(hilb.imag, hilb.real)
-                        weight += np.exp(1j*phase)
+                        if pwd:
+                            hilb = hilbert(tr.data)
+                            phase = np.arctan2(hilb.imag, hilb.real)
+                            weight += np.exp(1j*phase)
                         
                         continue
 
@@ -220,9 +221,10 @@ def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=False,
 
                         nbin += 1
                         array += tr.data
-                        hilb = hilbert(np.real(tr.data))
-                        phase = np.arctan2(hilb.imag, hilb.real)
-                        weight += np.exp(1j*phase)
+                        if pws:
+                            hilb = hilbert(np.real(tr.data))
+                            phase = np.arctan2(hilb.imag, hilb.real)
+                            weight += np.exp(1j*phase)
                         
                         continue
 
@@ -289,9 +291,10 @@ def bin_all(stream1, stream2=None, pws=False):
             # Get phase weights
             for tr in stream:
                 array += tr.data
-                hilb = hilbert(tr.data)
-                phase = np.arctan2(hilb.imag, hilb.real)
-                pweight += np.exp(1j*phase)
+                if pws:
+                    hilb = hilbert(tr.data)
+                    phase = np.arctan2(hilb.imag, hilb.real)
+                    pweight += np.exp(1j*phase)
 
             # Normalize
             array = array/len(stream)
