@@ -1062,7 +1062,7 @@ class RFData(object):
             Sdenom = SLL.data + SNN.data
 
         elif method == 'water':
-            phi = np.amax(SLL)*wlevel
+            phi = np.amax(SLL.data)*wlevel
             Sdenom = SLL.data
             Sdenom[Sdenom < phi] = phi
 
