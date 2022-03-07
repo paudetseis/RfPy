@@ -101,6 +101,7 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False,
                 nb = 0
                 array = np.zeros(len(stream[0].data))
                 weight = np.zeros(len(stream[0].data), dtype=complex)
+                index_list = []
 
                 # Loop through stat
                 for j, tr in enumerate(stream):
@@ -110,6 +111,8 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False,
 
                         nb += 1
                         array += tr.data
+                        index_list.append(j)
+
                         if pwd:
                             hilb = hilbert(tr.data)
                             phase = np.arctan2(hilb.imag, hilb.real)
@@ -125,19 +128,18 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False,
 
                     trace = Trace(header=stream[0].stats)
                     trace.stats.nbin = nb
+                    trace.stats.index_list = index_list
+
                     if typ == 'baz':
                         trace.stats.baz = bins[i]
                         trace.stats.slow = None
-                        trace.stats.nbin = nb
                     elif typ == 'slow': 
                         trace.stats.slow = bins[i]
                         trace.stats.baz = None
-                        trace.stats.nbin = nb
                     elif typ == 'dist':
                         trace.stats.dist = bins[i]
                         trace.stats.slow = None
                         trace.stats.baz = None
-                        trace.stats.nbin = nb
                     if not pws:
                         weight = np.ones(len(stream[0].data))
                     trace.data = weight*array
@@ -180,6 +182,12 @@ def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=False,
         Stream containing one or two stacked traces,
         depending on the number of input streams
 
+    Note
+    ----
+
+    Sets the following attributes of the stack:
+        nbin: Number of bins
+        index_list: Indices constituent traces in source stream
     """
 
     # Define back-azimuth and slowness bins
@@ -210,6 +218,7 @@ def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=False,
             for j in range(nslow):
 
                 nbin = 0
+                index_list = []
                 array = np.zeros(len(stream[0].data), dtype=type(stream[0].data[0]))
                 weight = np.zeros(len(stream[0].data), dtype=complex)
 
@@ -221,6 +230,8 @@ def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=False,
 
                         nbin += 1
                         array += tr.data
+                        index_list.append(k)
+
                         if pws:
                             hilb = hilbert(np.real(tr.data))
                             phase = np.arctan2(hilb.imag, hilb.real)
@@ -238,6 +249,7 @@ def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=False,
                     trace.stats.baz = baz_bins[i]
                     trace.stats.slow = slow_bins[j]
                     trace.stats.nbin = nbin
+                    trace.stats.index_list = index_list
 
                     if not pws:
                         weight = np.ones(len(stream[0].data))
