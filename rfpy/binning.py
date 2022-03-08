@@ -64,6 +64,11 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False,
         Stream containing one or two stacked traces,
         depending on the number of input streams
 
+    Note
+    ----
+    Sets the following attributes of the stack:
+        nbin: Number of bins
+        index_list: Indices of constituent traces in source stream
     """
 
     if not typ in ['baz', 'slow', 'dist']:
@@ -184,10 +189,9 @@ def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=False,
 
     Note
     ----
-
     Sets the following attributes of the stack:
         nbin: Number of bins
-        index_list: Indices constituent traces in source stream
+        index_list: Indices of constituent traces in source stream
     """
 
     # Define back-azimuth and slowness bins
@@ -265,8 +269,61 @@ def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=False,
     return final_stream
 
 
-def bin_all(stream1, stream2=None, pws=False):
+def baz_slow_bin_indices(stream, nbaz=36+1, nslow=20+1, include_empty=False):
     """ 
+    Sort traces of streams into backazimuth (nbaz) and slowness (nslow) bins.
+
+    Parameters
+    ----------
+    stream : :class:`~obspy.core.Stream`
+        Stream of seismograms to be sorted in bins
+    bazs : int
+        Number of back-azimuth samples in bins
+    slows : int
+        Number of slowness samples in bins
+    include_empty : bool
+        Include empty bins (default omits them)
+
+    Returns
+    -------
+    index_lists : list of lists
+        Indices that sorts traces of stream into bins defined by nbaz and nslow
+    bazslow_list : list of 2*tuple
+        Backazimuth and slowness values of each element of index list
+    """
+
+    # Define back-azimuth and slowness bins
+    baz_bins = np.linspace(0, 360, nbaz)
+    slow_bins = np.linspace(0.04, 0.08, nslow)
+
+    # Extract baz and slowness
+    baz = [s.stats.baz for s in stream]
+    slow = [s.stats.slow for s in stream]
+
+    # Digitize baz and slowness
+    ibaz = np.digitize(baz, baz_bins)
+    islow = np.digitize(slow, slow_bins)
+
+    index_lists = []
+    bazslow_list = []
+
+    for i in range(nbaz):
+        for j in range(nslow):
+            index_list = []
+
+            for k, tr in enumerate(stream):
+                if i == ibaz[k] and j == islow[k]:
+                    index_list.append(k)
+
+            if len(index_list) > 0 or include_empty:
+                index_lists.append(index_list)
+                bazslow_list.append((baz_bins[i], slow_bins[j]))
+
+    return index_lists, bazslow_list
+
+
+def bin_all(stream1, stream2=None, pws=False):
+    """
     Function to bin all streams into a single trace.
     This can be done using a linear stack (i.e., simple
     mean), or using phase-weighted stacking.
