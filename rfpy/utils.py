@@ -80,6 +80,8 @@ def list_local_data_stn(lcldrs=list, sta=None, net=None, dtype='SAC', altnet=[])
     fpathmatch = []
     # Loop over all local data directories
     for lcldr in lcldrs:
+        if not lcldr:
+            continue
         # Recursiely walk through directory
         for root, dirnames, filenames in walk(lcldr):
             # Keep paths only for those matching the station
