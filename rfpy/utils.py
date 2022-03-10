@@ -611,3 +611,108 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
     else:
         print("* Waveforms Retrieved...")
         return False, st
+
+
+def optimal_wlevel(rfdatas, wlevels=10**(np.arange(-5, 0.25, 0.25)), iplot=False):
+    """
+    Optimal water level for 'water2' deconvolution using Generalized Cross
+    Validation
+
+    Accepts
+    -------
+
+    rfdatas : list of rfpy.RFData
+        rfdata elements hold rotated seismograms in rfdata.data attribute
+    wlevels : iterable
+        Range of water levels (fraction of maximum stacked amplitude) to try.
+        Default: 1e-5 to 10
+
+    Returns:
+    --------
+    wlevel : float
+        Optimal water level (fraction of maximum stacked amplitude)
+    """
+
+    nt = len(rfdatas)
+    nf = len(rfdatas[0].specs[0].data)
+
+    wft = np.zeros((nt, nf), dtype=complex)
+    vft = np.zeros((nt, nf), dtype=complex)
+
+    for it, rfdata in enumerate(rfdatas):
+
+        if not rfdata.meta.rotated:
+            msg = 'Element {:} of rfdatas must be rotated.'.format(it)
+            raise ValueError(msg)
+
+        wft[it, :] = np.fft.fft(rfdata.data[0].data, n=nf)
+        vft[it, :] = np.fft.fft(rfdata.data[1].data, n=nf)
+
+    # Auto and cross spectra
+    wwft = wft*np.conjugate(wft)
+    vwft = vft*np.conjugate(wft)
+
+    if nt > 0:
+        wwft = np.sum(wwft)
+        vwft = np.sum(vwft)
+
+    betas = wlevels*np.amax(wwft)
+    misfits = np.zeros_like(betas)
+    modnorm = np.zeros_like(betas)
+    gcvf = np.zeros_like(betas)
+
+    for ib, beta in enumerate(betas):
+        # Define operator W W* / (W W* + B) and deconvolve to get
+        # impulse response in frequency domain.
+        wwft2 = wwft + beta
+        rft = vwft / wwft2
+        xft = wwft / wwft2
+
+        # Compute model norm.
+        modnorm[ib] = np.linalg.norm(rft)**2
+
+        # Compute data misfit. Note misfit is numerator of GCV function
+        # Note also earlier mistake where norm(nft)^2 was norm(nft).
+        if nt == 1:
+            nft = vft - wft*rft  # this should be SP
+            misfits[ib] = np.linalg.norm(nft)**2
+        else:
+            for it in range(nt):
+                nft = vft[it, :] - wft[it, :]*rft
+                misfits[ib] = misfits[ib] + np.linalg.norm(nft)**2
+
+        # Compute denominator and GCV function.
+        den = (nf*nt - np.real(np.sum(xft)))**2
+        gcvf[ib] = misfits[ib]/den
+
+    # Compute best beta.
+    ibest = np.argmin(gcvf)
+
+    if iplot:
+        import matplotlib.pyplot as mp
+
+        fig, axs = mp.subplots(ncols=2)
+        ax = axs[0]
+        ax.plot(modnorm, misfits, color='black')
+        ax.plot(modnorm, misfits, marker='+', color='red')
+        ax.plot(modnorm[ibest], misfits[ibest], marker='o', color='green')
+        ax.set_xlabel('Model Norm')
+        ax.set_ylabel('Data Misfit')
+        ax = axs[1]
+        ax.plot(betas, gcvf)
+        ax.plot(betas, gcvf, marker='+', color='red')
+        ax.plot(betas[ibest], gcvf[ibest], color='green', marker='o')
+        ax.set_xscale('log')
+        ax.set_xlabel('Regularization Parameter')
+        ax.set_ylabel('GCV Function')
+        fig.show()
+        input('Press key to continue')
+        mp.close(fig)
+
+    if ibest == 0 or ibest == len(betas):
+        # Minimum not found
+        msg = 'No minimum found. Try extending wlevels.'
+        raise ValueError(msg)
+
+    wlevel = float(betas[ibest]/np.amax(wwft))
+    return wlevel
