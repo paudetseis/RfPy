@@ -171,7 +171,12 @@ class RFData(object):
     data : :class:`~obspy.core.Stream`
         Stream object containing the three-component seismograms (either
         un-rotated or rotated by the method :func:`~rfpy.rfdata.rotate`)
-
+    rf : :class:`~obspy.core.Stream`
+        Stream object containing the receiver functions
+        (created when executing :func:`~rfpy.rfdata.deconvlove`)
+    specs : :class:`~obspy.core.Stream`
+        Stream object containing the spectra of the data
+        (created when executing :func:`~rfpy.rfdata.calc_spectra`)
     """
 
     def __init__(self, sta=None):
@@ -1031,91 +1036,6 @@ class RFData(object):
 
         """
 
-        def _gcv_beta(trL, trQ, betas, npad):
-            try:
-                # TODO: Conserve individual spectra in the binning process
-                nt = self.specs[0].stats.nbin
-            except AttributeError:
-                # This condition is currently always met
-                nt = 1
-
-            # Fourier transform
-            wft = np.fft.fft(trL, n=npad)
-            vft = np.fft.fft(trQ, n=npad)
-
-            # Auto and cross spectra
-            wwft = wft*np.conjugate(wft)
-            vwft = vft*np.conjugate(wft)
-
-            # Number of frequencies
-            nf = len(wft)
-
-            misfits = np.zeros_like(betas)
-            modnorm = np.zeros_like(betas)
-            gcvf = np.zeros_like(betas)
-            for ib, beta in enumerate(betas):
-                # Define operator W W* / (W W* + B) and deconvolve to get
-                # impulse response in frequency domain.
-                wwft2 = wwft + beta
-                rft = vwft / wwft2
-                xft = wwft / wwft2
-
-                # Compute model norm.
-                modnorm[ib] = np.linalg.norm(rft)**2
-
-                # Compute data misfit. Note misfit is numerator of GCV function
-                # Note also earlier mistake where norm(nft)^2 was norm(nft).
-                if nt == 1:
-                    nft = vft - wft*rft  # this should be SP
-                    misfits[ib] = np.linalg.norm(nft)**2
-                else:
-                    raise NotImplementedError
-                    # TODO: criterion never met
-                    # TODO: iterate over individual spectra
-                    for it in range(nt):
-                        nft = Sdp[it] - Spp[it]*rft
-                        misfits[ib] = misfits[ib] + np.linalg.norm(nft)**2
-
-                # Compute denominator and GCV function.
-                den = (nf*nt - np.real(np.sum(xft)))**2
-                gcvf[ib] = misfits[ib]/den
-
-            # Compute best beta.
-            ibest = np.argmin(gcvf)
-
-            # If minimum not found inform user.
-            if ibest == 0 or ibest == len(betas):
-                print('WARNING: No minimum found for GCV')
-                print('change search limits')
-                print('index at minimum and no of spectra')
-                print(ibest, nt)
-                print('Using median value in range:')
-                ibest = len(betas)//2
-                print(betas[ibest])
-
-
-            if False:
-                import matplotlib.pyplot as mp
-
-                fig, axs = mp.subplots(ncols=2)
-                ax = axs[0]
-                ax.plot(modnorm, misfits, color='black')
-                ax.plot(modnorm, misfits, marker='+', color='red')
-                ax.plot(modnorm[ibest], misfits[ibest], marker='o', color='green')
-                ax.set_xlabel('Model Norm')
-                ax.set_ylabel('Data Misfit')
-                ax = axs[1]
-                ax.plot(betas, gcvf)
-                ax.plot(betas, gcvf, marker='+', color='red')
-                ax.plot(betas[ibest], gcvf[ibest], color='green', marker='o')
-                ax.set_xscale('log')
-                ax.set_xlabel('Regularization Parameter')
-                ax.set_ylabel('GCV Function')
-                fig.show()
-                input('Press key to continue')
-                mp.close(fig)
-
-            return betas[ibest]
 
         if not hasattr(self, 'specs'):
             msg = "Spectra have not been calculated."
@@ -1151,11 +1071,6 @@ class RFData(object):
             Sdenom[Sdenom < phi] = phi
 
         elif method == 'water2':
-            # TODO: try to determine waterlevel automatically with:
-            # TODO: May only make sense in overdetermined case
-            # (i.e. simultanous deconvolution)
-            # beta = _gcv_beta(self.data[0].data, self.data[1].data, wlevel, npad)
-
             # David Gubbins
             # Time Series Analysis and Inverse Therory for Geophysicists
             # "Wiener Filter", Eq. 10.21
