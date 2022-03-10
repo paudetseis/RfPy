@@ -269,14 +269,78 @@ def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=False,
     return final_stream
 
 
-def baz_slow_bin_indices(stream, nbaz=36+1, nslow=20+1, include_empty=False):
+def stack(rfdatas, which='rf', pws=False,
+        attributes={'bin': None, 'slow': None, 'index_list': None}):
+    """ 
+    Function to stack receiver functions stored in a RFData list. This can
+    be done using a linear stack (i.e., simple mean), or using phase-weighted
+    stacking.
+
+    Parameters
+    ----------
+    rfdatas : list of :class:`rfpy.rfdata.RFdata`
+        List of RFData objects to be stacked
+    which : str
+        'rf' stack receiver functions
+        'specs' stack spectra
+    pws : bool
+        Whether or not to perform phase-weighted stacking (which=rf only)
+    attributes : dict
+        Attributes passed to the traces of stack
+
+    Returns
+    -------
+    stack : :class:`~obspy.core.Stream`
+        Stream containing stacked traces
+    """
+
+    nbin = len(rfdatas)
+
+    template = rfdatas[0].__dict__[which]
+    typ = float
+    if which == 'specs':
+        typ = complex
+
+    array = np.zeros((len(template), len(template[0].data)), dtype=typ)
+    weight = np.zeros((len(template), len(template[0].data)), dtype=complex)
+
+    for rfdata in rfdatas:
+        stream = rfdata.__dict__[which]
+
+        for n, tr in enumerate(stream):
+            array[n, :] += tr.data
+
+            if pws:
+                hilb = hilbert(np.real(tr.data))
+                phase = np.arctan2(hilb.imag, hilb.real)
+                weight[n, :] += np.exp(1j*phase)
+
+    if pws:
+        weight = np.real(abs(weight/nbin))
+        array *= weight
+    array /= nbin
+
+    stacks = Stream()
+    for n in range(len(template)):
+        stack = Trace(header=template[n].stats)
+        stack.data = array[n, :]
+        stack.stats.nbin = nbin
+        for att in attributes:
+            val = attributes[att]
+            stack.stats.__dict__[att] = val
+        stacks.append(stack)
+
+    return stacks
+
+
+def baz_slow_bin_indices(rfs, nbaz=36+1, nslow=20+1, include_empty=False):
     """ 
     Sort traces of streams into backazimuth (nbaz) and slowness (nslow) bins.
 
     Parameters
     ----------
-    stream : :class:`~obspy.core.Stream`
-        Stream of seismograms to be sorted in bins
+    rfs : list of :class:`~rfpy.RFData`
+        List of receiver functions to be sorted in bins
     bazs : int
         Number of back-azimuth samples in bins
     slows : int
@@ -297,8 +361,8 @@ def baz_slow_bin_indices(stream, nbaz=36+1, nslow=20+1, include_empty=False):
     slow_bins = np.linspace(0.04, 0.08, nslow)
 
     # Extract baz and slowness
-    baz = [s.stats.baz for s in stream]
-    slow = [s.stats.slow for s in stream]
+    baz = [rf.meta.baz for rf in rfs]
+    slow = [rf.meta.slow for rf in rfs]
 
     # Digitize baz and slowness
     ibaz = np.digitize(baz, baz_bins)
@@ -311,7 +375,7 @@ def baz_slow_bin_indices(stream, nbaz=36+1, nslow=20+1, include_empty=False):
         for j in range(nslow):
             index_list = []
 
-            for k, tr in enumerate(stream):
+            for k in range(len(rfs)):
                 if i == ibaz[k] and j == islow[k]:
                     index_list.append(k)
 
