@@ -30,7 +30,7 @@ import numpy as np
 import pickle
 import stdb
 from obspy import Stream
-from rfpy import RFData, binning, plotting
+from rfpy import RFData, binning, plotting, utils
 from pathlib import Path
 
 
@@ -194,6 +194,11 @@ def get_simdec_arguments(argv=None):
         default=0.01,
         help="Specify the water level, used in the 'water' method. " +
         "[Default 0.01]")
+    DeconGroup.add_argument(
+        "--try-auto-wlevel",
+        action="store_true",
+        dest="auto_wlevel",
+        help="Try to determine waterlevel using Generalized Cross Validation.")
 
     PreGroup = parser.add_argument_group(
         title='Pre-processing Settings',
@@ -418,10 +423,11 @@ def main():
         #     print('  {0} already processed...skipping   '.format(stfld))
         #     continue
 
-        LLstreams = Stream()
-        QLstreams = Stream()
-        TLstreams = Stream()
-        NNstreams = Stream()
+        #LLstreams = Stream()
+        #QLstreams = Stream()
+        #TLstreams = Stream()
+        #NNstreams = Stream()
+        RFs = np.array([])
 
         datafiles = [x for x in datapath.iterdir() if x.is_dir()]
         for folder in datafiles:
@@ -493,24 +499,26 @@ def main():
                     wavelet='complete', envelope_threshold=0.05, 
                     time=5, norm=True)
 
-            # Convert to Stream
-            rfstream = rfdata.to_stream(store='specs')
+            ## Convert to Stream
+            #rfstream = rfdata.to_stream(store='specs')
 
-            # Add to Stream objects
-            LLstreams.append(rfstream[0])
-            QLstreams.append(rfstream[1])
-            TLstreams.append(rfstream[2])
-            NNstreams.append(rfstream[3])
+            ## Add to Stream objects
+            #LLstreams.append(rfstream[0])
+            #QLstreams.append(rfstream[1])
+            #TLstreams.append(rfstream[2])
+            #NNstreams.append(rfstream[3])
+            RFs = np.append(RFs, RF)
 
         # Bin into baz and slowness bins
-        LL_tmp, = binning.bin_baz_slow(LLstreams, nbaz=args.nbaz+1, nslow=args.nslow+1,
-            pws=False, include_empty=False)
-        QL_tmp, = binning.bin_baz_slow(QLstreams, nbaz=args.nbaz+1, nslow=args.nslow+1,
-            pws=False, include_empty=False)
-        TL_tmp, = binning.bin_baz_slow(TLstreams, nbaz=args.nbaz+1, nslow=args.nslow+1,
-            pws=False, include_empty=False)
-        NN_tmp, = binning.bin_baz_slow(NNstreams, nbaz=args.nbaz+1, nslow=args.nslow+1,
-            pws=False, include_empty=False)
+        #LL_tmp, = binning.bin_baz_slow(LLstreams, nbaz=args.nbaz+1, nslow=args.nslow+1,
+            #pws=False, include_empty=False)
+        #QL_tmp, = binning.bin_baz_slow(QLstreams, nbaz=args.nbaz+1, nslow=args.nslow+1,
+            #pws=False, include_empty=False)
+        #TL_tmp, = binning.bin_baz_slow(TLstreams, nbaz=args.nbaz+1, nslow=args.nslow+1,
+            #pws=False, include_empty=False)
+        #NN_tmp, = binning.bin_baz_slow(NNstreams, nbaz=args.nbaz+1, nslow=args.nslow+1,
+            #pws=False, include_empty=False)
+        iibin, baz_slows = binning.baz_slow_bin_indices(RFs, nbaz, nslow)
 
         # Initialize new empty streams
         RFL = Stream()
@@ -518,18 +526,33 @@ def main():
         RFT = Stream()
 
         # Cycle through binned spectra
-        for i in range(len(LL_tmp)):
+        #for i in range(len(LL_tmp)):
+        for n, ibin in enumerate(iibin):
+
+            # Receiver functions in bin
+            RFset = RFs[ibin]
 
             # Initialize new RFData object with empty Meta header
             rfdata = RFData(sta)
 
             # Extract the specs from the binned streams
-            rfdata.specs = Stream(traces=[LL_tmp[i], QL_tmp[i], TL_tmp[i], NN_tmp[i]])
+            #rfdata.specs = Stream(traces=[LL_tmp[i], QL_tmp[i], TL_tmp[i], NN_tmp[i]])
+            rfdata.specs = binning.stack(RFset, which='specs')
+
+            # Set waterlevel
+            wlevel = args.wlevel
+            if args.auto_wlevel:
+                try:
+                    wlevel = utils.optimal_wlevel(RFset)
+                except ValueError:
+                    print('Water level GCV function had no minimum.')
+                    print('Falling back to user supplied value.')
+                    wlevel = args.wlevel
 
             # Deconvolve
             rfdata.deconvolve(
                 align=args.align, method=args.method,
-                gfilt=args.gfilt, wlevel=args.wlevel)
+                gfilt=args.gfilt, wlevel=wlevel)
 
             # Append RFs to streams
             RFL.append(rfdata.rf[0])
