@@ -112,7 +112,7 @@
 <h2>RFData<a class="headerlink" href="#rfdata" title="Permalink to this headline"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="rfpy.rfdata.RFData">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rfpy.rfdata.</span></span><span class="sig-name descname"><span class="pre">RFData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rfpy.rfdata.</span></span><span class="sig-name descname"><span class="pre">RFData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData" title="Permalink to this definition"></a></dt>
 <dd><p>A RFData object contains Class attributes that associate
 station information with a single event (i.e., earthquake)
 metadata, corresponding raw and rotated seismograms, spectra and
@@ -125,10 +125,16 @@ other attributes are added to the object as the analysis proceeds.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>sta</strong> (<em>object</em>) – Object containing station information - from <code class="xref py py-mod docutils literal notranslate"><span class="pre">stdb</span></code> database.</p></li>
+<li><p><strong>sta</strong> (<em>object</em>) – Object containing station information - from <code class="xref py py-mod docutils literal notranslate"><span class="pre">stdb</span></code> database.
+When RFData is initialized without sta, functions requiring station info
+coordinate will not be working.</p></li>
 <li><p><strong>meta</strong> (<a class="reference internal" href="#rfpy.rfdata.Meta" title="rfpy.rfdata.Meta"><code class="xref py py-class docutils literal notranslate"><span class="pre">Meta</span></code></a>) – Object of metadata information for single event (initially set to None)</p></li>
 <li><p><strong>data</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream object containing the three-component seismograms (either
 un-rotated or rotated by the method <code class="xref py py-func docutils literal notranslate"><span class="pre">rotate()</span></code>)</p></li>
+<li><p><strong>rf</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream object containing the receiver functions
+(created when executing <code class="xref py py-func docutils literal notranslate"><span class="pre">deconvlove()</span></code>)</p></li>
+<li><p><strong>specs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream object containing the spectra of the data
+(created when executing <code class="xref py py-func docutils literal notranslate"><span class="pre">calc_spectra()</span></code>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -304,7 +310,7 @@ component, which can be either ‘Z’, ‘L’, or ‘P’.</p>
 <li><p><strong>vs</strong> (<em>float</em>) – S-wave velocity at surface (km/s)</p></li>
 <li><p><strong>align</strong> (<em>str</em>) – Alignment of coordinate system for rotation
 (‘ZRT’, ‘LQT’, or ‘PVH’)</p></li>
-<li><p><strong>method</strong> (<em>str</em>) – Method for deconvolution. Options are ‘wiener’, ‘water’ or
+<li><p><strong>method</strong> (<em>str</em>) – Method for deconvolution. Options are ‘wiener’, ‘water’, ‘water2’ or
 ‘multitaper’</p></li>
 <li><p><strong>wavelet</strong> (<em>str</em>) – Type of wavelet for deconvolution. Options are ‘complete’, ‘time’ or
 ‘envelope’</p></li>
@@ -314,7 +320,7 @@ Minimum window length for <code class="docutils literal notranslate"><span class
 <li><p><strong>pre_filt</strong> (<em>list of 2 floats</em>) – Low and High frequency corners of bandpass filter applied
 before deconvolution</p></li>
 <li><p><strong>gfilt</strong> (<em>float</em>) – Center frequency of Gaussian filter (Hz).</p></li>
-<li><p><strong>wlevel</strong> (<em>float</em>) – Water level used in <code class="docutils literal notranslate"><span class="pre">method='water'</span></code>.</p></li>
+<li><p><strong>wlevel</strong> (<em>float</em>) – Water level used in <code class="docutils literal notranslate"><span class="pre">method='water'</span></code> and <code class="docutils literal notranslate"><span class="pre">method='water2'</span></code></p></li>
 <li><p><strong>writeto</strong> (<em>str</em><em> or </em><em>None</em>) – Write wavelets for deconvolution to file.</p></li>
 </ul>
 </dd>
@@ -334,7 +340,7 @@ before deconvolution</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.rfdata.RFData.deconvolve">
-<span class="sig-name descname"><span class="pre">deconvolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">align</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wiener'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gfilt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wlevel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">writeto</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.deconvolve" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">deconvolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">align</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wiener'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gfilt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wlevel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.deconvolve" title="Permalink to this definition"></a></dt>
 <dd><p>Deconvolves three-component data using one component as the source wavelet.
 The source component is always taken as the dominant compressional
 component, which can be either ‘Z’, ‘L’, or ‘P’.</p>
@@ -347,7 +353,6 @@ component, which can be either ‘Z’, ‘L’, or ‘P’.</p>
 ‘multitaper’</p></li>
 <li><p><strong>gfilt</strong> (<em>float</em>) – Center frequency of Gaussian filter (Hz).</p></li>
 <li><p><strong>wlevel</strong> (<em>float</em>) – Water level used in <code class="docutils literal notranslate"><span class="pre">method='water'</span></code>.</p></li>
-<li><p><strong>writeto</strong> (<em>str</em><em> or </em><em>None</em>) – Write wavelets for deconvolution to file.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1106,6 +1111,14 @@ depending on the number of input streams</p>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
 </dd>
 </dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>Sets the following attributes of the stack:</dt><dd><p>nbin: Number of bins
+index_list: Indices of constituent traces in source stream</p>
+</dd>
+</dl>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -1132,6 +1145,62 @@ depending on the number of input streams</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>Sets the following attributes of the stack:</dt><dd><p>nbin: Number of bins
+index_list: Indices of constituent traces in source stream</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="rfpy.binning.stack">
+<span class="sig-prename descclassname"><span class="pre">rfpy.binning.</span></span><span class="sig-name descname"><span class="pre">stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rfdatas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'bin':</span> <span class="pre">None,</span> <span class="pre">'index_list':</span> <span class="pre">None,</span> <span class="pre">'slow':</span> <span class="pre">None}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.stack" title="Permalink to this definition"></a></dt>
+<dd><p>Function to stack receiver functions stored in a RFData list. This can
+be done using a linear stack (i.e., simple mean), or using phase-weighted
+stacking.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rfdatas</strong> (list of <code class="xref py py-class docutils literal notranslate"><span class="pre">rfpy.rfdata.RFdata</span></code>) – List of RFData objects to be stacked</p></li>
+<li><p><strong>which</strong> (<em>str</em>) – ‘rf’ stack receiver functions
+‘specs’ stack spectra</p></li>
+<li><p><strong>pws</strong> (<em>bool</em>) – Whether or not to perform phase-weighted stacking (which=rf only)</p></li>
+<li><p><strong>attributes</strong> (<em>dict</em>) – Attributes passed to the traces of stack</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>stack</strong> – Stream containing stacked traces</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="rfpy.binning.baz_slow_bin_indices">
+<span class="sig-prename descclassname"><span class="pre">rfpy.binning.</span></span><span class="sig-name descname"><span class="pre">baz_slow_bin_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rfs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbaz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">37</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nslow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">21</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_empty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.baz_slow_bin_indices" title="Permalink to this definition"></a></dt>
+<dd><p>Sort traces of streams into backazimuth (nbaz) and slowness (nslow) bins.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rfs</strong> (list of <code class="xref py py-class docutils literal notranslate"><span class="pre">RFData</span></code>) – List of receiver functions to be sorted in bins</p></li>
+<li><p><strong>bazs</strong> (<em>int</em>) – Number of back-azimuth samples in bins</p></li>
+<li><p><strong>slows</strong> (<em>int</em>) – Number of slowness samples in bins</p></li>
+<li><p><strong>include_empty</strong> (<em>bool</em>) – Include empty bins (default omits them)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>index_lists</strong> (<em>list of lists</em>) – Indices that sorts traces of stream into bins defined by nbaz and nslow</p></li>
+<li><p><strong>bazslow_list</strong> (<em>list of 2*tuple</em>) – Backazimuth and slowness values of each element of index list</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
