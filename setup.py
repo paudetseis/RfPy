@@ -35,11 +35,14 @@ setup(
     install_requires=['numpy', 'obspy', 'stdb>=0.2.0'],
     python_requires='>=3.6',
     packages=setuptools.find_packages(),
-    entry_points={'console_scripts':[
-    'rfpy_get_data=rfpy.scripts.rfpy_get_data:main',
-    'rfpy_calc_simdec=rfpy.scripts.rfpy_calc_simdec:main',
-    'rfpy_calc=rfpy.scripts.rfpy_calc:main',
-    'rfpy_plot=rfpy.scripts.rfpy_plot:main',
-    'rfpy_harmonics=rfpy.scripts.rfpy_harmonics:main',
-    'rfpy_hk=rfpy.scripts.rfpy_hk:main',
-    'rfpy_ccp=rfpy.scripts.rfpy_ccp:main']})
+    include_package_data=True,
+    package_data={'': ['examples/data/*.pkl']},
+    entry_points={
+        'console_scripts':
+            ['rfpy_get_data=rfpy.scripts.rfpy_get_data:main',
+             'rfpy_calc_simdec=rfpy.scripts.rfpy_calc_simdec:main',
+             'rfpy_calc=rfpy.scripts.rfpy_calc:main',
+             'rfpy_plot=rfpy.scripts.rfpy_plot:main',
+             'rfpy_harmonics=rfpy.scripts.rfpy_harmonics:main',
+             'rfpy_hk=rfpy.scripts.rfpy_hk:main',
+             'rfpy_ccp=rfpy.scripts.rfpy_ccp:main']})
