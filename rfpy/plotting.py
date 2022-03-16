@@ -23,8 +23,8 @@
 """
 Functions to plot single station P-receiver functions as wiggle plots.
 
-Options to plot by receiver functions # vs time/depth, by back-azimuth vs 
-time/depth or slowness vs time. 
+Options to plot by receiver functions # vs time/depth, by back-azimuth vs
+time/depth or slowness vs time.
 
 """
 
@@ -41,7 +41,7 @@ import matplotlib.pyplot as plt
 def wiggle(stream1, stream2=None, sort=None, tmin=0., tmax=30, normalize=True,
            save=False, title=None, form='png'):
     """
-    Function to plot receiver function traces by index in stream. By default, 
+    Function to plot receiver function traces by index in stream. By default,
     only one stream is required, which produces a Figure with a single panel.
     Optionally, if a second stream is present, the Figure will contain two panels.
     The stream(s) can be sorted by stats attribute ``sort``, normalized, and
@@ -59,10 +59,10 @@ def wiggle(stream1, stream2=None, sort=None, tmin=0., tmax=30, normalize=True,
     xmax : float
         Maximum x-axis value displayed in the Figure.
     normalize : bool
-        Whether or not to normalize the traces according to the max amplitude 
+        Whether or not to normalize the traces according to the max amplitude
         in ``stream1``
     save : bool
-        Whether or not to save the Figure 
+        Whether or not to save the Figure
     title : str
         Title of plot
 
@@ -150,7 +150,7 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
                 norm=None, save=False, title=None, form='png'):
     """
     Function to plot receiver function according to either baz or
-    slowness bins. By default, 
+    slowness bins. By default,
     only one stream is required, which produces a Figure with a single panel.
     Optionally, if a second stream is present, the Figure will contain two panels.
     If the single trace arguments are present, they will be plotted at the top.
@@ -174,7 +174,7 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
     scale : float
         Scale factor applied to trace amplitudes for plotting
     save : bool
-        Whether or not to save the Figure 
+        Whether or not to save the Figure
     title : str
         Title of plot
 
@@ -411,11 +411,11 @@ def wiggle_single_event(rfdata, filt=None, pre_filt=None, trange=None):
     taxis = np.arange(-nn/2., nn/2.)/sr
 
     if pre_filt:
-        lqtcopy.filter('bandpass', freqmin=pre_filt[0], 
+        lqtcopy.filter('bandpass', freqmin=pre_filt[0],
             freqmax=pre_filt[1], corners=2, zerophase=True)
 
     if filt:
-        rfcopy.filter('bandpass', freqmin=filt[0], 
+        rfcopy.filter('bandpass', freqmin=filt[0],
             freqmax=filt[1], corners=2, zerophase=True)
 
     fig, (ax1, ax2, ax3, ax4) = plt.subplots(4,1, figsize=(7,5))
@@ -441,7 +441,7 @@ def wiggle_single_event(rfdata, filt=None, pre_filt=None, trange=None):
     ax4.legend()
     plt.suptitle(
         'AZ corr: {0:.1f}; BAZ: {1:.1f}\n SNR: {2:.1f}; CC: {3:.1f}'.format(
-            rfdata.sta.azcorr, rfdata.meta.baz, 
+            rfdata.sta.azcorr, rfdata.meta.baz,
             rfdata.meta.snr, rfdata.meta.cc))
 
     plt.show()
@@ -480,14 +480,14 @@ def event_dist(stream, phase='P', save=False, title=None, form='png'):
     if np.sum(phP) > 0:
         # ax.scatter(evlon[phP], evlat[phP], c='royalblue', label='P')
         ax.scatter(evlon[phP], evlat[phP], c='royalblue', label='P',
-                   transform=ccrs.Geodetic())
+                   transform=ccrs.PlateCarree())
     if np.sum(phPP) > 0:
         ind = phase == 'P'
         ax.scatter(evlon[phPP], evlat[phPP], c='coral', label='PP',
-                   transform=ccrs.Geodetic())
+                   transform=ccrs.PlateCarree())
 
     ax.scatter(stream[0].stats.stlo, stream[0].stats.stla, c='grey',
-               marker='v', transform=ccrs.Geodetic())
+               marker='v', transform=ccrs.PlateCarree())
     ax.coastlines()
 
     if title:
