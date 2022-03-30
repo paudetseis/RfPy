@@ -29,6 +29,7 @@ import pickle
 import stdb
 from obspy.clients.fdsn import Client
 from obspy import Catalog, UTCDateTime
+from http.client import IncompleteRead
 from rfpy import utils, RFData
 from pathlib import Path
 from argparse import ArgumentParser
@@ -605,7 +606,7 @@ def main():
             cat = event_client.get_events(
                 starttime=tstart, endtime=tend,
                 minmagnitude=args.minmag, maxmagnitude=args.maxmag)
-        except ValueError:
+        except IncompleteRead:
             # See http.client.IncompleteRead
             # https://github.com/obspy/obspy/issues/3028#issue-1179808237
             
