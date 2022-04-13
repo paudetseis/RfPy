@@ -620,7 +620,7 @@ def main():
                                    f2pps=args.f2pps, f2pss=args.f2pss,
                                    nbaz=args.nbaz, nslow=args.nslow)
                 ccpimage.is_ready_for_prestack = True
-                ccpimage.save(str(prep_file))
+                ccpimage.save(prep_file)
                 print()
                 print("CCPimage saved to {0}".format(str(prep_file)))
 
