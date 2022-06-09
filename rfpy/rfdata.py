@@ -456,6 +456,11 @@ class RFData(object):
         rotated : bool
             Whether or not the object has been rotated
 
+        Note
+        ----
+        'PVH' following Equation 18 in:
+        Kennett (1991). The removal of free surface interactions from three-component
+        seismograms. Geophysical Journal International
         """
 
         if not self.meta.accept:
