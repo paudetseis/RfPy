@@ -1027,8 +1027,8 @@ class RFData(object):
             Alignment of coordinate system for rotation
             ('ZRT', 'LQT', or 'PVH')
         method : str
-            Method for deconvolution. Options are 'wiener', 'water' or 
-            'multitaper'
+            Method for deconvolution. Options are 'wiener', 'water' (aka 'wlevel'),
+            'water2' (aka 'wlevel2'), or 'multitaper'
         gfilt : float
             Center frequency of Gaussian filter (Hz). 
         wlevel : float
@@ -1040,7 +1040,6 @@ class RFData(object):
             Stream containing the receiver function traces
 
         """
-
 
         if not hasattr(self, 'specs'):
             msg = "Spectra have not been calculated."
@@ -1070,17 +1069,20 @@ class RFData(object):
             # Denominator (Spp + Snn)
             Sdenom = SLL.data + SNN.data
 
-        elif method == 'water':
+        elif method == 'water' or method == 'wlevel':
             phi = np.amax(SLL.data)*wlevel
             Sdenom = SLL.data
             Sdenom[Sdenom < phi] = phi
 
-        elif method == 'water2':
+        elif method == 'water2' or method == 'wlevel2':
             # David Gubbins
             # Time Series Analysis and Inverse Therory for Geophysicists
             # "Wiener Filter", Eq. 10.21
             beta = np.amax(SLL.data)*wlevel
             Sdenom = SLL.data + beta
+
+        else:
+            raise ValueError('Unknown method: ' + method)
 
         # Apply Gaussian filter?
         if gfilt:
