@@ -109,7 +109,7 @@ class Harmonics(object):
 
     @staticmethod
     @numba.jit(nopython=True)
-    def dcomp_find_azim_numba(xmin=None, xmax=None,
+    def _dcomp_find_azim_numba(xmin=None, xmax=None,
         nbin=None, nz=None, delta=None,
         baz_list=None,
         dataR_list=None,
@@ -140,11 +140,6 @@ class Harmonics(object):
             Variance of the 5 harmonics between ``xmin`` and ``xmax``
 
         """
-
-        if not xmin:
-            xmin = xmin
-        if not xmax:
-            xmax = xmax
 
         print()
         print('Decomposing receiver functions into baz harmonics')
@@ -230,6 +225,48 @@ class Harmonics(object):
 
         return C0,C1,C2,C3,C4,C0var,C1var,C2var,C3var,C4var,indaz,daz
 
+    def dcomp_find_azim_numba(self, xmin=None, xmax=None):
+        import time
+        t0 = time.time()
+
+        if not xmin:
+            xmin = self.xmin
+        if not xmax:
+            xmax = self.xmax
+
+        str_stats = self.radialRF[0].stats
+        baz_list = np.array([trace0.stats.baz for trace0 in self.radialRF])
+        dataR_list = np.array([trace0.data for trace0 in self.radialRF])
+        dataT_list = np.array([trace0.data for trace0 in self.transvRF])
+        C0,C1,C2,C3,C4,C0var,C1var,C2var,C3var,C4var,indaz,daz = self._dcomp_find_azim_numba(
+            xmin=xmin, xmax=xmax,
+            nbin=len(self.radialRF),
+            nz=len(self.radialRF[0].data),
+            delta=self.radialRF[0].stats.delta,
+            baz_list=baz_list,
+            dataR_list=dataR_list,
+            dataT_list=dataT_list,
+        )
+
+        # Put back into traces
+        A = Trace(data=C0[:, indaz], header=str_stats)
+        B1 = Trace(data=C1[:, indaz], header=str_stats)
+        B2 = Trace(data=C2[:, indaz], header=str_stats)
+        C1 = Trace(data=C3[:, indaz], header=str_stats)
+        C2 = Trace(data=C4[:, indaz], header=str_stats)
+
+        # Put all treaces into stream
+        hstream = Stream(traces=[A, B1, B2, C1, C2])
+        azim = indaz*daz
+        var = [C0var, C1var, C2var, C3var, C4var]
+
+        self.hstream = hstream
+        self.azim = azim
+        self.var = var
+
+        t1 = time.time()
+        print("Elapsed time ", t1-t0)
+
     def dcomp_find_azim(self, xmin=None, xmax=None):
         """
         Method to decompose radial and transverse receiver function
@@ -255,6 +292,8 @@ class Harmonics(object):
             Variance of the 5 harmonics between ``xmin`` and ``xmax``
 
         """
+        import time
+        t0 = time.time()
 
         if not xmin:
             xmin = self.xmin
@@ -357,6 +396,9 @@ class Harmonics(object):
         self.hstream = Stream(traces=[A, B1, B2, C1, C2])
         self.azim = indaz*daz
         self.var = [C0var, C1var, C2var, C3var, C4var]
+
+        t1 = time.time()
+        print("Elapsed time ", t1-t0)
 
     def dcomp_fix_azim(self, azim=None):
         """
