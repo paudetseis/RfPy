@@ -136,8 +136,6 @@ class Harmonics(object):
             Variance of the 5 harmonics between ``xmin`` and ``xmax``
 
         """
-        import time
-        t0 = time.time()
 
         if not xmin:
             xmin = self.xmin
@@ -259,9 +257,6 @@ class Harmonics(object):
         self.hstream = Stream(traces=[A, B1, B2, C1, C2])
         self.azim = indaz*daz
         self.var = [C0var, C1var, C2var, C3var, C4var]
-
-        t1 = time.time()
-        print("Elapsed time ", t1-t0)
 
     @staticmethod
     @numba.jit(nopython=True, nogil=True)
