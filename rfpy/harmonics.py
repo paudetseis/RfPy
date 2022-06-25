@@ -29,6 +29,7 @@ import numpy as np
 from obspy.core import Stream, Trace
 import matplotlib.pyplot as plt
 import numba
+from numba_progress import ProgressBar
 
 
 class Harmonics(object):
@@ -109,12 +110,13 @@ class Harmonics(object):
 
     @staticmethod
     @numba.jit(nopython=True)
-    def _dcomp_find_azim_numba(xmin=None, xmax=None,
+    def _dcomp_find_azim_numba(
+        progress_proxy,
+        xmin=None, xmax=None,
         nbin=None, nz=None, delta=None,
         baz_list=None,
         dataR_list=None,
         dataT_list=None,
-
     ):
         """
         Method to decompose radial and transverse receiver function
@@ -210,6 +212,8 @@ class Harmonics(object):
                 C3[iz, iaz] = np.float(CC[3])
                 C4[iz, iaz] = np.float(CC[4])
 
+            progress_proxy.update(1)
+
         # Minimize variance of third component over specific depth range to
         # find azim
         C1var = np.zeros(naz)
@@ -238,15 +242,17 @@ class Harmonics(object):
         baz_list = np.array([trace0.stats.baz for trace0 in self.radialRF])
         dataR_list = np.array([trace0.data for trace0 in self.radialRF])
         dataT_list = np.array([trace0.data for trace0 in self.transvRF])
-        C0,C1,C2,C3,C4,C0var,C1var,C2var,C3var,C4var,indaz,daz = self._dcomp_find_azim_numba(
-            xmin=xmin, xmax=xmax,
-            nbin=len(self.radialRF),
-            nz=len(self.radialRF[0].data),
-            delta=self.radialRF[0].stats.delta,
-            baz_list=baz_list,
-            dataR_list=dataR_list,
-            dataT_list=dataT_list,
-        )
+        with ProgressBar(total=len(self.radialRF[0].data)) as progress:
+            C0,C1,C2,C3,C4,C0var,C1var,C2var,C3var,C4var,indaz,daz = self._dcomp_find_azim_numba(
+                xmin=xmin, xmax=xmax,
+                nbin=len(self.radialRF),
+                nz=len(self.radialRF[0].data),
+                delta=self.radialRF[0].stats.delta,
+                baz_list=baz_list,
+                dataR_list=dataR_list,
+                dataT_list=dataT_list,
+                progress_proxy=progress
+            )
 
         # Put back into traces
         A = Trace(data=C0[:, indaz], header=str_stats)
