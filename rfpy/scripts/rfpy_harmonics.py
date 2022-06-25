@@ -88,6 +88,14 @@ def get_harmonics_arguments(argv=None):
         "Default behaviour uses short key form (NET.STN) for the folder " +
         "names, regardless of the key type of the database."
     )
+    parser.add_argument(
+        "-UN", "--use-numba",
+        action="store_true",
+        dest="unumba",
+        default=False,
+        help="Use numba jit on calculation [Default False]"
+    )
+
 
     # Event Selection Criteria
     TimeGroup = parser.add_argument_group(
@@ -257,7 +265,7 @@ def get_harmonics_arguments(argv=None):
         default="png",
         help="Specify format of figure. Can be any one of the valid" +
         "matplotlib formats: 'png', 'jpg', 'eps', 'pdf'. [Default 'png']")
-
+    
     args = parser.parse_args(argv)
 
     # Check inputs
@@ -502,7 +510,46 @@ def main():
 
         # Stack with or without dip
         if args.find_azim:
-            harmonics.dcomp_find_azim(xmin=args.trange[0], xmax=args.trange[1])
+            import time
+            t0=time.time()
+            
+            if args.unumba:
+                from obspy.core import Trace
+                str_stats = harmonics.radialRF[0].stats
+                baz_list = np.array([trace0.stats.baz for trace0 in harmonics.radialRF])
+                dataR_list = np.array([trace0.data for trace0 in harmonics.radialRF])
+                dataT_list = np.array([trace0.data for trace0 in harmonics.transvRF])
+                C0,C1,C2,C3,C4,C0var,C1var,C2var,C3var,C4var,indaz,daz = harmonics.dcomp_find_azim_numba(
+                    xmin=args.trange[0], xmax=args.trange[1],
+                    nbin=len(harmonics.radialRF),
+                    nz=len(harmonics.radialRF[0].data),
+                    delta=harmonics.radialRF[0].stats.delta,
+                    baz_list=baz_list,
+                    dataR_list=dataR_list,
+                    dataT_list=dataT_list,
+
+                )
+                # Put back into traces
+                A = Trace(data=C0[:, indaz], header=str_stats)
+                B1 = Trace(data=C1[:, indaz], header=str_stats)
+                B2 = Trace(data=C2[:, indaz], header=str_stats)
+                C1 = Trace(data=C3[:, indaz], header=str_stats)
+                C2 = Trace(data=C4[:, indaz], header=str_stats)
+
+                # Put all treaces into stream
+                hstream = Stream(traces=[A, B1, B2, C1, C2])
+                azim = indaz*daz
+                var = [C0var, C1var, C2var, C3var, C4var]
+
+                harmonics.hstream = hstream
+                harmonics.azim = azim
+                harmonics.var = var
+            else:
+                harmonics.dcomp_find_azim(xmin=args.trange[0], xmax=args.trange[1])
+
+            t1=time.time()
+            print("elapsed time ",t1-t0)
+
             print("Optimal azimuth for trange between " +
                   str(args.trange[0])+" and "+str(args.trange[1]) +
                   " seconds is: "+str(harmonics.azim))

@@ -28,6 +28,7 @@ Harmonic decomposition module.
 import numpy as np
 from obspy.core import Stream, Trace
 import matplotlib.pyplot as plt
+import numba
 
 
 class Harmonics(object):
@@ -105,6 +106,129 @@ class Harmonics(object):
         self.azim = azim
         self.xmin = xmin
         self.xmax = xmax
+
+    @staticmethod
+    @numba.jit(nopython=True)
+    def dcomp_find_azim_numba(xmin=None, xmax=None,
+        nbin=None, nz=None, delta=None,
+        baz_list=None,
+        dataR_list=None,
+        dataT_list=None,
+
+    ):
+        """
+        Method to decompose radial and transverse receiver function
+        streams into back-azimuth harmonics and determine the main
+        orientation ``azim``, obtained by minimizing the B1 component
+        between ``xmin`` and ``xmax`` (i.e., time or depth).
+
+        Parameters
+        ----------
+        xmin : float
+            Minimum x axis value over which to calculate ``azim``
+        xmax : float
+            Maximum x axis value over which to calculate ``azim``
+
+        Attributes
+        ----------
+        hstream : :class:`~obspy.core.Stream`
+            Stream containing the 5 harmonics, oriented in direction ``azim``
+        azim : float
+            Direction (azimuth) along which the B1 component of the stream
+            is minimized (between ``xmin`` and ``xmax``)
+        var : :class:`~numpy.ndarray`
+            Variance of the 5 harmonics between ``xmin`` and ``xmax``
+
+        """
+
+        if not xmin:
+            xmin = xmin
+        if not xmax:
+            xmax = xmax
+
+        print()
+        print('Decomposing receiver functions into baz harmonics')
+
+        # Some integers
+        nbin = nbin
+        nz = nz
+        naz = 180
+        daz = np.float(360/naz)
+        deg2rad = np.pi/180.
+
+        # Define depth range over which to calculate azimuth
+        indmin = int(xmin/delta)
+        indmax = int(xmax/delta)
+
+        # Initialize work arrays
+        C0 = np.zeros((nz, naz))
+        C1 = np.zeros((nz, naz))
+        C2 = np.zeros((nz, naz))
+        C3 = np.zeros((nz, naz))
+        C4 = np.zeros((nz, naz))
+
+        # Loop over each depth step
+        for iz in range(nz):
+
+            # Build matrices OBS and H for each azimuth
+            for iaz in range(naz):
+
+                # Initialize work arrays
+                OBS = np.zeros(2*nbin)
+                H = np.zeros((2*nbin, 5))
+
+                azim = iaz*daz
+
+                # Radial component
+                for irow, dataR, baz in zip(range(len(dataR_list)),dataR_list,baz_list):
+
+                    baz = baz
+                    OBS[irow] = dataR[iz]
+                    H[irow, 0] = 1.0
+                    H[irow, 1] = np.cos(deg2rad*(baz-azim))
+                    H[irow, 2] = np.sin(deg2rad*(baz-azim))
+                    H[irow, 3] = np.cos(2.*deg2rad*(baz-azim))
+                    H[irow, 4] = np.sin(2.*deg2rad*(baz-azim))
+
+                shift = 90.
+
+                # Transverse component
+                for irow, dataT, baz in zip(range(len(dataT_list)),dataT_list,baz_list):
+
+                    baz = baz
+                    OBS[irow+nbin] = dataT[iz]
+                    H[irow+nbin, 0] = 0.0
+                    H[irow+nbin, 1] = np.cos(deg2rad*(baz+shift-azim))
+                    H[irow+nbin, 2] = np.sin(deg2rad*(baz+shift-azim))
+                    H[irow+nbin, 3] = np.cos(2.*deg2rad*(baz+shift/2.0-azim))
+                    H[irow+nbin, 4] = np.sin(2.*deg2rad*(baz+shift/2.0-azim))
+
+                # Solve system of equations with truncated SVD
+                u, s, v = np.linalg.svd(H)
+                s[s < 0.001] = 0.
+                CC = np.linalg.solve(s.reshape(s.shape[0],1) * v, u.T.dot(OBS)[:5])
+
+                # Fill up arrays
+                C0[iz, iaz] = np.float(CC[0])
+                C1[iz, iaz] = np.float(CC[1])
+                C2[iz, iaz] = np.float(CC[2])
+                C3[iz, iaz] = np.float(CC[3])
+                C4[iz, iaz] = np.float(CC[4])
+
+        # Minimize variance of third component over specific depth range to
+        # find azim
+        C1var = np.zeros(naz)
+        for iaz in range(naz):
+            C1var[iaz] = np.sqrt(np.mean(np.square(C1[indmin:indmax, iaz])))
+        indaz = np.argmin(C1var)
+
+        C0var = np.sqrt(np.mean(np.square(C0[indmin:indmax, indaz])))
+        C1var = np.sqrt(np.mean(np.square(C1[indmin:indmax, indaz])))
+        C2var = np.sqrt(np.mean(np.square(C2[indmin:indmax, indaz])))
+        C3var = np.sqrt(np.mean(np.square(C3[indmin:indmax, indaz])))
+        C4var = np.sqrt(np.mean(np.square(C4[indmin:indmax, indaz])))
+
+        return C0,C1,C2,C3,C4,C0var,C1var,C2var,C3var,C4var,indaz,daz
 
     def dcomp_find_azim(self, xmin=None, xmax=None):
         """
