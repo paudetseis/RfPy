@@ -32,7 +32,7 @@ setup(
          'Programming Language :: Python :: 3.7',
          'Programming Language :: Python :: 3.8',
          'Programming Language :: Python :: 3.9'],
-    install_requires=['numpy', 'obspy', 'stdb>=0.2.0'],
+    install_requires=['numpy', 'numba', 'obspy', 'stdb>=0.2.0'],
     python_requires='>=3.6',
     packages=setuptools.find_packages(),
     entry_points={'console_scripts':[
