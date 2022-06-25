@@ -578,6 +578,8 @@ Usage
                          set]
       --save             Set this option to save the Harmonics object to a pickled
                          file. [Default does not save object]
+      --use-numba        Use numba jit to increase processing speed
+                         [Default does not use numba]
 
     Settings for plotting results:
       Specify parameters for plotting the back-azimuth harmonics.

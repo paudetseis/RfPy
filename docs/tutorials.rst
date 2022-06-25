@@ -324,11 +324,18 @@ to 10 seconds (to avoid the large zero-lag pulse):
 
 .. note::
 
-    Warning!! This command is particularly slow, especially for large data sets.
+    Warning!! This command is particularly slow, especially for large data sets. The speed can
+    be increase by using ``--use-numba`` argument.
 
 .. code-block::
 
     $ rfpy_harmonics --no-outlier --find-azim --trange=2.,10. MMPY.pkl
+
+To increase the processing speed use ``--use_numba`` to utilize ``numba`` just-in-time compiler:
+
+.. code-block::
+
+    $ rfpy_harmonics  --use_numba --no-outlier --find-azim --trange=2.,10. MMPY.pkl
 
     ################################################################################
     #        __                 _                                      _           #

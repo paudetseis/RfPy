@@ -654,6 +654,12 @@ Or, alternatively,
 
     >>> harmonics.dcomp_find_azim()
 
+To use `numba` compiler to increase speed,
+
+.. sourcecode:: python
+
+    >>> harmonics.dcomp_find_azim(use_numba=True)
+
 In either case the harmonic components are available as an attribute of type
 :class:`~obspy.core.Stream` (``harmonics.hstream``) and, if available, the azimuth
 of the dominant direction (``harmonics.azim``). 
