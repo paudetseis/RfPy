@@ -109,9 +109,9 @@ class Harmonics(object):
         self.xmax = xmax
 
     @staticmethod
-    @numba.jit(nopython=True)
+    @numba.jit(nopython=True, nogil=True)
     def _dcomp_find_azim_numba(
-        progress_proxy,
+        progress_proxy=None,
         xmin=None, xmax=None,
         nbin=None, nz=None, delta=None,
         baz_list=None,
@@ -143,8 +143,7 @@ class Harmonics(object):
 
         """
 
-        print()
-        print('Decomposing receiver functions into baz harmonics')
+        
 
         # Some integers
         nbin = nbin
@@ -230,6 +229,10 @@ class Harmonics(object):
         return C0,C1,C2,C3,C4,C0var,C1var,C2var,C3var,C4var,indaz,daz
 
     def dcomp_find_azim_numba(self, xmin=None, xmax=None):
+
+        print()
+        print('Decomposing receiver functions into baz harmonics')
+
         import time
         t0 = time.time()
 
@@ -242,7 +245,7 @@ class Harmonics(object):
         baz_list = np.array([trace0.stats.baz for trace0 in self.radialRF])
         dataR_list = np.array([trace0.data for trace0 in self.radialRF])
         dataT_list = np.array([trace0.data for trace0 in self.transvRF])
-        with ProgressBar(total=len(self.radialRF[0].data)) as progress:
+        with ProgressBar(total=len(self.radialRF[0].data), ascii=" #") as progress:
             C0,C1,C2,C3,C4,C0var,C1var,C2var,C3var,C4var,indaz,daz = self._dcomp_find_azim_numba(
                 xmin=xmin, xmax=xmax,
                 nbin=len(self.radialRF),
