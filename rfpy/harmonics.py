@@ -30,6 +30,7 @@ from obspy.core import Stream, Trace
 import matplotlib.pyplot as plt
 import numba
 from numba_progress import ProgressBar
+from tqdm import trange
 
 
 class Harmonics(object):
@@ -168,7 +169,7 @@ class Harmonics(object):
             C3 = np.zeros((nz, naz))
             C4 = np.zeros((nz, naz))
             # Loop over each depth step
-            for iz in range(nz):
+            for iz in trange(nz, ascii=True):
 
                 # Build matrices OBS and H for each azimuth
                 for iaz in range(naz):
