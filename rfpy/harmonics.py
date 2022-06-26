@@ -484,7 +484,7 @@ class Harmonics(object):
         # Put all traces into stream
         self.hstream = Stream(traces=[A, B1, B2, C1, C2])
 
-    def forward(self, baz_arr=None):
+    def forward(self, baz_list=None):
         """
         Method to forward calculate radial and transverse component
         receiver functions given the 5 pre-determined harmonics and
@@ -494,7 +494,7 @@ class Harmonics(object):
 
         Parameters
         ----------
-        baz_arr : list
+        baz_list : list
             List of back-azimuth directions over which to calculate
             the receiver functions. If no list is specified, the method
             will use the same back-azimuths as those in the original
@@ -513,12 +513,12 @@ class Harmonics(object):
         if not hasattr(self, 'hstream'):
             raise(Exception("Decomposition has not been performed yet"))
 
-        if not baz_arr:
+        if not baz_list:
             print("Warning: no BAZ specified - using all baz from " +
                   "stored streams")
-            baz_arr = [tr.stats.baz for tr in self.radialRF]
-        if not isinstance(baz_arr, list):
-            baz_arr = [baz_arr]
+            baz_list = [tr.stats.baz for tr in self.radialRF]
+        if not isinstance(baz_list, list):
+            baz_list = [baz_list]
 
         # Some constants
         nz = len(self.hstream[0].data)
@@ -528,7 +528,7 @@ class Harmonics(object):
         self.radial_forward = Stream()
         self.transv_forward = Stream()
 
-        for baz in baz_arr:
+        for baz in baz_list:
             trR = Trace(header=self.hstream[0].stats)
             trT = Trace(header=self.hstream[0].stats)
 
