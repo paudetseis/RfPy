@@ -324,18 +324,22 @@ to 10 seconds (to avoid the large zero-lag pulse):
 
 .. note::
 
-    Warning!! This command is particularly slow, especially for large data sets. The speed can
-    be increase by using ``--use-numba`` argument.
+    Warning!! This command is particularly slow, especially for large data sets.
 
 .. code-block::
 
     $ rfpy_harmonics --no-outlier --find-azim --trange=2.,10. MMPY.pkl
 
-To increase the processing speed use ``--use_numba`` to utilize ``numba`` just-in-time compiler:
+To increase the processing speed use ``--use-numba`` to utilize ``numba`` just-in-time compiler:
+
+.. note::
+
+    Warning!! While this option will significantly increase the performance, due to the current behavior of numba
+    generic CTRL+C command will not stop the process.
 
 .. code-block::
 
-    $ rfpy_harmonics  --use_numba --no-outlier --find-azim --trange=2.,10. MMPY.pkl
+    $ rfpy_harmonics  --use-numba --no-outlier --find-azim --trange=2.,10. MMPY.pkl
 
     ################################################################################
     #        __                 _                                      _           #
