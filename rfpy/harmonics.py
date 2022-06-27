@@ -28,6 +28,9 @@ Harmonic decomposition module.
 import numpy as np
 from obspy.core import Stream, Trace
 import matplotlib.pyplot as plt
+import numba
+from numba_progress import ProgressBar
+from tqdm import trange
 
 
 class Harmonics(object):
@@ -106,7 +109,7 @@ class Harmonics(object):
         self.xmin = xmin
         self.xmax = xmax
 
-    def dcomp_find_azim(self, xmin=None, xmax=None):
+    def dcomp_find_azim(self, xmin=None, xmax=None, use_numba=False):
         """
         Method to decompose radial and transverse receiver function
         streams into back-azimuth harmonics and determine the main
@@ -119,6 +122,8 @@ class Harmonics(object):
             Minimum x axis value over which to calculate ``azim``
         xmax : float
             Maximum x axis value over which to calculate ``azim``
+        use_numba : bool
+            Use ``numba`` just-in-time compiler to increase the processing speed, default to ``False``
 
         Attributes
         ----------
@@ -154,6 +159,165 @@ class Harmonics(object):
         # Copy stream stats
         str_stats = self.radialRF[0].stats
 
+        if use_numba == False:
+            # Initialize work arrays
+            C0 = np.zeros((nz, naz))
+            C1 = np.zeros((nz, naz))
+            C2 = np.zeros((nz, naz))
+            C3 = np.zeros((nz, naz))
+            C4 = np.zeros((nz, naz))
+            # Loop over each depth step
+            for iz in trange(nz, ascii=True):
+
+                # Build matrices OBS and H for each azimuth
+                for iaz in range(naz):
+
+                    # Initialize work arrays
+                    OBS = np.zeros(2*nbin)
+                    H = np.zeros((2*nbin, 5))
+
+                    azim = iaz*daz
+
+                    # Radial component
+                    for irow, trace in enumerate(self.radialRF):
+
+                        baz = trace.stats.baz
+                        OBS[irow] = trace.data[iz]
+                        H[irow, 0] = 1.0
+                        H[irow, 1] = np.cos(deg2rad*(baz-azim))
+                        H[irow, 2] = np.sin(deg2rad*(baz-azim))
+                        H[irow, 3] = np.cos(2.*deg2rad*(baz-azim))
+                        H[irow, 4] = np.sin(2.*deg2rad*(baz-azim))
+
+                    shift = 90.
+
+                    # Transverse component
+                    for irow, trace in enumerate(self.transvRF):
+
+                        baz = trace.stats.baz
+                        OBS[irow+nbin] = trace.data[iz]
+                        H[irow+nbin, 0] = 0.0
+                        H[irow+nbin, 1] = np.cos(deg2rad*(baz+shift-azim))
+                        H[irow+nbin, 2] = np.sin(deg2rad*(baz+shift-azim))
+                        H[irow+nbin, 3] = np.cos(2.*deg2rad*(baz+shift/2.0-azim))
+                        H[irow+nbin, 4] = np.sin(2.*deg2rad*(baz+shift/2.0-azim))
+
+                    # Solve system of equations with truncated SVD
+                    u, s, v = np.linalg.svd(H)
+                    s[s < 0.001] = 0.
+                    CC = np.linalg.solve(s[:, None] * v, u.T.dot(OBS)[:5])
+
+                    # Fill up arrays
+                    C0[iz, iaz] = np.float(CC[0])
+                    C1[iz, iaz] = np.float(CC[1])
+                    C2[iz, iaz] = np.float(CC[2])
+                    C3[iz, iaz] = np.float(CC[3])
+                    C4[iz, iaz] = np.float(CC[4])
+
+            # Minimize variance of third component over specific depth range to
+            # find azim
+            C1var = np.zeros(naz)
+            for iaz in range(naz):
+                C1var[iaz] = np.sqrt(np.mean(np.square(C1[indmin:indmax, iaz])))
+            indaz = np.argmin(C1var)
+
+            C0var = np.sqrt(np.mean(np.square(C0[indmin:indmax, indaz])))
+            C1var = np.sqrt(np.mean(np.square(C1[indmin:indmax, indaz])))
+            C2var = np.sqrt(np.mean(np.square(C2[indmin:indmax, indaz])))
+            C3var = np.sqrt(np.mean(np.square(C3[indmin:indmax, indaz])))
+            C4var = np.sqrt(np.mean(np.square(C4[indmin:indmax, indaz])))
+
+        elif use_numba == True:
+            # convert stream objects to numpy array
+            baz_arr = np.array([trace0.stats.baz for trace0 in self.radialRF])
+            radialRF_arr = np.array([trace0.data for trace0 in self.radialRF])
+            transvRF_arr = np.array([trace0.data for trace0 in self.transvRF])
+            # run calculation using numba
+            with ProgressBar(total=len(self.radialRF[0].data), ascii=" #") as progress:
+                C0,C1,C2,C3,C4,C0var,C1var,C2var,C3var,C4var,indaz = \
+                self._dcomp_calculate_harmonics_isolated(
+                    nbin=nbin,
+                    nz=nz,
+                    indmin=indmin,
+                    indmax=indmax,
+                    baz_arr=baz_arr,
+                    radialRF_arr=radialRF_arr,
+                    transvRF_arr=transvRF_arr,
+                    progress_hook=progress
+                )
+
+        # Put back into traces
+        A = Trace(data=C0[:, indaz], header=str_stats)
+        B1 = Trace(data=C1[:, indaz], header=str_stats)
+        B2 = Trace(data=C2[:, indaz], header=str_stats)
+        C1 = Trace(data=C3[:, indaz], header=str_stats)
+        C2 = Trace(data=C4[:, indaz], header=str_stats)
+
+        # Put all treaces into stream
+        self.hstream = Stream(traces=[A, B1, B2, C1, C2])
+        self.azim = indaz*daz
+        self.var = [C0var, C1var, C2var, C3var, C4var]
+
+    @staticmethod
+    @numba.jit(nopython=True, nogil=True)
+    def _dcomp_calculate_harmonics_isolated(nbin=None, nz=None, baz_arr=None, \
+        radialRF_arr=None, transvRF_arr=None, indmin=None, indmax=None, progress_hook=None):
+        """
+        Method to decompose radial and transverse receiver function
+        array into back-azimuth harmonics. This static method is isolated from
+        ``decomp_find_azim`` to accomodate ``numba`` support that requires ```numpy```-like objects
+        when compiling to machine code.
+
+        Parameters
+        ----------
+        nbin : integer
+            Number of receiver function traces
+        nz : integer
+            Number of receiver function trace's points, corresponding to depth or time
+        indmax : integer
+            Index of maximum depth
+        indmin : integer
+            Index of minimum depth
+        baz_arr : :class:`~numpy.array`
+            Array containing each receiver function's back-azimuth
+        radialRF : :class:`~numpy.ndarray`
+            Array containing radial receiver functions
+        transvRF : :class:`~numpy.ndarray`
+            Array containing transversal receiver functions
+        progress_hook : :class:`~numba_progress.ProgressBar`
+            Progressbar hook to integrate ``numba_progress``
+
+        Attributes
+        ----------
+        C0 : :class:`~numpy.ndarray`
+            Array of C0 harmonic
+        C1 : :class:`~numpy.ndarray`
+            Array of C1 harmonic
+        C2 : :class:`~numpy.ndarray`
+            Array of C2 harmonic
+        C3 : :class:`~numpy.ndarray`
+            Array of C3 harmonic
+        C4 : :class:`~numpy.ndarray`
+            Array of C4 harmonic
+        C0var : :class:`~numpy.ndarray`
+            Array of C0 harmonic variance
+        C1var : :class:`~numpy.ndarray`
+            Array of C1 harmonic variance
+        C2var : :class:`~numpy.ndarray`
+            Array of C2 harmonic variance
+        C3var : :class:`~numpy.ndarray`
+            Array of C3 harmonic variance
+        C4var : :class:`~numpy.ndarray`
+            Array of C4 harmonic variance
+        indaz : integer
+            Index of minimum ``C1Var``
+        """
+
+        # Some integers
+        naz = 180
+        daz = np.float(360/naz)
+        deg2rad = np.pi/180.
+
         # Initialize work arrays
         C0 = np.zeros((nz, naz))
         C1 = np.zeros((nz, naz))
@@ -174,10 +338,10 @@ class Harmonics(object):
                 azim = iaz*daz
 
                 # Radial component
-                for irow, trace in enumerate(self.radialRF):
+                for irow, dataR, baz in zip(range(len(radialRF_arr)),radialRF_arr,baz_arr):
 
-                    baz = trace.stats.baz
-                    OBS[irow] = trace.data[iz]
+                    baz = baz
+                    OBS[irow] = dataR[iz]
                     H[irow, 0] = 1.0
                     H[irow, 1] = np.cos(deg2rad*(baz-azim))
                     H[irow, 2] = np.sin(deg2rad*(baz-azim))
@@ -187,10 +351,10 @@ class Harmonics(object):
                 shift = 90.
 
                 # Transverse component
-                for irow, trace in enumerate(self.transvRF):
+                for irow, dataT, baz in zip(range(len(transvRF_arr)),transvRF_arr,baz_arr):
 
-                    baz = trace.stats.baz
-                    OBS[irow+nbin] = trace.data[iz]
+                    baz = baz
+                    OBS[irow+nbin] = dataT[iz]
                     H[irow+nbin, 0] = 0.0
                     H[irow+nbin, 1] = np.cos(deg2rad*(baz+shift-azim))
                     H[irow+nbin, 2] = np.sin(deg2rad*(baz+shift-azim))
@@ -200,7 +364,7 @@ class Harmonics(object):
                 # Solve system of equations with truncated SVD
                 u, s, v = np.linalg.svd(H)
                 s[s < 0.001] = 0.
-                CC = np.linalg.solve(s[:, None] * v, u.T.dot(OBS)[:5])
+                CC = np.linalg.solve(s.reshape(s.shape[0],1) * v, u.T.dot(OBS)[:5])
 
                 # Fill up arrays
                 C0[iz, iaz] = np.float(CC[0])
@@ -208,6 +372,8 @@ class Harmonics(object):
                 C2[iz, iaz] = np.float(CC[2])
                 C3[iz, iaz] = np.float(CC[3])
                 C4[iz, iaz] = np.float(CC[4])
+
+            progress_hook.update(1)
 
         # Minimize variance of third component over specific depth range to
         # find azim
@@ -222,17 +388,7 @@ class Harmonics(object):
         C3var = np.sqrt(np.mean(np.square(C3[indmin:indmax, indaz])))
         C4var = np.sqrt(np.mean(np.square(C4[indmin:indmax, indaz])))
 
-        # Put back into traces
-        A = Trace(data=C0[:, indaz], header=str_stats)
-        B1 = Trace(data=C1[:, indaz], header=str_stats)
-        B2 = Trace(data=C2[:, indaz], header=str_stats)
-        C1 = Trace(data=C3[:, indaz], header=str_stats)
-        C2 = Trace(data=C4[:, indaz], header=str_stats)
-
-        # Put all treaces into stream
-        self.hstream = Stream(traces=[A, B1, B2, C1, C2])
-        self.azim = indaz*daz
-        self.var = [C0var, C1var, C2var, C3var, C4var]
+        return C0,C1,C2,C3,C4,C0var,C1var,C2var,C3var,C4var,indaz
 
     def dcomp_fix_azim(self, azim=None):
         """

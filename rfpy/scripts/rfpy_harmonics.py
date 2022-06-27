@@ -209,6 +209,13 @@ def get_harmonics_arguments(argv=None):
         default=False,
         help="Set this option to save the Harmonics object " +
         "to a pickled file. [Default does not save object]")
+    HarmonicGroup.add_argument(
+        "--use-numba",
+        action="store_true",
+        dest="use_numba",
+        default=False,
+        help="Use numba jit to increase processing speed [Default does not use numba]"
+    )
 
     PlotGroup = parser.add_argument_group(
         title='Settings for plotting results',
@@ -257,7 +264,7 @@ def get_harmonics_arguments(argv=None):
         default="png",
         help="Specify format of figure. Can be any one of the valid" +
         "matplotlib formats: 'png', 'jpg', 'eps', 'pdf'. [Default 'png']")
-
+    
     args = parser.parse_args(argv)
 
     # Check inputs
@@ -502,7 +509,12 @@ def main():
 
         # Stack with or without dip
         if args.find_azim:
-            harmonics.dcomp_find_azim(xmin=args.trange[0], xmax=args.trange[1])
+            # Check if the process use numba
+            if args.use_numba:
+                harmonics.dcomp_find_azim(xmin=args.trange[0], xmax=args.trange[1], use_numba=True)
+            else:
+                harmonics.dcomp_find_azim(xmin=args.trange[0], xmax=args.trange[1])
+
             print("Optimal azimuth for trange between " +
                   str(args.trange[0])+" and "+str(args.trange[1]) +
                   " seconds is: "+str(harmonics.azim))

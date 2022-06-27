@@ -330,6 +330,17 @@ to 10 seconds (to avoid the large zero-lag pulse):
 
     $ rfpy_harmonics --no-outlier --find-azim --trange=2.,10. MMPY.pkl
 
+To increase the processing speed use ``--use-numba`` to utilize ``numba`` just-in-time compiler:
+
+.. note::
+
+    Warning!! While this option will significantly increase the performance, due to the current behavior of numba
+    generic CTRL+C command will not stop the process.
+
+.. code-block::
+
+    $ rfpy_harmonics  --use-numba --no-outlier --find-azim --trange=2.,10. MMPY.pkl
+
     ################################################################################
     #        __                 _                                      _           #
     #  _ __ / _|_ __  _   _    | |__   __ _ _ __ _ __ ___   ___  _ __ (_) ___ ___  #
