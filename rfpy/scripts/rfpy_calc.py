@@ -28,6 +28,8 @@ import numpy as np
 import pickle
 import stdb
 from obspy.clients.fdsn import Client
+from obspy import Catalog, UTCDateTime
+from http.client import IncompleteRead
 from rfpy import utils, RFData
 from pathlib import Path
 from argparse import ArgumentParser
@@ -600,9 +602,39 @@ def main():
         print("| ...                                           |")
 
         # Get catalogue using deployment start and end
-        cat = event_client.get_events(
-            starttime=tstart, endtime=tend,
-            minmagnitude=args.minmag, maxmagnitude=args.maxmag)
+        try:
+            cat = event_client.get_events(
+                starttime=tstart, endtime=tend,
+                minmagnitude=args.minmag, maxmagnitude=args.maxmag)
+        except IncompleteRead:
+            # See http.client.IncompleteRead
+            # https://github.com/obspy/obspy/issues/3028#issue-1179808237
+            
+            # Read yearly chunks
+            print('| Warning: Unable to get entire catalog at once |')
+            print('| Trying to get one year at a time              |')
+            print('|                                               |')
+            
+            chunk = 365 * 86400  # Query length in seconds
+            cat = Catalog()
+            tend = min(tend, UTCDateTime.now())
+            while tstart < tend:
+                print("| Start:   {0:19s}                  |".format(
+                    tstart.strftime("%Y-%m-%d %H:%M:%S")))
+                cat += event_client.get_events(
+                    starttime=tstart, endtime=tstart + chunk,
+                    minmagnitude=args.minmag, maxmagnitude=args.maxmag)
+
+                # Make sure that we go all the way to tend
+                if tstart + chunk > tend:
+                    chunk = tend - tstart
+
+                    # But do not get caught up in an infinite loop due to
+                    # rounding errors
+                    if chunk <= 1:
+                        break
+
+                tstart += chunk
 
         # Total number of events in Catalogue
         nevK = 0
