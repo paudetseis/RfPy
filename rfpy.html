@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Licence &mdash; Home 0.1.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -13,6 +14,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -110,11 +112,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="figure align-center">
+  <figure class="align-center">
 <img alt="_images/RfPy_logo.png" src="_images/RfPy_logo.png" />
-</div>
-<div class="section" id="licence">
-<h1>Licence<a class="headerlink" href="#licence" title="Permalink to this headline"></a></h1>
+</figure>
+<section id="licence">
+<h1>Licence<a class="headerlink" href="#licence" title="Permalink to this heading"></a></h1>
 <p>Copyright 2019 Pascal Audet</p>
 <p>Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the “Software”), to deal
@@ -131,11 +133,11 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.</p>
-</div>
-<div class="section" id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h1>
-<div class="section" id="dependencies">
-<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline"></a></h2>
+</section>
+<section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h1>
+<section id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this heading"></a></h2>
 <p>The current version has been tested using <strong>Python &gt; 3.6</strong> Also, the following packages are required:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/paudetseis/StDb">stdb</a></p></li>
@@ -144,9 +146,9 @@ SOFTWARE.</p>
 </ul>
 <p>Other required packages (e.g., <code class="docutils literal notranslate"><span class="pre">obspy</span></code>)
 will be automatically installed by <code class="docutils literal notranslate"><span class="pre">stdb</span></code>.</p>
-</div>
-<div class="section" id="conda-environment">
-<h2>Conda environment<a class="headerlink" href="#conda-environment" title="Permalink to this headline"></a></h2>
+</section>
+<section id="conda-environment">
+<h2>Conda environment<a class="headerlink" href="#conda-environment" title="Permalink to this heading"></a></h2>
 <p>We recommend creating a custom <code class="docutils literal notranslate"><span class="pre">conda</span></code> environment
 where <code class="docutils literal notranslate"><span class="pre">RfPy</span></code> can be installed along with some of its dependencies.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda create -n rfpy <span class="nv">python</span><span class="o">=</span><span class="m">3</span>.9 obspy cartopy -c conda-forge
@@ -161,15 +163,15 @@ where <code class="docutils literal notranslate"><span class="pre">RfPy</span></
 pip install spectrum
 </pre></div>
 </div>
-</div>
-<div class="section" id="installing-from-pypi">
-<h2>Installing from Pypi<a class="headerlink" href="#installing-from-pypi" title="Permalink to this headline"></a></h2>
+</section>
+<section id="installing-from-pypi">
+<h2>Installing from Pypi<a class="headerlink" href="#installing-from-pypi" title="Permalink to this heading"></a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install rfpy
 </pre></div>
 </div>
-</div>
-<div class="section" id="installing-from-source">
-<h2>Installing from source<a class="headerlink" href="#installing-from-source" title="Permalink to this headline"></a></h2>
+</section>
+<section id="installing-from-source">
+<h2>Installing from source<a class="headerlink" href="#installing-from-source" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p>Clone the repository:</p></li>
 </ul>
@@ -183,12 +185,12 @@ pip install spectrum
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install .
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="basic-usage">
-<h1>Basic Usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline"></a></h1>
-<div class="section" id="calculating-receiver-functions">
-<h2>Calculating Receiver Functions<a class="headerlink" href="#calculating-receiver-functions" title="Permalink to this headline"></a></h2>
+</section>
+</section>
+<section id="basic-usage">
+<h1>Basic Usage<a class="headerlink" href="#basic-usage" title="Permalink to this heading"></a></h1>
+<section id="calculating-receiver-functions">
+<h2>Calculating Receiver Functions<a class="headerlink" href="#calculating-receiver-functions" title="Permalink to this heading"></a></h2>
 <p>The basic class of <code class="docutils literal notranslate"><span class="pre">RfPy</span></code> is <a class="reference internal" href="api.html#rfpy.rfdata.RFData" title="rfpy.rfdata.RFData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RFData</span></code></a>, which contains attributes and
 methods for the calculation of single-station, teleseismic
 <cite>P</cite>-wave receiver functions from three-component seismograms. A <a class="reference internal" href="api.html#rfpy.rfdata.RFData" title="rfpy.rfdata.RFData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RFData</span></code></a>
@@ -206,8 +208,8 @@ and single-event P-wave receiver functions. For processing multiple event-statio
 an equal number of <a class="reference internal" href="api.html#rfpy.rfdata.RFData" title="rfpy.rfdata.RFData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RFData</span></code></a> objects need to be
 created. See the accompanying Scripts for details.</p>
 </div>
-<div class="section" id="initialization">
-<h3>Initialization<a class="headerlink" href="#initialization" title="Permalink to this headline"></a></h3>
+<section id="initialization">
+<h3>Initialization<a class="headerlink" href="#initialization" title="Permalink to this heading"></a></h3>
 <p>A <code class="docutils literal notranslate"><span class="pre">RFData</span></code> object is initialized with an <code class="xref py py-class docutils literal notranslate"><span class="pre">StDb</span></code> object, e.g. consider such an
 object <code class="docutils literal notranslate"><span class="pre">sta</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rfpy</span> <span class="kn">import</span> <span class="n">RFData</span>
@@ -261,9 +263,9 @@ the three-component data from an FDSN Client:</p>
 attribute, i.e. if no data is available, the <code class="docutils literal notranslate"><span class="pre">accept</span></code> attribute will be set
 to <code class="docutils literal notranslate"><span class="pre">False</span></code>. The methods to add data can also be used with the argument
 <code class="docutils literal notranslate"><span class="pre">returned=True</span></code> to report whether or not the data are available.</p>
-</div>
-<div class="section" id="receiver-function-processing">
-<h3>Receiver function processing<a class="headerlink" href="#receiver-function-processing" title="Permalink to this headline"></a></h3>
+</section>
+<section id="receiver-function-processing">
+<h3>Receiver function processing<a class="headerlink" href="#receiver-function-processing" title="Permalink to this heading"></a></h3>
 <p>Now that we have complete meta data and raw seismogram data, we can
 use methods to rotate and/or calculate the signal-to-noise ratio.
 The rotation flag is set in the <code class="docutils literal notranslate"><span class="pre">rfdata.meta.align</span></code> attribute, which by
@@ -307,9 +309,9 @@ of the object. Ultimately, a method is available to convert the <code class="doc
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span> <span class="o">=</span> <span class="n">rfdata</span><span class="o">.</span><span class="n">to_stream</span><span class="p">()</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="demo-example">
-<h3>Demo example<a class="headerlink" href="#demo-example" title="Permalink to this headline"></a></h3>
+</section>
+<section id="demo-example">
+<h3>Demo example<a class="headerlink" href="#demo-example" title="Permalink to this heading"></a></h3>
 <p>To look at a concrete example for station <a class="reference external" href="http://ds.iris.edu/mda/NY/MMPY/">MMPY</a>,
 consider the demo data provided with the package and process them using all default values:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rfpy</span> <span class="kn">import</span> <span class="n">RFData</span>
@@ -424,13 +426,13 @@ of <code class="docutils literal notranslate"><span class="pre">meta</span></cod
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="figure align-center">
+<figure class="align-center">
 <img alt="_images/Figure_rfdata_demo.png" src="_images/Figure_rfdata_demo.png" />
-</div>
-</div>
-</div>
-<div class="section" id="post-processing-h-k-stacking">
-<h2>Post-Processing: <cite>H-k</cite> stacking<a class="headerlink" href="#post-processing-h-k-stacking" title="Permalink to this headline"></a></h2>
+</figure>
+</section>
+</section>
+<section id="post-processing-h-k-stacking">
+<h2>Post-Processing: <cite>H-k</cite> stacking<a class="headerlink" href="#post-processing-h-k-stacking" title="Permalink to this heading"></a></h2>
 <p>The class <a class="reference internal" href="api.html#rfpy.hk.HkStack" title="rfpy.hk.HkStack"><code class="xref py py-class docutils literal notranslate"><span class="pre">HkStack</span></code></a> contains attributes and methods to calculate thickness (<cite>H</cite>)
 and Vp/Vs ratio (<cite>k</cite>) of the crust (in reality, <cite>H</cite> refers to Moho depth, and <cite>k</cite> is Vp/Vs of
 the medium from the surface to <cite>H</cite>) based on moveout times of direct <cite>Ps</cite> and reverberated
@@ -438,8 +440,8 @@ the medium from the surface to <cite>H</cite>) based on moveout times of direct 
 phase stacks are obtained from the median weighted by the phase of individual
 signals. Methods are available to combine the phase stacks into a weighted sum
 or a product.</p>
-<div class="section" id="id1">
-<h3>Initialization<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h3>
+<section id="id1">
+<h3>Initialization<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
 <p>A <code class="docutils literal notranslate"><span class="pre">HkStack</span></code> object is initialized with a <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>
 object containing radial receiver function data. The <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>
 is built by adding (or appending) radial receiver functions obtained from valid
@@ -478,9 +480,9 @@ use one of the <a class="reference internal" href="api.html#module-rfpy.binning"
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span> <span class="o">=</span> <span class="n">HkStack</span><span class="p">(</span><span class="n">rfstream_binned</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="h-k-processing">
-<h3>H-k processing<a class="headerlink" href="#h-k-processing" title="Permalink to this headline"></a></h3>
+</section>
+<section id="h-k-processing">
+<h3>H-k processing<a class="headerlink" href="#h-k-processing" title="Permalink to this heading"></a></h3>
 <p>Once the <a class="reference internal" href="api.html#rfpy.hk.HkStack" title="rfpy.hk.HkStack"><code class="xref py py-class docutils literal notranslate"><span class="pre">HkStack</span></code></a> object is initialized with the <code class="docutils literal notranslate"><span class="pre">rfstream</span></code>, a findividual phase
 stacks can be calculated automatically using the default settings:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span>
@@ -534,9 +536,9 @@ and error contour around the solution.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="id2">
-<h3>Demo example<a class="headerlink" href="#id2" title="Permalink to this headline"></a></h3>
+</section>
+<section id="id2">
+<h3>Demo example<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
 <p>Initialize object with demo data for station <a class="reference external" href="http://ds.iris.edu/mda/NY/MMPY/">MMPY</a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rfpy</span> <span class="kn">import</span> <span class="n">HkStack</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span> <span class="o">=</span> <span class="n">HkStack</span><span class="p">(</span><span class="s1">&#39;demo&#39;</span><span class="p">)</span>
@@ -606,13 +608,13 @@ with a different frequency corner as another attribute <code class="docutils lit
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="figure align-center">
+<figure class="align-center">
 <img alt="_images/Figure_hk_demo.png" src="_images/Figure_hk_demo.png" />
-</div>
-</div>
-</div>
-<div class="section" id="post-processing-harmonic-decomposition">
-<h2>Post-Processing: Harmonic Decomposition<a class="headerlink" href="#post-processing-harmonic-decomposition" title="Permalink to this headline"></a></h2>
+</figure>
+</section>
+</section>
+<section id="post-processing-harmonic-decomposition">
+<h2>Post-Processing: Harmonic Decomposition<a class="headerlink" href="#post-processing-harmonic-decomposition" title="Permalink to this heading"></a></h2>
 <p>The class <a class="reference internal" href="api.html#rfpy.harmonics.Harmonics" title="rfpy.harmonics.Harmonics"><code class="xref py py-class docutils literal notranslate"><span class="pre">Harmonics</span></code></a> contains attributes and methods to
 calculate the first five
 harmonic components of radial and transverse component receiver function
@@ -622,8 +624,8 @@ direction in the subsurface), or alternatively the decomposition can
 be optimized to search for the dominant azimuth that maximizes the energy
 on one of the components. This direction can be interpreted as the
 strike of a dipping interface or can be related to anisotropic axes.</p>
-<div class="section" id="id4">
-<h3>Initialization<a class="headerlink" href="#id4" title="Permalink to this headline"></a></h3>
+<section id="id4">
+<h3>Initialization<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h3>
 <p>a <a class="reference internal" href="api.html#rfpy.harmonics.Harmonics" title="rfpy.harmonics.Harmonics"><code class="xref py py-class docutils literal notranslate"><span class="pre">Harmonics</span></code></a> object is initialized with <strong>both</strong> radial
 and transverse component receiver function <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> objects.
 The <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> objects are built by adding (or appending)
@@ -652,9 +654,9 @@ purely radial and purely transverse components (i.e. no mixing of components).
 Furthermore, the <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> objects should have equal length
 and the same ordering.</p>
 </div>
-</div>
-<div class="section" id="harmonic-decomposition">
-<h3>Harmonic decomposition<a class="headerlink" href="#harmonic-decomposition" title="Permalink to this headline"></a></h3>
+</section>
+<section id="harmonic-decomposition">
+<h3>Harmonic decomposition<a class="headerlink" href="#harmonic-decomposition" title="Permalink to this heading"></a></h3>
 <p>Once the <a class="reference internal" href="api.html#rfpy.harmonics.Harmonics" title="rfpy.harmonics.Harmonics"><code class="xref py py-class docutils literal notranslate"><span class="pre">Harmonics</span></code></a> object is initialized, processing is done by typing:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="n">dcomp_fix_azim</span><span class="p">()</span>
 </pre></div>
@@ -678,9 +680,9 @@ the method <a class="reference internal" href="api.html#rfpy.harmonics.Harmonics
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="forward-modeling">
-<h3>Forward modeling<a class="headerlink" href="#forward-modeling" title="Permalink to this headline"></a></h3>
+</section>
+<section id="forward-modeling">
+<h3>Forward modeling<a class="headerlink" href="#forward-modeling" title="Permalink to this heading"></a></h3>
 <p>If the <code class="docutils literal notranslate"><span class="pre">hstream</span></code> attribute is available, it is possible to <em>forward model</em> receiver functions
 for a range of back-azimuth values, or just a single value. In case the back-azimuths are
 not specified, the method will use the range of values available in the original
@@ -690,9 +692,9 @@ radial and transverse component receiver function data.</p>
 </div>
 <p>The new <cite>predicted</cite> radial and transverse component receiver functions are available
 as attributes of type <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> (<code class="docutils literal notranslate"><span class="pre">harmonics.forwardR</span></code> and <code class="docutils literal notranslate"><span class="pre">harmonics.forwardT</span></code>)</p>
-</div>
-<div class="section" id="id5">
-<h3>Demo example<a class="headerlink" href="#id5" title="Permalink to this headline"></a></h3>
+</section>
+<section id="id5">
+<h3>Demo example<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h3>
 <p>Initialize object with demo data for station <a class="reference external" href="http://ds.iris.edu/mda/NY/MMPY/">MMPY</a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rfpy</span> <span class="kn">import</span> <span class="n">Harmonics</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span> <span class="o">=</span> <span class="n">Harmonics</span><span class="p">(</span><span class="s1">&#39;demo&#39;</span><span class="p">)</span>
@@ -751,12 +753,12 @@ with a different frequency corner as another attribute <code class="docutils lit
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ymax</span><span class="o">=</span><span class="mf">10.</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="figure align-center">
+<figure class="align-center">
 <img alt="_images/Figure_harmonics_demo.png" src="_images/Figure_harmonics_demo.png" />
-</div>
-</div>
-</div>
-</div>
+</figure>
+</section>
+</section>
+</section>
 
 
            </div>

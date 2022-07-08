@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tutorials &mdash; Home 0.1.1 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -13,6 +14,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -97,15 +99,15 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="tutorials">
-<h1>Tutorials<a class="headerlink" href="#tutorials" title="Permalink to this headline"></a></h1>
+  <section id="tutorials">
+<h1>Tutorials<a class="headerlink" href="#tutorials" title="Permalink to this heading"></a></h1>
 <p>In this tutorial we will process and post-process receiver function data for station
 MMPY. This will include calculating receiver functions using all default arguments,
 re-calculating the receiver functions for different processing arguments, plotting
 them, and post-processing them using the H-k stacking technique and applying
 the harmonic decomposition method.</p>
-<div class="section" id="creating-the-stdb-database">
-<h2>0. Creating the <code class="docutils literal notranslate"><span class="pre">StDb</span></code> Database<a class="headerlink" href="#creating-the-stdb-database" title="Permalink to this headline"></a></h2>
+<section id="creating-the-stdb-database">
+<h2>0. Creating the <code class="docutils literal notranslate"><span class="pre">StDb</span></code> Database<a class="headerlink" href="#creating-the-stdb-database" title="Permalink to this heading"></a></h2>
 <p>All the scripts provided require a <code class="docutils literal notranslate"><span class="pre">StDb</span></code> database containing station
 information and metadata. Let’s first create this database for station
 <code class="docutils literal notranslate"><span class="pre">MMPY</span></code> and send the prompt to a logfile</p>
@@ -129,9 +131,9 @@ NY.MMPY
       Azimuth Correction: 0.000000
 </pre></div>
 </div>
-</div>
-<div class="section" id="download-and-process-receiver-functions">
-<h2>1. Download and process receiver functions<a class="headerlink" href="#download-and-process-receiver-functions" title="Permalink to this headline"></a></h2>
+</section>
+<section id="download-and-process-receiver-functions">
+<h2>1. Download and process receiver functions<a class="headerlink" href="#download-and-process-receiver-functions" title="Permalink to this heading"></a></h2>
 <p>You can see above that the station MMPY has been in operation between July 2013
 and October 2020 (Note: the date at which the tutorial was written). In theory,
 we could run the main script to perform the automatic processing of the seismic
@@ -216,9 +218,9 @@ sampling rate). If you want to change those parameters, run the previous command
 <p>Note that you can get more data by either specifying a new phase to analyze (e.g.,
 <code class="docutils literal notranslate"><span class="pre">--phase=PP</span></code>), going to lower magnitudes (e.g., <code class="docutils literal notranslate"><span class="pre">--minmag=5.</span> <span class="pre">--maxmag=5.5</span></code>), by
 running the same line of command with those additional arguments.</p>
-</div>
-<div class="section" id="re-calculate-with-different-options">
-<h2>2. Re-calculate with different options<a class="headerlink" href="#re-calculate-with-different-options" title="Permalink to this headline"></a></h2>
+</section>
+<section id="re-calculate-with-different-options">
+<h2>2. Re-calculate with different options<a class="headerlink" href="#re-calculate-with-different-options" title="Permalink to this heading"></a></h2>
 <p>If later on you decide you want to try a different deconvolution method, component
 alignment or maybe try some pre-filtering options, you can always simply use the
 <code class="docutils literal notranslate"><span class="pre">rfpy_recalc</span></code> script to do so.</p>
@@ -231,9 +233,9 @@ existing receiver function data. Be mindful of this when using this script.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_recalc --align=ZRT --method=wiener MMPY.pkl
 </pre></div>
 </div>
-</div>
-<div class="section" id="plot-receiver-functions-by-back-azimuth-or-slowness">
-<h2>3. Plot receiver functions by back-azimuth or slowness<a class="headerlink" href="#plot-receiver-functions-by-back-azimuth-or-slowness" title="Permalink to this headline"></a></h2>
+</section>
+<section id="plot-receiver-functions-by-back-azimuth-or-slowness">
+<h2>3. Plot receiver functions by back-azimuth or slowness<a class="headerlink" href="#plot-receiver-functions-by-back-azimuth-or-slowness" title="Permalink to this heading"></a></h2>
 <p>Now that we have our data set of receiver functions, we can plot it! There are two
 types of plots: the Back-azimuth panels and the Slowness panels. In the first case
 the receiver functions are sorted by back-azimuth and all slowness information is
@@ -247,8 +249,8 @@ to set corner frequencies for filterig, otherwise it will be difficult to see
 anything. Typically you would choose a bandwidth that encompasses the dominant
 frequencies of teleseismic P waves (i.e., 0.05 to 1 Hz). Let’s examine
 the two types of plots with examples:</p>
-<div class="section" id="back-azimuth-panel">
-<h3>Back-azimuth panel<a class="headerlink" href="#back-azimuth-panel" title="Permalink to this headline"></a></h3>
+<section id="back-azimuth-panel">
+<h3>Back-azimuth panel<a class="headerlink" href="#back-azimuth-panel" title="Permalink to this heading"></a></h3>
 <p>Below we make a plot of all P receiver functions, filtered between 0.05 and 0.5 Hz,
 using 36 back-azimuth bins. We plot the RFs from -2. to +30 seconds following the
 zero-lag (i.e., P-wave arrival) time, stack all traces to produce an averaged RF,
@@ -256,26 +258,26 @@ and normalize all traces to that of the stacks.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_plot --no-outlier --bp=0.05,0.5 --nbaz=36 --normalize --trange=-2.,30. MMPY.pkl
 </pre></div>
 </div>
-<div class="figure align-center">
+<figure class="align-center">
 <img alt="_images/Figure_1.png" src="_images/Figure_1.png" />
-</div>
-</div>
-<div class="section" id="slowness-panel">
-<h3>Slowness panel<a class="headerlink" href="#slowness-panel" title="Permalink to this headline"></a></h3>
+</figure>
+</section>
+<section id="slowness-panel">
+<h3>Slowness panel<a class="headerlink" href="#slowness-panel" title="Permalink to this heading"></a></h3>
 <p>Now let’s make a plot of all P receiver functions, this time sorted by slowness using
 20 bins. Instead</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_plot --no-outlier --bp=0.05,0.5 --nslow=20 --normalize --trange=-2.,30. MMPY.pkl
 </pre></div>
 </div>
-<div class="figure align-center">
+<figure class="align-center">
 <img alt="_images/Figure_2.png" src="_images/Figure_2.png" />
-</div>
-</div>
-</div>
-<div class="section" id="post-processing">
-<h2>4. Post-processing<a class="headerlink" href="#post-processing" title="Permalink to this headline"></a></h2>
-<div class="section" id="a-moho-depth-and-vp-vs-from-h-k-stacking">
-<h3>4a. Moho depth and Vp/Vs from <code class="docutils literal notranslate"><span class="pre">H-k</span></code> stacking<a class="headerlink" href="#a-moho-depth-and-vp-vs-from-h-k-stacking" title="Permalink to this headline"></a></h3>
+</figure>
+</section>
+</section>
+<section id="post-processing">
+<h2>4. Post-processing<a class="headerlink" href="#post-processing" title="Permalink to this heading"></a></h2>
+<section id="a-moho-depth-and-vp-vs-from-h-k-stacking">
+<h3>4a. Moho depth and Vp/Vs from <code class="docutils literal notranslate"><span class="pre">H-k</span></code> stacking<a class="headerlink" href="#a-moho-depth-and-vp-vs-from-h-k-stacking" title="Permalink to this heading"></a></h3>
 <p>With these receiver functions, we can easily estimate Moho depth and crustal Vp/Vs
 using the simple H-k stacking method. There are several options to choose from. Let’s
 examine the default options.</p>
@@ -330,9 +332,9 @@ Computing: [#####..........] 24/61
 </div>
 <p>Once computing is done (when it reaches 61/61), the script will produce the following
 figure:</p>
-<div class="figure align-center">
+<figure class="align-center">
 <img alt="_images/Figure_3.png" src="_images/Figure_3.png" />
-</div>
+</figure>
 <p>Alternatively, we can compute the stacks using the product of all phase stacks, which
 gets rid of the subjective choice of weights. Let’s re-do the prevous example with a
 number of changes: 1) use a copy of the RFs to use for the reverberations (Pps and
@@ -344,14 +346,14 @@ Pss), 2) bandpass filter those at lower high-frequency corner, and 3) select the
 <p>The new figure is slightly different (there is no negative amplitude) but produces
 much cleaner H and k estimates. Note that the labeled weights above each panel
 correspond to the default values but are not used in the final stack.</p>
-<div class="figure align-center">
+<figure class="align-center">
 <img alt="_images/Figure_4.png" src="_images/Figure_4.png" />
-</div>
+</figure>
 <p>Finally, could also perform H-k stacking using a known orientation (strike and dip
 angles) of a dipping interface using additional arguments.</p>
-</div>
-<div class="section" id="b-harmonic-decomposition">
-<h3>4b. Harmonic decomposition<a class="headerlink" href="#b-harmonic-decomposition" title="Permalink to this headline"></a></h3>
+</section>
+<section id="b-harmonic-decomposition">
+<h3>4b. Harmonic decomposition<a class="headerlink" href="#b-harmonic-decomposition" title="Permalink to this heading"></a></h3>
 <p>Receiver functions are often characterized by significant amplitude variations as a function
 of back-azimuth of the incoming teleseismic wave. The variations are observed on both radial
 and transverse components, with a 90-degree shift (in back-azimuth) between the two
@@ -418,9 +420,9 @@ Optimal azimuth for trange between 2.0 and 10.0 seconds is: 178.0
 </pre></div>
 </div>
 <p>This command will produce the following figure:</p>
-<div class="figure align-center">
+<figure class="align-center">
 <img alt="_images/Figure_5.png" src="_images/Figure_5.png" />
-</div>
+</figure>
 <p>The first component (<code class="docutils literal notranslate"><span class="pre">A</span></code>) shows the amplitudes that do not vary with back-azimuth (i.e.,
 the ‘constant’ term), with the main Ps and Pps Moho-related pulses at 3. and 15. seconds.
 The second component (<code class="docutils literal notranslate"><span class="pre">B1</span></code>) has been minimized between 2. and 10. seconds and does not
@@ -429,9 +431,9 @@ optimal azimuth of 178 degrees, with a pair of positive-negative pulses at aroun
 seconds. Finally, the fourth component (<code class="docutils literal notranslate"><span class="pre">C1</span></code>) shows some high-amplitude signals between
 2.5 and 6 seconds, which correspond to hexagonal anisotropy with a horizontal axis of
 symmetry.</p>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
            </div>
