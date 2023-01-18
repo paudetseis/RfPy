@@ -391,13 +391,20 @@ def attach_local_response_data(stream, local_response_dir):
         Event seismogram
     local_response_dir: str
         Directory holding response information. All files containing the station
-        name are read.
+        name are read. If that fails, all files beginning with the network code are
+        read.
     """
-    stations = [t.stats.station for t in stream.traces]
+    stations = set([t.stats.station for t in stream.traces])
+    networks = set([t.stats.network for t in stream.traces])
     inventory = Inventory()
-    for station in stations:
-        inventory += read_inventory(
-            '{:}/*{:}*'.format(local_response_dir, station))
+    try:
+        for station in stations:
+            inventory += read_inventory(
+                '{:}/*{:}*'.format(local_response_dir, station))
+    except Exception:
+        for net in networks:
+            inventory += read_inventory('{:}/{:}*'.format(local_response_dir, net))
+
     stream.attach_response(inventories=inventory)
 
 
