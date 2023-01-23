@@ -1191,7 +1191,7 @@ class RFData(object):
 
             return trace
 
-        if store is None or store is 'data':
+        if store == None or store == 'data':
             stream = self.data
             for tr in stream:
                 tr = _add_stats(tr, store)
