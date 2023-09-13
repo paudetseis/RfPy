@@ -484,10 +484,11 @@ def get_calc_arguments(argv=None):
         print("SNR window > data window. Defaulting to data " +
               "window minus 10 sec.")
 
-    if args.method not in ['wiener', 'water', 'multitaper']:
+    if args.method not in ['wiener', 'water', 'multitaper', \
+                           'wiener_audet_bssa2010']:
         parser.error(
             "Error: 'method' should be either 'wiener', 'water' or " +
-            "'multitaper'")
+            "'multitaper', or 'wiener_audet_bssa2010'")
 
     return args
 
@@ -655,7 +656,7 @@ def main():
                 print("|   {0:>2s}.{1:5s}: {2:6d}".format(
                     sta.network, sta.station, len(stalcllist)) +
                     " files                      |")
-                #print(stalcllist[0:10])
+                print(stalcllist[0:10])
             else:
                 stalcllist = utils.list_local_data_stn(
                     lcldrs=args.localdata, sta=sta.station, dtype=args.dtype)
