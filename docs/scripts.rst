@@ -153,8 +153,8 @@ Usage
       Parameters for deconvolution
 
       --method METHOD       Specify the deconvolution method. Available methods
-                            include 'wiener', 'water' and 'multitaper'. [Default
-                            'wiener']
+                            include 'wiener', 'water', 'multitaper', and 
+                            'wiener_audet_bssa2010'. [Default 'wiener']
       --gfilt GFILT         Specify the Gaussian filter width in Hz. [Default
                             None]
       --wlevel WLEVEL       Specify the water level, used in the 'water' method.
@@ -240,8 +240,8 @@ Usage
       Parameters for deconvolution
 
       --method METHOD      Specify the deconvolution method. Available methods
-                           include 'wiener', 'water' and 'multitaper'. [Default
-                           'wiener']
+                           include 'wiener', 'water', 'multitaper' and 
+                           'wiener_audet_bssa2010'. [Default 'wiener']
       --gfilt GFILT        Specify the Gaussian filter width in Hz. [Default None]
       --wlevel WLEVEL      Specify the water level, used in the 'water' method.
                            [Default 0.01]
@@ -262,7 +262,7 @@ Usage
 
 .. code-block::
 
-    $ rfpy_recalc -h
+    $ rfpy_plot -h
 
     #################################################
     #        __                        _       _    #
