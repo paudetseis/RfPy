@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Scripts &mdash; Home 0.1.1 documentation</title>
@@ -11,11 +11,11 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="_static/doctools.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=a58bc63e"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -28,12 +28,16 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> Home
-            <img src="_static/RfPy_logo_small.png" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Home
+              <img src="_static/RfPy_logo_small.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -106,8 +110,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Scripts</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Scripts</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/scripts.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -118,23 +122,23 @@
            <div itemprop="articleBody">
              
   <section id="scripts">
-<h1>Scripts<a class="headerlink" href="#scripts" title="Permalink to this heading"></a></h1>
+<h1>Scripts<a class="headerlink" href="#scripts" title="Link to this heading"></a></h1>
 <p>There are several Python scripts that accompany <code class="xref py py-mod docutils literal notranslate"><span class="pre">rfpy</span></code>, which can be used
 in bash scripts to automate data processing. These include scripts to download
 three-component seismogram data and calculate receiver functions, and perform
 post-processing for <cite>H-k</cite> stacking and harmonic decomposition. All of them use
 a station database provided as a <code class="xref py py-class docutils literal notranslate"><span class="pre">StDb</span></code> dictionary.</p>
 <section id="rfpy-calc">
-<h2><code class="docutils literal notranslate"><span class="pre">rfpy_calc</span></code><a class="headerlink" href="#rfpy-calc" title="Permalink to this heading"></a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">rfpy_calc</span></code><a class="headerlink" href="#rfpy-calc" title="Link to this heading"></a></h2>
 <section id="description">
-<h3>Description<a class="headerlink" href="#description" title="Permalink to this heading"></a></h3>
+<h3>Description<a class="headerlink" href="#description" title="Link to this heading"></a></h3>
 <p>Downloads three-component (‘Z’, ‘N’ and ‘E’) seismograms based
 on available times of earthquakes and performs <cite>P</cite>-wave receiver function
 calculation. Station selection is specified by a network and
 station code. The database is provided as a <code class="xref py py-class docutils literal notranslate"><span class="pre">StDb</span></code> dictionary.</p>
 </section>
 <section id="usage">
-<h3>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h3>
+<h3>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_calc -h
 
 ##############################################
@@ -275,16 +279,16 @@ Deconvolution Settings:
 </section>
 </section>
 <section id="rfpy-recalc">
-<h2><code class="docutils literal notranslate"><span class="pre">rfpy_recalc</span></code><a class="headerlink" href="#rfpy-recalc" title="Permalink to this heading"></a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">rfpy_recalc</span></code><a class="headerlink" href="#rfpy-recalc" title="Link to this heading"></a></h2>
 <section id="id1">
-<h3>Description<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
+<h3>Description<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <p>Looks for available receiver functions on disk and re-calculates them
 using different processing options. Station selection is specified by
 a network and station code. The database is provided as a <code class="xref py py-class docutils literal notranslate"><span class="pre">StDb</span></code>
 dictionary.</p>
 </section>
 <section id="id2">
-<h3>Usage<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
+<h3>Usage<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_recalc -h
 
 ########################################################
@@ -358,15 +362,15 @@ Deconvolution Settings:
 </section>
 </section>
 <section id="rfpy-plot">
-<h2><code class="docutils literal notranslate"><span class="pre">rfpy_plot</span></code><a class="headerlink" href="#rfpy-plot" title="Permalink to this heading"></a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">rfpy_plot</span></code><a class="headerlink" href="#rfpy-plot" title="Link to this heading"></a></h2>
 <section id="id3">
-<h3>Description<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
+<h3>Description<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <p>Script used to make plots of receiver function panels sorted by
 back-azimuth (averaging all slowness information) or by slowness
 (averaging all back-azimuth information).</p>
 </section>
 <section id="id4">
-<h3>Usage<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h3>
+<h3>Usage<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_recalc -h
 
 #################################################
@@ -461,16 +465,16 @@ Plot Settings:
 </section>
 </section>
 <section id="rfpy-hk">
-<h2><code class="docutils literal notranslate"><span class="pre">rfpy_hk</span></code><a class="headerlink" href="#rfpy-hk" title="Permalink to this heading"></a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">rfpy_hk</span></code><a class="headerlink" href="#rfpy-hk" title="Link to this heading"></a></h2>
 <section id="id5">
-<h3>Description<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h3>
+<h3>Description<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
 <p>Loads radial-component receiver function data available on disk
 and calculates Moho depth (‘H’) and Vp/Vs (‘k’) of the assumed 1D
 crustal structure. Station selection is specified by a network and
 station code. The database is provided as a <code class="xref py py-class docutils literal notranslate"><span class="pre">StDb</span></code> dictionary.</p>
 </section>
 <section id="id6">
-<h3>Usage<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h3>
+<h3>Usage<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_hk -h
 
 #########################################
@@ -594,16 +598,16 @@ Settings for plotting results:
 </section>
 </section>
 <section id="rfpy-harmonics">
-<h2><code class="docutils literal notranslate"><span class="pre">rfpy_harmonics</span></code><a class="headerlink" href="#rfpy-harmonics" title="Permalink to this heading"></a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">rfpy_harmonics</span></code><a class="headerlink" href="#rfpy-harmonics" title="Link to this heading"></a></h2>
 <section id="id7">
-<h3>Description<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h3>
+<h3>Description<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
 <p>Loads radial and transverse component receiver function data available on disk
 and decomposes them into back-azimuth harmonics. Station selection is specified
 by a network and station code. The database is provided as a <code class="xref py py-class docutils literal notranslate"><span class="pre">StDb</span></code>
 dictionary.</p>
 </section>
 <section id="id8">
-<h3>Usage<a class="headerlink" href="#id8" title="Permalink to this heading"></a></h3>
+<h3>Usage<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_harmonics -h
 
 ################################################################################
@@ -697,9 +701,9 @@ Settings for plotting results:
 </section>
 </section>
 <section id="rfpy-ccp">
-<h2><code class="docutils literal notranslate"><span class="pre">rfpy_ccp</span></code><a class="headerlink" href="#rfpy-ccp" title="Permalink to this heading"></a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">rfpy_ccp</span></code><a class="headerlink" href="#rfpy-ccp" title="Link to this heading"></a></h2>
 <section id="id9">
-<h3>Description<a class="headerlink" href="#id9" title="Permalink to this heading"></a></h3>
+<h3>Description<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
 <p>Loads radial component receiver function data available on disk
 and processes them for Common Conversion Point stacking along a linear
 profile. The three CCP phase stacks (Ps, Pps and Pss) are averaged
@@ -717,7 +721,7 @@ normal to the line.</p>
 </div>
 </section>
 <section id="id10">
-<h3>Usage<a class="headerlink" href="#id10" title="Permalink to this heading"></a></h3>
+<h3>Usage<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_ccp -h
 
 ############################################

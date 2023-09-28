@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tutorials &mdash; Home 0.1.1 documentation</title>
@@ -11,11 +11,11 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="_static/doctools.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=a58bc63e"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -27,12 +27,16 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> Home
-            <img src="_static/RfPy_logo_small.png" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Home
+              <img src="_static/RfPy_logo_small.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -88,8 +92,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Tutorials</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Tutorials</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/tutorials.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -100,14 +104,14 @@
            <div itemprop="articleBody">
              
   <section id="tutorials">
-<h1>Tutorials<a class="headerlink" href="#tutorials" title="Permalink to this heading"></a></h1>
+<h1>Tutorials<a class="headerlink" href="#tutorials" title="Link to this heading"></a></h1>
 <p>In this tutorial we will process and post-process receiver function data for station
 MMPY. This will include calculating receiver functions using all default arguments,
 re-calculating the receiver functions for different processing arguments, plotting
 them, and post-processing them using the H-k stacking technique and applying
 the harmonic decomposition method.</p>
 <section id="creating-the-stdb-database">
-<h2>0. Creating the <code class="docutils literal notranslate"><span class="pre">StDb</span></code> Database<a class="headerlink" href="#creating-the-stdb-database" title="Permalink to this heading"></a></h2>
+<h2>0. Creating the <code class="docutils literal notranslate"><span class="pre">StDb</span></code> Database<a class="headerlink" href="#creating-the-stdb-database" title="Link to this heading"></a></h2>
 <p>All the scripts provided require a <code class="docutils literal notranslate"><span class="pre">StDb</span></code> database containing station
 information and metadata. Let’s first create this database for station
 <code class="docutils literal notranslate"><span class="pre">MMPY</span></code> and send the prompt to a logfile</p>
@@ -133,7 +137,7 @@ NY.MMPY
 </div>
 </section>
 <section id="download-and-process-receiver-functions">
-<h2>1. Download and process receiver functions<a class="headerlink" href="#download-and-process-receiver-functions" title="Permalink to this heading"></a></h2>
+<h2>1. Download and process receiver functions<a class="headerlink" href="#download-and-process-receiver-functions" title="Link to this heading"></a></h2>
 <p>You can see above that the station MMPY has been in operation between July 2013
 and October 2020 (Note: the date at which the tutorial was written). In theory,
 we could run the main script to perform the automatic processing of the seismic
@@ -220,7 +224,7 @@ sampling rate). If you want to change those parameters, run the previous command
 running the same line of command with those additional arguments.</p>
 </section>
 <section id="re-calculate-with-different-options">
-<h2>2. Re-calculate with different options<a class="headerlink" href="#re-calculate-with-different-options" title="Permalink to this heading"></a></h2>
+<h2>2. Re-calculate with different options<a class="headerlink" href="#re-calculate-with-different-options" title="Link to this heading"></a></h2>
 <p>If later on you decide you want to try a different deconvolution method, component
 alignment or maybe try some pre-filtering options, you can always simply use the
 <code class="docutils literal notranslate"><span class="pre">rfpy_recalc</span></code> script to do so.</p>
@@ -235,7 +239,7 @@ existing receiver function data. Be mindful of this when using this script.</p>
 </div>
 </section>
 <section id="plot-receiver-functions-by-back-azimuth-or-slowness">
-<h2>3. Plot receiver functions by back-azimuth or slowness<a class="headerlink" href="#plot-receiver-functions-by-back-azimuth-or-slowness" title="Permalink to this heading"></a></h2>
+<h2>3. Plot receiver functions by back-azimuth or slowness<a class="headerlink" href="#plot-receiver-functions-by-back-azimuth-or-slowness" title="Link to this heading"></a></h2>
 <p>Now that we have our data set of receiver functions, we can plot it! There are two
 types of plots: the Back-azimuth panels and the Slowness panels. In the first case
 the receiver functions are sorted by back-azimuth and all slowness information is
@@ -250,7 +254,7 @@ anything. Typically you would choose a bandwidth that encompasses the dominant
 frequencies of teleseismic P waves (i.e., 0.05 to 1 Hz). Let’s examine
 the two types of plots with examples:</p>
 <section id="back-azimuth-panel">
-<h3>Back-azimuth panel<a class="headerlink" href="#back-azimuth-panel" title="Permalink to this heading"></a></h3>
+<h3>Back-azimuth panel<a class="headerlink" href="#back-azimuth-panel" title="Link to this heading"></a></h3>
 <p>Below we make a plot of all P receiver functions, filtered between 0.05 and 0.5 Hz,
 using 36 back-azimuth bins. We plot the RFs from -2. to +30 seconds following the
 zero-lag (i.e., P-wave arrival) time, stack all traces to produce an averaged RF,
@@ -263,7 +267,7 @@ and normalize all traces to that of the stacks.</p>
 </figure>
 </section>
 <section id="slowness-panel">
-<h3>Slowness panel<a class="headerlink" href="#slowness-panel" title="Permalink to this heading"></a></h3>
+<h3>Slowness panel<a class="headerlink" href="#slowness-panel" title="Link to this heading"></a></h3>
 <p>Now let’s make a plot of all P receiver functions, this time sorted by slowness using
 20 bins. Instead</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_plot --no-outlier --bp=0.05,0.5 --nslow=20 --normalize --trange=-2.,30. MMPY.pkl
@@ -275,9 +279,9 @@ and normalize all traces to that of the stacks.</p>
 </section>
 </section>
 <section id="post-processing">
-<h2>4. Post-processing<a class="headerlink" href="#post-processing" title="Permalink to this heading"></a></h2>
+<h2>4. Post-processing<a class="headerlink" href="#post-processing" title="Link to this heading"></a></h2>
 <section id="a-moho-depth-and-vp-vs-from-h-k-stacking">
-<h3>4a. Moho depth and Vp/Vs from <code class="docutils literal notranslate"><span class="pre">H-k</span></code> stacking<a class="headerlink" href="#a-moho-depth-and-vp-vs-from-h-k-stacking" title="Permalink to this heading"></a></h3>
+<h3>4a. Moho depth and Vp/Vs from <code class="docutils literal notranslate"><span class="pre">H-k</span></code> stacking<a class="headerlink" href="#a-moho-depth-and-vp-vs-from-h-k-stacking" title="Link to this heading"></a></h3>
 <p>With these receiver functions, we can easily estimate Moho depth and crustal Vp/Vs
 using the simple H-k stacking method. There are several options to choose from. Let’s
 examine the default options.</p>
@@ -353,7 +357,7 @@ correspond to the default values but are not used in the final stack.</p>
 angles) of a dipping interface using additional arguments.</p>
 </section>
 <section id="b-harmonic-decomposition">
-<h3>4b. Harmonic decomposition<a class="headerlink" href="#b-harmonic-decomposition" title="Permalink to this heading"></a></h3>
+<h3>4b. Harmonic decomposition<a class="headerlink" href="#b-harmonic-decomposition" title="Link to this heading"></a></h3>
 <p>Receiver functions are often characterized by significant amplitude variations as a function
 of back-azimuth of the incoming teleseismic wave. The variations are observed on both radial
 and transverse components, with a 90-degree shift (in back-azimuth) between the two

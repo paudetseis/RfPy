@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Classes &mdash; Home 0.1.1 documentation</title>
@@ -11,11 +11,11 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="_static/doctools.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=a58bc63e"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -28,12 +28,16 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> Home
-            <img src="_static/RfPy_logo_small.png" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Home
+              <img src="_static/RfPy_logo_small.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -54,17 +58,95 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Classes</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#rfdata">RFData</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#class-meta">Class Meta</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rfpy.rfdata.RFData"><code class="docutils literal notranslate"><span class="pre">RFData</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.rfdata.RFData.add_event"><code class="docutils literal notranslate"><span class="pre">RFData.add_event()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.rfdata.RFData.add_data"><code class="docutils literal notranslate"><span class="pre">RFData.add_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.rfdata.RFData.zne_data"><code class="docutils literal notranslate"><span class="pre">RFData.zne_data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.rfdata.RFData.download_data"><code class="docutils literal notranslate"><span class="pre">RFData.download_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.rfdata.RFData.data"><code class="docutils literal notranslate"><span class="pre">RFData.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.rfdata.RFData.rotate"><code class="docutils literal notranslate"><span class="pre">RFData.rotate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.rfdata.RFData.calc_snr"><code class="docutils literal notranslate"><span class="pre">RFData.calc_snr()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.rfdata.RFData.snr"><code class="docutils literal notranslate"><span class="pre">RFData.snr</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.rfdata.RFData.snrh"><code class="docutils literal notranslate"><span class="pre">RFData.snrh</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.rfdata.RFData.calc_spectra"><code class="docutils literal notranslate"><span class="pre">RFData.calc_spectra()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.rfdata.RFData.specs"><code class="docutils literal notranslate"><span class="pre">RFData.specs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.rfdata.RFData.deconvolve"><code class="docutils literal notranslate"><span class="pre">RFData.deconvolve()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.rfdata.RFData.rf"><code class="docutils literal notranslate"><span class="pre">RFData.rf</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.rfdata.RFData.to_stream"><code class="docutils literal notranslate"><span class="pre">RFData.to_stream()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.rfdata.RFData.save"><code class="docutils literal notranslate"><span class="pre">RFData.save()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#hkstack">HkStack</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#harmonics">Harmonics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#ccpimage">CCPimage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#class-meta">Class Meta</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.rfdata.Meta"><code class="docutils literal notranslate"><span class="pre">Meta</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#hkstack">HkStack</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#rfpy.hk.HkStack"><code class="docutils literal notranslate"><span class="pre">HkStack</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.hk.HkStack.stack"><code class="docutils literal notranslate"><span class="pre">HkStack.stack()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.hk.HkStack.pws"><code class="docutils literal notranslate"><span class="pre">HkStack.pws</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.hk.HkStack.sig"><code class="docutils literal notranslate"><span class="pre">HkStack.sig</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.hk.HkStack.stack_dip"><code class="docutils literal notranslate"><span class="pre">HkStack.stack_dip()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id0"><code class="docutils literal notranslate"><span class="pre">HkStack.pws</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id1"><code class="docutils literal notranslate"><span class="pre">HkStack.sig</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.hk.HkStack.average"><code class="docutils literal notranslate"><span class="pre">HkStack.average()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.hk.HkStack.error"><code class="docutils literal notranslate"><span class="pre">HkStack.error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.hk.HkStack.plot"><code class="docutils literal notranslate"><span class="pre">HkStack.plot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.hk.HkStack.save"><code class="docutils literal notranslate"><span class="pre">HkStack.save()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#harmonics">Harmonics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#rfpy.harmonics.Harmonics"><code class="docutils literal notranslate"><span class="pre">Harmonics</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.harmonics.Harmonics.dcomp_find_azim"><code class="docutils literal notranslate"><span class="pre">Harmonics.dcomp_find_azim()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.harmonics.Harmonics.hstream"><code class="docutils literal notranslate"><span class="pre">Harmonics.hstream</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.harmonics.Harmonics.azim"><code class="docutils literal notranslate"><span class="pre">Harmonics.azim</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.harmonics.Harmonics.var"><code class="docutils literal notranslate"><span class="pre">Harmonics.var</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.harmonics.Harmonics.dcomp_fix_azim"><code class="docutils literal notranslate"><span class="pre">Harmonics.dcomp_fix_azim()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2"><code class="docutils literal notranslate"><span class="pre">Harmonics.hstream</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.harmonics.Harmonics.forward"><code class="docutils literal notranslate"><span class="pre">Harmonics.forward()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.harmonics.Harmonics.radial_forward"><code class="docutils literal notranslate"><span class="pre">Harmonics.radial_forward</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.harmonics.Harmonics.transv_forward"><code class="docutils literal notranslate"><span class="pre">Harmonics.transv_forward</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.harmonics.Harmonics.plot"><code class="docutils literal notranslate"><span class="pre">Harmonics.plot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.harmonics.Harmonics.save"><code class="docutils literal notranslate"><span class="pre">Harmonics.save()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ccpimage">CCPimage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#rfpy.ccp.CCPimage"><code class="docutils literal notranslate"><span class="pre">CCPimage</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.ccp.CCPimage.add_rfstream"><code class="docutils literal notranslate"><span class="pre">CCPimage.add_rfstream()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.ccp.CCPimage.prep_data"><code class="docutils literal notranslate"><span class="pre">CCPimage.prep_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.ccp.CCPimage.prestack"><code class="docutils literal notranslate"><span class="pre">CCPimage.prestack()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.ccp.CCPimage.ccp"><code class="docutils literal notranslate"><span class="pre">CCPimage.ccp()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.ccp.CCPimage.gccp"><code class="docutils literal notranslate"><span class="pre">CCPimage.gccp()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.ccp.CCPimage.linear_stack"><code class="docutils literal notranslate"><span class="pre">CCPimage.linear_stack()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.ccp.CCPimage.phase_weighted_stack"><code class="docutils literal notranslate"><span class="pre">CCPimage.phase_weighted_stack()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.ccp.CCPimage.save"><code class="docutils literal notranslate"><span class="pre">CCPimage.save()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.ccp.CCPimage.plot_ccp"><code class="docutils literal notranslate"><span class="pre">CCPimage.plot_ccp()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rfpy.ccp.CCPimage.plot_gccp"><code class="docutils literal notranslate"><span class="pre">CCPimage.plot_gccp()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="#modules">Modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#module-rfpy.binning">binning</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-rfpy.plotting">plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-rfpy.binning">binning</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#rfpy.binning.bin"><code class="docutils literal notranslate"><span class="pre">bin()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rfpy.binning.bin_baz_slow"><code class="docutils literal notranslate"><span class="pre">bin_baz_slow()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rfpy.binning.stack"><code class="docutils literal notranslate"><span class="pre">stack()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rfpy.binning.baz_slow_bin_indices"><code class="docutils literal notranslate"><span class="pre">baz_slow_bin_indices()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rfpy.binning.bin_all"><code class="docutils literal notranslate"><span class="pre">bin_all()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-rfpy.plotting">plotting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#rfpy.plotting.wiggle"><code class="docutils literal notranslate"><span class="pre">wiggle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rfpy.plotting.wiggle_bins"><code class="docutils literal notranslate"><span class="pre">wiggle_bins()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -87,8 +169,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Classes</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Classes</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -102,7 +184,7 @@
 <img alt="_images/RfPy_logo.png" src="_images/RfPy_logo.png" />
 </figure>
 <section id="classes">
-<h1>Classes<a class="headerlink" href="#classes" title="Permalink to this heading"></a></h1>
+<h1>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h1>
 <p><code class="xref py py-mod docutils literal notranslate"><span class="pre">rfpy</span></code> defines the following base classes:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="#rfpy.rfdata.RFData" title="rfpy.rfdata.RFData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RFData</span></code></a></p></li>
@@ -111,10 +193,10 @@
 <li><p><a class="reference internal" href="#rfpy.ccp.CCPimage" title="rfpy.ccp.CCPimage"><code class="xref py py-class docutils literal notranslate"><span class="pre">CCPimage</span></code></a></p></li>
 </ul>
 <section id="rfdata">
-<h2>RFData<a class="headerlink" href="#rfdata" title="Permalink to this heading"></a></h2>
+<h2>RFData<a class="headerlink" href="#rfdata" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="rfpy.rfdata.RFData">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rfpy.rfdata.</span></span><span class="sig-name descname"><span class="pre">RFData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rfpy.rfdata.</span></span><span class="sig-name descname"><span class="pre">RFData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData" title="Link to this definition"></a></dt>
 <dd><p>A RFData object contains Class attributes that associate
 station information with a single event (i.e., earthquake)
 metadata, corresponding raw and rotated seismograms, spectra and
@@ -125,7 +207,7 @@ receiver functions.</p>
 other attributes are added to the object as the analysis proceeds.</p>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sta</strong> (<em>object</em>) – Object containing station information - from <code class="xref py py-mod docutils literal notranslate"><span class="pre">stdb</span></code> database.
 When RFData is initialized without sta, functions requiring station info
@@ -142,20 +224,20 @@ un-rotated or rotated by the method <code class="xref py py-func docutils litera
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.rfdata.RFData.add_event">
-<span class="sig-name descname"><span class="pre">add_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gacmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gacmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'P'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">returned</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.add_event" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gacmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gacmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'P'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">returned</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.add_event" title="Link to this definition"></a></dt>
 <dd><p>Adds event metadata to RFData object, including travel time info
 of P wave.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>event</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">event</span></code>) – Event XML object</p></li>
 <li><p><strong>returned</strong> (<em>bool</em>) – Whether or not to return the <code class="docutils literal notranslate"><span class="pre">accept</span></code> attribute</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>accept</strong> – Whether or not the object is accepted for further analysis</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>bool</p>
 </dd>
 </dl>
@@ -163,10 +245,10 @@ of P wave.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.rfdata.RFData.add_data">
-<span class="sig-name descname"><span class="pre">add_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">returned</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.add_data" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">returned</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.add_data" title="Link to this definition"></a></dt>
 <dd><p>Adds stream as object attribute</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>stream</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream container for NEZ seismograms</p></li>
 <li><p><strong>returned</strong> (<em>bool</em>) – Whether or not to return the <code class="docutils literal notranslate"><span class="pre">accept</span></code> attribute</p></li>
@@ -175,20 +257,20 @@ of P wave.</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="rfpy.rfdata.RFData.zne_data">
-<span class="sig-name descname"><span class="pre">zne_data</span></span><a class="headerlink" href="#rfpy.rfdata.RFData.zne_data" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">zne_data</span></span><a class="headerlink" href="#rfpy.rfdata.RFData.zne_data" title="Link to this definition"></a></dt>
 <dd><p>Stream container for NEZ seismograms</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>accept</strong> – Whether or not the object is accepted for further analysis</p>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>bool</p>
 </dd>
 </dl>
@@ -196,11 +278,11 @@ of P wave.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.rfdata.RFData.download_data">
-<span class="sig-name descname"><span class="pre">download_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stdata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SAC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ndval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">nan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_response</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_response_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">returned</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.download_data" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">download_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">client</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stdata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SAC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ndval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">nan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_response</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_response_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">returned</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.download_data" title="Link to this definition"></a></dt>
 <dd><p>Downloads seismograms based on event origin time and
 P phase arrival.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>client</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Client</span></code>) – Client object</p></li>
 <li><p><strong>ndval</strong> (<em>float</em>) – Fill in value for missing data</p></li>
@@ -213,19 +295,19 @@ velocity (m/s) using obspy.core.trace.Trace.remove_response()</p></li>
 <li><p><strong>verbose</strong> (<em>bool</em>) – Output diagnostics to screen</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>accept</strong> – Whether or not the object is accepted for further analysis</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>bool</p>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="rfpy.rfdata.RFData.data">
-<span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#rfpy.rfdata.RFData.data" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#rfpy.rfdata.RFData.data" title="Link to this definition"></a></dt>
 <dd><p>Stream containing <code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code> objects</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
 </dd>
 </dl>
@@ -235,7 +317,7 @@ velocity (m/s) using obspy.core.trace.Trace.remove_response()</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.rfdata.RFData.rotate">
-<span class="sig-name descname"><span class="pre">rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">align</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.rotate" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">align</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.rotate" title="Link to this definition"></a></dt>
 <dd><p>Rotates 3-component seismograms from vertical (Z),
 east (E) and north (N) to longitudinal (L),
 radial (Q) and tangential (T) components of motion.
@@ -244,7 +326,7 @@ is used for the rotation <code class="docutils literal notranslate"><span class=
 Rotation <code class="docutils literal notranslate"><span class="pre">'ZNE-&gt;PVH'</span></code> is implemented separately here
 due to different conventions.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>vp</strong> (<em>float</em>) – P-wave velocity at surface (km/s)</p></li>
 <li><p><strong>vs</strong> (<em>float</em>) – S-wave velocity at surface (km/s)</p></li>
@@ -252,21 +334,27 @@ due to different conventions.</p>
 (‘ZRT’, ‘LQT’, or ‘PVH’)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>rotated</strong> – Whether or not the object has been rotated</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>bool</p>
 </dd>
 </dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>‘PVH’ following Equation 18 in:
+Kennett (1991). The removal of free surface interactions from three-component
+seismograms. Geophysical Journal International</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.rfdata.RFData.calc_snr">
-<span class="sig-name descname"><span class="pre">calc_snr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.calc_snr" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">calc_snr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.calc_snr" title="Link to this definition"></a></dt>
 <dd><p>Calculates signal-to-noise ratio on either Z, L or P component</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dt</strong> (<em>float</em>) – Duration (sec)</p></li>
 <li><p><strong>fmin</strong> (<em>float</em>) – Minimum frequency corner for SNR filter (Hz)</p></li>
@@ -276,10 +364,10 @@ due to different conventions.</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="rfpy.rfdata.RFData.snr">
-<span class="sig-name descname"><span class="pre">snr</span></span><a class="headerlink" href="#rfpy.rfdata.RFData.snr" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">snr</span></span><a class="headerlink" href="#rfpy.rfdata.RFData.snr" title="Link to this definition"></a></dt>
 <dd><p>Signal-to-noise ratio on vertical component (dB)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>float</p>
 </dd>
 </dl>
@@ -287,10 +375,10 @@ due to different conventions.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="rfpy.rfdata.RFData.snrh">
-<span class="sig-name descname"><span class="pre">snrh</span></span><a class="headerlink" href="#rfpy.rfdata.RFData.snrh" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">snrh</span></span><a class="headerlink" href="#rfpy.rfdata.RFData.snrh" title="Link to this definition"></a></dt>
 <dd><p>Signal-to-noise ratio on radial component (dB)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>float</p>
 </dd>
 </dl>
@@ -300,13 +388,13 @@ due to different conventions.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.rfdata.RFData.calc_spectra">
-<span class="sig-name descname"><span class="pre">calc_spectra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'P'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">align</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wiener'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'complete'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">envelope_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre_filt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">writeto</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.calc_spectra" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">calc_spectra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'P'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">align</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wiener'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wavelet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'complete'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">envelope_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre_filt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">writeto</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.calc_spectra" title="Link to this definition"></a></dt>
 <dd><p>Calculate the numerators and denominator of the spectral division for receiver
 function calculation using one component as the source wavelet.
 The source component is always taken as the dominant compressional
 component, which can be either ‘Z’, ‘L’, or ‘P’.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>vp</strong> (<em>float</em>) – P-wave velocity at surface (km/s)</p></li>
 <li><p><strong>vs</strong> (<em>float</em>) – S-wave velocity at surface (km/s)</p></li>
@@ -319,7 +407,7 @@ component, which can be either ‘Z’, ‘L’, or ‘P’.</p>
 <li><p><strong>envelope_threshold</strong> (<em>float</em>) – Threshold [0-1] used in <code class="docutils literal notranslate"><span class="pre">wavelet='envelope'</span></code>.</p></li>
 <li><p><strong>time</strong> (<em>float</em>) – Window length used in <code class="docutils literal notranslate"><span class="pre">wavelet='time'</span></code>.
 Minimum window length for <code class="docutils literal notranslate"><span class="pre">wavelet='envelope'</span></code>.</p></li>
-<li><p><strong>pre_filt</strong> (<em>list of 2 floats</em>) – Low and High frequency corners of bandpass filter applied
+<li><p><strong>pre_filt</strong> (<em>list</em><em> of </em><em>2 floats</em>) – Low and High frequency corners of bandpass filter applied
 before deconvolution</p></li>
 <li><p><strong>gfilt</strong> (<em>float</em>) – Center frequency of Gaussian filter (Hz).</p></li>
 <li><p><strong>wlevel</strong> (<em>float</em>) – Water level used in <code class="docutils literal notranslate"><span class="pre">method='water'</span></code> and <code class="docutils literal notranslate"><span class="pre">method='water2'</span></code></p></li>
@@ -329,10 +417,10 @@ before deconvolution</p></li>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="rfpy.rfdata.RFData.specs">
-<span class="sig-name descname"><span class="pre">specs</span></span><a class="headerlink" href="#rfpy.rfdata.RFData.specs" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">specs</span></span><a class="headerlink" href="#rfpy.rfdata.RFData.specs" title="Link to this definition"></a></dt>
 <dd><p>Stream containing the cross spectral quantities</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
 </dd>
 </dl>
@@ -342,17 +430,17 @@ before deconvolution</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.rfdata.RFData.deconvolve">
-<span class="sig-name descname"><span class="pre">deconvolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">align</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wiener'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gfilt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wlevel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.deconvolve" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">deconvolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">align</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wiener'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gfilt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wlevel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.deconvolve" title="Link to this definition"></a></dt>
 <dd><p>Deconvolves three-component data using one component as the source wavelet.
 The source component is always taken as the dominant compressional
 component, which can be either ‘Z’, ‘L’, or ‘P’.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>align</strong> (<em>str</em>) – Alignment of coordinate system for rotation
 (‘ZRT’, ‘LQT’, or ‘PVH’)</p></li>
-<li><p><strong>method</strong> (<em>str</em>) – Method for deconvolution. Options are ‘wiener’, ‘water’ or
-‘multitaper’</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – Method for deconvolution. Options are ‘wiener’, ‘water’ (aka ‘wlevel’),
+‘water2’ (aka ‘wlevel2’), or ‘multitaper’</p></li>
 <li><p><strong>gfilt</strong> (<em>float</em>) – Center frequency of Gaussian filter (Hz).</p></li>
 <li><p><strong>wlevel</strong> (<em>float</em>) – Water level used in <code class="docutils literal notranslate"><span class="pre">method='water'</span></code>.</p></li>
 </ul>
@@ -360,10 +448,10 @@ component, which can be either ‘Z’, ‘L’, or ‘P’.</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="rfpy.rfdata.RFData.rf">
-<span class="sig-name descname"><span class="pre">rf</span></span><a class="headerlink" href="#rfpy.rfdata.RFData.rf" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">rf</span></span><a class="headerlink" href="#rfpy.rfdata.RFData.rf" title="Link to this definition"></a></dt>
 <dd><p>Stream containing the receiver function traces</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
 </dd>
 </dl>
@@ -373,7 +461,7 @@ component, which can be either ‘Z’, ‘L’, or ‘P’.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.rfdata.RFData.to_stream">
-<span class="sig-name descname"><span class="pre">to_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.to_stream" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.to_stream" title="Link to this definition"></a></dt>
 <dd><p>Method to switch from RFData object to Stream object.
 This allows easier manipulation of the receiver functions
 for post-processing.</p>
@@ -381,10 +469,10 @@ for post-processing.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.rfdata.RFData.save">
-<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.save" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.RFData.save" title="Link to this definition"></a></dt>
 <dd><p>Saves RFData object to file</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>file</strong> (<em>str</em>) – File name for RFData object</p>
 </dd>
 </dl>
@@ -393,14 +481,14 @@ for post-processing.</p>
 </dd></dl>
 
 <section id="class-meta">
-<h3>Class Meta<a class="headerlink" href="#class-meta" title="Permalink to this heading"></a></h3>
+<h3>Class Meta<a class="headerlink" href="#class-meta" title="Link to this heading"></a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="rfpy.rfdata.Meta">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rfpy.rfdata.</span></span><span class="sig-name descname"><span class="pre">Meta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gacmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gacmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'P'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.Meta" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rfpy.rfdata.</span></span><span class="sig-name descname"><span class="pre">Meta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gacmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gacmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'P'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.rfdata.Meta" title="Link to this definition"></a></dt>
 <dd><p>A Meta object contains attributes associated with the metadata
 for a single receiver function analysis.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>time</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">UTCDateTime</span></code>) – Origin time of earthquake</p></li>
 <li><p><strong>dep</strong> (<em>float</em>) – Depth of hypocenter (km)</p></li>
@@ -429,10 +517,10 @@ coordinate system</p></li>
 </section>
 </section>
 <section id="hkstack">
-<h2>HkStack<a class="headerlink" href="#hkstack" title="Permalink to this heading"></a></h2>
+<h2>HkStack<a class="headerlink" href="#hkstack" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="rfpy.hk.HkStack">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rfpy.hk.</span></span><span class="sig-name descname"><span class="pre">HkStack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rfV1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rfV2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strike</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.hk.HkStack" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rfpy.hk.</span></span><span class="sig-name descname"><span class="pre">HkStack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rfV1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rfV2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strike</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.hk.HkStack" title="Link to this definition"></a></dt>
 <dd><p>A HkStack object contains attributes and methods to stack radial
 receiver functions along moveout curves for point measurements
 of the depth to Moho (H) and P-to-S velocity ratio (k) beneath
@@ -450,7 +538,7 @@ filtered at different corner frequencies and is used to stack along the
 Pps and Pss moveout curves.</p>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>rfV1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream object containing the radial-component receiver function
 seismograms</p></li>
@@ -473,7 +561,7 @@ of interest (<cite>do not modify this attribute</cite>)</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.hk.HkStack.stack">
-<span class="sig-name descname"><span class="pre">stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.hk.HkStack.stack" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.hk.HkStack.stack" title="Link to this definition"></a></dt>
 <dd><p>Method to calculate Hk stacks from radial receiver functions.
 The stacks are calculated using phase-weighted stacking for
 individual phases and take the median of the weighted stack
@@ -488,17 +576,17 @@ not specified, the method will use the
 value set during initialization (<code class="docutils literal notranslate"><span class="pre">vp=6.0</span></code> km/s)</p>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>vp</strong> (<em>float</em>) – Mean crust P-wave velocity (km/s).</p>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="rfpy.hk.HkStack.pws">
-<span class="sig-name descname"><span class="pre">pws</span></span><a class="headerlink" href="#rfpy.hk.HkStack.pws" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pws</span></span><a class="headerlink" href="#rfpy.hk.HkStack.pws" title="Link to this definition"></a></dt>
 <dd><p>Array of phase stacks, where the outer dimension corresponds
 to the phase index (shape <code class="docutils literal notranslate"><span class="pre">nH,</span> <span class="pre">nk,</span> <span class="pre">nph</span></code>)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
 </dd>
 </dl>
@@ -506,11 +594,11 @@ to the phase index (shape <code class="docutils literal notranslate"><span class
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="rfpy.hk.HkStack.sig">
-<span class="sig-name descname"><span class="pre">sig</span></span><a class="headerlink" href="#rfpy.hk.HkStack.sig" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">sig</span></span><a class="headerlink" href="#rfpy.hk.HkStack.sig" title="Link to this definition"></a></dt>
 <dd><p>Variance of phase stacks, where the outer dimension corresponds
 to the phase index (shape <code class="docutils literal notranslate"><span class="pre">nH,</span> <span class="pre">nk,</span> <span class="pre">nph</span></code>)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
 </dd>
 </dl>
@@ -520,7 +608,7 @@ to the phase index (shape <code class="docutils literal notranslate"><span class
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.hk.HkStack.stack_dip">
-<span class="sig-name descname"><span class="pre">stack_dip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strike</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.hk.HkStack.stack_dip" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">stack_dip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strike</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.hk.HkStack.stack_dip" title="Link to this definition"></a></dt>
 <dd><p>Method to calculate Hk stacks from radial receiver functions
 using known stike and dip angles of the Moho.
 The stacks are calculated using phase-weighted stacking for
@@ -537,7 +625,7 @@ values set during initialization (<code class="docutils literal notranslate"><sp
 <code class="docutils literal notranslate"><span class="pre">strike=0.</span></code>, <code class="docutils literal notranslate"><span class="pre">dip=0.</span></code>)</p>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>vp</strong> (<em>float</em>) – Mean crust P-wave velocity (km/s).</p></li>
 <li><p><strong>strike</strong> (<em>float</em>) – Strike angle of dipping Moho (has to be known or estimated a priori)</p></li>
@@ -547,11 +635,11 @@ values set during initialization (<code class="docutils literal notranslate"><sp
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id0">
-<span class="sig-name descname"><span class="pre">pws</span></span><a class="headerlink" href="#id0" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pws</span></span><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
 <dd><p>Array of phase stacks, where the outer dimension corresponds
 to the phase index (shape <code class="docutils literal notranslate"><span class="pre">nH,</span> <span class="pre">nk,</span> <span class="pre">nph</span></code>)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
 </dd>
 </dl>
@@ -559,11 +647,11 @@ to the phase index (shape <code class="docutils literal notranslate"><span class
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id1">
-<span class="sig-name descname"><span class="pre">sig</span></span><a class="headerlink" href="#id1" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">sig</span></span><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
 <dd><p>Variance of phase stacks, where the outer dimension corresponds
 to the phase index (shape <code class="docutils literal notranslate"><span class="pre">nH,</span> <span class="pre">nk,</span> <span class="pre">nph</span></code>)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
 </dd>
 </dl>
@@ -573,12 +661,12 @@ to the phase index (shape <code class="docutils literal notranslate"><span class
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.hk.HkStack.average">
-<span class="sig-name descname"><span class="pre">average</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">typ</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">err_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'amp'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.hk.HkStack.average" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">average</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">typ</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">err_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'amp'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.hk.HkStack.average" title="Link to this definition"></a></dt>
 <dd><p>Method to combine the phase-weighted stacks to produce a final
 stack, from which to estimate the H and k parameters and their
 associated errors.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>typ</strong> (<em>str</em>) – How the phase-weigthed stacks should be combined to produce
 a final stack. Available options are: weighted sum (<code class="docutils literal notranslate"><span class="pre">typ=sum</span></code>)
@@ -594,11 +682,11 @@ use a statistical F test from the residuals.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.hk.HkStack.error">
-<span class="sig-name descname"><span class="pre">error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">err_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'amp'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.hk.HkStack.error" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">err_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'amp'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.hk.HkStack.error" title="Link to this definition"></a></dt>
 <dd><p>Method to determine the error on H and k estimates.</p>
 <p>From Walsh, JGR, 2013</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>q</strong> (<em>float</em>) – Confidence level for the error estimate</p></li>
 <li><p><strong>err_method</strong> (<em>str</em>) – How errors should be estimated. Options are <code class="docutils literal notranslate"><span class="pre">err_method='amp'</span></code>
@@ -611,13 +699,13 @@ use a statistical F test from the residuals.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.hk.HkStack.plot">
-<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">form</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'png'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.hk.HkStack.plot" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">form</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'png'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.hk.HkStack.plot" title="Link to this definition"></a></dt>
 <dd><p>Method to plot H-K stacks. By default all 4 panels
 are plotted: The <code class="docutils literal notranslate"><span class="pre">ps</span></code>, <code class="docutils literal notranslate"><span class="pre">pps</span></code> and <code class="docutils literal notranslate"><span class="pre">pss</span></code> stacks, and the
 final (averaged) stack. Error contours are also plotted,
 as well as the position of the maximum stack values.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>save</strong> (<em>bool</em>) – Whether or not to save the Figure</p></li>
 <li><p><strong>title</strong> (<em>str</em>) – Title of plot</p></li>
@@ -628,10 +716,10 @@ as well as the position of the maximum stack values.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.hk.HkStack.save">
-<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.hk.HkStack.save" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.hk.HkStack.save" title="Link to this definition"></a></dt>
 <dd><p>Saves HkStack object to file</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>file</strong> (<em>str</em>) – File name for HkStack object</p>
 </dd>
 </dl>
@@ -641,10 +729,10 @@ as well as the position of the maximum stack values.</p>
 
 </section>
 <section id="harmonics">
-<h2>Harmonics<a class="headerlink" href="#harmonics" title="Permalink to this heading"></a></h2>
+<h2>Harmonics<a class="headerlink" href="#harmonics" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="rfpy.harmonics.Harmonics">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rfpy.harmonics.</span></span><span class="sig-name descname"><span class="pre">Harmonics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radialRF</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transvRF</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">azim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.harmonics.Harmonics" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rfpy.harmonics.</span></span><span class="sig-name descname"><span class="pre">Harmonics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radialRF</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transvRF</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">azim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.harmonics.Harmonics" title="Link to this definition"></a></dt>
 <dd><p>A Harmonics object contains attributes and methods to decompose
 radial and transverse component receiver functions into
 back-azimuth harmonics. The object is initialized with two
@@ -662,7 +750,7 @@ filtered at different corner frequencies and is used to stack along the
 Pps and Pss moveout curves.</p>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>radialRF</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream object containing the radial-component receiver function
 seismograms</p></li>
@@ -680,13 +768,13 @@ is minimized (between <code class="docutils literal notranslate"><span class="pr
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.harmonics.Harmonics.dcomp_find_azim">
-<span class="sig-name descname"><span class="pre">dcomp_find_azim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.harmonics.Harmonics.dcomp_find_azim" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">dcomp_find_azim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.harmonics.Harmonics.dcomp_find_azim" title="Link to this definition"></a></dt>
 <dd><p>Method to decompose radial and transverse receiver function
 streams into back-azimuth harmonics and determine the main
 orientation <code class="docutils literal notranslate"><span class="pre">azim</span></code>, obtained by minimizing the B1 component
 between <code class="docutils literal notranslate"><span class="pre">xmin</span></code> and <code class="docutils literal notranslate"><span class="pre">xmax</span></code> (i.e., time or depth).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>xmin</strong> (<em>float</em>) – Minimum x axis value over which to calculate <code class="docutils literal notranslate"><span class="pre">azim</span></code></p></li>
 <li><p><strong>xmax</strong> (<em>float</em>) – Maximum x axis value over which to calculate <code class="docutils literal notranslate"><span class="pre">azim</span></code></p></li>
@@ -695,10 +783,10 @@ between <code class="docutils literal notranslate"><span class="pre">xmin</span>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="rfpy.harmonics.Harmonics.hstream">
-<span class="sig-name descname"><span class="pre">hstream</span></span><a class="headerlink" href="#rfpy.harmonics.Harmonics.hstream" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">hstream</span></span><a class="headerlink" href="#rfpy.harmonics.Harmonics.hstream" title="Link to this definition"></a></dt>
 <dd><p>Stream containing the 5 harmonics, oriented in direction <code class="docutils literal notranslate"><span class="pre">azim</span></code></p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
 </dd>
 </dl>
@@ -706,11 +794,11 @@ between <code class="docutils literal notranslate"><span class="pre">xmin</span>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="rfpy.harmonics.Harmonics.azim">
-<span class="sig-name descname"><span class="pre">azim</span></span><a class="headerlink" href="#rfpy.harmonics.Harmonics.azim" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">azim</span></span><a class="headerlink" href="#rfpy.harmonics.Harmonics.azim" title="Link to this definition"></a></dt>
 <dd><p>Direction (azimuth) along which the B1 component of the stream
 is minimized (between <code class="docutils literal notranslate"><span class="pre">xmin</span></code> and <code class="docutils literal notranslate"><span class="pre">xmax</span></code>)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>float</p>
 </dd>
 </dl>
@@ -718,10 +806,10 @@ is minimized (between <code class="docutils literal notranslate"><span class="pr
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="rfpy.harmonics.Harmonics.var">
-<span class="sig-name descname"><span class="pre">var</span></span><a class="headerlink" href="#rfpy.harmonics.Harmonics.var" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">var</span></span><a class="headerlink" href="#rfpy.harmonics.Harmonics.var" title="Link to this definition"></a></dt>
 <dd><p>Variance of the 5 harmonics between <code class="docutils literal notranslate"><span class="pre">xmin</span></code> and <code class="docutils literal notranslate"><span class="pre">xmax</span></code></p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
 </dd>
 </dl>
@@ -731,21 +819,21 @@ is minimized (between <code class="docutils literal notranslate"><span class="pr
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.harmonics.Harmonics.dcomp_fix_azim">
-<span class="sig-name descname"><span class="pre">dcomp_fix_azim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">azim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.harmonics.Harmonics.dcomp_fix_azim" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">dcomp_fix_azim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">azim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.harmonics.Harmonics.dcomp_fix_azim" title="Link to this definition"></a></dt>
 <dd><p>Method to decompose radial and transverse receiver function
 streams into back-azimuth harmonics along direction <code class="docutils literal notranslate"><span class="pre">azim</span></code>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>azim</strong> (<em>float</em>) – Direction (azimuth) along which the B1 component of the stream
 is minimized (between <code class="docutils literal notranslate"><span class="pre">xmin</span></code> and <code class="docutils literal notranslate"><span class="pre">xmax</span></code>)</p>
 </dd>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id2">
-<span class="sig-name descname"><span class="pre">hstream</span></span><a class="headerlink" href="#id2" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">hstream</span></span><a class="headerlink" href="#id2" title="Link to this definition"></a></dt>
 <dd><p>Stream containing the 5 harmonics, oriented in direction <code class="docutils literal notranslate"><span class="pre">azim</span></code></p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
 </dd>
 </dl>
@@ -755,14 +843,14 @@ is minimized (between <code class="docutils literal notranslate"><span class="pr
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.harmonics.Harmonics.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">baz_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.harmonics.Harmonics.forward" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">baz_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.harmonics.Harmonics.forward" title="Link to this definition"></a></dt>
 <dd><p>Method to forward calculate radial and transverse component
 receiver functions given the 5 pre-determined harmonics and
 a list of back-azimuth values. The receiver function signal
 parameters (length, sampling rate, etc.) will be identical
 to those in the stream of harmonic components.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>baz_list</strong> (<em>list</em>) – List of back-azimuth directions over which to calculate
 the receiver functions. If no list is specified, the method
 will use the same back-azimuths as those in the original
@@ -771,10 +859,10 @@ receiver function streams</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="rfpy.harmonics.Harmonics.radial_forward">
-<span class="sig-name descname"><span class="pre">radial_forward</span></span><a class="headerlink" href="#rfpy.harmonics.Harmonics.radial_forward" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">radial_forward</span></span><a class="headerlink" href="#rfpy.harmonics.Harmonics.radial_forward" title="Link to this definition"></a></dt>
 <dd><p>Stream containing the radial receiver functions</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
 </dd>
 </dl>
@@ -782,10 +870,10 @@ receiver function streams</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="rfpy.harmonics.Harmonics.transv_forward">
-<span class="sig-name descname"><span class="pre">transv_forward</span></span><a class="headerlink" href="#rfpy.harmonics.Harmonics.transv_forward" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">transv_forward</span></span><a class="headerlink" href="#rfpy.harmonics.Harmonics.transv_forward" title="Link to this definition"></a></dt>
 <dd><p>Stream containing the transverse receiver functions</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
 </dd>
 </dl>
@@ -795,10 +883,10 @@ receiver function streams</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.harmonics.Harmonics.plot">
-<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ymax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">form</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'png'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.harmonics.Harmonics.plot" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ymax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">form</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'png'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.harmonics.Harmonics.plot" title="Link to this definition"></a></dt>
 <dd><p>Method to plot the 5 harmonic components.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ymax</strong> (<em>float</em>) – Maximum y axis value (time or depth) over which to
 plot the harmonic components</p></li>
@@ -813,10 +901,10 @@ file name (if <code class="docutils literal notranslate"><span class="pre">save=
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.harmonics.Harmonics.save">
-<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.harmonics.Harmonics.save" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.harmonics.Harmonics.save" title="Link to this definition"></a></dt>
 <dd><p>Saves harmonics object to file</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>file</strong> (<em>str</em>) – File name for Harmonics object</p>
 </dd>
 </dl>
@@ -826,10 +914,10 @@ file name (if <code class="docutils literal notranslate"><span class="pre">save=
 
 </section>
 <section id="ccpimage">
-<h2>CCPimage<a class="headerlink" href="#ccpimage" title="Permalink to this heading"></a></h2>
+<h2>CCPimage<a class="headerlink" href="#ccpimage" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="rfpy.ccp.CCPimage">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rfpy.ccp.</span></span><span class="sig-name descname"><span class="pre">CCPimage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coord_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[None,</span> <span class="pre">None]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coord_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[None,</span> <span class="pre">None]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1.0,</span> <span class="pre">3.0,</span> <span class="pre">-</span> <span class="pre">3.0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([0.,</span> <span class="pre">4.,</span> <span class="pre">8.,</span> <span class="pre">14.,</span> <span class="pre">30.,</span> <span class="pre">35.,</span> <span class="pre">45.,</span> <span class="pre">110.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([4.,</span> <span class="pre">5.9,</span> <span class="pre">6.2,</span> <span class="pre">6.3,</span> <span class="pre">6.8,</span> <span class="pre">7.2,</span> <span class="pre">8.,</span> <span class="pre">8.1])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vpvs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.73</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">rfpy.ccp.</span></span><span class="sig-name descname"><span class="pre">CCPimage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coord_start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[None,</span> <span class="pre">None]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coord_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[None,</span> <span class="pre">None]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1.0,</span> <span class="pre">3.0,</span> <span class="pre">-3.0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([0.,</span> <span class="pre">4.,</span> <span class="pre">8.,</span> <span class="pre">14.,</span> <span class="pre">30.,</span> <span class="pre">35.,</span> <span class="pre">45.,</span> <span class="pre">110.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([4.,</span> <span class="pre">5.9,</span> <span class="pre">6.2,</span> <span class="pre">6.3,</span> <span class="pre">6.8,</span> <span class="pre">7.2,</span> <span class="pre">8.,</span> <span class="pre">8.1])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vpvs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.73</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage" title="Link to this definition"></a></dt>
 <dd><p>A CCPimage object contains attributes and methods to produce
 Common Conversion Point (CCP) stacks for each of the main
 three main phases (Ps, Pps and Pss) using radial-component
@@ -850,7 +938,7 @@ interest and a different model can be implemented during initialization
 or later during processing.</p>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>coord_start</strong> (<em>list</em>) – List of two floats corresponding to the (latitude, longitude)
 pair for the start point of the profile</p></li>
@@ -880,13 +968,13 @@ streams for one single station.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.ccp.CCPimage.add_rfstream">
-<span class="sig-name descname"><span class="pre">add_rfstream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rfstream</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.add_rfstream" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_rfstream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rfstream</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.add_rfstream" title="Link to this definition"></a></dt>
 <dd><p>Method to add a <code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code> object to the list
 <code class="docutils literal notranslate"><span class="pre">radialRF</span></code>. With at least one stream in <code class="docutils literal notranslate"><span class="pre">radialRF</span></code>, the object
 is ready for the <code class="docutils literal notranslate"><span class="pre">prep_data</span></code> method, and the corresponding flag is
 updated.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>rfstream</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream object containing radial receiver functions for one station</p>
 </dd>
 </dl>
@@ -894,7 +982,7 @@ updated.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.ccp.CCPimage.prep_data">
-<span class="sig-name descname"><span class="pre">prep_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f2ps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f2pps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f2pss</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbaz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">37</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nslow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">41</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.prep_data" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">prep_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f2ps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f2pps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f2pss</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbaz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">37</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nslow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">41</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.prep_data" title="Link to this definition"></a></dt>
 <dd><p>Method to pre-process the data and calculate the CCP points for each
 of the receiver functions. Pre-processing includes the binning to
 back-azimuth and slowness bins to reduce processing time and generate
@@ -907,7 +995,7 @@ the amplitude at the lat, lon and depth values corresponding to the
 raypath for each receiver function. The object is now ready for the
 method <code class="docutils literal notranslate"><span class="pre">prestack</span></code>, with the corresponding flag updated.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>f1</strong> (<em>float</em>) – Low-frequency corner of the bandpass filter used for all phases (Hz)</p></li>
 <li><p><strong>f2ps</strong> (<em>float</em>) – High-frequency corner of the bandpass filter used for the Ps phase (Hz)</p></li>
@@ -930,7 +1018,7 @@ method <code class="docutils literal notranslate"><span class="pre">prestack</sp
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.ccp.CCPimage.prestack">
-<span class="sig-name descname"><span class="pre">prestack</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.prestack" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">prestack</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.prestack" title="Link to this definition"></a></dt>
 <dd><p>Method to project the raypaths onto the 2D profile for each of the three
 phases. The final grid is defined here, using the parameter <code class="docutils literal notranslate"><span class="pre">dx</span></code> in km.
 The horizontal extent is pre-determined from the start and end points of
@@ -940,7 +1028,7 @@ The object is now ready for the methods <code class="docutils literal notranslat
 the corresponding flag updated.</p>
 <p>The following attributes are added to the object:</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>xs_amps_ps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – 3D array of amplitudes (1D array of amplitudes at each grid cell)
 for the Ps phase</p></li>
@@ -957,14 +1045,14 @@ for the Pss phase</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.ccp.CCPimage.ccp">
-<span class="sig-name descname"><span class="pre">ccp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.ccp" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">ccp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.ccp" title="Link to this definition"></a></dt>
 <dd><p>Method to average the amplitudes at each grid point to produce 2D images
 for each of the three phases. At the end of this step, the object
 contains the three 2D arrays that can be further averaged into a single
 final image.</p>
 <p>The following attributes are added to the object:</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>xs_ps_avg</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – 2D array of stacked amplitudes for the Ps phase</p></li>
 <li><p><strong>xs_pps_avg</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>) – 2D array of stacked amplitudes for the Pps phase</p></li>
@@ -976,7 +1064,7 @@ final image.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.ccp.CCPimage.gccp">
-<span class="sig-name descname"><span class="pre">gccp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wlen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.gccp" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">gccp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wlen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.gccp" title="Link to this definition"></a></dt>
 <dd><p>Method to average the amplitudes at each grid point to produce 2D images
 for each of the three phases. In this method, the grid points are further
 smoothed in the horizontal direction using a Gaussian function to simulate
@@ -984,7 +1072,7 @@ P-wave sensitivity kernels. At the end of this step, the object
 contains the three 2D smoothed arrays that can be further averaged into a
 single final image.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>wlen</strong> (<em>float</em>) – Wavelength of the P-wave for smoothing (km).</p></li>
 <li><p><strong>object</strong> (<em>The following attributes are added to the</em>) – </p></li>
@@ -998,11 +1086,11 @@ single final image.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.ccp.CCPimage.linear_stack">
-<span class="sig-name descname"><span class="pre">linear_stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">typ</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ccp'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.linear_stack" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">linear_stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">typ</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ccp'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.linear_stack" title="Link to this definition"></a></dt>
 <dd><p>Method to average the three 2D images into a final, weighted CCP image
 using the weights defined in the attribute.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>typ</strong> (<em>str</em>) – Type of phase stacks to use (either <cite>ccp</cite> or <cite>gccp</cite>)</p></li>
 <li><p><strong>object</strong> (<em>The following attributes are added to the</em>) – </p></li>
@@ -1014,11 +1102,11 @@ using the weights defined in the attribute.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.ccp.CCPimage.phase_weighted_stack">
-<span class="sig-name descname"><span class="pre">phase_weighted_stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">typ</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gccp'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.phase_weighted_stack" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">phase_weighted_stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">typ</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gccp'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.phase_weighted_stack" title="Link to this definition"></a></dt>
 <dd><p>Method to average the three 2D smoothed images into a final,
 phase-weighted CCP image.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>typ</strong> (<em>str</em>) – Type of phase stacks to use (either <cite>ccp</cite> or <cite>gccp</cite>)</p></li>
 <li><p><strong>object</strong> (<em>The following attributes are added to the</em>) – </p></li>
@@ -1031,10 +1119,10 @@ Ps, Pps and Pss phases</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.ccp.CCPimage.save">
-<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.save" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.save" title="Link to this definition"></a></dt>
 <dd><p>Method to save the <cite>ccpimage</cite> object to file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>title</strong> (<em>str</em>) – File name for the saved object</p>
 </dd>
 </dl>
@@ -1042,10 +1130,10 @@ Ps, Pps and Pss phases</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.ccp.CCPimage.plot_ccp">
-<span class="sig-name descname"><span class="pre">plot_ccp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'png'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.plot_ccp" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">plot_ccp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'png'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.plot_ccp" title="Link to this definition"></a></dt>
 <dd><p>Method to plot the final CCP stacks along the line.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>vmin</strong> (<em>float</em>) – Maximum negative value for the color scale</p></li>
 <li><p><strong>vmax</strong> (<em>float</em>) – Maximum positive value for the color scale</p></li>
@@ -1059,10 +1147,10 @@ Ps, Pps and Pss phases</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="rfpy.ccp.CCPimage.plot_gccp">
-<span class="sig-name descname"><span class="pre">plot_gccp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">0.015</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.015</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'png'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.plot_gccp" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">plot_gccp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-0.015</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.015</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'png'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.ccp.CCPimage.plot_gccp" title="Link to this definition"></a></dt>
 <dd><p>Method to plot the final GCCP stacks along the line.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>vmin</strong> (<em>float</em>) – Maximum negative value for the color scale</p></li>
 <li><p><strong>vmax</strong> (<em>float</em>) – Maximum positive value for the color scale</p></li>
@@ -1079,19 +1167,19 @@ Ps, Pps and Pss phases</p></li>
 </section>
 </section>
 <section id="modules">
-<h1>Modules<a class="headerlink" href="#modules" title="Permalink to this heading"></a></h1>
+<h1>Modules<a class="headerlink" href="#modules" title="Link to this heading"></a></h1>
 <section id="module-rfpy.binning">
-<span id="binning"></span><h2>binning<a class="headerlink" href="#module-rfpy.binning" title="Permalink to this heading"></a></h2>
+<span id="binning"></span><h2>binning<a class="headerlink" href="#module-rfpy.binning" title="Link to this heading"></a></h2>
 <p>Functions to bin receiver functions along back-azimuth or slowness
 bins, or both, or for all data, regardless of the x axis (time or depth).</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="rfpy.binning.bin">
-<span class="sig-prename descclassname"><span class="pre">rfpy.binning.</span></span><span class="sig-name descname"><span class="pre">bin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typ</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'baz'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">37</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_empty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.bin" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">rfpy.binning.</span></span><span class="sig-name descname"><span class="pre">bin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typ</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'baz'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">37</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_empty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.bin" title="Link to this definition"></a></dt>
 <dd><p>Function to stack receiver functions into (baz or slow) bins
 This can be done using a linear stack (i.e., simple
 mean), or using phase-weighted stacking.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>stream1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream of equal-length seismograms to be stacked into
 a single trace.</p></li>
@@ -1105,11 +1193,11 @@ a single trace.</p></li>
 <li><p><strong>include_empty</strong> (<em>bool</em>) – Return empty bins as null traces (default omits them)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>stack</strong> – Stream containing one or two stacked traces,
 depending on the number of input streams</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
 </dd>
 </dl>
@@ -1125,12 +1213,12 @@ index_list: Indices of constituent traces in source stream</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="rfpy.binning.bin_baz_slow">
-<span class="sig-prename descclassname"><span class="pre">rfpy.binning.</span></span><span class="sig-name descname"><span class="pre">bin_baz_slow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbaz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">37</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nslow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">21</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_empty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.bin_baz_slow" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">rfpy.binning.</span></span><span class="sig-name descname"><span class="pre">bin_baz_slow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbaz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">37</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nslow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">21</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_empty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.bin_baz_slow" title="Link to this definition"></a></dt>
 <dd><p>Function to stack receiver functions into back-azimuth and slowness bins.
 This can be done using a linear stack (i.e., simple
 mean), or using phase-weighted stacking.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>stream1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream of equal-length seismograms to be stacked into
 a single trace.</p></li>
@@ -1141,11 +1229,11 @@ a single trace.</p></li>
 <li><p><strong>include_empty</strong> (<em>bool</em>) – Return empty bins as null traces (default omits them)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>stack</strong> – Stream containing one or two stacked traces,
 depending on the number of input streams</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
 </dd>
 </dl>
@@ -1161,12 +1249,12 @@ index_list: Indices of constituent traces in source stream</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="rfpy.binning.stack">
-<span class="sig-prename descclassname"><span class="pre">rfpy.binning.</span></span><span class="sig-name descname"><span class="pre">stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rfdatas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'bin':</span> <span class="pre">None,</span> <span class="pre">'index_list':</span> <span class="pre">None,</span> <span class="pre">'slow':</span> <span class="pre">None}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.stack" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">rfpy.binning.</span></span><span class="sig-name descname"><span class="pre">stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rfdatas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'bin':</span> <span class="pre">None,</span> <span class="pre">'index_list':</span> <span class="pre">None,</span> <span class="pre">'slow':</span> <span class="pre">None}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.stack" title="Link to this definition"></a></dt>
 <dd><p>Function to stack receiver functions stored in a RFData list. This can
 be done using a linear stack (i.e., simple mean), or using phase-weighted
 stacking.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>rfdatas</strong> (list of <code class="xref py py-class docutils literal notranslate"><span class="pre">rfpy.rfdata.RFdata</span></code>) – List of RFData objects to be stacked</p></li>
 <li><p><strong>which</strong> (<em>str</em>) – ‘rf’ stack receiver functions
@@ -1175,10 +1263,10 @@ stacking.</p>
 <li><p><strong>attributes</strong> (<em>dict</em>) – Attributes passed to the traces of stack</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>stack</strong> – Stream containing stacked traces</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
 </dd>
 </dl>
@@ -1186,10 +1274,10 @@ stacking.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="rfpy.binning.baz_slow_bin_indices">
-<span class="sig-prename descclassname"><span class="pre">rfpy.binning.</span></span><span class="sig-name descname"><span class="pre">baz_slow_bin_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rfs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbaz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">37</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nslow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">21</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_empty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.baz_slow_bin_indices" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">rfpy.binning.</span></span><span class="sig-name descname"><span class="pre">baz_slow_bin_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rfs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbaz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">37</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nslow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">21</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_empty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.baz_slow_bin_indices" title="Link to this definition"></a></dt>
 <dd><p>Sort traces of streams into backazimuth (nbaz) and slowness (nslow) bins.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>rfs</strong> (list of <code class="xref py py-class docutils literal notranslate"><span class="pre">RFData</span></code>) – List of receiver functions to be sorted in bins</p></li>
 <li><p><strong>bazs</strong> (<em>int</em>) – Number of back-azimuth samples in bins</p></li>
@@ -1197,7 +1285,7 @@ stacking.</p>
 <li><p><strong>include_empty</strong> (<em>bool</em>) – Include empty bins (default omits them)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>index_lists</strong> (<em>list of lists</em>) – Indices that sorts traces of stream into bins defined by nbaz and nslow</p></li>
 <li><p><strong>bazslow_list</strong> (<em>list of 2*tuple</em>) – Backazimuth and slowness values of each element of index list</p></li>
@@ -1209,12 +1297,12 @@ stacking.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="rfpy.binning.bin_all">
-<span class="sig-prename descclassname"><span class="pre">rfpy.binning.</span></span><span class="sig-name descname"><span class="pre">bin_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.bin_all" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">rfpy.binning.</span></span><span class="sig-name descname"><span class="pre">bin_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.binning.bin_all" title="Link to this definition"></a></dt>
 <dd><p>Function to bin all streams into a single trace.
 This can be done using a linear stack (i.e., simple
 mean), or using phase-weighted stacking.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>stream1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream of equal-length seismograms to be stacked into
 a single trace.</p></li>
@@ -1222,11 +1310,11 @@ a single trace.</p></li>
 <li><p><strong>pws</strong> (<em>bool</em>) – Whether or not to perform phase-weighted stacking</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>stack</strong> – Stream containing one or two stacked traces,
 depending on the number of input streams</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code></p>
 </dd>
 </dl>
@@ -1234,20 +1322,20 @@ depending on the number of input streams</p>
 
 </section>
 <section id="module-rfpy.plotting">
-<span id="plotting"></span><h2>plotting<a class="headerlink" href="#module-rfpy.plotting" title="Permalink to this heading"></a></h2>
+<span id="plotting"></span><h2>plotting<a class="headerlink" href="#module-rfpy.plotting" title="Link to this heading"></a></h2>
 <p>Functions to plot single station P-receiver functions as wiggle plots.</p>
 <p>Options to plot by receiver functions # vs time/depth, by back-azimuth vs
 time/depth or slowness vs time.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="rfpy.plotting.wiggle">
-<span class="sig-prename descclassname"><span class="pre">rfpy.plotting.</span></span><span class="sig-name descname"><span class="pre">wiggle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">form</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'png'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.plotting.wiggle" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">rfpy.plotting.</span></span><span class="sig-name descname"><span class="pre">wiggle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">form</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'png'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.plotting.wiggle" title="Link to this definition"></a></dt>
 <dd><p>Function to plot receiver function traces by index in stream. By default,
 only one stream is required, which produces a Figure with a single panel.
 Optionally, if a second stream is present, the Figure will contain two panels.
 The stream(s) can be sorted by stats attribute <code class="docutils literal notranslate"><span class="pre">sort</span></code>, normalized, and
 the Figure can be saved as .eps.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>stream1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream of receiver function traces</p></li>
 <li><p><strong>stream2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream of receiver function traces, for a two-panel Figure</p></li>
@@ -1265,14 +1353,14 @@ in <code class="docutils literal notranslate"><span class="pre">stream1</span></
 
 <dl class="py function">
 <dt class="sig sig-object py" id="rfpy.plotting.wiggle_bins">
-<span class="sig-prename descclassname"><span class="pre">rfpy.plotting.</span></span><span class="sig-name descname"><span class="pre">wiggle_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tr1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tr2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">btyp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'baz'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xtyp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">form</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'png'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.plotting.wiggle_bins" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">rfpy.plotting.</span></span><span class="sig-name descname"><span class="pre">wiggle_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tr1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tr2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">btyp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'baz'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xtyp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">form</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'png'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#rfpy.plotting.wiggle_bins" title="Link to this definition"></a></dt>
 <dd><p>Function to plot receiver function according to either baz or
 slowness bins. By default,
 only one stream is required, which produces a Figure with a single panel.
 Optionally, if a second stream is present, the Figure will contain two panels.
 If the single trace arguments are present, they will be plotted at the top.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>stream1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream of receiver function traces</p></li>
 <li><p><strong>stream2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Stream</span></code>) – Stream of receiver function traces, for a two-panel Figure</p></li>
