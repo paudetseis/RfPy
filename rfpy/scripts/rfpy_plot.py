@@ -502,13 +502,13 @@ def main():
         print("Number of transverse RF data: " + str(len(rfTstream)))
         print('')
 
-        if args.nbaz and args.nslow is None:
+        if args.nbaz is not None and args.nslow is None:
             # Bin according to BAZ
             rf_tmp = binning.bin(rfRstream, rfTstream,
                                  typ='baz', nbin=args.nbaz+1,
                                  pws=args.pws)
 
-        elif args.nslow and args.nbaz is None:
+        elif args.nslow is not None and args.nbaz is None:
             # Bin according to slowness
             rf_tmp = binning.bin(rfRstream, rfTstream,
                                  typ='slow', nbin=args.nslow+1,

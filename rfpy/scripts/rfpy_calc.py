@@ -33,7 +33,7 @@ from rfpy import RFData
 from pathlib import Path
 
 
-def get_recalc_arguments(argv=None):
+def get_calc_arguments(argv=None):
     """
     Get Options from :class:`~optparse.OptionParser` objects.
 
@@ -256,7 +256,7 @@ def main():
     print()
 
     # Run Input Parser
-    args = get_recalc_arguments()
+    args = get_calc_arguments()
 
     # Load Database
     db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
