@@ -43,7 +43,7 @@ def get_calc_arguments(argv=None):
     Get Options from :class:`~optparse.OptionParser` objects.
 
     This function is used for data processing on-the-fly (requires web connection)
-
+    
     """
 
     parser = ArgumentParser(
@@ -93,8 +93,7 @@ def get_calc_arguments(argv=None):
         default=False,
         help="Force folder names to use long-key form (NET.STN.CHN). " +
         "Default behaviour uses short key form (NET.STN) for the folder " +
-        "names, regardless of the key type of the database."
-    )
+        "names, regardless of the key type of the database.")
 
     # Server Settings
     ServerGroup = parser.add_argument_group(
@@ -174,6 +173,7 @@ def get_calc_arguments(argv=None):
         default=False,
         help="Specify to save Z12 (un-rotated) components. [Default " +
         "False]")
+    
 
     # Event Selection Criteria
     EventGroup = parser.add_argument_group(
@@ -223,7 +223,12 @@ def get_calc_arguments(argv=None):
         default=9.0,
         help="Specify the maximum magnitude of event for which to search. " +
         "[Default None, i.e. no limit]")
-
+    EventGroup.add_argument(
+    	"--nrcan",
+        action="store_true",
+        default=False,
+        help="It is going to be used in case we are searchig in networks like PO"+
+        "and X5 that are in the repository of NRCAN")
     # Geometry Settings
     PhaseGroup = parser.add_argument_group(
         title="Geometry Settings",
@@ -736,10 +741,12 @@ def main():
                             continue
 
                 # Get data
+                print(args.nrcan)
+                print("--------")
                 has_data = rfdata.download_data(
                     client=data_client, dts=args.dts, stdata=stalcllist,
-                    ndval=args.ndval, dtype=args.dtype, new_sr=args.new_sampling_rate,
-                    returned=True, verbose=args.verb)
+                    ndval=args.ndval, new_sr=args.new_sampling_rate,
+                    returned=True, verbose=args.verb, nrcan_src=args.nrcan)
 
                 if not has_data:
                     continue
