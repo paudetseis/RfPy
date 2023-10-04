@@ -630,7 +630,6 @@ class CCPimage(object):
             File name for the saved object
 
         """
-        title = str(title)
 
         if title is None:
             title = "CCP_image.pkl"

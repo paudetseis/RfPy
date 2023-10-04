@@ -135,6 +135,10 @@ Note that you can get more data by either specifying a new phase to analyze (e.g
 ``--phase=PP``), going to lower magnitudes (e.g., ``--minmag=5. --maxmag=5.5``), by
 running the same line of command with those additional arguments.
 
+A new feature that has been added to this package is the ability to download data from 
+Natural Resource Canada website for events that are not currently available in FDSN 
+server. For this purpose you can use the key ``--nrcan`` to enable this ability.
+
 2. Re-calculate with different options
 ++++++++++++++++++++++++++++++++++++++
 
