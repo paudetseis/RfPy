@@ -212,7 +212,7 @@ def get_calc_arguments(argv=None):
         action="store",
         type=float,
         dest="minmag",
-        default=6.0,
+        default=7.0,
         help="Specify the minimum magnitude of event for which to search. " +
         "[Default 6.0]")
     EventGroup.add_argument(
@@ -738,7 +738,7 @@ def main():
                 # Get data
                 has_data = rfdata.download_data(
                     client=data_client, dts=args.dts, stdata=stalcllist,
-                    ndval=args.ndval, dtype=args.dtype, new_sr=args.new_sampling_rate,
+                    ndval=args.ndval, new_sr=args.new_sampling_rate,
                     returned=True, verbose=args.verb)
 
                 if not has_data:

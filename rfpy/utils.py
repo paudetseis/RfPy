@@ -556,6 +556,19 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
                         st = None
             except:
                 st = None
+            
+            NRCAN_src = True
+            if len(st) != 3 and NRCAN_src:
+                print(f"Trying to download {sta.station} from NRCAN")
+                try:
+                    #starttime as YYYY-MM-DD
+                    starttime = start.strftime("%Y-%m-%d")
+                    endtime = starttime + 86400         # seconds -> NRCAN smallest time window is 1 day
+                    
+                    command = f"https://www.earthquakescanada.nrcan.gc.ca/fdsnws/dataselect/1/query?starttime={starttime}&endtime={endtime}&network={sta.network}&station={sta.station}&nodata=404"
+                except:
+                    st = None
+
 
             # Break if we successfully obtained 3 components in st
             if not erd:
@@ -628,3 +641,5 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
         else:
             print("* Waveforms Retrieved...")
             return False, st
+        
+        

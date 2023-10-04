@@ -512,6 +512,8 @@ def main():
             rf_tmp = binning.bin(rfRstream, rfTstream,
                                  typ='baz', nbin=args.nbaz+1,
                                  pws=args.pws)
+            print("--")
+            print(rf_tmp)
 
         elif args.nslow:
             # Bin according to slowness

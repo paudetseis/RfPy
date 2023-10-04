@@ -114,8 +114,8 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False):
 
                     # Average and update stats
                     array /= nb
-                    weight = np.real(abs(weight/np.float(nb)))
-
+                    weight = np.real(abs(weight/nb))
+            
                     trace = Trace(header=stream[0].stats)
                     trace.stats.nbin = nb
                     if typ == 'baz':
@@ -292,4 +292,3 @@ def bin_all(stream1, stream2=None, pws=False):
             continue
 
     return stack
-
