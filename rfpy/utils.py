@@ -551,6 +551,10 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
             for channel, msg in zip([chaZNE, chaZ12], [msgZNE, msgZ12]):
                 print(msg)
 
+                kwargs = {}
+                if remove_response:
+                    kwargs = dict(attach_response=remove_response)
+
                 # Get waveforms, with extra 1 second to avoid
                 # traces cropped too short - traces are trimmed later
                 try:
@@ -558,7 +562,7 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
                         network=sta.network,
                         station=sta.station, location=loc,
                         channel=channel, starttime=start,
-                        endtime=end+1., attach_response=remove_response)
+                        endtime=end+1., **kwargs)
                 except Exception as e:
                     if verbose:
                         print("* Met exception:")
