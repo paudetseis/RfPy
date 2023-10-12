@@ -146,6 +146,7 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
     f3 = '*/{0:4s}.{1:3s}.*.{2:s}.{3:s}.*.{4:2s}{5:1s}*.{6:s}'
     f4 = '*/{0:4s}.{1:3s}.*.{2:s}.{3:s}.*.*{4:1s}.D.{5:s}'
     f5 = '*/{0:4s}.{1:3s}.*.??.{2:s}.*.*{3:1s}.D.{4:s}'
+    f6 = '*/{0:}/{1:}/{2:}/{3:}{4:}.D/{1:}.{2:}.*.*.D.{0:}.{5:}'
 
     # Time Window Spans Single Day
     if stjd == edjd:
@@ -164,6 +165,8 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
                            comp.upper(), dtype)
             s5 = f5.format(styr, stjd, sta.station.upper(),
                            comp.upper(), dtype)
+            s6 = f6.format(styr,net.upper(), sta.station.upper(),
+                           sta.channel.upper()[0:2], comp.upper(), stjd)
 
             print("*          Trying formats:")
             print("*          " + s1)
@@ -171,6 +174,7 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
             print("*          " + s3)
             print("*          " + s4)
             print("*          " + s5)
+            print("*          " + s6)
             print("*          ")
 
             lclfiles.extend(list(filter(stdata, s1)))
@@ -178,6 +182,7 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
             lclfiles.extend(list(filter(stdata, s3)))
             lclfiles.extend(list(filter(stdata, s4)))
             lclfiles.extend(list(filter(stdata, s5)))
+            lclfiles.extend(list(filter(stdata, s6)))
 
         # If still no Local files stop
         if len(lclfiles) == 0:
@@ -266,12 +271,15 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
                            comp.upper(), dtype)
             s5 = f5.format(styr, stjd, sta.station.upper(),
                            comp.upper(), dtype)
+            s6 = f6.format(styr,net.upper(), sta.station.upper(),
+                           sta.channel.upper()[0:2], comp.upper(), stjd)
 
             lclfiles1.extend(list(filter(stdata, s1)))
             lclfiles1.extend(list(filter(stdata, s2)))
             lclfiles1.extend(list(filter(stdata, s3)))
             lclfiles1.extend(list(filter(stdata, s4)))
             lclfiles1.extend(list(filter(stdata, s5)))
+            lclfiles1.extend(list(filter(stdata, s6)))
 
             # End day
             s1 = f1.format(edyr, edjd, net.upper(), sta.station.upper(),
@@ -284,12 +292,15 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
                            comp.upper(), dtype)
             s5 = f5.format(edyr, edjd, sta.station.upper(),
                            comp.upper(), dtype)
+            s6 = f6.format(edyr, net.upper(), sta.station.upper(),
+                           sta.channel.upper()[0:2], comp.upper(), edjd)
 
             lclfiles2.extend(list(filter(stdata, s1)))
             lclfiles2.extend(list(filter(stdata, s2)))
             lclfiles2.extend(list(filter(stdata, s3)))
             lclfiles2.extend(list(filter(stdata, s4)))
             lclfiles2.extend(list(filter(stdata, s5)))
+            lclfiles2.extend(list(filter(stdata, s6)))
 
         # If still no Local files stop
         if len(lclfiles1) == 0 and len(lclfiles2) == 0:
