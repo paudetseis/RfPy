@@ -220,7 +220,7 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
                     if dtype.upper() == 'SAC':
                         try:
                             stnd = st[0].stats.sac['user9']
-                        except KeyError:
+                        except (KeyError, AttributeError):
                             stnd = 0.0
                         if (not stnd == 0.0) and (not stnd == -12345.0):
                             st[0].data[st[0].data == stnd] = ndval
