@@ -118,7 +118,7 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False,
                         array += tr.data
                         index_list.append(j)
 
-                        if pwd:
+                        if pws:
                             hilb = hilbert(tr.data)
                             phase = np.arctan2(hilb.imag, hilb.real)
                             weight += np.exp(1j*phase)
@@ -158,8 +158,8 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False,
     return final_stream
 
 
-def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=False,
-                 include_empty=False):
+def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, baz_range=(0, 360),
+        slow_range=(0.04, 0.08), pws=False, include_empty=False):
     """ 
     Function to stack receiver functions into back-azimuth and slowness bins.
     This can be done using a linear stack (i.e., simple
@@ -176,6 +176,10 @@ def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=False,
         Number of back-azimuth samples in bins
     nslow : int
         Number of slowness samples in bins
+    baz_range : 2-tuple
+        Minimum and maximum of the back-azimuth bins
+    slow_range : 2-tuple
+        Minimum and maximum of the slowness bins
     pws : bool
         Whether or not to perform phase-weighted stacking
     include_empty : bool
@@ -195,8 +199,8 @@ def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=False,
     """
 
     # Define back-azimuth and slowness bins
-    baz_bins = np.linspace(0, 360, nbaz)
-    slow_bins = np.linspace(0.04, 0.08, nslow)
+    baz_bins = np.linspace(*baz_range, nbaz)
+    slow_bins = np.linspace(*slow_range, nslow)
 
     # Extract baz and slowness
     baz = [stream1[i].stats.baz for i in range(len(stream1))]
@@ -333,7 +337,8 @@ def stack(rfdatas, which='rf', pws=False,
     return stacks
 
 
-def baz_slow_bin_indices(rfs, nbaz=36+1, nslow=20+1, include_empty=False):
+def baz_slow_bin_indices(
+        rfs, nbaz=36+1, nslow=20+1, baz_range=(0, 360), slow_range=(0.04, 0.08), include_empty=False):
     """ 
     Sort traces of streams into backazimuth (nbaz) and slowness (nslow) bins.
 
@@ -345,6 +350,10 @@ def baz_slow_bin_indices(rfs, nbaz=36+1, nslow=20+1, include_empty=False):
         Number of back-azimuth samples in bins
     slows : int
         Number of slowness samples in bins
+    baz_range : 2-tuple
+        Minimum and maximum of the back-azimuth bins
+    slow_range : 2-tuple
+        Minimum and maximum of the slowness bins
     include_empty : bool
         Include empty bins (default omits them)
 
@@ -357,8 +366,8 @@ def baz_slow_bin_indices(rfs, nbaz=36+1, nslow=20+1, include_empty=False):
     """
 
     # Define back-azimuth and slowness bins
-    baz_bins = np.linspace(0, 360, nbaz)
-    slow_bins = np.linspace(0.04, 0.08, nslow)
+    baz_bins = np.linspace(*baz_range, nbaz)
+    slow_bins = np.linspace(*slow_range, nslow)
 
     # Extract baz and slowness
     baz = [rf.meta.baz for rf in rfs]
