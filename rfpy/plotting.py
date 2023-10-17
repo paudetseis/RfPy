@@ -29,12 +29,7 @@ time/depth or slowness vs time.
 """
 
 # Import modules and functions
-import os
-import fnmatch
 import numpy as np
-import scipy as sp
-from obspy.core import Stream, Trace, AttribDict
-from scipy.interpolate import griddata
 import matplotlib.pyplot as plt
 
 
@@ -406,8 +401,8 @@ def wiggle_single_event(rfdata, filt=None, pre_filt=None, trange=None):
 
     lqtcopy = rfdata.data.copy()
     rfcopy = rfdata.rf.copy()
-    nn = lqtdata[0].stats.npts
-    sr = lqtdata[0].stats.sampling_rate
+    nn = lqtcopy[0].stats.npts
+    sr = lqtcopy[0].stats.sampling_rate
     taxis = np.arange(-nn/2., nn/2.)/sr
 
     if pre_filt:
