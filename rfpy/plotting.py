@@ -29,12 +29,7 @@ time/depth or slowness vs time.
 """
 
 # Import modules and functions
-import os
-import fnmatch
 import numpy as np
-import scipy as sp
-from obspy.core import Stream, Trace, AttribDict
-from scipy.interpolate import griddata
 import matplotlib.pyplot as plt
 
 
@@ -406,8 +401,8 @@ def wiggle_single_event(rfdata, filt=None, pre_filt=None, trange=None):
 
     lqtcopy = rfdata.data.copy()
     rfcopy = rfdata.rf.copy()
-    nn = lqtdata[0].stats.npts
-    sr = lqtdata[0].stats.sampling_rate
+    nn = lqtcopy[0].stats.npts
+    sr = lqtcopy[0].stats.sampling_rate
     taxis = np.arange(-nn/2., nn/2.)/sr
 
     if pre_filt:
@@ -445,6 +440,70 @@ def wiggle_single_event(rfdata, filt=None, pre_filt=None, trange=None):
             rfdata.meta.snr, rfdata.meta.cc))
 
     plt.show()
+
+
+def panel(stream1, stream2, sort=None, tmin=0., tmax=30., normalize=True,
+           save=False, title=None, form='png'):
+
+    taxis = stream1[0].stats.taxis
+    tselect = (taxis > tmin) & (taxis < tmax)
+    nt = len(taxis[tselect])
+
+    baz_array = np.array([[i, tr.stats.baz] for i, tr in enumerate(stream1)])
+    slow_array = np.array([[i, tr.stats.slow] for i, tr in enumerate(stream1)])
+
+    # build panel
+    panelV = np.zeros((len(stream1), nt))
+    for i, tr in enumerate(stream1):
+        panelV[i,:] = tr.data[tselect]
+    panelH = np.zeros((len(stream2), nt))
+    for i, tr in enumerate(stream2):
+        panelH[i,:] = tr.data[tselect]
+
+    if normalize:
+        vmin = np.mean(panelV) - 4.*np.std(panelV)
+        vmax = np.mean(panelV) + 4.*np.std(panelV)
+    else:
+        vmin = -0.5
+        vmax = 0.5
+
+    x, y = np.meshgrid(np.arange(len(stream1)), taxis[tselect])
+
+    plt.figure(figsize=(8,5))
+
+    plt.subplot(311)
+    plt.pcolor(x, y, panelV.T, shading='auto', cmap='bwr', vmin=vmin, vmax=vmax)
+    plt.ylim(tmin, tmax)
+    plt.gca().invert_yaxis()
+    plt.ylabel('Time (s)')
+    plt.gca().set_xticklabels([])
+
+    plt.subplot(312)
+    plt.pcolor(x, y, panelH.T, shading='auto', cmap='bwr', vmin=vmin, vmax=vmax)
+    plt.ylim(tmin, tmax)
+    plt.gca().invert_yaxis()
+    plt.ylabel('Time (s)')
+    plt.gca().set_xticklabels([])
+
+    plt.subplot(313)
+    plt.plot(baz_array[:,0], baz_array[:,1])
+    plt.xlim((0,len(stream1)))
+    plt.ylim((0,360))
+    plt.ylabel('Back-azimuth (deg)')
+    plt.xlabel('Receiver function #')
+    plt.twinx()
+    plt.plot(slow_array[:,0], slow_array[:,1], '.')
+    plt.ylabel('Slowness (s/km)')
+    plt.grid()
+
+    if title:
+        plt.suptitle(title)
+
+    if save:
+        plt.savefig('RF_PLOTS/' + stream1[0].stats.station +
+                    '.' + title + '.' + form, format=form)
+    else:
+        plt.show()
 
 
 def event_dist(stream, phase='P', save=False, title=None, form='png'):

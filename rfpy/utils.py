@@ -2,7 +2,8 @@ import math
 from obspy import UTCDateTime
 from numpy import nan, isnan, abs
 import numpy as np
-from obspy.core import Stream, read
+from obspy import Stream, Inventory
+from obspy import read, read_inventory
 
 
 def floor_decimal(n, decimals=0):
@@ -79,12 +80,16 @@ def list_local_data_stn(lcldrs=list, sta=None, net=None, dtype='SAC', altnet=[])
     fpathmatch = []
     # Loop over all local data directories
     for lcldr in lcldrs:
+        if not lcldr:
+            continue
         # Recursiely walk through directory
         for root, dirnames, filenames in walk(lcldr):
             # Keep paths only for those matching the station
             for sstring in sstrings:
                 for filename in filter(filenames, sstring):
-                    fpathmatch.append(join(root, filename))
+                    # No hidden directories
+                    if not '/.' in root:
+                        fpathmatch.append(join(root, filename))
 
     fpathmatch.sort()
 
@@ -135,49 +140,49 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
         ("*          {0:2s}{1:1s} - Checking Disk".format(sta.channel.upper(),
                                                           comp.upper())))
 
+    # Possible naming conventions
+    f1 = '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.{4:2s}{5:1s}.{6:s}'
+    f2 = '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*{4:1s}.{5:s}'
+    f3 = '*/{0:4s}.{1:3s}.*.{2:s}.{3:s}.*.{4:2s}{5:1s}*.{6:s}'
+    f4 = '*/{0:4s}.{1:3s}.*.{2:s}.{3:s}.*.*{4:1s}.D.{5:s}'
+    f5 = '*/{0:4s}.{1:3s}.*.??.{2:s}.*.*{3:1s}.D.{4:s}'
+    f6 = '*/{0:}/{1:}/{2:}/{3:}{4:}.D/{1:}.{2:}.*.*.D.{0:}.{5:}'
+
     # Time Window Spans Single Day
     if stjd == edjd:
-        # Format 1
-        lclfiles = list(filter(
-            stdata,
-            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.{4:2s}{5:1s}.{6:s}'.format(
-                styr, stjd, sta.network.upper(
-                ), sta.station.upper(), sta.channel.upper()[0:2],
-                comp.upper(), dtype)))
-        # Format 2
-        if len(lclfiles) == 0:
-            lclfiles = list(filter(
-                stdata,
-                '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*{4:1s}.{5:s}'.format(
-                    styr, stjd, sta.network.upper(), sta.station.upper(),
-                    comp.upper(), dtype)))
 
-        # Alternate Nets (for CN/PO issues) Format 1
-        if len(lclfiles) == 0:
-            lclfiles = []
-            for anet in sta.altnet:
-                lclfiles.extend(
-                    list(
-                        filter(
-                            stdata,
-                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.' +
-                            '{4:2s}{5:1s}.{6:s}'.format(
-                                styr, stjd, anet.upper(), sta.station.upper(),
-                                sta.channel.upper()[0:2], comp.upper(), dtype))))
+        lclfiles = []
+        nets = [sta.network] + sta.altnet
+        for net in nets:
+            # Start day
+            s1 = f1.format(styr, stjd, net.upper(), sta.station.upper(),
+                           sta.channel.upper()[0:2], comp.upper(), dtype)
+            s2 = f2.format(styr, stjd, net.upper(), sta.station.upper(),
+                           comp.upper(), dtype)
+            s3 = f3.format(styr, stjd, net.upper(), sta.station.upper(),
+                           sta.channel.upper()[0:2], comp.upper(), dtype)
+            s4 = f4.format(styr, stjd, net.upper(), sta.station.upper(),
+                           comp.upper(), dtype)
+            s5 = f5.format(styr, stjd, sta.station.upper(),
+                           comp.upper(), dtype)
+            s6 = f6.format(styr,net.upper(), sta.station.upper(),
+                           sta.channel.upper()[0:2], comp.upper(), stjd)
 
-        # Alternate Nets (for CN/PO issues) Format 2
-        if len(lclfiles) == 0:
-            # Check Alternate Networks
-            lclfiles = []
-            for anet in sta.altnet:
-                lclfiles.extend(
-                    list(
-                        filter(
-                            stdata,
-                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*' +
-                            '{4:1s}.{5:s}'.format(
-                                styr, stjd, sta.network.upper(),
-                                sta.station.upper(), comp.upper(), dtype))))
+            print("*          Trying formats:")
+            print("*          " + s1)
+            print("*          " + s2)
+            print("*          " + s3)
+            print("*          " + s4)
+            print("*          " + s5)
+            print("*          " + s6)
+            print("*          ")
+
+            lclfiles.extend(list(filter(stdata, s1)))
+            lclfiles.extend(list(filter(stdata, s2)))
+            lclfiles.extend(list(filter(stdata, s3)))
+            lclfiles.extend(list(filter(stdata, s4)))
+            lclfiles.extend(list(filter(stdata, s5)))
+            lclfiles.extend(list(filter(stdata, s6)))
 
         # If still no Local files stop
         if len(lclfiles) == 0:
@@ -187,8 +192,12 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
         # Process the local Files
         for sacfile in lclfiles:
             # Read File
-            st = read(sacfile)
-            # st = read(sacfile, format="SAC")
+            try:
+                st = read(sacfile)
+            except OSError:
+                print("*              - Met OSError.")
+                print(f"*              - Possibly corrupt file: {sacfile}.")
+                return False, Stream()
 
             if dtype.upper() == 'MSEED':
                 if len(st) > 1:
@@ -209,7 +218,10 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
                     eddt = False
                     # Check for NoData and convert to NaN if a SAC file
                     if dtype.upper() == 'SAC':
-                        stnd = st[0].stats.sac['user9']
+                        try:
+                            stnd = st[0].stats.sac['user9']
+                        except (KeyError, AttributeError):
+                            stnd = 0.0
                         if (not stnd == 0.0) and (not stnd == -12345.0):
                             st[0].data[st[0].data == stnd] = ndval
                             eddt = True
@@ -244,83 +256,51 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
 
     # Time Window spans Multiple days
     else:
-        # Day 1 Format 1
-        lclfiles1 = list(
-            filter(stdata,
-                   '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.{4:2s}{5:1s}.{6:s}'.format(
-                       styr, stjd, sta.network.upper(), sta.station.upper(),
-                       sta.channel.upper()[0:2], comp.upper(), dtype)))
-        # Day 1 Format 2
-        if len(lclfiles1) == 0:
-            lclfiles1 = list(
-                filter(stdata,
-                       '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*{4:1s}.{5:s}'.format(
-                           styr, stjd, sta.network.upper(),
-                           sta.station.upper(), comp.upper(), dtype)))
-        # Day 1 Alternate Nets (for CN/PO issues) Format 1
-        if len(lclfiles1) == 0:
-            lclfiles1 = []
-            for anet in sta.altnet:
-                lclfiles1.extend(
-                    list(
-                        filter(
-                            stdata,
-                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.' +
-                            '{4:2s}{5:1s}.{6:s}'.format(
-                                styr, stjd, anet.upper(), sta.station.upper(
-                                ), sta.channel.upper()[0:2],
-                                comp.upper(), dtype))))
-        # Day 1 Alternate Nets (for CN/PO issues) Format 2
-        if len(lclfiles1) == 0:
-            lclfiles1 = []
-            for anet in sta.altnet:
-                lclfiles1.extend(
-                    list(
-                        filter(
-                            stdata,
-                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*{4:1s}.{5:s}'.format(
-                                styr, stjd, anet.upper(),
-                                sta.station.upper(), comp.upper(), dtype))))
+        lclfiles1 = []
+        lclfiles2 = []
+        nets = [sta.network] + sta.altnet
+        for net in nets:
+            # Start day
+            s1 = f1.format(styr, stjd, net.upper(), sta.station.upper(),
+                           sta.channel.upper()[0:2], comp.upper(), dtype)
+            s2 = f2.format(styr, stjd, net.upper(), sta.station.upper(),
+                           comp.upper(), dtype)
+            s3 = f3.format(styr, stjd, net.upper(), sta.station.upper(),
+                           sta.channel.upper()[0:2], comp.upper(), dtype)
+            s4 = f4.format(styr, stjd, net.upper(), sta.station.upper(),
+                           comp.upper(), dtype)
+            s5 = f5.format(styr, stjd, sta.station.upper(),
+                           comp.upper(), dtype)
+            s6 = f6.format(styr,net.upper(), sta.station.upper(),
+                           sta.channel.upper()[0:2], comp.upper(), stjd)
 
-        # Day 2 Format 1
-        lclfiles2 = list(
-            filter(stdata,
-                   '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.{4:2s}{5:1s}.{6:s}'.format(
-                       edyr, edjd, sta.network.upper(
-                       ), sta.station.upper(), sta.channel.upper()[0:2],
-                       comp.upper(), dtype)))
-        # Day 2 Format 2
-        if len(lclfiles2) == 0:
-            lclfiles2 = list(
-                filter(stdata,
-                       '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*' +
-                       '{4:1s}.{5:s}'.format(
-                           edyr, edjd, sta.network.upper(),
-                           sta.station.upper(),
-                           comp.upper(), dtype)))
-        # Day 2 Alternate Nets (for CN/PO issues) Format 1
-        if len(lclfiles2) == 0:
-            lclfiles2 = []
-            for anet in sta.altnet:
-                lclfiles2.extend(
-                    list(
-                        filter(
-                            stdata,
-                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.' +
-                            '{4:2s}{5:1s}.{6:s}'.format(
-                                edyr, edjd, anet.upper(), sta.station.upper(),
-                                sta.channel.upper()[0:2], comp.upper(), dtype))))
-        # Day 2 Alternate Nets (for CN/PO issues) Format 2
-        if len(lclfiles2) == 0:
-            lclfiles2 = []
-            for anet in sta.altnet:
-                lclfiles2.extend(
-                    list(
-                        filter(
-                            stdata,
-                            '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*{4:1s}.{5:s}'.format(
-                                edyr, edjd, anet.upper(), sta.station.upper(),
-                                comp.upper(), dtype))))
+            lclfiles1.extend(list(filter(stdata, s1)))
+            lclfiles1.extend(list(filter(stdata, s2)))
+            lclfiles1.extend(list(filter(stdata, s3)))
+            lclfiles1.extend(list(filter(stdata, s4)))
+            lclfiles1.extend(list(filter(stdata, s5)))
+            lclfiles1.extend(list(filter(stdata, s6)))
+
+            # End day
+            s1 = f1.format(edyr, edjd, net.upper(), sta.station.upper(),
+                           sta.channel.upper()[0:2], comp.upper(), dtype)
+            s2 = f2.format(edyr, edjd, net.upper(), sta.station.upper(),
+                           comp.upper(), dtype)
+            s3 = f3.format(edyr, edjd, net.upper(), sta.station.upper(),
+                           sta.channel.upper()[0:2], comp.upper(), dtype)
+            s4 = f4.format(edyr, edjd, net.upper(), sta.station.upper(),
+                           comp.upper(), dtype)
+            s5 = f5.format(edyr, edjd, sta.station.upper(),
+                           comp.upper(), dtype)
+            s6 = f6.format(edyr, net.upper(), sta.station.upper(),
+                           sta.channel.upper()[0:2], comp.upper(), edjd)
+
+            lclfiles2.extend(list(filter(stdata, s1)))
+            lclfiles2.extend(list(filter(stdata, s2)))
+            lclfiles2.extend(list(filter(stdata, s3)))
+            lclfiles2.extend(list(filter(stdata, s4)))
+            lclfiles2.extend(list(filter(stdata, s5)))
+            lclfiles2.extend(list(filter(stdata, s6)))
 
         # If still no Local files stop
         if len(lclfiles1) == 0 and len(lclfiles2) == 0:
@@ -334,8 +314,8 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
                 st1 = read(sacf1)
                 if dtype.upper() == 'MSEED':
                     if len(st1) > 1:
-                        st1.merge(method=1, interpolation_samples=-
-                                  1, fill_value=-123456789)
+                        st1.merge(method=1, interpolation_samples=-1,
+                                  fill_value=-123456789)
 
                 # Loop over second day file options
                 for sacf2 in lclfiles2:
@@ -343,7 +323,8 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
                     if dtype.upper() == 'MSEED':
                         if len(st2) > 1:
                             st2.merge(
-                                method=1, interpolation_samples=-1, fill_value=-123456789)
+                                method=1, interpolation_samples=-1,
+                                fill_value=-123456789)
 
                     # Check time overlap of the two files.
                     if st1[0].stats.endtime >= \
@@ -383,7 +364,10 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
                                     eddt = False
                                     # Check for NoData and convert to NaN if a SAC file
                                     if dtype.upper() == 'SAC':
-                                        stnd = st[0].stats.sac['user9']
+                                        try:
+                                            stnd = st[0].stats.sac['user9']
+                                        except KeyError:
+                                            stnd = 0.0
                                         if (not stnd == 0.0) and (not stnd == -12345.0):
                                             st[0].data[st[0].data == stnd] = ndval
                                             eddt = True
@@ -434,8 +418,36 @@ def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
     return erd, None
 
 
+def attach_local_response_data(stream, local_response_dir):
+    """
+    Function to restrieve response data from locally stored dataless seed
+
+    Parameters
+    ----------
+    stream : obspy.Stream
+        Event seismogram
+    local_response_dir: str
+        Directory holding response information. All files containing the station
+        name are read. If that fails, all files beginning with the network code are
+        read.
+    """
+    stations = set([t.stats.station for t in stream.traces])
+    networks = set([t.stats.network for t in stream.traces])
+    inventory = Inventory()
+    try:
+        for station in stations:
+            inventory += read_inventory(
+                '{:}/*{:}*'.format(local_response_dir, station))
+    except Exception:
+        for net in networks:
+            inventory += read_inventory('{:}/{:}*'.format(local_response_dir, net))
+
+    stream.attach_response(inventories=inventory)
+
+
 def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
-                  stdata=[], dtype='SAC', ndval=nan, new_sr=0., verbose=False):
+                  stdata=[], dtype='SAC', ndval=nan, new_sr=0., verbose=False,
+                  remove_response=False, local_response_dir=''):
     """
     Function to build a stream object for a seismogram in a given time window either
     by downloading data from the client object or alternatively first checking if the
@@ -456,9 +468,16 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
     end : :class:`~obspy.core.utcdatetime.UTCDateTime`
         End time for request
     stdata : List
-        Station list
+        List of directories holding local waveform data
     ndval : float or nan
         Default value for missing data
+    remove_response : bool
+        Remove instrument response from seismogram and resitute to true ground
+        velocity (m/s) using obspy.core.trace.Trace.remove_response()
+    local_response_dir: str
+        Directory holding response files to be read by obspy.read_inventory().
+        Required when ``remove_response`` and using locally stored waveform data
+        via ``stdata``.
 
     Returns
     -------
@@ -506,6 +525,15 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
         if not erd:
             # Combine Data
             st = stZ + stN + stE
+            if remove_response:
+                if local_response_dir:
+                    attach_local_response_data(st, local_response_dir)
+                else:
+                    print('*')
+                    print('* Warning: No local_response_dir given.')
+                    print('* Warning: Continuing without.')
+                    print('*')
+
 
     # No local data? Request using client
     if erd:
@@ -516,115 +544,223 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
             # Construct location name
             if len(tloc) == 0:
                 tloc = "--"
+
             # Construct Channel List
-            channelsZNE = sta.channel.upper() + 'Z,' + sta.channel.upper() + \
-                'N,' + sta.channel.upper() + 'E'
-            print(("*          {1:2s}[ZNE].{2:2s} - Checking Network".format(
-                sta.station, sta.channel.upper(), tloc)))
+            chaZNE = (sta.channel.upper() + 'Z,' +
+                      sta.channel.upper() + 'N,' +
+                      sta.channel.upper() + 'E')
+            msgZNE = "*          {1:2s}[ZNE].{2:2s} - Checking Network".format(
+                sta.station, sta.channel.upper(), tloc)
 
-            # Get waveforms, with extra 1 second to avoid
-            # traces cropped too short - traces are trimmed later
-            try:
-                st = client.get_waveforms(
-                    network=sta.network,
-                    station=sta.station, location=loc,
-                    channel=channelsZNE, starttime=start,
-                    endtime=end+1., attach_response=False)
-                if len(st) == 3:
-                    print("*              - ZNE Data Downloaded")
+            chaZ12 = (sta.channel.upper() + 'Z,' +
+                      sta.channel.upper() + '1,' +
+                      sta.channel.upper() + '2')
+            msgZ12 = "*          {1:2s}[Z12].{2:2s} - Checking Network".format(
+                sta.station, sta.channel.upper(), tloc)
 
-                # It's possible if len(st)==1 that data is Z12
+            # Loop over possible channels
+            for channel, msg in zip([chaZNE, chaZ12], [msgZNE, msgZ12]):
+                print(msg)
+
+                kwargs = {}
+                if remove_response:
+                    kwargs = dict(attach_response=remove_response)
+
+                # Get waveforms, with extra 1 second to avoid
+                # traces cropped too short - traces are trimmed later
+                try:
+                    st = client.get_waveforms(
+                        network=sta.network,
+                        station=sta.station, location=loc,
+                        channel=channel, starttime=start,
+                        endtime=end+1., **kwargs)
+                except Exception as e:
+                    if verbose:
+                        print("* Met exception:")
+                        print("* " + e.__repr__())
+                    st = None
                 else:
-                    # Construct Channel List
-                    channelsZ12 = sta.channel.upper() + 'Z,' + \
-                        sta.channel.upper() + '1,' + \
-                        sta.channel.upper() + '2'
-                    msg = "*          {1:2s}[Z12].{2:2s} - Checking Network".format(
-                        sta.station, sta.channel.upper(), tloc)
-                    print(msg)
-                    try:
-                        st = client.get_waveforms(
-                            network=sta.network,
-                            station=sta.station, location=loc,
-                            channel=channelsZ12, starttime=start,
-                            endtime=end+1., attach_response=False)
-                        if len(st) == 3:
-                            print("*              - Z12 Data Downloaded")
-                        else:
-                            st = None
-                    except:
-                        st = None
-            except:
-                st = None
+                    if len(st) == 3:
+                        # It's possible if len(st)==1 that data is Z12
+                        print("*              - ZNE Data Downloaded")
+                        break
 
             # Break if we successfully obtained 3 components in st
             if not erd:
-
                 break
 
     # Check the correct 3 components exist
-    if st is None:
+    if st is None or len(st) < 3:
         print("* Error retrieving waveforms")
         print("**************************************************")
         return True, None
 
     # Three components successfully retrieved
+    if remove_response:
+        st.remove_response()
+        print("*")
+        print("* Restituted stream to true ground velocity.")
+        print("*")
+
+    # Detrend and apply taper
+    st.detrend('demean').detrend('linear').taper(
+        max_percentage=0.05, max_length=5.)
+
+    # Check start times
+    if not np.all([tr.stats.starttime == start for tr in st]):
+        print("* Start times are not all close to true start: ")
+        [print("*   "+tr.stats.channel+" " +
+               str(tr.stats.starttime)+" " +
+               str(tr.stats.endtime)) for tr in st]
+        print("*   True start: "+str(start))
+        print("* -> Shifting traces to true start")
+        delay = [tr.stats.starttime - start for tr in st]
+        st_shifted = Stream(
+            traces=[traceshift(tr, dt) for tr, dt in zip(st, delay)])
+        st = st_shifted.copy()
+
+    # Check sampling rate
+    sr = st[0].stats.sampling_rate
+    sr_round = float(floor_decimal(sr, 0))
+    if not sr == sr_round:
+        print("* Sampling rate is not an integer value: ", sr)
+        print("* -> Resampling")
+        st.resample(sr_round, no_filter=False)
+
+    # Try trimming
+    try:
+        st.trim(start, end)
+    except:
+        print("* Unable to trim")
+        print("* -> Skipping")
+        print("**************************************************")
+        return True, None
+
+    # Check final lengths - they should all be equal if start times
+    # and sampling rates are all equal and traces have been trimmed
+    if not np.allclose([tr.stats.npts for tr in st[1:]], st[0].stats.npts):
+        print("* Lengths are incompatible: ")
+        [print("*     "+str(tr.stats.npts)) for tr in st]
+        print("* -> Skipping")
+        print("**************************************************")
+
+        return True, None
+
+    elif not np.allclose([st[0].stats.npts], int((end - start)*sr),
+                         atol=1):
+        print("* Length is too short: ")
+        print("*    "+str(st[0].stats.npts) +
+              " ~= "+str(int((end - start)*sr)))
+        print("* -> Skipping")
+        print("**************************************************")
+
+        return True, None
+
     else:
+        print("* Waveforms Retrieved...")
+        return False, st
 
-        # Detrend and apply taper
-        st.detrend('demean').detrend('linear').taper(
-            max_percentage=0.05, max_length=5.)
 
-        # Check start times
-        if not np.all([tr.stats.starttime == start for tr in st]):
-            print("* Start times are not all close to true start: ")
-            [print("*   "+tr.stats.channel+" " +
-                   str(tr.stats.starttime)+" " +
-                   str(tr.stats.endtime)) for tr in st]
-            print("*   True start: "+str(start))
-            print("* -> Shifting traces to true start")
-            delay = [tr.stats.starttime - start for tr in st]
-            st_shifted = Stream(
-                traces=[traceshift(tr, dt) for tr, dt in zip(st, delay)])
-            st = st_shifted.copy()
+def optimal_wlevel(rfdatas, wlevels=10**(np.arange(-5, 0.25, 0.25)), iplot=False):
+    """
+    Optimal water level for 'water2' deconvolution using Generalized Cross
+    Validation
 
-        # Check sampling rate
-        sr = st[0].stats.sampling_rate
-        sr_round = float(floor_decimal(sr, 0))
-        if not sr == sr_round:
-            print("* Sampling rate is not an integer value: ", sr)
-            print("* -> Resampling")
-            st.resample(sr_round, no_filter=False)
+    Accepts
+    -------
 
-        # Try trimming
-        try:
-            st.trim(start, end)
-        except:
-            print("* Unable to trim")
-            print("* -> Skipping")
-            print("**************************************************")
-            return True, None
+    rfdatas : list of rfpy.RFData
+        rfdata elements hold rotated seismograms in rfdata.data attribute
+    wlevels : iterable
+        Range of water levels (fraction of maximum stacked amplitude) to try.
+        Default: 1e-5 to 10
 
-        # Check final lengths - they should all be equal if start times
-        # and sampling rates are all equal and traces have been trimmed
-        if not np.allclose([tr.stats.npts for tr in st[1:]], st[0].stats.npts):
-            print("* Lengths are incompatible: ")
-            [print("*     "+str(tr.stats.npts)) for tr in st]
-            print("* -> Skipping")
-            print("**************************************************")
+    Returns:
+    --------
+    wlevel : float
+        Optimal water level (fraction of maximum stacked amplitude)
+    """
 
-            return True, None
+    nt = len(rfdatas)
+    nf = len(rfdatas[0].specs[0].data)
 
-        elif not np.allclose([st[0].stats.npts], int((end - start)*sr),
-                             atol=1):
-            print("* Length is too short: ")
-            print("*    "+str(st[0].stats.npts) +
-                  " ~= "+str(int((end - start)*sr)))
-            print("* -> Skipping")
-            print("**************************************************")
+    wft = np.zeros((nt, nf), dtype=complex)
+    vft = np.zeros((nt, nf), dtype=complex)
 
-            return True, None
+    for it, rfdata in enumerate(rfdatas):
 
+        if not rfdata.meta.rotated:
+            msg = 'Element {:} of rfdatas must be rotated.'.format(it)
+            raise ValueError(msg)
+
+        wft[it, :] = np.fft.fft(rfdata.data[0].data, n=nf)
+        vft[it, :] = np.fft.fft(rfdata.data[1].data, n=nf)
+
+    # Auto and cross spectra
+    wwft = wft*np.conjugate(wft)
+    vwft = vft*np.conjugate(wft)
+
+    if nt > 0:
+        wwft = np.sum(wwft)
+        vwft = np.sum(vwft)
+
+    betas = wlevels*np.amax(wwft)
+    misfits = np.zeros_like(betas)
+    modnorm = np.zeros_like(betas)
+    gcvf = np.zeros_like(betas)
+
+    for ib, beta in enumerate(betas):
+        # Define operator W W* / (W W* + B) and deconvolve to get
+        # impulse response in frequency domain.
+        wwft2 = wwft + beta
+        rft = vwft / wwft2
+        xft = wwft / wwft2
+
+        # Compute model norm.
+        modnorm[ib] = np.linalg.norm(rft)**2
+
+        # Compute data misfit. Note misfit is numerator of GCV function
+        # Note also earlier mistake where norm(nft)^2 was norm(nft).
+        if nt == 1:
+            nft = vft - wft*rft  # this should be SP
+            misfits[ib] = np.linalg.norm(nft)**2
         else:
-            print("* Waveforms Retrieved...")
-            return False, st
+            for it in range(nt):
+                nft = vft[it, :] - wft[it, :]*rft
+                misfits[ib] = misfits[ib] + np.linalg.norm(nft)**2
+
+        # Compute denominator and GCV function.
+        den = (nf*nt - np.real(np.sum(xft)))**2
+        gcvf[ib] = misfits[ib]/den
+
+    # Compute best beta.
+    ibest = np.argmin(gcvf)
+
+    if iplot:
+        import matplotlib.pyplot as mp
+
+        fig, axs = mp.subplots(ncols=2)
+        ax = axs[0]
+        ax.plot(modnorm, misfits, color='black')
+        ax.plot(modnorm, misfits, marker='+', color='red')
+        ax.plot(modnorm[ibest], misfits[ibest], marker='o', color='green')
+        ax.set_xlabel('Model Norm')
+        ax.set_ylabel('Data Misfit')
+        ax = axs[1]
+        ax.plot(betas, gcvf)
+        ax.plot(betas, gcvf, marker='+', color='red')
+        ax.plot(betas[ibest], gcvf[ibest], color='green', marker='o')
+        ax.set_xscale('log')
+        ax.set_xlabel('Regularization Parameter')
+        ax.set_ylabel('GCV Function')
+        fig.show()
+        input('Press key to continue')
+        mp.close(fig)
+
+    if ibest == 0 or ibest == len(betas):
+        # Minimum not found
+        msg = 'No minimum found. Try extending wlevels.'
+        raise ValueError(msg)
+
+    wlevel = float(betas[ibest]/np.amax(wwft))
+    return wlevel

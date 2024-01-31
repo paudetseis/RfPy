@@ -22,6 +22,7 @@
 
 # -*- coding: utf-8 -*-
 from math import ceil
+import pickle
 import numpy as np
 from obspy import Trace, Stream, UTCDateTime
 from rfpy import utils
@@ -129,9 +130,9 @@ class Meta(object):
             self.phase = phase
             self.accept = True
         else:
-            self.ttime = None
-            self.slow = None
-            self.inc = None
+            self.ttime = np.nan
+            self.slow = np.nan
+            self.inc = np.nan
             self.phase = None
             self.accept = False
 
@@ -142,16 +143,16 @@ class Meta(object):
 
         # Attributes that get updated as analysis progresses
         self.rotated = False
-        self.snr = None
-        self.snrh = None
-        self.cc = None
+        self.snr = np.nan
+        self.snrh = np.nan
+        self.cc = np.nan
 
 
 class RFData(object):
     """
     A RFData object contains Class attributes that associate
     station information with a single event (i.e., earthquake) 
-    metadata, corresponding raw and rotated seismograms and 
+    metadata, corresponding raw and rotated seismograms, spectra and 
     receiver functions.
 
     Note
@@ -163,28 +164,37 @@ class RFData(object):
     ----------
     sta : object
         Object containing station information - from :mod:`~stdb` database.
+        When RFData is initialized without sta, functions requiring station info
+        coordinate will not be working.
     meta : :class:`~rfpy.rfdata.Meta`
         Object of metadata information for single event (initially set to None)
     data : :class:`~obspy.core.Stream`
         Stream object containing the three-component seismograms (either
         un-rotated or rotated by the method :func:`~rfpy.rfdata.rotate`)
-
+    rf : :class:`~obspy.core.Stream`
+        Stream object containing the receiver functions
+        (created when executing :func:`~rfpy.rfdata.deconvlove`)
+    specs : :class:`~obspy.core.Stream`
+        Stream object containing the spectra of the data
+        (created when executing :func:`~rfpy.rfdata.calc_spectra`)
     """
 
-    def __init__(self, sta):
+    def __init__(self, sta=None):
 
         # Load example data if initializing empty object
         if sta == 'demo' or sta == 'Demo':
             print("Uploading demo data - station NY.MMPY")
             import os
-            import pickle
             sta = pickle.load(
                 open(os.path.join(
                     os.path.dirname(__file__),
                     "examples/data", "MMPY.pkl"), 'rb'))['NY.MMPY']
 
         # Attributes from parameters
-        self.sta = sta
+        if sta:
+            self.sta = sta
+        else:
+            self.sta = None
 
         # Initialize meta and data objects as None
         self.meta = None
@@ -269,7 +279,6 @@ class RFData(object):
         # Load demo data
         if stream == 'demo' or stream == 'Demo':
             import os
-            import pickle
             file = open(os.path.join(
                 os.path.dirname(__file__),
                 "examples/data", "ZNE_Data.pkl"), "rb")
@@ -300,7 +309,9 @@ class RFData(object):
             return self.meta.accept
 
     def download_data(self, client, stdata=[], dtype='SAC', ndval=np.nan,
-                       new_sr=5.,dts=120., returned=False, verbose=False):
+                       new_sr=5.,dts=120., remove_response=False,
+                       local_response_dir='',
+                       returned=False, verbose=False):
         """
         Downloads seismograms based on event origin time and
         P phase arrival.
@@ -317,8 +328,13 @@ class RFData(object):
             Time duration (sec)
         stdata : List
             Station list
+        remove_response : bool
+            Remove instrument response from seismogram and resitute to true ground
+            velocity (m/s) using obspy.core.trace.Trace.remove_response()
         returned : bool
             Whether or not to return the ``accept`` attribute
+        verbose : bool
+            Output diagnostics to screen
 
         Returns
         -------
@@ -331,6 +347,16 @@ class RFData(object):
             Stream containing :class:`~obspy.core.Trace` objects
 
         """
+
+        def _resample(tr, new_sr):
+
+             if tr.stats.sampling_rate > new_sr:
+                 # only filter when downsampling
+                 tr.filter('lowpass', freq=0.5*new_sr, corners=2, zerophase=True)
+
+             tr.resample(new_sr, no_filter=True)
+             return tr
+
 
         if self.meta is None:
             raise(Exception("Requires event data as attribute - aborting"))
@@ -351,6 +377,8 @@ class RFData(object):
         err, stream = utils.download_data(
             client=client, sta=self.sta, start=tstart, end=tend,
             stdata=stdata, dtype=dtype, ndval=ndval, new_sr=new_sr,
+            remove_response=remove_response,
+            local_response_dir=local_response_dir,
             verbose=verbose)
 
         # Store as attributes with traces in dictionary
@@ -360,13 +388,19 @@ class RFData(object):
             trZ = stream.select(component='Z')[0]
             self.data = Stream(traces=[trZ, trN, trE])
 
-            # Filter Traces and resample
-            self.data.filter('lowpass', freq=0.5*new_sr,
-                             corners=2, zerophase=True)
+            # Filter Traces when downsampling
+            if self.data[0].stats.sampling_rate > new_sr:
+                self.data.filter('lowpass', freq=0.5*new_sr,
+                                 corners=2, zerophase=True)
+            # Resample
             self.data.resample(new_sr, no_filter=True)
 
         # If there is no ZNE, perhaps there is Z12?
-        except:
+        except Exception as e:
+            if verbose:
+                print('* Met exception: ')
+                print('* ' + str(e))
+                print('* Trying to access Z12 data.')
 
             try:
                 tr1 = stream.select(component='1')[0]
@@ -374,9 +408,11 @@ class RFData(object):
                 trZ = stream.select(component='Z')[0]
                 self.data = Stream(traces=[trZ, tr1, tr2])
 
-                # Filter Traces and resample
-                self.data.filter('lowpass', freq=0.5*new_sr,
-                                 corners=2, zerophase=True)
+                # Filter Traces when downsampling
+                if self.data[0].stats.sampling_rate > new_sr:
+                    self.data.filter('lowpass', freq=0.5*new_sr,
+                                     corners=2, zerophase=True)
+                # Resample
                 self.data.resample(new_sr, no_filter=True)
 
                 # Save Z12 components in case it's necessary for later
@@ -385,7 +421,11 @@ class RFData(object):
                 # Rotate from Z12 to ZNE using StDb azcorr attribute
                 self.rotate(align='ZNE')
 
-            except:
+            except Exception as e:
+                if verbose:
+                    print('* Met exception: ')
+                    print('* ' + str(e))
+                    print('* Cannot process')
                 self.meta.accept = False
 
         if returned:
@@ -416,6 +456,11 @@ class RFData(object):
         rotated : bool
             Whether or not the object has been rotated
 
+        Note
+        ----
+        'PVH' following Equation 18 in:
+        Kennett (1991). The removal of free surface interactions from three-component
+        seismograms. Geophysical Journal International
         """
 
         if not self.meta.accept:
@@ -552,9 +597,10 @@ class RFData(object):
         if not self.meta.accept:
             return
 
-        if self.meta.snr:
-            print("SNR already calculated - continuing")
-            return
+        if self.meta.snr:  # False if None (for backward compatibility)
+            if np.isfinite(self.meta.snr):  # False if nan (None throws error)
+                print("SNR already calculated - continuing")
+                return
 
         t1 = self.meta.time + self.meta.ttime
 
@@ -612,12 +658,13 @@ class RFData(object):
         # Calculate signal/noise ratio in dB
         self.meta.snrh = 10*np.log10(srms*srms/nrms/nrms)
 
-
-    def deconvolve(self, phase='P', vp=None, vs=None,
-                   align=None, method='wiener', pre_filt=None,
-                   gfilt=None, wlevel=0.01):
+    def calc_spectra(self, phase='P', vp=None, vs=None,
+                   align=None, method='wiener', wavelet='complete',
+                   envelope_threshold=0.05, time=5., pre_filt=None,
+                   writeto=False, norm=False, length=None):
         """
-        Deconvolves three-component data using one component as the source wavelet.
+        Calculate the numerators and denominator of the spectral division for receiver
+        function calculation using one component as the source wavelet.
         The source component is always taken as the dominant compressional 
         component, which can be either 'Z', 'L', or 'P'. 
 
@@ -631,25 +678,45 @@ class RFData(object):
             Alignment of coordinate system for rotation
             ('ZRT', 'LQT', or 'PVH')
         method : str
-            Method for deconvolution. Options are 'wiener', 'water' or 
+            Method for deconvolution. Options are 'wiener', 'water', 'water2' or 
             'multitaper'
+        wavelet : str
+            Type of wavelet for deconvolution. Options are 'complete', 'time' or 
+            'envelope'
+        envelope_threshold : float
+            Threshold [0-1] used in ``wavelet='envelope'``.
+        time : float
+            Window length used in ``wavelet='time'``.
+            Minimum window length for ``wavelet='envelope'``.
         pre_filt : list of 2 floats
             Low and High frequency corners of bandpass filter applied
             before deconvolution
         gfilt : float
             Center frequency of Gaussian filter (Hz). 
         wlevel : float
-            Water level used in ``method='water'``.
+            Water level used in ``method='water'`` and ``method='water2'`` 
+        writeto : str or None
+            Write wavelets for deconvolution to file.
+        length : float or None
+            Time length (s) of the numerator. If None, use entire traces.
 
         Attributes
         ----------
-        rf : :class:`~obspy.core.Stream`
-            Stream containing the receiver function traces
+        specs : :class:`~obspy.core.Stream`
+            Stream containing the cross spectral quantities
 
         """
 
         if not self.meta.accept:
             return
+
+        if not align:
+            try:
+                align = self.meta.align
+            except AttributeError:
+                msg = "No alignment found. "
+                msg += "Please supply via align keyword."
+                raise ValueError(msg)
 
         def _npow2(x):
             return 1 if x == 0 else 2**(x-1).bit_length()
@@ -659,23 +726,94 @@ class RFData(object):
             tmp[:array.shape[0]] = array
             return tmp
 
-        def _gauss_filt(dt, nft, f0):
-            df = 1./(nft*dt)
-            nft21 = int(0.5*nft + 1)
-            f = df*np.arange(nft21)
-            w = 2.*np.pi*f
-            gauss = np.zeros(nft)
-            gauss[:nft21] = np.exp(-0.25*(w/f0)**2.)/dt
-            gauss[nft21:] = np.flip(gauss[1:nft21-1])
-            return gauss
+        def _Pwavelet(parent, method='complete', overhang=5.,
+                envelope_threshold=0.05, time=5.):
 
-        def _decon(parent, daughter1, daughter2, noise, nn, method):
+            """
+            Select wavelet from the parent function for deconvolution using method.
+            parent: obspy.Trace
+                wavefrom to extract the wavelet from
+            method: str
+                'complete' use complete parent signal after P arrival  (current
+                    implementation)
+                'envelope' use only the part of the parent signal after the
+                    P arrival where
+                    envelope > envelope_threshold*max(envelope)
+                    fall back to 'complete' if condition not reached
+                'time' use only this many seconds after P arrival
+                    fall back to 'complete' if longer than parent
+                'noise' use the time before the P arrival
+            overhang: float
+                seconds before start and after end of wavelet to be used for
+                tapering
+            envelope_threshold: float
+                fraction of the envelope that defines wavelet (for
+                method='envelope')
+            time: float
+                window (seconds) that defines the wavelet (for method='time')
+                minimum time (seconds) of the wavelet (for method='envelope')
 
-            # Get length, zero padding parameters and frequencies
+            Return:
+            left, right: (obspy.UTCDateTime) start and end time of wavelet
+            """
+
+            import obspy.signal.filter as osf
+
+            if method not in ['complete', 'envelope', 'time', 'noise']:
+                msg = 'Unknow method for wavelet extraction: ' + method
+                raise NotImplementedError(msg)
+
+            errflag = False
+
+            if method == 'envelope':
+                split = int((self.meta.time + self.meta.ttime +
+                    time - parent.stats.starttime ) *
+                    parent.stats.sampling_rate)
+                env = osf.envelope(parent.data)
+                env /= max(env)  # normalize
+                env = env[split:]  # only look after P + time
+                try:
+                    i = np.nonzero(
+                            np.diff(
+                                np.array(
+                                    env > envelope_threshold, dtype=int))==-1)[0][0]
+                except IndexError:
+                    i = len(parent.data)-1
+                dts = i * parent.stats.delta + time
+                left = self.meta.time + self.meta.ttime - overhang
+                right = self.meta.time + self.meta.ttime + dts + overhang
+                if left < parent.stats.starttime or right > parent.stats.endtime:
+                    print('Envelope wavelet longer than trace.')
+                    print('Falling back to "complete" wavelet')
+                    errflag = True
+
+            if method == 'time':
+                left = self.meta.time + self.meta.ttime - overhang
+                right = self.meta.time + self.meta.ttime + time + overhang
+                if left < parent.stats.starttime or right > parent.stats.endtime:
+                    print('Time wavelet longer than trace.')
+                    print('Falling back to "complete" wavelet')
+                    errflag = True
+
+            if method == 'complete' or errflag:
+                dts = len(parent.data)*parent.stats.delta/2.
+                left = self.meta.time + self.meta.ttime - overhang
+                right = self.meta.time + self.meta.ttime + dts - 2*overhang
+            
+            if method == 'noise':
+                dts = len(parent.data)*parent.stats.delta/2.
+                left = self.meta.time + self.meta.ttime - dts
+                right = self.meta.time + self.meta.ttime - overhang
+
+            return left, right
+            
+        def _calc_specs(parent, daughter1, daughter2, noise, nn, method):
+
+            # Sampling interval
             dt = parent.stats.delta
 
             # Wiener or Water level deconvolution
-            if method == 'wiener' or method == 'water':
+            if method == 'wiener' or method == 'water' or method == 'water2':
 
                 # npad = _npow2(nn*2)
                 npad = nn
@@ -692,14 +830,6 @@ class RFData(object):
                 Sd1p = Fd1*np.conjugate(Fp)
                 Sd2p = Fd2*np.conjugate(Fp)
                 Snn = np.real(Fn*np.conjugate(Fn))
-
-                # Final processing depends on method
-                if method == 'wiener':
-                    Sdenom = Spp + Snn
-                elif method == 'water':
-                    phi = np.amax(Spp)*wlevel
-                    Sdenom = Spp
-                    Sdenom[Sdenom < phi] = phi
 
             # Multitaper deconvolution
             elif method == 'multitaper':
@@ -740,41 +870,19 @@ class RFData(object):
                 Sd2p = np.sum(Fd2*np.conjugate(Fp), axis=0)
                 Snn = np.sum(np.real(Fn*np.conjugate(Fn)), axis=0)
 
-                # Denominator
-                Sdenom = Spp + Snn
-
             else:
                 print("Method not implemented")
                 pass
 
-            # Apply Gaussian filter?
-            if gfilt:
-                gauss = _gauss_filt(dt, npad, gfilt)
-                gnorm = np.sum(gauss)*(freqs[1]-freqs[0])*dt
-            else:
-                gauss = np.ones(npad)
-                gnorm = 1.
+            return Spp, Sd1p, Sd2p, Snn
 
-            # Copy traces
-            rfp = parent.copy()
-            rfd1 = daughter1.copy()
-            rfd2 = daughter2.copy()
-
-            # Spectral division and inverse transform
-            rfp.data = np.fft.ifftshift(np.real(np.fft.ifft(
-                gauss*Spp/Sdenom))/gnorm)
-            rfd1.data = np.fft.ifftshift(np.real(np.fft.ifft(
-                gauss*Sd1p/Sdenom))/gnorm)
-            rfd2.data = np.fft.ifftshift(np.real(np.fft.ifft(
-                gauss*Sd2p/Sdenom))/gnorm)
-
-            return rfp, rfd1, rfd2
 
         if not self.meta.rotated:
             print("Warning: Data have not been rotated yet - rotating now")
             self.rotate(vp=vp, vs=vs, align=align)
 
-        if not self.meta.snr:
+        #  v--True if None      v--True if nan, error if None
+        if not self.meta.snr or not np.isfinite(self.meta.snr):
             print("Warning: SNR has not been calculated - " +
                   "calculating now using default")
             self.calc_snr()
@@ -795,68 +903,226 @@ class RFData(object):
         trNl = self.data.select(component=cL)[0].copy()
         trNq = self.data.select(component=cQ)[0].copy()
 
+        trL.stats.channel = 'WV' + self.meta.align[0]
+        trQ.stats.channel = 'WV' + self.meta.align[1]
+        trT.stats.channel = 'WV' + self.meta.align[2]
+        trNl.stats.channel = 'WV' + self.meta.align[0]
+        trNq.stats.channel = 'WV' + self.meta.align[1]
+
         if phase == 'P' or 'PP':
 
             # Get signal length (i.e., seismogram to deconvolve) from trace length
-            dts = len(trL.data)*trL.stats.delta/2.
-            nn = int(round((dts-5.)*trL.stats.sampling_rate)) + 1
+            over = 5
+            dtsqt = len(trL.data) * trL.stats.delta / 2.
 
-            # Signal window (-5. to dts-10 sec)
-            sig_left = self.meta.time+self.meta.ttime-5.
-            sig_right = self.meta.time+self.meta.ttime+dts-10.
+            if length and length > dtsqt:
+                msg = f"Warning: Requested length {length} longer than data {dtsqt} - passing"
+                raise ValueError(msg)
+
+            if length is not None:
+                dtsqt = length
+
+            # Traces will be zero-paded to this length (samples)
+            nn = int(round((dtsqt + over) * trL.stats.sampling_rate)) + 1
+
+            sig_left, sig_right  = _Pwavelet(trL, method=wavelet,
+                envelope_threshold=envelope_threshold, time=time, overhang=over)
+
+            # Trim wavelet
+            trL.trim(sig_left, sig_right, nearest_sample=False, pad=True,
+                fill_value=0.)
+
+            # Signal window (-5. to dtsqt-10 sec)
+            if length is None:
+                sig_left, sig_right  = _Pwavelet(trQ, method='complete', overhang=over)
+            else:
+                sig_left, sig_right  = _Pwavelet(trQ, method='time', time=length, overhang=over)
 
             # Trim signal traces
             [tr.trim(sig_left, sig_right, nearest_sample=False, 
-                pad=nn, fill_value=0.) for tr in [trL, trQ, trT]]
+                pad=True, fill_value=0.) for tr in [trQ, trT]]
 
-            # Noise window (-dts to -5. sec)
-            noise_left = self.meta.time+self.meta.ttime-dts
-            noise_right = self.meta.time+self.meta.ttime-5.
+            # Noise window (-dtsqt to -5. sec)
+            noise_left, noise_right  = _Pwavelet(trQ, method='noise', overhang=over)
 
             # Trim noise traces
             [tr.trim(noise_left, noise_right, nearest_sample=False, 
-                pad=nn, fill_value=0.) for tr in [trNl, trNq]]
+                pad=True, fill_value=0.) for tr in [trNl, trNq]]
 
-        elif phase == 'S' or 'SKS':
+        # Can't deal with S phases right now ####
+        # elif phase == 'S' or 'SKS':
 
-            # Get signal length (i.e., seismogram to deconvolve) from trace length
-            dts = len(trL.data)*trL.stats.delta/2.
+        #     # Get signal length (i.e., seismogram to deconvolve) from trace length
+        #     dts = len(trL.data)*trL.stats.delta/2.
 
-            # Trim signal traces (-5. to dts-10 sec)
-            trL.trim(self.meta.time+self.meta.ttime+25.-dts/2.,
-                     self.meta.time+self.meta.ttime+25.)
-            trQ.trim(self.meta.time+self.meta.ttime+25.-dts/2.,
-                     self.meta.time+self.meta.ttime+25.)
-            trT.trim(self.meta.time+self.meta.ttime+25.-dts/2.,
-                     self.meta.time+self.meta.ttime+25.)
+        #     # Trim signal traces (-5. to dts-10 sec)
+        #     trL.trim(self.meta.time+self.meta.ttime+25.-dts/2.,
+        #              self.meta.time+self.meta.ttime+25.)
+        #     trQ.trim(self.meta.time+self.meta.ttime+25.-dts/2.,
+        #              self.meta.time+self.meta.ttime+25.)
+        #     trT.trim(self.meta.time+self.meta.ttime+25.-dts/2.,
+        #              self.meta.time+self.meta.ttime+25.)
             
-            # Trim noise traces (-dts to -5 sec)
-            trNl.trim(self.meta.time+self.meta.ttime-dts,
-                      self.meta.time+self.meta.ttime-dts/2.)
-            trNq.trim(self.meta.time+self.meta.ttime-dts,
-                      self.meta.time+self.meta.ttime-dts/2.)
+        #     # Trim noise traces (-dts to -5 sec)
+        #     trNl.trim(self.meta.time+self.meta.ttime-dts,
+        #               self.meta.time+self.meta.ttime-dts/2.)
+        #     trNq.trim(self.meta.time+self.meta.ttime-dts,
+        #               self.meta.time+self.meta.ttime-dts/2.)
 
         # Taper traces - only necessary processing after trimming
+        # TODO: What does this to the multitaper method
         [tr.taper(max_percentage=0.05, max_length=2.) 
          for tr in [trL, trQ, trT, trNl, trNq]]
 
-        # Pre-filter waveforms before deconvolution
+        # Pre-filter waveforms before calculating spectra
         if pre_filt:
             [tr.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1],
                        corners=2, zerophase=True) 
              for tr in [trL, trQ, trT, trNl, trNq]]
 
-        # Deconvolve
-        if phase == 'P' or 'PP':
-            rfL, rfQ, rfT = _decon(trL, trQ, trT, trNl, nn, method)
+        if norm:
+            # Standardize all trace data - useful in simdec
+            meanN = np.mean(trNl.data)
+            stdN = np.std(trNl.data)
+            [(tr.data - meanN)/stdN for tr in [trL, trQ, trT, trNl, trNq]]
 
-        elif phase == 'S' or 'SKS':
-            rfQ, rfL, rfT = _decon(trQ, trL, trT, trNq, nn, method)
+        if writeto:
+            with open(writeto, 'wb') as f:
+                pickle.dump(Stream(traces=[trL, trQ, trT]), f)
+
+        # Calculate spectra
+        if phase == 'P' or 'PP':
+            spp, sd1p, sd2p, snn = _calc_specs(trL, trQ, trT, trNl, nn, method)
+
+        # Can't deal with S phases right now ####
+        # elif phase == 'S' or 'SKS':
+        #     rfQ, rfL, rfT = _calc_specs(trQ, trL, trT, trNq, nn, method)
+
+        # Copy traces
+        sLL = trL.copy()
+        sQL = trQ.copy()
+        sTL = trT.copy()
+        sNN = trNl.copy()
+        sLL.data = spp
+        sQL.data = sd1p
+        sTL.data = sd2p
+        sNN.data = snn
 
         # Update stats of streams
-        rfL.stats.channel = 'RF' + self.meta.align[0]
-        rfQ.stats.channel = 'RF' + self.meta.align[1]
-        rfT.stats.channel = 'RF' + self.meta.align[2]
+        sLL.stats.channel = 'S' + self.meta.align[0] + self.meta.align[0]
+        sQL.stats.channel = 'S' + self.meta.align[1] + self.meta.align[0]
+        sTL.stats.channel = 'S' + self.meta.align[2] + self.meta.align[0]
+        sNN.stats.channel = 'SNN'
+
+        self.specs = Stream(traces=[sLL, sQL, sTL, sNN])
+
+
+    def deconvolve(self, align=None, method='wiener',
+                   gfilt=None, wlevel=0.01):
+        """
+        Deconvolves three-component data using one component as the source wavelet.
+        The source component is always taken as the dominant compressional 
+        component, which can be either 'Z', 'L', or 'P'. 
+
+        Parameters
+        ----------
+        align : str
+            Alignment of coordinate system for rotation
+            ('ZRT', 'LQT', or 'PVH')
+        method : str
+            Method for deconvolution. Options are 'wiener', 'water' (aka 'wlevel'),
+            'water2' (aka 'wlevel2'), or 'multitaper'
+        gfilt : float
+            Center frequency of Gaussian filter (Hz). 
+        wlevel : float
+            Water level used in ``method='water'``.
+
+        Attributes
+        ----------
+        rf : :class:`~obspy.core.Stream`
+            Stream containing the receiver function traces
+
+        """
+
+        def _gauss_filt(dt, nft, f0):
+            df = 1./(nft*dt)
+            nft21 = int(0.5*nft + 1)
+            f = df*np.arange(nft21)
+            w = 2.*np.pi*f
+            gauss = np.zeros(nft)
+            gauss[:nft21] = np.exp(-0.25*(w/f0)**2.)/dt
+            gauss[nft21:] = np.flip(gauss[1:nft21-1])
+            return gauss
+
+
+        if not hasattr(self, 'specs'):
+            msg = "Spectra have not been calculated."
+            msg += "Call RFData.calc_spectra() first."
+            raise Exception(msg)
+
+        if not align:
+            try:
+                align = self.meta.align
+            except AttributeError:
+                msg = "No alignment found. "
+                msg += "Please supply via align keyword."
+                raise ValueError(msg)
+
+        # Make everything explicit
+        SLL = self.specs[0].copy()
+        SQL = self.specs[1].copy()
+        STL = self.specs[2].copy()
+        SNN = self.specs[3].copy()
+
+        dt = SLL.stats.delta
+        npad = SLL.stats.npts
+        freqs = np.fft.fftfreq(npad, d=dt)
+
+        # Wiener or Water level deconvolution
+        if method in ['wiener', 'multitaper']:
+            # Denominator (Spp + Snn)
+            Sdenom = SLL.data + SNN.data
+
+        elif method == 'water' or method == 'wlevel':
+            phi = np.amax(SLL.data)*wlevel
+            Sdenom = SLL.data
+            Sdenom[Sdenom < phi] = phi
+
+        elif method == 'water2' or method == 'wlevel2':
+            # David Gubbins
+            # Time Series Analysis and Inverse Therory for Geophysicists
+            # "Wiener Filter", Eq. 10.21
+            beta = np.amax(SLL.data)*wlevel
+            Sdenom = SLL.data + beta
+
+        else:
+            raise ValueError('Unknown method: ' + method)
+
+        # Apply Gaussian filter?
+        if gfilt:
+            gauss = _gauss_filt(dt, npad, gfilt)
+            gnorm = np.sum(gauss)*(freqs[1]-freqs[0])*dt
+        else:
+            gauss = np.ones(npad)
+            gnorm = 1.
+
+        # Copy traces
+        rfL = SLL.copy()
+        rfQ = SQL.copy()
+        rfT = STL.copy()
+
+        # Spectral division and inverse transform
+        rfL.data = np.fft.ifftshift(np.real(np.fft.ifft(
+            gauss*SLL.data/Sdenom))/gnorm)
+        rfQ.data = np.fft.ifftshift(np.real(np.fft.ifft(
+            gauss*SQL.data/Sdenom))/gnorm)
+        rfT.data = np.fft.ifftshift(np.real(np.fft.ifft(
+            gauss*STL.data/Sdenom))/gnorm)
+
+        # Update stats of streams
+        rfL.stats.channel = 'RF' + align[0]
+        rfQ.stats.channel = 'RF' + align[1]
+        rfT.stats.channel = 'RF' + align[2]
 
         self.rf = Stream(traces=[rfL, rfQ, rfT])
 
@@ -898,7 +1164,7 @@ class RFData(object):
         self.meta.cc = np.corrcoef(obs_Q.data, pred_Q.data)[0][1]
 
 
-    def to_stream(self):
+    def to_stream(self, store=None):
         """
         Method to switch from RFData object to Stream object.
         This allows easier manipulation of the receiver functions
@@ -909,7 +1175,7 @@ class RFData(object):
         if not self.meta.accept:
             return
 
-        def _add_rfstats(trace):
+        def _add_stats(trace, store):
             trace.stats.snr = self.meta.snr
             trace.stats.snrh = self.meta.snrh
             trace.stats.cc = self.meta.cc
@@ -923,18 +1189,42 @@ class RFData(object):
             trace.stats.vp = self.meta.vp
             trace.stats.vs = self.meta.vs
             trace.stats.phase = self.meta.phase
-            trace.stats.is_rf = True
-            nn = self.rf[0].stats.npts
-            sr = self.rf[0].stats.sampling_rate
+            trace.stats.align = self.meta.align
+            if store == 'rf':
+                trace.stats.is_rf = True
+                nn = self.rf[0].stats.npts
+                sr = self.rf[0].stats.sampling_rate
+            elif store == 'specs':
+                trace.stats.is_specs = True
+                nn = self.specs[0].stats.npts
+                sr = self.specs[0].stats.sampling_rate
+            else:
+                nn = self.data[0].stats.npts
+                sr = self.data[0].stats.sampling_rate
             trace.stats.taxis = np.fft.fftshift(np.fft.fftfreq(nn, sr)*nn)
+
             return trace
 
-        if not hasattr(self, 'rf'):
-            raise(Exception("Warning: Receiver functions are not available"))
+        if store == None or store == 'data':
+            stream = self.data
+            for tr in stream:
+                tr = _add_stats(tr, store)
 
-        stream = self.rf
-        for tr in stream:
-            tr = _add_rfstats(tr)
+        if store == 'rf':
+            if not hasattr(self, 'rf'):
+                raise(Exception("Warning: Receiver functions are not available"))
+            else:
+                stream = self.rf
+                for tr in stream:
+                    tr = _add_stats(tr, store)
+
+        elif store == 'specs':
+            if not hasattr(self, 'specs'):
+                raise(Exception("Warning: Spectra are not available"))
+            else:
+                stream = self.specs
+                for tr in stream:
+                    tr = _add_stats(tr, store)
 
         return stream
 
@@ -949,7 +1239,7 @@ class RFData(object):
 
         """
 
-        import pickle
         output = open(file, 'wb')
         pickle.dump(self, output)
         output.close()
+
