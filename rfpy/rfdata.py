@@ -726,16 +726,6 @@ class RFData(object):
             tmp[:array.shape[0]] = array
             return tmp
 
-        def _gauss_filt(dt, nft, f0):
-            df = 1./(nft*dt)
-            nft21 = int(0.5*nft + 1)
-            f = df*np.arange(nft21)
-            w = 2.*np.pi*f
-            gauss = np.zeros(nft)
-            gauss[:nft21] = np.exp(-0.25*(w/f0)**2.)/dt
-            gauss[nft21:] = np.flip(gauss[1:nft21-1])
-            return gauss
-
         def _Pwavelet(parent, method='complete', overhang=5.,
                 envelope_threshold=0.05, time=5.):
 
@@ -1053,6 +1043,17 @@ class RFData(object):
             Stream containing the receiver function traces
 
         """
+
+        def _gauss_filt(dt, nft, f0):
+            df = 1./(nft*dt)
+            nft21 = int(0.5*nft + 1)
+            f = df*np.arange(nft21)
+            w = 2.*np.pi*f
+            gauss = np.zeros(nft)
+            gauss[:nft21] = np.exp(-0.25*(w/f0)**2.)/dt
+            gauss[nft21:] = np.flip(gauss[1:nft21-1])
+            return gauss
+
 
         if not hasattr(self, 'specs'):
             msg = "Spectra have not been calculated."
