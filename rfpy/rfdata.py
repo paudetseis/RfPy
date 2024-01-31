@@ -661,7 +661,7 @@ class RFData(object):
     def calc_spectra(self, phase='P', vp=None, vs=None,
                    align=None, method='wiener', wavelet='complete',
                    envelope_threshold=0.05, time=5., pre_filt=None,
-                   writeto=False, norm=False):
+                   writeto=False, norm=False, length=None):
         """
         Calculate the numerators and denominator of the spectral division for receiver
         function calculation using one component as the source wavelet.
@@ -697,6 +697,8 @@ class RFData(object):
             Water level used in ``method='water'`` and ``method='water2'`` 
         writeto : str or None
             Write wavelets for deconvolution to file.
+        length : float or None
+            Time length (s) of the numerator. If None, use entire traces.
 
         Attributes
         ----------
@@ -748,8 +750,9 @@ class RFData(object):
                     P arrival where
                     envelope > envelope_threshold*max(envelope)
                     fall back to 'complete' if condition not reached
-                'time' use only this many seonds after P arrival`
+                'time' use only this many seconds after P arrival
                     fall back to 'complete' if longer than parent
+                'noise' use the time before the P arrival
             overhang: float
                 seconds before start and after end of wavelet to be used for
                 tapering
@@ -920,10 +923,17 @@ class RFData(object):
 
             # Get signal length (i.e., seismogram to deconvolve) from trace length
             over = 5
-            dtsqt = len(trL.data)*trL.stats.delta/2.
+            dtsqt = len(trL.data) * trL.stats.delta / 2.
+
+            if length and length > dtsqt:
+                msg = f"Warning: Requested length {length} longer than data {dtsqt} - passing"
+                raise ValueError(msg)
+
+            if length is not None:
+                dtsqt = length
 
             # Traces will be zero-paded to this length (samples)
-            nn = int(round((dtsqt+over)*trL.stats.sampling_rate)) + 1
+            nn = int(round((dtsqt + over) * trL.stats.sampling_rate)) + 1
 
             sig_left, sig_right  = _Pwavelet(trL, method=wavelet,
                 envelope_threshold=envelope_threshold, time=time, overhang=over)
@@ -933,7 +943,10 @@ class RFData(object):
                 fill_value=0.)
 
             # Signal window (-5. to dtsqt-10 sec)
-            sig_left, sig_right  = _Pwavelet(trQ, method='complete', overhang=over)
+            if length is None:
+                sig_left, sig_right  = _Pwavelet(trQ, method='complete', overhang=over)
+            else:
+                sig_left, sig_right  = _Pwavelet(trQ, method='time', time=length, overhang=over)
 
             # Trim signal traces
             [tr.trim(sig_left, sig_right, nearest_sample=False, 
