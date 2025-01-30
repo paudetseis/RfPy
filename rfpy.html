@@ -1,23 +1,21 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Licence &mdash; Home 0.1.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+  <title>Licence &mdash; Home 0.1.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=a58bc63e"></script>
-        <script src="_static/doctools.js?v=888ff710"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=92734c54"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -218,7 +216,7 @@ created. See the accompanying Scripts for details.</p>
 <h3>Initialization<a class="headerlink" href="#initialization" title="Link to this heading"></a></h3>
 <p>A <code class="docutils literal notranslate"><span class="pre">RFData</span></code> object is initialized with an <code class="xref py py-class docutils literal notranslate"><span class="pre">StDb</span></code> object, e.g. consider such an
 object <code class="docutils literal notranslate"><span class="pre">sta</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rfpy</span> <span class="kn">import</span> <span class="n">RFData</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rfpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">RFData</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span> <span class="o">=</span> <span class="n">RFData</span><span class="p">(</span><span class="n">sta</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -320,7 +318,7 @@ of the object. Ultimately, a method is available to convert the <code class="doc
 <h3>Demo example<a class="headerlink" href="#demo-example" title="Link to this heading"></a></h3>
 <p>To look at a concrete example for station <a class="reference external" href="http://ds.iris.edu/mda/NY/MMPY/">MMPY</a>,
 consider the demo data provided with the package and process them using all default values:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rfpy</span> <span class="kn">import</span> <span class="n">RFData</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rfpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">RFData</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rfdata</span> <span class="o">=</span> <span class="n">RFData</span><span class="p">(</span><span class="s1">&#39;demo&#39;</span><span class="p">)</span>
 <span class="go">Uploading demo station data - station NY.MMPY</span>
 </pre></div>
@@ -453,7 +451,7 @@ object containing radial receiver function data. The <code class="xref py py-cla
 is built by adding (or appending) radial receiver functions obtained from valid
 <a class="reference internal" href="api.html#rfpy.rfdata.RFData" title="rfpy.rfdata.RFData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RFData</span></code></a> objects using the <a class="reference internal" href="api.html#rfpy.rfdata.RFData.to_stream" title="rfpy.rfdata.RFData.to_stream"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_stream()</span></code></a>
 method.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rfpy</span> <span class="kn">import</span> <span class="n">HkStack</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rfpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">HkStack</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span> <span class="o">=</span> <span class="n">HkStack</span><span class="p">(</span><span class="n">rfstream</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -481,7 +479,7 @@ filtered uding different frequency corners:</p>
 <p>To speed things up during processing (and to avoid redundant stacking), it is possible to
 use one of the <a class="reference internal" href="api.html#module-rfpy.binning" title="rfpy.binning"><code class="xref py py-func docutils literal notranslate"><span class="pre">binning()</span></code></a> functions, alghouth <strong>not</strong> the
 <a class="reference internal" href="api.html#rfpy.binning.bin_all" title="rfpy.binning.bin_all"><code class="xref py py-func docutils literal notranslate"><span class="pre">bin_all()</span></code></a> function, e.g.,</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rfpy.binning</span> <span class="kn">import</span> <span class="nb">bin</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rfpy.binning</span><span class="w"> </span><span class="kn">import</span> <span class="nb">bin</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rfstream_binned</span> <span class="o">=</span> <span class="n">rfstream</span><span class="o">.</span><span class="n">bin</span><span class="p">(</span><span class="n">typ</span><span class="o">=</span><span class="s1">&#39;slow&#39;</span><span class="p">,</span> <span class="n">nbin</span><span class="o">=</span><span class="mi">21</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span> <span class="o">=</span> <span class="n">HkStack</span><span class="p">(</span><span class="n">rfstream_binned</span><span class="p">)</span>
 </pre></div>
@@ -546,7 +544,7 @@ and error contour around the solution.</p>
 <section id="id2">
 <h3>Demo example<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <p>Initialize object with demo data for station <a class="reference external" href="http://ds.iris.edu/mda/NY/MMPY/">MMPY</a>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rfpy</span> <span class="kn">import</span> <span class="n">HkStack</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rfpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">HkStack</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span> <span class="o">=</span> <span class="n">HkStack</span><span class="p">(</span><span class="s1">&#39;demo&#39;</span><span class="p">)</span>
 <span class="go">Uploading demo data - station NY.MMPY</span>
 
@@ -579,7 +577,7 @@ are aligned in the <code class="docutils literal notranslate"><span class="pre">
 the radial component). To prepare them for stacking, we can bin the receiver functions into
 back-azimuth and slowness bins (in the presence of a dipping interface), or simply slowness bins
 (for horizontal interfaces):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rfpy</span> <span class="kn">import</span> <span class="n">binning</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rfpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">binning</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rfV_binned</span> <span class="o">=</span> <span class="n">binning</span><span class="o">.</span><span class="n">bin</span><span class="p">(</span><span class="n">hkstack</span><span class="o">.</span><span class="n">rfV1</span><span class="p">,</span> <span class="n">typ</span><span class="o">=</span><span class="s1">&#39;slow&#39;</span><span class="p">,</span> <span class="n">nbin</span><span class="o">=</span><span class="mi">21</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">hkstack</span><span class="o">.</span><span class="n">rfV1</span> <span class="o">=</span> <span class="n">rfV_binned</span>
 </pre></div>
@@ -638,7 +636,7 @@ The <code class="xref py py-class docutils literal notranslate"><span class="pre
 radial and transverse receiver functions obtained from valid
 <a class="reference internal" href="api.html#rfpy.rfdata.RFData" title="rfpy.rfdata.RFData"><code class="xref py py-class docutils literal notranslate"><span class="pre">RFData</span></code></a> objects using the <a class="reference internal" href="api.html#rfpy.rfdata.RFData.to_stream" title="rfpy.rfdata.RFData.to_stream"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_stream()</span></code></a>
 method.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rfpy</span> <span class="kn">import</span> <span class="n">Harmonics</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rfpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">Harmonics</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span> <span class="o">=</span> <span class="n">Harmonics</span><span class="p">(</span><span class="n">rfRstream</span><span class="p">,</span> <span class="n">rfTstream</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -702,7 +700,7 @@ as attributes of type <code class="xref py py-class docutils literal notranslate
 <section id="id5">
 <h3>Demo example<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
 <p>Initialize object with demo data for station <a class="reference external" href="http://ds.iris.edu/mda/NY/MMPY/">MMPY</a>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rfpy</span> <span class="kn">import</span> <span class="n">Harmonics</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rfpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">Harmonics</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span> <span class="o">=</span> <span class="n">Harmonics</span><span class="p">(</span><span class="s1">&#39;demo&#39;</span><span class="p">)</span>
 <span class="go">Uploading demo data - station NY.MMPY</span>
 
@@ -737,7 +735,7 @@ as streams to an <code class="xref py py-class docutils literal notranslate"><sp
 are aligned in the <code class="docutils literal notranslate"><span class="pre">'PVH'</span></code> coordinate system, as specified in the channel name (i.e., <code class="docutils literal notranslate"><span class="pre">'RFV'</span></code>
 and <code class="docutils literal notranslate"><span class="pre">'RFH'</span></code>). To prepare them for harmonic decomposition, we can bin the receiver functions into
 back-azimuth and slowness bins :</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">rfpy</span> <span class="kn">import</span> <span class="n">binning</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">rfpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">binning</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">str_binned</span> <span class="o">=</span> <span class="n">binning</span><span class="o">.</span><span class="n">bin_baz_slow</span><span class="p">(</span><span class="n">harmonics</span><span class="o">.</span><span class="n">radialRF</span><span class="p">,</span> <span class="n">harmonics</span><span class="o">.</span><span class="n">transvRF</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="n">radialRF</span> <span class="o">=</span> <span class="n">str_binned</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">harmonics</span><span class="o">.</span><span class="n">transvRF</span> <span class="o">=</span> <span class="n">str_binned</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
