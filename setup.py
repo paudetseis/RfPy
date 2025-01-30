@@ -2,7 +2,7 @@ import setuptools
 import os.path
 from os import listdir
 import re
-from numpy.distutils.core import setup
+from setuptools import setup
 from pathlib import Path
 
 
@@ -31,14 +31,15 @@ setup(
          'Programming Language :: Python :: 3.6',
          'Programming Language :: Python :: 3.7',
          'Programming Language :: Python :: 3.8',
-         'Programming Language :: Python :: 3.9'],
+         'Programming Language :: Python :: 3.9',
+         'Programming Language :: Python :: 3.10'],
     install_requires=['numpy', 'obspy', 'stdb>=0.2.0'],
-    python_requires='>=3.6',
+    python_requires='>=3.7',
     packages=setuptools.find_packages(),
-    entry_points={'console_scripts':[
-    'rfpy_calc=rfpy.scripts.rfpy_calc:main',
-    'rfpy_recalc=rfpy.scripts.rfpy_recalc:main',
-    'rfpy_plot=rfpy.scripts.rfpy_plot:main',
-    'rfpy_harmonics=rfpy.scripts.rfpy_harmonics:main',
-    'rfpy_hk=rfpy.scripts.rfpy_hk:main',
-    'rfpy_ccp=rfpy.scripts.rfpy_ccp:main']})
+    entry_points={'console_scripts': [
+        'rfpy_calc=rfpy.scripts.rfpy_calc:main',
+        'rfpy_recalc=rfpy.scripts.rfpy_recalc:main',
+        'rfpy_plot=rfpy.scripts.rfpy_plot:main',
+        'rfpy_harmonics=rfpy.scripts.rfpy_harmonics:main',
+        'rfpy_hk=rfpy.scripts.rfpy_hk:main',
+        'rfpy_ccp=rfpy.scripts.rfpy_ccp:main']})
