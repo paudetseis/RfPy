@@ -224,10 +224,11 @@ def get_recalc_arguments(argv=None):
             "Error: Incorrect alignment specifier. Should be " +
             "either 'ZRT', 'LQT', or 'PVH'.")
 
-    if args.method not in ['wiener', 'water', 'multitaper']:
+    if args.method not in ['wiener', 'water', 'multitaper',\
+                           'wiener_audet_bssa2010']:
         parser.error(
-            "Error: 'method' should be either 'wiener', 'water' or " +
-            "'multitaper'")
+            "Error: 'method' should be either 'wiener', 'water',  " +
+            "'multitaper', or 'wiener_audet_bssa2010'")
 
     if args.pre_filt is not None:
         args.pre_filt = [float(val) for val in args.pre_filt.split(',')]
