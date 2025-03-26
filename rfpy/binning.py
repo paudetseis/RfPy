@@ -100,7 +100,7 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False,
 
                 nb = 0
                 array = np.zeros(len(stream[0].data))
-                weight = np.zeros(len(stream[0].data), dtype=complex)
+                pweight = np.zeros(len(stream[0].data), dtype=complex)
 
                 # Loop through stat
                 for j, tr in enumerate(stream):
@@ -112,7 +112,7 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False,
                         array += tr.data
                         hilb = hilbert(tr.data)
                         phase = np.arctan2(hilb.imag, hilb.real)
-                        weight += np.exp(1j*phase)
+                        pweight += np.exp(1j*phase)
                         
                         continue
 
@@ -120,7 +120,7 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False,
 
                     # Average and update stats
                     array /= nb
-                    weight = np.real(abs(weight/np.float(nb)))
+                    weight = np.abs(pweight)/nb
 
                     trace = Trace(header=stream[0].stats)
                     trace.stats.nbin = nb
@@ -139,6 +139,7 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False,
                         trace.stats.nbin = nb
                     if not pws:
                         weight = np.ones(len(stream[0].data))
+
                     trace.data = weight*array
                     binned_stream.append(trace)
 
@@ -206,7 +207,7 @@ def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=False,
 
                     nbin = 0
                     array = np.zeros(len(stream[0].data))
-                    weight = np.zeros(len(stream[0].data), dtype=complex)
+                    pweight = np.zeros(len(stream[0].data), dtype=complex)
 
                     # Loop all traces
                     for k, tr in enumerate(stream):
@@ -218,7 +219,7 @@ def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=False,
                             array += tr.data
                             hilb = hilbert(tr.data)
                             phase = np.arctan2(hilb.imag, hilb.real)
-                            weight += np.exp(1j*phase)
+                            pweight += np.exp(1j*phase)
                             
                             continue
 
@@ -226,7 +227,7 @@ def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=False,
 
                         # Average and update stats
                         array /= nbin
-                        weight = np.real(abs(weight/nbin))
+                        weight = np.abs(pweight)/nbin
 
                         trace = Trace(header=stream[0].stats)
                         trace.stats.baz = baz_bins[i]
@@ -290,7 +291,7 @@ def bin_all(stream1, stream2=None, pws=False):
 
             # Normalize
             array = array/len(stream)
-            weight = np.real(abs(pweight/len(stream)))
+            weight = np.abs(pweight)/len(stream)
             # Regular linear stack
             if not pws:
                 weight = np.ones(len(stream[0].data))
