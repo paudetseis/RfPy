@@ -139,141 +139,161 @@ station code. The database is provided as a <code class="xref py py-class docuti
 </section>
 <section id="usage">
 <h3>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_calc -h
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>  $ rfpy_calc -h
 
-##############################################
-#        __                          _       #
-#  _ __ / _|_ __  _   _     ___ __ _| | ___  #
-# | &#39;__| |_| &#39;_ \| | | |   / __/ _` | |/ __| #
-# | |  |  _| |_) | |_| |  | (_| (_| | | (__  #
-# |_|  |_| | .__/ \__, |___\___\__,_|_|\___| #
-#          |_|    |___/_____|                #
-#                                            #
-##############################################
+  ##############################################
+  #        __                          _       #
+  #  _ __ / _|_ __  _   _     ___ __ _| | ___  #
+  # | &#39;__| |_| &#39;_ \| | | |   / __/ _` | |/ __| #
+  # | |  |  _| |_) | |_| |  | (_| (_| | | (__  #
+  # |_|  |_| | .__/ \__, |___\___\__,_|_|\___| #
+  #          |_|    |___/_____|                #
+  #                                            #
+  ##############################################
 
-usage: rfpy_calc [arguments] &lt;station database&gt;
+  usage: rfpy_calc [arguments] &lt;station database&gt;
 
-Script used to download and pre-process three-component (&#39;Z&#39;, &#39;N&#39;, and &#39;E&#39;),
-seismograms for individual events and calculate teleseismic P-wave receiver
-functionsThis version requests data on the fly for a given date range. Data
-are requested from the internet using the client services framework. The
-stations are processed one by one and the data are stored to disk.
+  Script used to download and pre-process three-component (&#39;Z&#39;, &#39;N&#39;, and &#39;E&#39;),
+  seismograms for individual events and calculate teleseismic P-wave receiver
+  functionsThis version requests data on the fly for a given date range. Data
+  are requested from the internet using the client services framework. The
+  stations are processed one by one and the data are stored to disk.
 
-positional arguments:
-  indb                  Station Database to process from.
+  options:
+    -h, --help            show this help message and exit
+    --keys STKEYS         Specify a comma separated list of station keys for
+                          which to perform the analysis. These must be contained
+                          within the station database. Partial keys will be used
+                          to match against those in the dictionary. For
+                          instance, providing IU will match with all stations in
+                          the IU network [Default processes all stations in the
+                          database]
+    -v, -V, --verbose     Specify to increase verbosity.
+    -O, --overwrite       Force the overwriting of pre-existing data. [Default
+                          False]
+    --zcomp ZCOMP         Specify the Vertical Component Channel Identifier.
+                          [Default Z].
+    -L, --long-name       Force folder names to use long-key form (NET.STN.CHN).
+                          Default behaviour uses short key form (NET.STN) for
+                          the folder names, regardless of the key type of the
+                          database.
 
-optional arguments:
-  -h, --help            show this help message and exit
-  --keys STKEYS         Specify a comma separated list of station keys for
-                        which to perform the analysis. These must be contained
-                        within the station database. Partial keys will be used
-                        to match against those in the dictionary. For
-                        instance, providing IU will match with all stations in
-                        the IU network [Default processes all stations in the
-                        database]
-  -v, -V, --verbose     Specify to increase verbosity.
-  -O, --overwrite       Force the overwriting of pre-existing data. [Default
-                        False]
+  Server Settings:
+    Settings associated with which datacenter to log into.
 
-Server Settings:
-  Settings associated with which datacenter to log into.
+--server SERVER       Base URL of FDSN web service compatible server (e.g.
+                      “http://service.iris.edu”) or key string for
+                      recognized server (one of &#39;AUSPASS&#39;, &#39;BGR&#39;,
+                      &#39;EARTHSCOPE&#39;, &#39;EIDA&#39;, &#39;EMSC&#39;, &#39;ETH&#39;, &#39;GEOFON&#39;,
+                      &#39;GEONET&#39;, &#39;GFZ&#39;, &#39;ICGC&#39;, &#39;IESDMC&#39;, &#39;INGV&#39;, &#39;IPGP&#39;,
+                      &#39;IRIS&#39;, &#39;IRISPH5&#39;, &#39;ISC&#39;, &#39;KNMI&#39;, &#39;KOERI&#39;, &#39;LMU&#39;,
+                      &#39;NCEDC&#39;, &#39;NIEP&#39;, &#39;NOA&#39;, &#39;NRCAN&#39;, &#39;ODC&#39;, &#39;ORFEUS&#39;,
+                      &#39;RASPISHAKE&#39;, &#39;RESIF&#39;, &#39;RESIFPH5&#39;, &#39;SCEDC&#39;, &#39;TEXNET&#39;,
+                      &#39;UIB-NORSAR&#39;, &#39;USGS&#39;, &#39;USP&#39;). [Default &#39;IRIS&#39;]
+--user-auth USERAUTH  Authentification Username and Password for the
+                      waveform server (--user-auth=&#39;username:authpassword&#39;)
+                      to access and download restricted data. [Default no
+                      user and password]
+--eida-token TOKENFILE
+                      Token for EIDA authentication mechanism, see
+                      http://geofon.gfz-
+                      potsdam.de/waveform/archive/auth/index.php. If a token
+                      is provided, argument --user-auth will be ignored.
+                      This mechanism is only available on select EIDA nodes.
+                      The token can be provided in form of the PGP message
+                      as a string, or the filename of a local file with the
+                      PGP message in it. [Default None]
 
-  -S SERVER, --Server SERVER
-                        Specify the server to connect to. Options include:
-                        BGR, ETH, GEONET, GFZ, INGV, IPGP, IRIS, KOERI, LMU,
-                        NCEDC, NEIP, NERIES, ODC, ORFEUS, RESIF, SCEDC, USGS,
-                        USP. [Default IRIS]
-  -U USERAUTH, --User-Auth USERAUTH
-                        Enter your IRIS Authentification Username and Password
-                        (--User-Auth=&#39;username:authpassword&#39;) to access and
-                        download restricted data. [Default no user and
-                        password]
+  Local Data Settings:
+    Settings associated with defining and using a local data base of pre-
+    downloaded day-long SAC files.
 
-Local Data Settings:
-  Settings associated with defining and using a local data base of pre-
-  downloaded day-long SAC files.
+    --local-data LOCALDATA
+                          Specify a comma separated list of paths containing
+                          day-long sac files of data already downloaded. If data
+                          exists for a seismogram is already present on disk, it
+                          is selected preferentially over downloading the data
+                          using the Client interface
+    --dtype DTYPE         Specify the data archive file type, either SAC or
+                          MSEED. Note the default behaviour is to search for SAC
+                          files. Local archive files must have extensions of
+                          &#39;.SAC&#39; or &#39;.MSEED. These are case dependent, so
+                          specify the correct casehere.
+    --no-data-zero        Specify to force missing data to be set as zero,
+                          rather than default behaviour which sets to nan.
+    --no-local-net        Specify to prevent using the Network code in the
+                          search for local data (sometimes for CN stations the
+                          dictionary name for a station may disagree with that
+                          in the filename. [Default Network used]
+    --save-Z12            Specify to save Z12 (un-rotated) components. [Default
+                          False]
 
-  --local-data LOCALDATA
-                        Specify a comma separated list of paths containing
-                        day-long sac files of data already downloaded. If data
-                        exists for a seismogram is already present on disk, it
-                        is selected preferentially over downloading the data
-                        using the Client interface
-  --no-data-zero        Specify to force missing data to be set as zero,
-                        rather than default behaviour which sets to nan.
-  --no-local-net        Specify to prevent using the Network code in the
-                        search for local data (sometimes for CN stations the
-                        dictionary name for a station may disagree with that
-                        in the filename. [Default Network used]
-  --save-Z12            Specify to save Z12 (un-rotated) components. [Default
-                        False]
+  Event Settings:
+    Settings associated with refining the events to include in matching event-
+    station pairs
 
-Event Settings:
-  Settings associated with refining the events to include in matching event-
-  station pairs
+    --start STARTT        Specify a UTCDateTime compatible string representing
+                          the start time for the event search. This will
+                          override any station start times. [Default start date
+                          of station]
+    --end ENDT            Specify a UTCDateTime compatible string representing
+                          the end time for the event search. This will override
+                          any station end times [Default end date of station]
+    --reverse, -R         Reverse order of events. Default behaviour starts at
+                          oldest event and works towards most recent. Specify
+                          reverse order and instead the program will start with
+                          the most recent events and work towards older
+    --minmag MINMAG       Specify the minimum magnitude of event for which to
+                          search. [Default 6.0]
+    --maxmag MAXMAG       Specify the maximum magnitude of event for which to
+                          search. [Default None, i.e. no limit]
 
-  --start STARTT        Specify a UTCDateTime compatible string representing
-                        the start time for the event search. This will
-                        override any station start times. [Default start date
-                        of station]
-  --end ENDT            Specify a UTCDateTime compatible string representing
-                        the end time for the event search. This will override
-                        any station end times [Default end date of station]
-  --reverse, -R         Reverse order of events. Default behaviour starts at
-                        oldest event and works towards most recent. Specify
-                        reverse order and instead the program will start with
-                        the most recent events and work towards older
-  --minmag MINMAG       Specify the minimum magnitude of event for which to
-                        search. [Default 6.0]
-  --maxmag MAXMAG       Specify the maximum magnitude of event for which to
-                        search. [Default None, i.e. no limit]
+  Geometry Settings:
+    Settings associatd with the event-station geometries for the specified
+    phase
 
-Geometry Settings:
-  Settings associatd with the event-station geometries for the specified
-  phase
+    --phase PHASE         Specify the phase name to use. Be careful with the
+                          distance. setting. Options are &#39;P&#39; or &#39;PP&#39;. [Default
+                          &#39;P&#39;]
+    --mindist MINDIST     Specify the minimum great circle distance (degrees)
+                          between the station and event. [Default depends on
+                          phase]
+    --maxdist MAXDIST     Specify the maximum great circle distance (degrees)
+                          between the station and event. [Default depends on
+                          phase]
 
-  --phase PHASE         Specify the phase name to use. Be careful with the
-                        distance. setting. Options are &#39;P&#39; or &#39;PP&#39;. [Default
-                        &#39;P&#39;]
-  --mindist MINDIST     Specify the minimum great circle distance (degrees)
-                        between the station and event. [Default depends on
-                        phase]
-  --maxdist MAXDIST     Specify the maximum great circle distance (degrees)
-                        between the station and event. [Default depends on
-                        phase]
+  Parameter Settings:
+    Miscellaneous default values and settings
 
-Parameter Settings:
-  Miscellaneous default values and settings
+    --sampling-rate NEW_SAMPLING_RATE
+                          Specify new sampling rate in Hz. [Default 10.]
+    --dts DTS             Specify the window length in sec (symmetric about
+                          arrival time). [Default 150.]
+    --align ALIGN         Specify component alignment key. Can be either ZRT,
+                          LQT, or PVH. [Default ZRT]
+    --vp VP               Specify near-surface Vp to use with --align=PVH
+                          (km/s). [Default 6.0]
+    --vs VS               Specify near-surface Vs to use with --align=PVH
+                          (km/s). [Default 3.5]
+    --dt-snr DT_SNR       Specify the window length over which to calculate the
+                          SNR in sec. [Default 30.]
+    --pre-filt PRE_FILT   Specify two floats with low and high frequency corners
+                          for pre-filter (before deconvolution). [Default None]
+    --fmin FMIN           Specify the minimum frequency corner for SNR and CC
+                          filter (Hz). [Default 0.05]
+    --fmax FMAX           Specify the maximum frequency corner for SNR and CC
+                          filter (Hz). [Default 1.0]
 
-  --sampling-rate NEW_SAMPLING_RATE
-                        Specify new sampling rate in Hz. [Default 10.]
-  --dts DTS             Specify the window length in sec (symmetric about
-                        arrival time). [Default 150.]
-  --align ALIGN         Specify component alignment key. Can be either ZRT,
-                        LQT, or PVH. [Default ZRT]
-  --vp VP               Specify near-surface Vp to use with --align=PVH
-                        (km/s). [Default 6.0]
-  --vs VS               Specify near-surface Vs to use with --align=PVH
-                        (km/s). [Default 3.5]
-  --dt-snr DT_SNR       Specify the window length over which to calculate the
-                        SNR in sec. [Default 30.]
-  --pre-filt PRE_FILT   Specify two floats with low and high frequency corners
-                        for pre-filter (before deconvolution). [Default None]
-  --fmin FMIN           Specify the minimum frequency corner for SNR and CC
-                        filter (Hz). [Default 0.05]
-  --fmax FMAX           Specify the maximum frequency corner for SNR and CC
-                        filter (Hz). [Default 1.0]
+  Deconvolution Settings:
+    Parameters for deconvolution
 
-Deconvolution Settings:
-  Parameters for deconvolution
-
-  --method METHOD       Specify the deconvolution method. Available methods
-                        include &#39;wiener&#39;, &#39;water&#39; and &#39;multitaper&#39;. [Default
-                        &#39;wiener&#39;]
-  --gfilt GFILT         Specify the Gaussian filter width in Hz. [Default
-                        None]
-  --wlevel WLEVEL       Specify the water level, used in the &#39;water&#39; method.
-                        [Default 0.01]
+    --method METHOD       Specify the deconvolution method. Available methods
+                          include &#39;wiener&#39;, &#39;water&#39; and &#39;multitaper&#39;. [Default
+                          &#39;wiener&#39;]
+    --gfilt GFILT         Specify the Gaussian filter width in Hz. [Default
+                          None]
+    --wlevel WLEVEL       Specify the water level, used in the &#39;water&#39; method.
+                          [Default 0.01]
 </pre></div>
 </div>
 </section>
@@ -321,6 +341,11 @@ optional arguments:
                        network [Default processes all stations in the
                        database]
   -v, -V, --verbose    Specify to increase verbosity.
+  -L, --long-name      Force folder names to use long-key form (NET.STN.CHN).
+                       Default behaviour uses short key form (NET.STN) for the
+                       folder names, regardless of the key type of the
+                       database.
+
 
 Parameter Settings:
   Miscellaneous default values and settings
@@ -371,7 +396,7 @@ back-azimuth (averaging all slowness information) or by slowness
 </section>
 <section id="id4">
 <h3>Usage<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_recalc -h
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ rfpy_plot -h
 
 #################################################
 #        __                        _       _    #
@@ -402,6 +427,10 @@ optional arguments:
   -v, -V, --verbose     Specify to increase verbosity.
   -O, --overwrite       Force the overwriting of pre-existing figures.
                         [Default False]
+  -L, --long-name       Force folder names to use long-key form (NET.STN.CHN).
+                        Default behaviour uses short key form (NET.STN) for
+                        the folder names, regardless of the key type of the
+                        database.
 
 Pre-processing Settings:
   Options for pre-processing of receiver function data before plotting
@@ -415,7 +444,7 @@ Pre-processing Settings:
   --no-outlier          Set this option to delete outliers based on the MAD on
                         the variance. [Default False]
   --binlim BINLIM       Specify the minimum number of RFs in each bin.
-                        [Default 3]
+                        [Default 1]
   --bp BP               Specify the corner frequencies for the bandpass
                         filter. [Default no filtering]
   --pws                 Set this option to use phase-weighted stacking during
@@ -506,6 +535,10 @@ optional arguments:
   -v, -V, --verbose     Specify to increase verbosity.
   -O, --overwrite       Force the overwriting of pre-existing data. [Default
                         False]
+  -L, --long-name       Force folder names to use long-key form (NET.STN.CHN).
+                        Default behaviour uses short key form (NET.STN) for
+                        the folder names, regardless of the key type of the
+                        database.
 
 Time Settings:
   Settings associated with refining the times to include in searching for
@@ -552,7 +585,7 @@ Pre-processing Settings:
                         filtered at different corners for the Pps and Pss
                         phases. [Default False]
   --bp-copy BP_COPY     Specify a list of two floats with minimum and
-                        maximumfrequency for the copies stream (Hz). [Default
+                        maximumfrequency for the copied stream (Hz). [Default
                         [0.05, 0.35]]
 
 Settings for H-k Stacking:
@@ -638,6 +671,9 @@ optional arguments:
   -v, -V, --verbose  Specify to increase verbosity.
   -O, --overwrite    Force the overwriting of pre-existing data. [Default
                      False]
+  -L, --long-name    Force folder names to use long-key form (NET.STN.CHN).
+                     Default behaviour uses short key form (NET.STN) for the
+                     folder names, regardless of the key type of the database.
 
 Time Settings:
   Settings associated with refining the times to include in searching for
@@ -666,6 +702,8 @@ Pre-processing Settings:
                      functions. [Default None]
   --no-outlier       Set this option to delete outliers based on the MAD on
                      the variance. [Default False]
+  --phase PHASE      Specify the phase name to plot. Options are &#39;P&#39;, &#39;PP&#39;,
+                     &#39;allP&#39;, &#39;S&#39;, &#39;SKS&#39; or &#39;allS&#39;. [Default &#39;allP&#39;]
 
 Settings for harmonic decomposition:
   Specify parameters for the decomposition, e.g. a fixed azimuth, depth
@@ -754,6 +792,10 @@ optional arguments:
   -v, -V, --verbose    Specify to increase verbosity.
   -O, --overwrite      Force the overwriting of pre-existing data. [Default
                        False]
+  -L, --long-name      Force folder names to use long-key form (NET.STN.CHN).
+                       Default behaviour uses short key form (NET.STN) for the
+                       folder names, regardless of the key type of the
+                       database.
 
 Line Geometry Settings:
   Options for defining the line along which to produce the CCP image
