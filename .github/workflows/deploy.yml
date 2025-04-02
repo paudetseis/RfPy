@@ -18,10 +18,10 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }} Python ${{ matrix.python-version }}
     strategy:
       matrix:
-        os: ["ubuntu-latest", "macos-latest"]
+        os: ["ubuntu-latest"]
         python-version: ["3.10"]
 
     steps:
@@ -38,7 +38,7 @@ jobs:
         run: |
           conda info
           conda config --add channels conda-forge
-          conda install obspy cartopy
+          conda install obspy cartopy libstdcxx-ng
           pip install stdb
           pip install spectrum
           pip install -e .
@@ -53,7 +53,7 @@ jobs:
       #     bash <(curl -s https://codecov.io/bash)
 
       - name: Make docs
-        if: matrix.python-version == '3.8' 
+        if: matrix.python-version == '3.10' 
         shell: bash -l {0}
         run: |
           cd docs
@@ -64,7 +64,7 @@ jobs:
           cd ..
 
       - name: Deploy 🚀
-        if: matrix.python-version == '3.8' 
+        if: matrix.python-version == '3.10' 
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
