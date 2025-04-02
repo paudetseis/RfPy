@@ -87,6 +87,13 @@ def get_calc_arguments(argv=None):
         help="Force the overwriting of pre-existing data. " +
         "[Default False]")
     parser.add_argument(
+        "--zcomp", 
+        dest="zcomp",
+        type=str,
+        default="Z",
+        help="Specify the Vertical Component Channel Identifier. "+
+        "[Default Z].")
+    parser.add_argument(
         "-L", "--long-name",
         action="store_true",
         dest="lkey",
@@ -102,25 +109,39 @@ def get_calc_arguments(argv=None):
         description="Settings associated with which "
         "datacenter to log into.")
     ServerGroup.add_argument(
-        "-S", "--Server",
+        "--server",
         action="store",
         type=str,
-        dest="Server",
+        dest="server",
         default="IRIS",
-        help="Specify the server to connect to. Options include: " +
-        "BGR, ETH, GEONET, GFZ, INGV, IPGP, IRIS, KOERI, " +
-        "LMU, NCEDC, NEIP, NERIES, ODC, ORFEUS, RESIF, SCEDC, USGS, USP. " +
-        "[Default IRIS]")
+        help="Base URL of FDSN web service compatible "
+        "server (e.g. “http://service.iris.edu”) or key string for recognized "
+        "server (one of 'AUSPASS', 'BGR', 'EARTHSCOPE', 'EIDA', 'EMSC', 'ETH', "
+        "'GEOFON', 'GEONET', 'GFZ', 'ICGC', 'IESDMC', 'INGV', 'IPGP', 'IRIS', "
+        "'IRISPH5', 'ISC', 'KNMI', 'KOERI', 'LMU', 'NCEDC', 'NIEP', 'NOA', "
+        "'NRCAN', 'ODC', 'ORFEUS', 'RASPISHAKE', 'RESIF', 'RESIFPH5', 'SCEDC', "
+        "'TEXNET', 'UIB-NORSAR', 'USGS', 'USP'). [Default 'IRIS']")
     ServerGroup.add_argument(
-        "-U", "--User-Auth",
+        "--user-auth",
         action="store",
         type=str,
-        dest="UserAuth",
-        default="",
-        help="Enter your IRIS Authentification Username and Password " +
-        "(--User-Auth='username:authpassword') to " +
-        "access and download restricted data. " +
-        "[Default no user and password]")
+        dest="userauth",
+        default=None,
+        help="Authentification Username and Password for the " +
+        "waveform server (--user-auth='username:authpassword') to access " +
+        "and download restricted data. [Default no user and password]")
+    ServerGroup.add_argument(
+        "--eida-token", 
+        action="store", 
+        type=str,
+        dest="tokenfile", 
+        default=None, 
+        help="Token for EIDA authentication mechanism, see " +
+        "http://geofon.gfz-potsdam.de/waveform/archive/auth/index.php. "
+        "If a token is provided, argument --user-auth will be ignored. "
+        "This mechanism is only available on select EIDA nodes. The token can "
+        "be provided in form of the PGP message as a string, or the filename of "
+        "a local file with the PGP message in it. [Default None]")
 
     # Database Settings
     DataGroup = parser.add_argument_group(
@@ -391,17 +412,20 @@ def get_calc_arguments(argv=None):
     else:
         args.endT = None
 
-    # Parse User Authentification
-    if not len(args.UserAuth) == 0:
-        tt = args.UserAuth.split(':')
-        if not len(tt) == 2:
-            parser.error(
-                "Error: Incorrect Username and Password " +
-                "Strings for User Authentification")
-        else:
-            args.UserAuth = tt
+    # Parse restricted data settings
+    if args.tokenfile is not None:
+        args.userauth = [None, None]
     else:
-        args.UserAuth = []
+        if args.userauth is not None:
+            tt = args.userauth.split(':')
+            if not len(tt) == 2:
+                msg = ("Error: Incorrect Username and Password Strings for User "
+                       "Authentification")
+                parser.error(msg)
+            else:
+                args.userauth = tt
+        else:
+            args.userauth = [None, None]
 
     # Parse Local Data directories
     if args.localdata is not None:
@@ -532,12 +556,12 @@ def main():
             print('Path to '+str(datapath)+' doesn`t exist - creating it')
             datapath.mkdir(parents=True)
 
-        # Establish client for data
-        if len(args.UserAuth) == 0:
-            data_client = Client(args.Server)
-        else:
-            data_client = Client(args.Server, user=args.UserAuth[0],
-                                 password=args.UserAuth[1])
+        # Establish client
+        client = Client(
+            base_url=args.server,
+            user=args.userauth[0],
+            password=args.userauth[1],
+            eida_token=args.tokenfile)
 
         # Establish client for events
         event_client = Client()
@@ -679,7 +703,7 @@ def main():
             ev = cat[iev]
 
             # Initialize RF object with station info
-            rfdata = RFData(sta)
+            rfdata = RFData(sta, zcomp=args.zcomp)
 
             # Add event to rfdata object
             accept = rfdata.add_event(
