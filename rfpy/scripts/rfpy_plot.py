@@ -128,7 +128,7 @@ def get_plot_arguments(argv=None):
         type=float,
         dest="binlim",
         default=1,
-        help="Specify the minimum number of RFs in each bin. [Default 3]")
+        help="Specify the minimum number of RFs in each bin. [Default 1]")
     PreGroup.add_argument(
         "--bp",
         action="store",
@@ -553,10 +553,10 @@ def main():
                 norm = np.max([normR, normT])
             else:
                 norm = None
-        else:
-            norm = None
-            tr1 = None
-            tr2 = None
+        if not args.stacked:
+            # norm = None
+            tr1 = Stream()
+            tr2 = Stream()
 
         # Now plot
         if args.nbaz:
