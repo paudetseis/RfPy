@@ -44,10 +44,7 @@ Usage
     are requested from the internet using the client services framework. The
     stations are processed one by one and the data are stored to disk.
 
-    positional arguments:
-      indb                  Station Database to process from.
-
-    optional arguments:
+    options:
       -h, --help            show this help message and exit
       --keys STKEYS         Specify a comma separated list of station keys for
                             which to perform the analysis. These must be contained
@@ -59,20 +56,38 @@ Usage
       -v, -V, --verbose     Specify to increase verbosity.
       -O, --overwrite       Force the overwriting of pre-existing data. [Default
                             False]
+      --zcomp ZCOMP         Specify the Vertical Component Channel Identifier.
+                            [Default Z].
+      -L, --long-name       Force folder names to use long-key form (NET.STN.CHN).
+                            Default behaviour uses short key form (NET.STN) for
+                            the folder names, regardless of the key type of the
+                            database.
 
     Server Settings:
       Settings associated with which datacenter to log into.
 
-      -S SERVER, --Server SERVER
-                            Specify the server to connect to. Options include:
-                            BGR, ETH, GEONET, GFZ, INGV, IPGP, IRIS, KOERI, LMU,
-                            NCEDC, NEIP, NERIES, ODC, ORFEUS, RESIF, SCEDC, USGS,
-                            USP. [Default IRIS]
-      -U USERAUTH, --User-Auth USERAUTH
-                            Enter your IRIS Authentification Username and Password
-                            (--User-Auth='username:authpassword') to access and
-                            download restricted data. [Default no user and
-                            password]
+  --server SERVER       Base URL of FDSN web service compatible server (e.g.
+                        “http://service.iris.edu”) or key string for
+                        recognized server (one of 'AUSPASS', 'BGR',
+                        'EARTHSCOPE', 'EIDA', 'EMSC', 'ETH', 'GEOFON',
+                        'GEONET', 'GFZ', 'ICGC', 'IESDMC', 'INGV', 'IPGP',
+                        'IRIS', 'IRISPH5', 'ISC', 'KNMI', 'KOERI', 'LMU',
+                        'NCEDC', 'NIEP', 'NOA', 'NRCAN', 'ODC', 'ORFEUS',
+                        'RASPISHAKE', 'RESIF', 'RESIFPH5', 'SCEDC', 'TEXNET',
+                        'UIB-NORSAR', 'USGS', 'USP'). [Default 'IRIS']
+  --user-auth USERAUTH  Authentification Username and Password for the
+                        waveform server (--user-auth='username:authpassword')
+                        to access and download restricted data. [Default no
+                        user and password]
+  --eida-token TOKENFILE
+                        Token for EIDA authentication mechanism, see
+                        http://geofon.gfz-
+                        potsdam.de/waveform/archive/auth/index.php. If a token
+                        is provided, argument --user-auth will be ignored.
+                        This mechanism is only available on select EIDA nodes.
+                        The token can be provided in form of the PGP message
+                        as a string, or the filename of a local file with the
+                        PGP message in it. [Default None]
 
     Local Data Settings:
       Settings associated with defining and using a local data base of pre-
@@ -84,6 +99,11 @@ Usage
                             exists for a seismogram is already present on disk, it
                             is selected preferentially over downloading the data
                             using the Client interface
+      --dtype DTYPE         Specify the data archive file type, either SAC or
+                            MSEED. Note the default behaviour is to search for SAC
+                            files. Local archive files must have extensions of
+                            '.SAC' or '.MSEED. These are case dependent, so
+                            specify the correct casehere.
       --no-data-zero        Specify to force missing data to be set as zero,
                             rather than default behaviour which sets to nan.
       --no-local-net        Specify to prevent using the Network code in the
@@ -209,6 +229,11 @@ Usage
                            network [Default processes all stations in the
                            database]
       -v, -V, --verbose    Specify to increase verbosity.
+      -L, --long-name      Force folder names to use long-key form (NET.STN.CHN).
+                           Default behaviour uses short key form (NET.STN) for the
+                           folder names, regardless of the key type of the
+                           database.
+
 
     Parameter Settings:
       Miscellaneous default values and settings
@@ -262,7 +287,7 @@ Usage
 
 .. code-block::
 
-    $ rfpy_recalc -h
+    $ rfpy_plot -h
 
     #################################################
     #        __                        _       _    #
@@ -293,6 +318,10 @@ Usage
       -v, -V, --verbose     Specify to increase verbosity.
       -O, --overwrite       Force the overwriting of pre-existing figures.
                             [Default False]
+      -L, --long-name       Force folder names to use long-key form (NET.STN.CHN).
+                            Default behaviour uses short key form (NET.STN) for
+                            the folder names, regardless of the key type of the
+                            database.
 
     Pre-processing Settings:
       Options for pre-processing of receiver function data before plotting
@@ -306,7 +335,7 @@ Usage
       --no-outlier          Set this option to delete outliers based on the MAD on
                             the variance. [Default False]
       --binlim BINLIM       Specify the minimum number of RFs in each bin.
-                            [Default 3]
+                            [Default 1]
       --bp BP               Specify the corner frequencies for the bandpass
                             filter. [Default no filtering]
       --pws                 Set this option to use phase-weighted stacking during
@@ -400,6 +429,10 @@ Usage
       -v, -V, --verbose     Specify to increase verbosity.
       -O, --overwrite       Force the overwriting of pre-existing data. [Default
                             False]
+      -L, --long-name       Force folder names to use long-key form (NET.STN.CHN).
+                            Default behaviour uses short key form (NET.STN) for
+                            the folder names, regardless of the key type of the
+                            database.
 
     Time Settings:
       Settings associated with refining the times to include in searching for
@@ -446,7 +479,7 @@ Usage
                             filtered at different corners for the Pps and Pss
                             phases. [Default False]
       --bp-copy BP_COPY     Specify a list of two floats with minimum and
-                            maximumfrequency for the copies stream (Hz). [Default
+                            maximumfrequency for the copied stream (Hz). [Default
                             [0.05, 0.35]]
 
     Settings for H-k Stacking:
@@ -535,6 +568,9 @@ Usage
       -v, -V, --verbose  Specify to increase verbosity.
       -O, --overwrite    Force the overwriting of pre-existing data. [Default
                          False]
+      -L, --long-name    Force folder names to use long-key form (NET.STN.CHN).
+                         Default behaviour uses short key form (NET.STN) for the
+                         folder names, regardless of the key type of the database.
 
     Time Settings:
       Settings associated with refining the times to include in searching for
@@ -563,6 +599,8 @@ Usage
                          functions. [Default None]
       --no-outlier       Set this option to delete outliers based on the MAD on
                          the variance. [Default False]
+      --phase PHASE      Specify the phase name to plot. Options are 'P', 'PP',
+                         'allP', 'S', 'SKS' or 'allS'. [Default 'allP']
 
     Settings for harmonic decomposition:
       Specify parameters for the decomposition, e.g. a fixed azimuth, depth
@@ -654,7 +692,11 @@ Usage
       -v, -V, --verbose    Specify to increase verbosity.
       -O, --overwrite      Force the overwriting of pre-existing data. [Default
                            False]
-
+      -L, --long-name      Force folder names to use long-key form (NET.STN.CHN).
+                           Default behaviour uses short key form (NET.STN) for the
+                           folder names, regardless of the key type of the
+                           database.
+                       
     Line Geometry Settings:
       Options for defining the line along which to produce the CCP image
 
