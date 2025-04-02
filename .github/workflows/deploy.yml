@@ -17,8 +17,9 @@ on:
 jobs:
   # This workflow contains a single job called "build"
   build:
+    name: ${{ matrix.os }} Python ${{ matrix.python-version }}
     # The type of runner that the job will run on
-    runs-on: ${{ matrix.os }} Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: ["ubuntu-latest"]
