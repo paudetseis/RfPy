@@ -537,7 +537,7 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
                 else:
                     if len(st) == 3:
                         # It's possible if len(st)==1 that data is Z12
-                        print("*              - Data Downloaded")
+                        print("*                     - Data Downloaded")
                         break
 
             # Break if we successfully obtained 3 components in st

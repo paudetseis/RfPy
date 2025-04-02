@@ -557,7 +557,7 @@ def main():
             datapath.mkdir(parents=True)
 
         # Establish client
-        client = Client(
+        data_client = Client(
             base_url=args.server,
             user=args.userauth[0],
             password=args.userauth[1],
