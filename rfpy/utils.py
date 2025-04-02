@@ -401,7 +401,7 @@ def attach_local_response_data(stream, local_response_dir):
 
 def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
                   stdata=[], dtype='SAC', ndval=nan, new_sr=0., verbose=False,
-                  remove_response=False, local_response_dir=''):
+                  remove_response=False, local_response_dir='', zcomp='Z'):
     """
     Function to build a stream object for a seismogram in a given time window either
     by downloading data from the client object or alternatively first checking if the
@@ -432,6 +432,10 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
         Directory holding response files to be read by obspy.read_inventory().
         Required when ``remove_response`` and using locally stored waveform data
         via ``stdata``.
+    zcomp: str
+        Vertical Component Identifier. Should be a single character. 
+        This is different then 'Z' only for fully unknown component 
+        orientation (i.e., components are 1, 2, 3)
 
     Returns
     -------
@@ -506,7 +510,8 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
             msgZNE = "*          {1:2s}[ZNE].{2:2s} - Checking Network".format(
                 sta.station, sta.channel.upper(), tloc)
 
-            chaZ12 = (sta.channel.upper() + 'Z,' +
+            # Use 'zcomp' only for 1, 2, 3 components, where 3 is likely Z
+            chaZ12 = (sta.channel.upper() + zcomp + ',' +
                       sta.channel.upper() + '1,' +
                       sta.channel.upper() + '2')
             msgZ12 = "*          {1:2s}[Z12].{2:2s} - Checking Network".format(
@@ -532,7 +537,7 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
                 else:
                     if len(st) == 3:
                         # It's possible if len(st)==1 that data is Z12
-                        print("*              - ZNE Data Downloaded")
+                        print("*              - Data Downloaded")
                         break
 
             # Break if we successfully obtained 3 components in st
@@ -563,7 +568,7 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
                str(tr.stats.starttime)+" " +
                str(tr.stats.endtime)) for tr in st]
         print("*   True start: "+str(start))
-        print("* -> Shifting traces to true start")
+        print("*   -> Shifting traces to true start")
         delay = [tr.stats.starttime - start for tr in st]
         st_shifted = Stream(
             traces=[traceshift(tr, dt) for tr, dt in zip(st, delay)])

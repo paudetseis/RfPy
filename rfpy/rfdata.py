@@ -71,6 +71,10 @@ class Meta(object):
     rotated : bool
         Whether or not data have been rotated to ``align``
         coordinate system
+    zcomp : str
+        Vertical Component Identifier. Should be a single character. 
+        This is different then 'Z' only for fully unknown component 
+        orientation (i.e., components are 1, 2, 3)
 
     """
 
@@ -172,7 +176,7 @@ class RFData(object):
 
     """
 
-    def __init__(self, sta):
+    def __init__(self, sta, zcomp='Z'):
 
         # Load example data if initializing empty object
         if sta == 'demo' or sta == 'Demo':
@@ -189,6 +193,7 @@ class RFData(object):
         # Initialize meta and data objects as None
         self.meta = None
         self.data = None
+        self.zcomp = zcomp
 
     def add_event(self, event, gacmin=30., gacmax=90., phase='P',
                   returned=False):
@@ -359,13 +364,14 @@ class RFData(object):
             stdata=stdata, dtype=dtype, ndval=ndval, new_sr=new_sr,
             remove_response=remove_response,
             local_response_dir=local_response_dir,
-            verbose=verbose)
+            verbose=verbose, zcomp=self.zcomp)
 
         # Store as attributes with traces in dictionary
         try:
             trE = stream.select(component='E')[0]
             trN = stream.select(component='N')[0]
             trZ = stream.select(component='Z')[0]
+
             self.data = Stream(traces=[trZ, trN, trE])
 
             # Filter Traces and resample
@@ -373,13 +379,18 @@ class RFData(object):
                              corners=2, zerophase=True)
             self.data.resample(new_sr, no_filter=True)
 
-        # If there is no ZNE, perhaps there is Z12?
+        # If there is no ZNE, perhaps there is Z12 (or zcomp12)?
         except:
 
             try:
                 tr1 = stream.select(component='1')[0]
                 tr2 = stream.select(component='2')[0]
-                trZ = stream.select(component='Z')[0]
+                trZ = stream.select(component=self.zcomp)[0]
+
+                # Force channel name to 'Z' if zcomp is not 'Z''
+                if not self.zcomp == 'Z':
+                    trZ.stats.channel = trZ.stats.channel[:-1] + 'Z'
+
                 self.data = Stream(traces=[trZ, tr1, tr2])
 
                 # Filter Traces and resample
@@ -409,6 +420,8 @@ class RFData(object):
         Rotation ``'ZNE->PVH'`` is implemented separately here 
         due to different conventions.
 
+        Can also rotate Z12 to ZNE.
+
         Parameters
         ----------
         vp : float
@@ -417,7 +430,7 @@ class RFData(object):
             S-wave velocity at surface (km/s)
         align : str
             Alignment of coordinate system for rotation
-            ('ZRT', 'LQT', or 'PVH')
+            ('ZNE', 'ZRT', 'LQT', or 'PVH')
 
         Returns
         -------
