@@ -70,17 +70,20 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False,
         raise(Exception("Type has to be 'baz' or 'slow' or 'dist'"))
 
     if typ == 'baz':
+        stat = [stream1[i].stats.baz for i in range(len(stream1))]
         bmin = 0
         bmax = 360
-        stat = [stream1[i].stats.baz for i in range(len(stream1))]
+        alt = np.mean([stream1[i].stats.slow for i in range(len(stream1))])
     elif typ == 'slow':
         stat = [stream1[i].stats.slow for i in range(len(stream1))]
         bmin = np.min(np.array(stat))
         bmax = np.max(np.array(stat))
+        alt = np.mean([stream1[i].stats.baz for i in range(len(stream1))])
     elif typ == 'dist':
         stat = [stream1[i].stats.gac for i in range(len(stream1))]
         bmin = np.min(np.array(stat))
         bmax = np.max(np.array(stat))
+        alt = np.mean([stream1[i].stats.baz for i in range(len(stream1))])
 
     # Define bins
     bins = np.linspace(bmin, bmax, nbin)
@@ -126,16 +129,16 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False,
                     trace.stats.nbin = nb
                     if typ == 'baz':
                         trace.stats.baz = bins[i]
-                        trace.stats.slow = None
+                        trace.stats.slow = alt
                         trace.stats.nbin = nb
                     elif typ == 'slow': 
                         trace.stats.slow = bins[i]
-                        trace.stats.baz = None
+                        trace.stats.baz = alt
                         trace.stats.nbin = nb
                     elif typ == 'dist':
                         trace.stats.dist = bins[i]
                         trace.stats.slow = None
-                        trace.stats.baz = None
+                        trace.stats.baz = alt
                         trace.stats.nbin = nb
                     if not pws:
                         weight = np.ones(len(stream[0].data))
