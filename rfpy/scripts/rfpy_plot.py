@@ -577,10 +577,26 @@ def main():
                 folder=args.rf_folder,
                 show=(not args.hide))
 
-        # Save RFs?
+        # Save RFs
         if args.rf_folder is not None:
-            print(args.__dict__)
-            [print(tr.stats.baz, tr.stats.slow) for tr in rf_tmp[0]]
+            import json 
+            import csv
+             
+            # Write the command-line arguments to a hidden JSON file 
+            with open(Path(args.rf_folder) / '.proc.json', 'w') as file: 
+                json.dump(args.__dict__, file) 
+
+            # Write baz and slow to .csv file
+            bb = [tr.stats.baz for tr in rf_tmp[0]]
+            ss = [tr.stats.slow for tr in rf_tmp[0]]
+            with open(
+                Path(args.rf_folder) / 'baz_slow.csv',
+                mode='w',
+                newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(['# BAZ', 'SLOW'])
+                for b, s in zip(bb, ss):
+                    writer.writerow([f"{b:.0f}", f"{s:.3f}"])
 
 
         # Event distribution
