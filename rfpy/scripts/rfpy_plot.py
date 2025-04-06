@@ -192,14 +192,12 @@ def get_plot_arguments(argv=None):
         title='Plot Settings',
         description="Options for plot format")
     PlotGroup.add_argument(
-        "--scale",
-        action="store",
-        dest="scale",
-        default=None,
-        type=float,
-        help="Specify the scaling factor for the amplitude of the " +
-        "receiver functions in the wiggle plots. [Default 100. for " +
-        "a back-azimuth plot, 0.02 for a slowness plot]")
+        "--stack",
+        action="store_true",
+        dest="stacked",
+        default=False,
+        help="Set this option to plot a stack of all traces in top panel. " +
+        "[Default does not plot stacked traces]")
     PlotGroup.add_argument(
         "--normalize",
         action="store_true",
@@ -216,34 +214,30 @@ def get_plot_arguments(argv=None):
         help="Specify the time range for the x-axis (sec). Negative times " +
         "are allowed [Default 0., 30.]")
     PlotGroup.add_argument(
-        "--stacked",
-        action="store_true",
-        dest="stacked",
-        default=False,
-        help="Set this option to plot a stack of all traces in top panel. " +
-        "[Default does not plot stacked traces]")
-    PlotGroup.add_argument(
-        "--save",
-        action="store_true",
-        dest="saveplot",
-        default=False,
-        help="Set this option if you wish to save the figure. [Default " +
-        "does not save figure]")
-    PlotGroup.add_argument(
-        "--title",
+        "--save-fig",
         action="store",
-        dest="titleplot",
+        dest="figname",
         type=str,
-        default='',
-        help="Specify title of figure. [Default None]")
+        default=None,
+        help="Specify figure filename if you wish to save the figure. By " +
+        "default, the station name will be pre-appended to the file name and " +
+        "saved to 'RF_PLOTS' unless --save-rfs is set. Valid figure formats " +
+        "are 'png', 'jpg', 'eps', 'pdf'. [Default does not save figure]")
     PlotGroup.add_argument(
-        "--format",
+        "--save-rfs",
         action="store",
+        dest="rf_folder",
         type=str,
-        dest="form",
-        default="png",
-        help="Specify format of figure. Can be any one of the valid" +
-        "matplotlib formats: 'png', 'jpg', 'eps', 'pdf'. [Default 'png']")
+        default=None,
+        help="Specify folder name to save the plotted RFs. [Default does not " +
+        "save RFs]")
+    PlotGroup.add_argument(
+        "--hide-fig",
+        action="store_true",
+        dest="hide",
+        default=False,
+        help="Specify if you do not wish to show the figure upon " +
+        "execution. [Default shows the figure]")
     PlotGroup.add_argument(
         "--plot-event-dist",
         action="store_true",
@@ -314,6 +308,11 @@ def get_plot_arguments(argv=None):
             parser.error(
                 "Error: --trange should contain 2 " +
                 "comma-separated floats")
+
+    if args.figname is not None:
+        if args.figname.split('.')[-1] not in ['png', 'jpg', 'eps', 'pdf']:
+            parser.error(
+                "Error: Invalid figure extension. Choose among 'jpg', 'png', 'eps', 'pdf'")      
 
     # create station key list
     if len(args.stkeys) > 0:
@@ -498,8 +497,12 @@ def main():
                              freqmax=args.bp[1], corners=2,
                              zerophase=True)
 
-        if args.saveplot and not Path('RF_PLOTS').is_dir():
+        ##########
+        if (args.figname is not None) and (args.rf_folder is None) and (not Path('RF_PLOTS').is_dir()):
             Path('RF_PLOTS').mkdir(parents=True)
+        elif (args.rf_folder is not None) and (not Path(args.rf_folder).is_dir()):
+            Path(args.rf_folder).mkdir(parents=True)
+        ##########
 
         print('')
         print(datapath)
@@ -534,16 +537,6 @@ def main():
             tr2 = st_tmp[1]
             if args.norm:
                 # Find normalization constant
-                # st_tmp = binning.bin_all(rf_tmp[0], rf_tmp[1], pws=args.pws)
-                # tr1 = st_tmp[0]
-                # tr2 = st_tmp[1]
-                # tmp1 = tr1.data[(taxis > args.trange[0]) & (
-                #     taxis < args.trange[1])]
-                # tmp2 = tr2.data[(taxis > args.trange[0]) & (
-                #     taxis < args.trange[1])]
-                # normR = np.amax(np.abs(tmp1))
-                # normT = np.amax(np.abs(tmp2))
-                # norm = np.max([normR, normT])
                 tmp1 = np.array([tr.data[(taxis > args.trange[0]) & (
                     taxis < args.trange[1])] for tr in rf_tmp[0]])
                 tmp2 = np.array([tr.data[(taxis > args.trange[0]) & (
@@ -560,26 +553,43 @@ def main():
 
         # Now plot
         if args.nbaz:
-            plotting.wiggle_bins(rf_tmp[0], rf_tmp[1], tr1=tr1, tr2=tr2,
-                                 btyp='baz', scale=args.scale,
-                                 tmin=args.trange[0], tmax=args.trange[1],
-                                 norm=norm, save=args.saveplot,
-                                 title=args.titleplot, form=args.form)
+            plotting.wiggle_bins(
+                rf_tmp[0],
+                rf_tmp[1],
+                tr1=tr1,
+                tr2=tr2,
+                btyp='baz',
+                trange=args.trange,
+                norm=norm,
+                save=args.figname,
+                folder=args.rf_folder,
+                show=(not args.hide))
         elif args.nslow:
-            plotting.wiggle_bins(rf_tmp[0], rf_tmp[1], tr1=tr1, tr2=tr2,
-                                 btyp='slow', scale=args.scale,
-                                 tmin=args.trange[0], tmax=args.trange[1],
-                                 norm=norm, save=args.saveplot,
-                                 title=args.titleplot, form=args.form)
+            plotting.wiggle_bins(
+                rf_tmp[0],
+                rf_tmp[1],
+                tr1=tr1,
+                tr2=tr2,
+                btyp='slow',
+                trange=args.trange,
+                norm=norm,
+                save=args.figname,
+                folder=args.rf_folder,
+                show=(not args.hide))
 
-        # Update processed folders
-        procfold.append(stfld)
+        # Save RFs?
+        if args.rf_folder is not None:
+            print(args.__dict__)
+            [print(tr.stats.baz, tr.stats.slow) for tr in rf_tmp[0]]
+
 
         # Event distribution
         if args.plot_event_dist:
             plotting.event_dist(
-                rfRstream, phase=args.phase, save=args.saveplot,
-                title=args.titleplot, form=args.form)
+                rfRstream, phase=args.phase, save=args.figname)
+
+        # Update processed folders
+        procfold.append(stfld)
 
 
 if __name__ == "__main__":

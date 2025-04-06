@@ -146,8 +146,8 @@ def wiggle(stream1, stream2=None, sort=None, tmin=0., tmax=30, normalize=True,
 
 # PLot wiggles according to either baz or slowness
 def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
-                btyp='baz', tmin=0., tmax=30., xtyp='time', scale=None,
-                norm=None, save=False, title=None, form='png'):
+                btyp='baz', trange=[0., 30.], xtyp='time',
+                norm=None, save=None, folder=None, show=True):
     """
     Function to plot receiver function according to either baz or
     slowness bins. By default, 
@@ -167,16 +167,19 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
         Trace to plot at the top of ``stream2``
     btyp : str
         Type of plot to produce (either 'baz', 'slow', or 'dist')
-    tmax : float
-        Maximum x-axis value displayed in the Figure.
+    trange : list of two floats
+        Range of x-axis values displayed in the Figure.
     xtyp : str
         Type of x-axis label (either 'time' or 'depth')
-    scale : float
-        Scale factor applied to trace amplitudes for plotting
-    save : bool
-        Whether or not to save the Figure 
-    title : str
-        Title of plot
+    norm : float
+        Normalization value applied to all traces. If not specified, 
+        default amplitude ranges will be set.
+    save : str
+        Filename of figure to be saved, including extension. 
+    folder : str
+        Folder name where figure will be saved.
+    show : bool
+        Whether or not to show the figure upon execution.
 
     """
 
@@ -188,35 +191,31 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
         raise(Exception("Cannot plot by slowness if data is migrated"))
 
     # Figure out scaling here
-    if scale:
-        maxval = scale
-        maxvalT = maxval
-    else:
-        if norm:
-            for tr in stream1:
+    if norm is not None:
+        for tr in stream1:
+            tr.data /= norm
+        if stream2:
+            for tr in stream2:
                 tr.data /= norm
-            if stream2:
-                for tr in stream2:
-                    tr.data /= norm
-            if btyp == 'baz':
-                maxval = 10.
-                maxvalT = maxval
-            elif btyp == 'slow':
-                maxval = 0.001
-                maxvalT = 2.*maxval
-            elif btyp == 'dist':
-                maxval = 1
-                maxvalT = maxval
-        else:
-            if btyp == 'baz':
-                maxval = 100
-                maxvalT = maxval
-            elif btyp == 'slow':
-                maxval = 0.02
-                maxvalT = maxval
-            elif btyp == 'dist':
-                maxval = 20
-                maxvalT = maxval
+        if btyp == 'baz':
+            maxval = 10.
+            maxvalT = maxval
+        elif btyp == 'slow':
+            maxval = 0.001
+            maxvalT = 2.*maxval
+        elif btyp == 'dist':
+            maxval = 1
+            maxvalT = maxval
+    else:
+        if btyp == 'baz':
+            maxval = 100
+            maxvalT = maxval
+        elif btyp == 'slow':
+            maxval = 0.02
+            maxvalT = maxval
+        elif btyp == 'dist':
+            maxval = 20
+            maxvalT = maxval
 
     # Time axis
     nn = stream1[0].stats.npts
@@ -270,7 +269,7 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
         ax1.set_yticks(())
         ax1.set_xticks(())
         ax1.set_title('Radial')
-        ax1.set_xlim(tmin, tmax)
+        ax1.set_xlim(trange[0], trange[1])
 
     # Plot binned SV traces in back-azimuth on bottom left
     for tr in stream1:
@@ -299,7 +298,7 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
         ax2.plot(time, y+tr.data*maxval,
             linewidth=0.25, c='k')
 
-    ax2.set_xlim(tmin, tmax)
+    ax2.set_xlim(trange[0], trange[1])
 
     if btyp == 'baz':
         ax2.set_ylim(-5, 370)
@@ -337,7 +336,7 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
             linewidth=0)
         ax3.plot(time, tr2.data,
             linewidth=0.25, c='k')
-        ax3.set_xlim(tmin, tmax)
+        ax3.set_xlim(trange[0], trange[1])
         ax3.set_ylim(-1.*ylimT, ylimT)
         ax3.set_yticks(())
         ax3.set_xticks(())
@@ -371,7 +370,7 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
             ax4.plot(time, y+tr.data*maxvalT,
                 linewidth=0.25, c='k')
 
-        ax4.set_xlim(tmin, tmax)
+        ax4.set_xlim(trange[0], trange[1])
 
         if btyp == 'baz':
             ax4.set_ylim(-5, 370)
@@ -390,13 +389,11 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
         if not ax3:
             ax4.set_title('Transverse')
 
-    if title:
-        plt.suptitle(title)
-
     if save:
         plt.savefig('RF_PLOTS/' + stream1[0].stats.station +
-                    '.' + title + '.' + form, format=form)
-    else:
+                    '.' + save, format=save.split('.')[-1])
+
+    if show:
         plt.show()
 
     plt.close()
