@@ -37,9 +37,7 @@ from numpy import nan
 
 def get_plot_arguments(argv=None):
     """
-    Get Options from :class:`~optparse.OptionParser` objects.
-
-    This function is used for data processing on-the-fly (requires web connection)
+    Get arguments from :class:`~argparse.ArgumentParser` objects.
 
     """
 
@@ -212,7 +210,8 @@ def get_plot_arguments(argv=None):
         type=str,
         dest="trange",
         help="Specify two floats that define the time range (in sec.) for " +
-        "the x-axis on the RF figure. Negative times are allowed [Default 0., 30.]")
+        "the x-axis on the RF figure. Negative times are allowed " +
+        "[Default 0., 30.]")
     PlotGroup.add_argument(
         "--save-fig",
         action="store",
@@ -220,17 +219,18 @@ def get_plot_arguments(argv=None):
         type=str,
         default=None,
         help="Specify figure filename if you wish to save the figure. By " +
-        "default, the station name will be pre-appended to the file name and " +
-        "saved to 'RF_PLOTS' unless --save-rfs is set. Valid figure formats " +
-        "are 'png', 'jpg', 'eps', 'pdf'. [Default does not save figure]")
+        "default, the station name will be pre-appended to the file name " +
+        "and saved to 'RF_PLOTS' unless --save-rfs is set. Valid figure " +
+        "formats are 'png', 'jpg', 'eps', 'pdf'. [Default does not save " +
+        "figure]")
     PlotGroup.add_argument(
         "--save-rfs",
         action="store",
         dest="rf_folder",
         type=str,
         default=None,
-        help="Specify folder name to save the plotted RFs. Lower case characters " +
-        "will be capitalized. [Default does not save RFs]")
+        help="Specify folder name to save the plotted RFs. Lower case " +
+        "characters will be capitalized. [Default does not save RFs]")
     PlotGroup.add_argument(
         "--hide-fig",
         action="store_true",
@@ -238,14 +238,6 @@ def get_plot_arguments(argv=None):
         default=False,
         help="Specify if you do not wish to show the figure upon " +
         "execution. [Default shows the figure]")
-    # PlotGroup.add_argument(
-    #     "--plot-event-dist",
-    #     action="store_true",
-    #     dest="plot_event_dist",
-    #     default=False,
-    #     help="Plot distribution of events on map. Other Plotting Options " +
-    #     "will be applied to this figure (title, save, etc.). " +
-    #     "[Default no plot]")
 
     args = parser.parse_args(argv)
 
@@ -308,14 +300,12 @@ def get_plot_arguments(argv=None):
             parser.error(
                 "Error: --trange should contain 2 " +
                 "comma-separated floats")
-        if args.trange[0] < args.trange[1]:
-            parser.error(
-                "Error: --trange=arg1,arg2 requires arg1 < arg2")
 
     if args.figname is not None:
         if args.figname.split('.')[-1] not in ['png', 'jpg', 'eps', 'pdf']:
             parser.error(
-                "Error: Invalid figure extension. Choose among 'jpg', 'png', 'eps', 'pdf'")      
+                "Error: Invalid figure extension. Choose among 'jpg', " +
+                "'png', 'eps', 'pdf'")
 
     if args.rf_folder is not None:
         args.rf_folder = args.rf_folder.upper()
@@ -592,45 +582,54 @@ def main():
 
         # Save RFs
         if args.rf_folder is not None:
-            import json 
+            import json
             import csv
-             
-            # Write the command-line arguments to a hidden JSON file 
-            with open(Path(args.rf_folder) / '.proc.json', 'w') as file: 
-                json.dump(args.__dict__, file) 
+
+            # Write the command-line arguments to a hidden JSON file
+            with open(Path(args.rf_folder) / '.proc.json', 'w') as file:
+                json.dump(args.__dict__, file)
 
             # Write baz and slow to .csv file
             bb = [tr.stats.baz for tr in rf_tmp[0]]
             ss = [tr.stats.slow for tr in rf_tmp[0]]
             with open(
                 Path(args.rf_folder) / 'baz_slow.csv',
-                mode='w',
-                newline='') as file:
+                    mode='w', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow(['# BAZ (deg)', 'SLOW (s/mk)'])
                 for b, s in zip(bb, ss):
                     writer.writerow([f"{b:.0f}", f"{s:.3f}"])
 
-            # Write RFs as SAC files
+            # Write RFs as SAC files with header
             if tr1 is not None:
-                tr1.write(args.rf_folder + '/' + (tr1.stats.station + 
-                    '.' + tr1.stats.channel + '.stack.sac'), format='SAC')
+                tr1.write(
+                    args.rf_folder + '/' + tr1.stats.station +
+                    '.' + tr1.stats.channel + '.stack.sac',
+                    format='SAC')
             if tr2 is not None:
-                tr2.write(args.rf_folder + '/' + tr2.stats.station + 
-                    '.' + tr2.stats.channel + '.stack.sac', format='SAC')
-            for tr in rf_tmp[0]:
-                tr.write(args.rf_folder + '/' + tr.stats.station + 
-                    '.' + tr.stats.channel + '.' + f"{tr.stats.baz:.0f}" +
-                    '.' + f"{tr.stats.slow:.3f}".split('.')[-1] + '.sac', format='SAC')
-            for tr in rf_tmp[1]:
-                tr.write(args.rf_folder + '/' + tr.stats.station + 
-                    '.' + tr.stats.channel + '.' + f"{tr.stats.baz:.0f}" +
-                    '.' + f"{tr.stats.slow:.3f}".split('.')[-1] + '.sac', format='SAC')
-
-        # # Event distribution
-        # if args.plot_event_dist:
-        #     plotting.event_dist(
-        #         rfRstream, phase=args.phase, save=args.figname)
+                tr2.write(
+                    args.rf_folder + '/' + tr2.stats.station +
+                    '.' + tr2.stats.channel + '.stack.sac',
+                    format='SAC')
+            for trR, trT in zip(rf_tmp[0], rf_tmp[1]):
+                baz = trR.stats.baz
+                slow = trR.stats.slow
+                sachdr = {
+                    'baz': baz,
+                    'user0': slow,
+                }
+                trR.stats.sac = sachdr
+                trT.stats.sac = sachdr
+                filestr = '.' + f"{baz:.0f}".zfill(3) + '.' + \
+                    f"{slow:.3f}".split('.')[-1] + '.sac'
+                trR.write(
+                    args.rf_folder + '/' + trR.stats.station +
+                    '.' + trR.stats.channel + filestr,
+                    format='SAC')
+                trT.write(
+                    args.rf_folder + '/' + trT.stats.station +
+                    '.' + trT.stats.channel + filestr,
+                    format='SAC')
 
         # Update processed folders
         procfold.append(stfld)
