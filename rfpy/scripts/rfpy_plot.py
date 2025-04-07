@@ -194,7 +194,7 @@ def get_plot_arguments(argv=None):
     PlotGroup.add_argument(
         "--stack",
         action="store_true",
-        dest="stacked",
+        dest="stack",
         default=False,
         help="Set this option to plot a stack of all traces in top panel. " +
         "[Default does not plot stacked traces]")
@@ -211,8 +211,8 @@ def get_plot_arguments(argv=None):
         default=None,
         type=str,
         dest="trange",
-        help="Specify the time range for the x-axis (sec). Negative times " +
-        "are allowed [Default 0., 30.]")
+        help="Specify two floats that define the time range (in sec.) for " +
+        "the x-axis on the RF figure. Negative times are allowed [Default 0., 30.]")
     PlotGroup.add_argument(
         "--save-fig",
         action="store",
@@ -229,8 +229,8 @@ def get_plot_arguments(argv=None):
         dest="rf_folder",
         type=str,
         default=None,
-        help="Specify folder name to save the plotted RFs. [Default does not " +
-        "save RFs]")
+        help="Specify folder name to save the plotted RFs. Lower case characters " +
+        "will be capitalized. [Default does not save RFs]")
     PlotGroup.add_argument(
         "--hide-fig",
         action="store_true",
@@ -238,14 +238,14 @@ def get_plot_arguments(argv=None):
         default=False,
         help="Specify if you do not wish to show the figure upon " +
         "execution. [Default shows the figure]")
-    PlotGroup.add_argument(
-        "--plot-event-dist",
-        action="store_true",
-        dest="plot_event_dist",
-        default=False,
-        help="Plot distribution of events on map. Other Plotting Options " +
-        "will be applied to this figure (title, save, etc.). " +
-        "[Default no plot]")
+    # PlotGroup.add_argument(
+    #     "--plot-event-dist",
+    #     action="store_true",
+    #     dest="plot_event_dist",
+    #     default=False,
+    #     help="Plot distribution of events on map. Other Plotting Options " +
+    #     "will be applied to this figure (title, save, etc.). " +
+    #     "[Default no plot]")
 
     args = parser.parse_args(argv)
 
@@ -308,11 +308,19 @@ def get_plot_arguments(argv=None):
             parser.error(
                 "Error: --trange should contain 2 " +
                 "comma-separated floats")
+        if args.trange[0] < args.trange[1]:
+            parser.error(
+                "Error: --trange=arg1,arg2 requires arg1 < arg2")
 
     if args.figname is not None:
         if args.figname.split('.')[-1] not in ['png', 'jpg', 'eps', 'pdf']:
             parser.error(
                 "Error: Invalid figure extension. Choose among 'jpg', 'png', 'eps', 'pdf'")      
+
+    if args.rf_folder is not None:
+        args.rf_folder = args.rf_folder.upper()
+        if len(args.rf_folder.split('.')) > 1:
+            args.rf_folder = args.rf_folder.split('.')[0]
 
     # create station key list
     if len(args.stkeys) > 0:
@@ -490,19 +498,24 @@ def main():
 
         # Filter
         if args.bp:
-            rfRstream.filter('bandpass', freqmin=args.bp[0],
-                             freqmax=args.bp[1], corners=2,
-                             zerophase=True)
-            rfTstream.filter('bandpass', freqmin=args.bp[0],
-                             freqmax=args.bp[1], corners=2,
-                             zerophase=True)
+            rfRstream.filter(
+                'bandpass',
+                freqmin=args.bp[0],
+                freqmax=args.bp[1],
+                corners=2,
+                zerophase=True)
+            rfTstream.filter(
+                'bandpass',
+                freqmin=args.bp[0],
+                freqmax=args.bp[1],
+                corners=2,
+                zerophase=True)
 
-        ##########
+        # Handle filenames and folders for saving
         if (args.figname is not None) and (args.rf_folder is None) and (not Path('RF_PLOTS').is_dir()):
             Path('RF_PLOTS').mkdir(parents=True)
         elif (args.rf_folder is not None) and (not Path(args.rf_folder).is_dir()):
             Path(args.rf_folder).mkdir(parents=True)
-        ##########
 
         print('')
         print(datapath)
@@ -531,7 +544,8 @@ def main():
                 rf_tmp[1].remove(tr)
 
         # Show a stacked trace on top OR normalize option specified
-        if args.stacked or args.norm:
+        norm = None
+        if args.stack or args.norm:
             st_tmp = binning.bin_all(rf_tmp[0], rf_tmp[1], pws=args.pws)
             tr1 = st_tmp[0]
             tr2 = st_tmp[1]
@@ -546,10 +560,9 @@ def main():
                 norm = np.max([normR, normT])
             else:
                 norm = None
-        if not args.stacked:
-            # norm = None
-            tr1 = Stream()
-            tr2 = Stream()
+        if not args.stack:
+            tr1 = None
+            tr2 = None
 
         # Now plot
         if args.nbaz:
@@ -594,15 +607,30 @@ def main():
                 mode='w',
                 newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow(['# BAZ', 'SLOW'])
+                writer.writerow(['# BAZ (deg)', 'SLOW (s/mk)'])
                 for b, s in zip(bb, ss):
                     writer.writerow([f"{b:.0f}", f"{s:.3f}"])
 
+            # Write RFs as SAC files
+            if tr1 is not None:
+                tr1.write(args.rf_folder + '/' + (tr1.stats.station + 
+                    '.' + tr1.stats.channel + '.stack.sac'), format='SAC')
+            if tr2 is not None:
+                tr2.write(args.rf_folder + '/' + tr2.stats.station + 
+                    '.' + tr2.stats.channel + '.stack.sac', format='SAC')
+            for tr in rf_tmp[0]:
+                tr.write(args.rf_folder + '/' + tr.stats.station + 
+                    '.' + tr.stats.channel + '.' + f"{tr.stats.baz:.0f}" +
+                    '.' + f"{tr.stats.slow:.3f}".split('.')[-1] + '.sac', format='SAC')
+            for tr in rf_tmp[1]:
+                tr.write(args.rf_folder + '/' + tr.stats.station + 
+                    '.' + tr.stats.channel + '.' + f"{tr.stats.baz:.0f}" +
+                    '.' + f"{tr.stats.slow:.3f}".split('.')[-1] + '.sac', format='SAC')
 
-        # Event distribution
-        if args.plot_event_dist:
-            plotting.event_dist(
-                rfRstream, phase=args.phase, save=args.figname)
+        # # Event distribution
+        # if args.plot_event_dist:
+        #     plotting.event_dist(
+        #         rfRstream, phase=args.phase, save=args.figname)
 
         # Update processed folders
         procfold.append(stfld)
