@@ -23,8 +23,8 @@
 """
 Functions to plot single station P-receiver functions as wiggle plots.
 
-Options to plot by receiver functions # vs time/depth, by back-azimuth vs 
-time/depth or slowness vs time. 
+Options to plot by receiver functions # vs time/depth, by back-azimuth vs
+time/depth or slowness vs time.
 
 """
 
@@ -41,11 +41,11 @@ import matplotlib.pyplot as plt
 def wiggle(stream1, stream2=None, sort=None, tmin=0., tmax=30, normalize=True,
            save=False, title=None, form='png'):
     """
-    Function to plot receiver function traces by index in stream. By default, 
+    Function to plot receiver function traces by index in stream. By default,
     only one stream is required, which produces a Figure with a single panel.
-    Optionally, if a second stream is present, the Figure will contain two panels.
-    The stream(s) can be sorted by stats attribute ``sort``, normalized, and
-    the Figure can be saved as .eps.
+    Optionally, if a second stream is present, the Figure will contain two
+    panels. The stream(s) can be sorted by stats attribute ``sort``,
+    normalized, and the Figure can be saved as .eps.
 
     Parameters
     ----------
@@ -59,16 +59,16 @@ def wiggle(stream1, stream2=None, sort=None, tmin=0., tmax=30, normalize=True,
     xmax : float
         Maximum x-axis value displayed in the Figure.
     normalize : bool
-        Whether or not to normalize the traces according to the max amplitude 
+        Whether or not to normalize the traces according to the max amplitude
         in ``stream1``
     save : bool
-        Whether or not to save the Figure 
+        Whether or not to save the Figure
     title : str
         Title of plot
 
     """
 
-    if sort:
+    if sort is not None:
         try:
             stream1.traces.sort(key=lambda x: x.stats[sort], reverse=False)
         except:
@@ -150,10 +150,10 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
                 norm=None, save=None, folder=None, show=True):
     """
     Function to plot receiver function according to either baz or
-    slowness bins. By default, 
-    only one stream is required, which produces a Figure with a single panel.
-    Optionally, if a second stream is present, the Figure will contain two panels.
-    If the single trace arguments are present, they will be plotted at the top.
+    slowness bins. By default, only one stream is required, which produces a
+    Figure with a single panel. Optionally, if a second stream is present,
+    the Figure will contain two panels. If the single trace arguments are
+    present, they will be plotted at the top.
 
     Parameters
     ----------
@@ -172,16 +172,20 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
     xtyp : str
         Type of x-axis label (either 'time' or 'depth')
     norm : float
-        Normalization value applied to all traces. If not specified, 
+        Normalization value applied to all traces. If not specified,
         default amplitude ranges will be set.
     save : str
-        Filename of figure to be saved, including extension. 
+        Filename of figure to be saved, including extension.
     folder : str
         Folder name where figure will be saved.
     show : bool
         Whether or not to show the figure upon execution.
 
     """
+
+    st1 = stream1.copy()
+    if stream2 is not None:
+        st2 = stream2.copy()
 
     if not (btyp == 'baz' or btyp == 'slow' or btyp == 'dist'):
         raise(Exception("Type has to be 'baz' or 'slow' or 'dist'"))
@@ -192,10 +196,10 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
 
     # Figure out scaling here
     if norm is not None:
-        for tr in stream1:
+        for tr in st1:
             tr.data /= norm
-        if stream2:
-            for tr in stream2:
+        if stream2 is not None:
+            for tr in st2:
                 tr.data /= norm
         if btyp == 'baz':
             maxval = 10.
@@ -218,21 +222,21 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
             maxvalT = maxval
 
     # Time axis
-    nn = stream1[0].stats.npts
-    sr = stream1[0].stats.sampling_rate
+    nn = st1[0].stats.npts
+    sr = st1[0].stats.sampling_rate
     time = np.arange(-nn/2, nn/2)/sr
 
     # Initialize figure
     fig = plt.figure()
     plt.clf()
 
-    if stream2 and tr1 and tr2:
+    if (stream2 is not None) and (tr1 is not None) and (tr2 is not None):
         # Get more control on subplots
         ax1 = fig.add_axes([0.1, 0.825, 0.3, 0.05])
         ax2 = fig.add_axes([0.1, 0.1, 0.3, 0.7])
         ax3 = fig.add_axes([0.45, 0.825, 0.3, 0.05])
         ax4 = fig.add_axes([0.45, 0.1, 0.3, 0.7])
-    elif stream2 and not tr1 and not tr2:
+    elif (stream2 is not None) and (tr1 is None) and (tr2 is None):
         ax1 = None
         ax2 = fig.add_subplot(121)
         ax3 = None
@@ -258,10 +262,11 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
             # facecolor='red',
             facecolor='k',
             linewidth=0)
-        ax1.plot(time, tr1.data,
+        ax1.plot(
+            time, tr1.data,
             linewidth=0.25, c='k')
         ylim = np.max([np.max(np.abs(tr1.data)), np.max(np.abs(tr2.data))])
-        if btyp=='slow':
+        if btyp == 'slow':
             ylimT = ylim/2.
         else:
             ylimT = ylim
@@ -272,7 +277,7 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
         ax1.set_xlim(trange[0], trange[1])
 
     # Plot binned SV traces in back-azimuth on bottom left
-    for tr in stream1:
+    for tr in st1:
 
         # Define y axis
         if btyp == 'baz':
@@ -295,7 +300,8 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
             facecolor='k',
             # facecolor='red',
             linewidth=0)
-        ax2.plot(time, y+tr.data*maxval,
+        ax2.plot(
+            time, y+tr.data*maxval,
             linewidth=0.25, c='k')
 
     ax2.set_xlim(trange[0], trange[1])
@@ -316,7 +322,7 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
     elif xtyp == 'depth':
         ax2.set_xlabel('Depth (km)')
     ax2.grid(ls=':')
-    if not ax1:
+    if (ax1 is None):
         ax2.set_title('Radial')
 
     if ax3:
@@ -334,7 +340,8 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
             facecolor='k',
             # facecolor='red',
             linewidth=0)
-        ax3.plot(time, tr2.data,
+        ax3.plot(
+            time, tr2.data,
             linewidth=0.25, c='k')
         ax3.set_xlim(trange[0], trange[1])
         ax3.set_ylim(-1.*ylimT, ylimT)
@@ -344,7 +351,7 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
 
     if ax4:
         # Plot binned SH traces in back-azimuth on bottom right
-        for tr in stream2:
+        for tr in st2:
 
             # Define y axis
             if btyp == 'baz':
@@ -367,7 +374,8 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
                 # facecolor='red',
                 facecolor='k',
                 linewidth=0)
-            ax4.plot(time, y+tr.data*maxvalT,
+            ax4.plot(
+                time, y+tr.data*maxvalT,
                 linewidth=0.25, c='k')
 
         ax4.set_xlim(trange[0], trange[1])
@@ -386,15 +394,15 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
             ax4.set_xlabel('Depth (km)')
         ax4.set_yticklabels([])
         ax4.grid(ls=':')
-        if not ax3:
+        if (ax3 is None):
             ax4.set_title('Transverse')
 
     if save:
         if folder is not None:
-            plt.savefig(folder + '/' + stream1[0].stats.station +
+            plt.savefig(folder + '/' + st1[0].stats.station +
                         '.' + save, format=save.split('.')[-1], dpi=300)
         else:
-            plt.savefig('RF_PLOTS/' + stream1[0].stats.station +
+            plt.savefig('RF_PLOTS/' + st1[0].stats.station +
                         '.' + save, format=save.split('.')[-1], dpi=300)
 
     if show:
@@ -412,14 +420,16 @@ def wiggle_single_event(rfdata, filt=None, pre_filt=None, trange=None):
     taxis = np.arange(-nn/2., nn/2.)/sr
 
     if pre_filt:
-        lqtcopy.filter('bandpass', freqmin=pre_filt[0], 
+        lqtcopy.filter(
+            'bandpass', freqmin=pre_filt[0],
             freqmax=pre_filt[1], corners=2, zerophase=True)
 
     if filt:
-        rfcopy.filter('bandpass', freqmin=filt[0], 
+        rfcopy.filter(
+            'bandpass', freqmin=filt[0],
             freqmax=filt[1], corners=2, zerophase=True)
 
-    fig, (ax1, ax2, ax3, ax4) = plt.subplots(4,1, figsize=(7,5))
+    fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, figsize=(7, 5))
 
     ax1.plot(taxis, lqtcopy[0], label=lqtcopy[0].stats.channel, lw=1)
     ax2.plot(taxis, lqtcopy[1], label=lqtcopy[0].stats.channel, lw=1)
@@ -442,7 +452,7 @@ def wiggle_single_event(rfdata, filt=None, pre_filt=None, trange=None):
     ax4.legend()
     plt.suptitle(
         'AZ corr: {0:.1f}; BAZ: {1:.1f}\n SNR: {2:.1f}; CC: {3:.1f}'.format(
-            rfdata.sta.azcorr, rfdata.meta.baz, 
+            rfdata.sta.azcorr, rfdata.meta.baz,
             rfdata.meta.snr, rfdata.meta.cc))
 
     plt.show()

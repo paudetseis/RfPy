@@ -48,7 +48,7 @@ where ``RfPy`` can be installed along with some of its dependencies.
 
 .. sourcecode:: bash
 
-   conda create -n rfpy python=3.10 obspy spectrum -c conda-forge
+   conda create -n rfpy "python=3.10" "setuptools=60" obspy spectrum -c conda-forge
 
 Activate the newly created environment:
 
@@ -62,8 +62,8 @@ Install remaining dependencies using ``pip`` inside the ``rfpy`` environment:
 
    pip install stdb
 
-Installing from GitHub master branch
-------------------------------------
+Installing from GitHub development branch
+-----------------------------------------
 
 .. sourcecode:: bash
 
