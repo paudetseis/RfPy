@@ -308,9 +308,6 @@ def get_plot_arguments(argv=None):
             parser.error(
                 "Error: --trange should contain 2 " +
                 "comma-separated floats")
-        if args.trange[0] < args.trange[1]:
-            parser.error(
-                "Error: --trange=arg1,arg2 requires arg1 < arg2")
 
     if args.figname is not None:
         if args.figname.split('.')[-1] not in ['png', 'jpg', 'eps', 'pdf']:
