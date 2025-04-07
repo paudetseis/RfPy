@@ -54,7 +54,7 @@
 <li class="toctree-l1"><a class="reference internal" href="#installation">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#conda-environment">Conda environment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#installing-from-github-master-branch">Installing from GitHub master branch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-from-github-development-branch">Installing from GitHub development branch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installing-from-source">Installing from source</a></li>
 </ul>
 </li>
@@ -154,7 +154,7 @@ will be automatically installed by <code class="docutils literal notranslate"><s
 <h2>Conda environment<a class="headerlink" href="#conda-environment" title="Link to this heading"></a></h2>
 <p>We recommend creating a custom <code class="docutils literal notranslate"><span class="pre">conda</span></code> environment
 where <code class="docutils literal notranslate"><span class="pre">RfPy</span></code> can be installed along with some of its dependencies.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>rfpy<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10<span class="w"> </span>obspy<span class="w"> </span>spectrum<span class="w"> </span>-c<span class="w"> </span>conda-forge
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>rfpy<span class="w"> </span><span class="s2">&quot;python=3.10&quot;</span><span class="w"> </span><span class="s2">&quot;setuptools=60&quot;</span><span class="w"> </span>obspy<span class="w"> </span>spectrum<span class="w"> </span>-c<span class="w"> </span>conda-forge
 </pre></div>
 </div>
 <p>Activate the newly created environment:</p>
@@ -166,8 +166,8 @@ where <code class="docutils literal notranslate"><span class="pre">RfPy</span></
 </pre></div>
 </div>
 </section>
-<section id="installing-from-github-master-branch">
-<h2>Installing from GitHub master branch<a class="headerlink" href="#installing-from-github-master-branch" title="Link to this heading"></a></h2>
+<section id="installing-from-github-development-branch">
+<h2>Installing from GitHub development branch<a class="headerlink" href="#installing-from-github-development-branch" title="Link to this heading"></a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>rfpy@git+https://github.com/paudetseis/rfpy
 </pre></div>
 </div>
