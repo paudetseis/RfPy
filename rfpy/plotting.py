@@ -390,8 +390,12 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
             ax4.set_title('Transverse')
 
     if save:
-        plt.savefig('RF_PLOTS/' + stream1[0].stats.station +
-                    '.' + save, format=save.split('.')[-1])
+        if folder is not None:
+            plt.savefig(folder + '/' + stream1[0].stats.station +
+                        '.' + save, format=save.split('.')[-1], dpi=300)
+        else:
+            plt.savefig('RF_PLOTS/' + stream1[0].stats.station +
+                        '.' + save, format=save.split('.')[-1], dpi=300)
 
     if show:
         plt.show()
