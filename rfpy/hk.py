@@ -175,7 +175,7 @@ class HkStack(object):
         k = np.arange(self.kbound[0], self.kbound[1] + self.dk, self.dk)
 
         # Initialize arrays
-        weight = np.complex(0.)
+        weight = complex(0.)
         amp = np.zeros(len(self.rfV1))
         sig = np.zeros((len(H), len(k), len(self.phases)))
         pws = np.zeros((len(H), len(k), len(self.phases)))
@@ -275,7 +275,7 @@ class HkStack(object):
         k = np.arange(self.kbound[0], self.kbound[1] + self.dk, self.dk)
 
         # Initialize arrays
-        weight = np.complex(0.)
+        weight = complex(0.)
         amp = np.zeros(len(self.rfV1))
         sig = np.zeros((len(H), len(k), len(self.phases)))
         pws = np.zeros((len(H), len(k), len(self.phases)))
@@ -300,7 +300,7 @@ class HkStack(object):
                         weight += np.exp(1j*tphase[0])
                         amp[i] = trace[0]
 
-                    weight = abs(weight/np.float(len(self.rfV1)))**4
+                    weight = abs(weight/float(len(self.rfV1)))**4
                     sig[ih, ik, ip] = np.var(amp)*np.real(weight)
                     pws[ih, ik, ip] = np.median(amp)*np.real(weight)
 
