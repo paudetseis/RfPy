@@ -361,25 +361,25 @@ Usage
     Plot Settings:
       Options for plot format
 
-      --scale SCALE         Specify the scaling factor for the amplitude of the
-                            receiver functions in the wiggle plots. [Default 100.
-                            for a back-azimuth plot, 0.02 for a slowness plot]
+      --stack               Set this option to plot a stack of all traces in top
+                            panel. [Default does not plot stacked traces]
       --normalize           Set this option to produce receiver functions
                             normalized by the max amplitude of stacked RFs.
                             [Default False]
-      --trange TRANGE       Specify the time range for the x-axis (sec). Negative
-                            times are allowed [Default 0., 30.]
-      --stacked             Set this option to plot a stack of all traces in top
-                            panel. [Default does not plot stacked traces]
-      --save                Set this option if you wish to save the figure.
-                            [Default does not save figure]
-      --title TITLEPLOT     Specify title of figure. [Default None]
-      --format FORM         Specify format of figure. Can be any one of the
-                            validmatplotlib formats: 'png', 'jpg', 'eps', 'pdf'.
-                            [Default 'png']
-      --plot-event-dist     Plot distribution of events on map. Other Plotting
-                            Options will be applied to this figure (title, save,
-                            etc.). [Default no plot]
+      --trange TRANGE       Specify two floats that define the time range (in
+                            sec.) for the x-axis on the RF figure. Negative times
+                            are allowed [Default 0., 30.]
+      --save-fig FIGNAME    Specify figure filename if you wish to save the
+                            figure. By default, the station name will be pre-
+                            appended to the file name and saved to 'RF_PLOTS'
+                            unless --save-rfs is set. Valid figure formats are
+                            'png', 'jpg', 'eps', 'pdf'. [Default does not save
+                            figure]
+      --save-rfs RF_FOLDER  Specify folder name to save the plotted RFs. Lower
+                            case characters will be capitalized. [Default does not
+                            save RFs]
+      --hide-fig            Specify if you do not wish to show the figure upon
+                            execution. [Default shows the figure]
 
 
 ``rfpy_hk``
