@@ -144,7 +144,7 @@ class Harmonics(object):
         nbin = len(self.radialRF)
         nz = len(self.radialRF[0].data)
         naz = 180
-        daz = np.float(360/naz)
+        daz = float(360/naz)
         deg2rad = np.pi/180.
 
         # Define depth range over which to calculate azimuth
@@ -203,11 +203,11 @@ class Harmonics(object):
                 CC = np.linalg.solve(s[:, None] * v, u.T.dot(OBS)[:5])
 
                 # Fill up arrays
-                C0[iz, iaz] = np.float(CC[0])
-                C1[iz, iaz] = np.float(CC[1])
-                C2[iz, iaz] = np.float(CC[2])
-                C3[iz, iaz] = np.float(CC[3])
-                C4[iz, iaz] = np.float(CC[4])
+                C0[iz, iaz] = float(CC[0])
+                C1[iz, iaz] = float(CC[1])
+                C2[iz, iaz] = float(CC[2])
+                C3[iz, iaz] = float(CC[3])
+                C4[iz, iaz] = float(CC[4])
 
         # Minimize variance of third component over specific depth range to
         # find azim
@@ -312,11 +312,11 @@ class Harmonics(object):
             CC = np.linalg.solve(s[:, None] * v, u.T.dot(OBS)[:5])
 
             # Fill up arrays
-            C0[iz] = np.float(CC[0])
-            C1[iz] = np.float(CC[1])
-            C2[iz] = np.float(CC[2])
-            C3[iz] = np.float(CC[3])
-            C4[iz] = np.float(CC[4])
+            C0[iz] = float(CC[0])
+            C1[iz] = float(CC[1])
+            C2[iz] = float(CC[2])
+            C3[iz] = float(CC[3])
+            C4[iz] = float(CC[4])
 
         # Put back into traces
         A = Trace(data=C0, header=str_stats)
