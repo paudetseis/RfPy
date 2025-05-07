@@ -31,14 +31,12 @@ Installation
 Dependencies
 ------------
 
-The current version has been tested using **Python > 3.6** \
+The current version has been tested using **Python > 3.9** \
 Also, the following packages are required:
 
 - `stdb <https://github.com/paudetseis/StDb>`_
+- `obspy <https://github.com/obspy/obspy>`_
 - `spectrum <https://github.com/cokelaer/spectrum>`_
-
-Other required packages (e.g., ``obspy``)
-will be automatically installed by ``stdb``.
 
 Conda environment
 -----------------
@@ -48,7 +46,7 @@ where ``RfPy`` can be installed along with some of its dependencies.
 
 .. sourcecode:: bash
 
-   conda create -n rfpy "python=3.10" "setuptools=60" obspy spectrum -c conda-forge
+   conda create -n rfpy -c conda-forge python=3.12 obspy spectrum 
 
 Activate the newly created environment:
 
@@ -56,7 +54,7 @@ Activate the newly created environment:
 
    conda activate rfpy
 
-Install remaining dependencies using ``pip`` inside the ``rfpy`` environment:
+Install the `StDb` dependency using ``pip`` inside the ``rfpy`` environment:
 
 .. sourcecode:: bash
 
