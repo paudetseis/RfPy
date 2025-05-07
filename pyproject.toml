@@ -6,8 +6,7 @@ requires = ["meson-python>0.15.0", "numpy >= 1.25.0"]
 [project]
 name = "rfpy"
 version = "0.2.0"
-description = "Python package for calculating and post-processing
-receiver functions"
+description = "Python package for calculating and post-processing receiver functions"
 authors = [
     { name = "Pascal Audet", email = "pascal.audet@uottawa.ca" }
 ]
@@ -29,3 +28,11 @@ classifiers = [
 Homepage = "https://github.com/paudetseis/RfPy"
 Documentation = "https://paudetseis.github.io/RfPy"
 "Bug Tracker" = "https://github.com/paudetseis/RfPy/issues"
+
+[project.scripts]
+rfpy_calc = "rfpy.scripts.rfpy_calc:main"
+rfpy_recalc = "rfpy.scripts.rfpy_recalc:main"
+rfpy_plot = "rfpy.scripts.rfpy_plot:main"
+rfpy_hk = "rfpy.scripts.rfpy_hk:main"
+rfpy_harmonics = "rfpy.scripts.rfpy_harmonics:main"
+rfpy_ccp = "rfpy.scripts.rfpy_ccp:main"

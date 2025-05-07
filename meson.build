@@ -15,9 +15,16 @@ py.install_sources(
   'rfpy/harmonics.py',
   'rfpy/binning.py',
   'rfpy/utils.py',
+  'rfpy/ccp.py',
   'rfpy/__init__.py',
-  'rfpy/examples/data/*',
-  'rfpy/scripts/*',
+  'rfpy/scripts/rfpy_calc.py',
+  'rfpy/scripts/rfpy_recalc.py',
+  'rfpy/scripts/rfpy_plot.py',
+  'rfpy/scripts/rfpy_hk.py',
+  'rfpy/scripts/rfpy_harmonics.py',
+  'rfpy/scripts/rfpy_ccp.py',
+  'rfpy/scripts/__init__.py',
   pure: false,
-  subdir: 'rfpy'
+  preserve_path: true,
   )
+  
