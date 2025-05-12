@@ -5,7 +5,7 @@ requires = ["meson-python>0.15.0", "numpy >= 1.25.0"]
 
 [project]
 name = "rfpy"
-version = "0.2.0"
+version = "0.2.1"
 description = "Python package for calculating and post-processing receiver functions"
 authors = [
     { name = "Pascal Audet", email = "pascal.audet@uottawa.ca" }
