@@ -54,13 +54,13 @@ class Meta(object):
     az : float
         Azimuth - pointing to station from earthquake (degrees)
     ttime : float
-        Predicted arrival time (sec) 
+        Predicted arrival time (sec)
     ph : str
-        Phase name 
+        Phase name
     slow : float
-        Horizontal slowness of phase 
+        Horizontal slowness of phase
     inc : float
-        Incidence angle of phase at surface 
+        Incidence angle of phase at surface
     vp : float
         P-wave velocity at surface (km/s)
     vs : float
@@ -72,8 +72,8 @@ class Meta(object):
         Whether or not data have been rotated to ``align``
         coordinate system
     zcomp : str
-        Vertical Component Identifier. Should be a single character. 
-        This is different then 'Z' only for fully unknown component 
+        Vertical Component Identifier. Should be a single character.
+        This is different then 'Z' only for fully unknown component
         orientation (i.e., components are 1, 2, 3)
 
     """
@@ -155,8 +155,8 @@ class Meta(object):
 class RFData(object):
     """
     A RFData object contains Class attributes that associate
-    station information with a single event (i.e., earthquake) 
-    metadata, corresponding raw and rotated seismograms and 
+    station information with a single event (i.e., earthquake)
+    metadata, corresponding raw and rotated seismograms and
     receiver functions.
 
     Note
@@ -198,8 +198,8 @@ class RFData(object):
     def add_event(self, event, gacmin=30., gacmax=90., phase='P',
                   returned=False):
         """
-        Adds event metadata to RFData object, including travel time info 
-        of P wave. 
+        Adds event metadata to RFData object, including travel time info
+        of P wave.
 
         Parameters
         ----------
@@ -281,7 +281,7 @@ class RFData(object):
             print(stream)
 
         if not isinstance(stream, Stream):
-            raise(Exception("Event has incorrect type"))
+            raise Exception("Event has incorrect type")
 
         try:
             self.data = stream
@@ -296,17 +296,17 @@ class RFData(object):
                                  corners=2, zerophase=True)
                 self.data.resample(new_sr, no_filter=True)
 
-        except:
+        except Exception as e:
             print("Error: Not all channels are available")
             self.meta.accept = False
 
         if returned:
             return self.meta.accept
 
-    def download_data(self, client, stdata=[], dtype='SAC', ndval=np.nan,
-                       new_sr=5.,dts=120., remove_response=False,
-                       local_response_dir='',
-                       returned=False, verbose=False):
+    def download_data(self, client, new_sr=5., dts=120.,
+                      remove_response=False, returned=False,
+                      verbose=False):
+
         """
         Downloads seismograms based on event origin time and
         P phase arrival.
@@ -315,14 +315,10 @@ class RFData(object):
         ----------
         client : :class:`~obspy.client.fdsn.Client`
             Client object
-        ndval : float
-            Fill in value for missing data
         new_sr : float
             New sampling rate (Hz)
         dts : float
             Time duration (sec)
-        stdata : List
-            Station list
         remove_response : bool
             Remove instrument response from seismogram and resitute to true ground
             velocity (m/s) using obspy.core.trace.Trace.remove_response()
@@ -344,7 +340,7 @@ class RFData(object):
         """
 
         if self.meta is None:
-            raise(Exception("Requires event data as attribute - aborting"))
+            raise Exception("Requires event data as attribute - aborting")
 
         if not self.meta.accept:
             return
@@ -353,18 +349,16 @@ class RFData(object):
         tstart = self.meta.time + self.meta.ttime - dts
         tend = self.meta.time + self.meta.ttime + dts
 
-        # Get waveforms
-        print("* Requesting Waveforms: ")
-        print("*    Startime: " + tstart.strftime("%Y-%m-%d %H:%M:%S"))
-        print("*    Endtime:  " + tend.strftime("%Y-%m-%d %H:%M:%S"))
+        if verbose:
+            print("* Requesting Waveforms: ")
+            print("*    Startime: " + tstart.strftime("%Y-%m-%d %H:%M:%S"))
+            print("*    Endtime:  " + tend.strftime("%Y-%m-%d %H:%M:%S"))
 
         # Download data
         err, stream = utils.download_data(
             client=client, sta=self.sta, start=tstart, end=tend,
-            stdata=stdata, dtype=dtype, ndval=ndval, new_sr=new_sr,
-            remove_response=remove_response,
-            local_response_dir=local_response_dir,
-            verbose=verbose, zcomp=self.zcomp)
+            new_sr=new_sr, verbose=verbose, remove_response=remove_response,
+            zcomp=self.zcomp)
 
         # Store as attributes with traces in dictionary
         try:
@@ -380,7 +374,7 @@ class RFData(object):
             self.data.resample(new_sr, no_filter=True)
 
         # If there is no ZNE, perhaps there is Z12 (or zcomp12)?
-        except:
+        except Exception as e:
 
             try:
                 tr1 = stream.select(component='1')[0]
@@ -404,7 +398,7 @@ class RFData(object):
                 # Rotate from Z12 to ZNE using StDb azcorr attribute
                 self.rotate(align='ZNE')
 
-            except:
+            except Exception as e:
                 self.meta.accept = False
 
         if returned:
@@ -413,11 +407,11 @@ class RFData(object):
     def rotate(self, vp=None, vs=None, align=None):
         """
         Rotates 3-component seismograms from vertical (Z),
-        east (E) and north (N) to longitudinal (L), 
+        east (E) and north (N) to longitudinal (L),
         radial (Q) and tangential (T) components of motion.
         Note that the method 'rotate' from ``obspy.core.stream.Stream``
         is used for the rotation ``'ZNE->ZRT'`` and ``'ZNE->LQT'``.
-        Rotation ``'ZNE->PVH'`` is implemented separately here 
+        Rotation ``'ZNE->PVH'`` is implemented separately here
         due to different conventions.
 
         Can also rotate Z12 to ZNE.
@@ -545,8 +539,7 @@ class RFData(object):
             self.meta.rotated = True
 
         else:
-            raise(Exception("incorrect 'align' argument"))
-
+            raise Exception("incorrect 'align' argument")
 
     def calc_snr(self, dt=30., fmin=0.05, fmax=1.):
         """
@@ -633,7 +626,6 @@ class RFData(object):
 
         # Calculate signal/noise ratio in dB
         self.meta.snrh = 10*np.log10(srms*srms/nrms/nrms)
-
 
     def deconvolve(self, phase='P', vp=None, vs=None,
                    align=None, method='wiener', wavelet='complete',

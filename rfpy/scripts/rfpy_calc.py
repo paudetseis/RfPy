@@ -27,7 +27,8 @@
 import numpy as np
 import pickle
 import stdb
-from obspy.clients.fdsn import Client
+from obspy.clients.fdsn import Client as FDSN_Client
+from obspy.clients.filesystem.sds import Client as SDS_Client
 from obspy import Catalog, UTCDateTime
 from http.client import IncompleteRead
 from rfpy import utils, RFData
@@ -155,22 +156,22 @@ def get_calc_arguments(argv=None):
         type=str,
         dest="localdata",
         default=None,
-        help="Specify a comma separated list of paths containing " +
+        help="Specify path containing " +
         "day-long sac or mseed files of data already downloaded. " +
         "If data exists for a seismogram is already present on disk, " +
         "it is selected preferentially over downloading " +
-        "the data using the Client interface")
+        "the data using the FDSN Client interface")
     DataGroup.add_argument(
-    	"--dtype",
-    	action="store",
-    	type=str,
-    	dest="dtype",
-    	default='SAC',
-    	help="Specify the data archive file type, either SAC " +
-    	" or MSEED. Note the default behaviour is to search for " +
-    	"SAC files. Local archive files must have extensions of '.SAC' "+
-    	" or '.MSEED. These are case dependent, so specify the correct case"+
-        "here.")
+        "--dtype",
+        action="store",
+        type=str,
+        dest="dtype",
+        default='MSEED',
+        help="Specify the data archive file type, either SAC " +
+        " or MSEED. Note the default behaviour is to search for " +
+        "SAC files. Local archive files must have extensions of " +
+        "'.SAC'  or '.MSEED'. These are case dependent, so specify " +
+        "the correct case here.")
     DataGroup.add_argument(
         "--no-data-zero",
         action="store_true",
@@ -419,26 +420,27 @@ def get_calc_arguments(argv=None):
         if args.userauth is not None:
             tt = args.userauth.split(':')
             if not len(tt) == 2:
-                msg = ("Error: Incorrect Username and Password Strings for User "
-                       "Authentification")
+                msg = (
+                    "Error: Incorrect Username and Password Strings " +
+                    "for User Authentification")
                 parser.error(msg)
             else:
                 args.userauth = tt
         else:
             args.userauth = [None, None]
 
-    # Parse Local Data directories
-    if args.localdata is not None:
-        args.localdata = args.localdata.split(',')
-    else:
-        args.localdata = []
+    # # Parse Local Data directories
+    # if args.localdata is not None:
+    #     args.localdata = args.localdata.split(',')
+    # else:
+    #     args.localdata = []
 
     # Check Datatype specification
-    if (not args.dtype.upper() == 'MSEED') and  (not args.dtype.upper() == 'SAC'):
-    	parser.error(
-    		"Error: Local Data Archive must be of types 'SAC'" +
-    		"or MSEED. These must match the file extensions for " +
-    		" the archived data.")
+    if args.dtype.upper() not in ['MSEED', 'SAC']:
+        parser.error(
+            "Error: Local Data Archive must be of types 'SAC'" +
+            "or MSEED. These must match the file extensions for " +
+            " the archived data.")
 
     # Check NoData Value
     if args.ndval:
@@ -557,14 +559,19 @@ def main():
             datapath.mkdir(parents=True)
 
         # Establish client
-        data_client = Client(
-            base_url=args.server,
-            user=args.userauth[0],
-            password=args.userauth[1],
-            eida_token=args.tokenfile)
+        if args.localdata is None:
+            data_client = FDSN_Client(
+                base_url=args.server,
+                user=args.userauth[0],
+                password=args.userauth[1],
+                eida_token=args.tokenfile)
+        else:
+            data_client = SDS_Client(
+                args.localdata,
+                format=args.dtype)
 
         # Establish client for events
-        event_client = Client()
+        event_client = FDSN_Client()
 
         # Get catalogue search start time
         if args.startT is None:
@@ -581,13 +588,10 @@ def main():
             continue
 
         # Temporary print locations
-        tlocs = sta.location
-        if len(tlocs) == 0:
-            tlocs = ['']
-        for il in range(0, len(tlocs)):
-            if len(tlocs[il]) == 0:
-                tlocs[il] = "--"
-        sta.location = tlocs
+        tlocs = []
+        for il in range(0, len(sta.location)):
+            if len(sta.location[il]) == 0:
+                tlocs.append("--")
 
         # Update Display
         print(" ")
@@ -630,15 +634,16 @@ def main():
             cat = event_client.get_events(
                 starttime=tstart, endtime=tend,
                 minmagnitude=args.minmag, maxmagnitude=args.maxmag)
+
         except IncompleteRead:
             # See http.client.IncompleteRead
             # https://github.com/obspy/obspy/issues/3028#issue-1179808237
-            
+
             # Read yearly chunks
             print('| Warning: Unable to get entire catalog at once |')
             print('| Trying to get one year at a time              |')
             print('|                                               |')
-            
+
             chunk = 365 * 86400  # Query length in seconds
             cat = Catalog()
             tend = min(tend, UTCDateTime.now())
@@ -668,27 +673,27 @@ def main():
             " possible events                  |")
         ievs = range(0, nevtT)
 
-        # Get Local Data Availabilty
-        if len(args.localdata) > 0:
-            print("|-----------------------------------------------|")
-            print("| Cataloging Local Data...                      |")
-            if args.useNet:
-                stalcllist = utils.list_local_data_stn(
-                    lcldrs=args.localdata, sta=sta.station,
-                    net=sta.network, dtype=args.dtype, altnet=sta.altnet)
-                print("|   {0:>2s}.{1:5s}: {2:6d}".format(
-                    sta.network, sta.station, len(stalcllist)) +
-                    " files                      |")
-                #print(stalcllist[0:10])
-            else:
-                stalcllist = utils.list_local_data_stn(
-                    lcldrs=args.localdata, sta=sta.station, dtype=args.dtype)
-                print("|   {0:5s}: {1:6d} files                " +
-                      "        |".format(
-                          sta.station, len(stalcllist)))
-        else:
-            stalcllist = []
-        print("|===============================================|")
+        # # Get Local Data Availabilty
+        # if len(args.localdata) > 0:
+        #     print("|-----------------------------------------------|")
+        #     print("| Cataloging Local Data...                      |")
+        #     if args.useNet:
+        #         stalcllist = utils.list_local_data_stn(
+        #             lcldrs=args.localdata, sta=sta.station,
+        #             net=sta.network, dtype=args.dtype, altnet=sta.altnet)
+        #         print("|   {0:>2s}.{1:5s}: {2:6d}".format(
+        #             sta.network, sta.station, len(stalcllist)) +
+        #             " files                      |")
+        #         #print(stalcllist[0:10])
+        #     else:
+        #         stalcllist = utils.list_local_data_stn(
+        #             lcldrs=args.localdata, sta=sta.station, dtype=args.dtype)
+        #         print("|   {0:5s}: {1:6d} files                " +
+        #               "        |".format(
+        #                   sta.station, len(stalcllist)))
+        # else:
+        #     stalcllist = []
+        # print("|===============================================|")
 
         # Select order of processing
         if args.reverse:
@@ -761,9 +766,11 @@ def main():
 
                 # Get data
                 has_data = rfdata.download_data(
-                    client=data_client, dts=args.dts, stdata=stalcllist,
-                    ndval=args.ndval, dtype=args.dtype, new_sr=args.new_sampling_rate,
-                    returned=True, verbose=args.verb)
+                    client=data_client,
+                    dts=args.dts,
+                    new_sr=args.new_sampling_rate,
+                    returned=True,
+                    verbose=args.verb)
 
                 if not has_data:
                     continue
