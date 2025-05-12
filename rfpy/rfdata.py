@@ -309,7 +309,7 @@ class RFData(object):
 
         """
         Downloads seismograms based on event origin time and
-        P phase arrival.
+        P phase arrival and resamples the waveforms.
 
         Parameters
         ----------
