@@ -395,7 +395,7 @@ def get_calc_arguments(argv=None):
     if len(args.startT) > 0:
         try:
             args.startT = UTCDateTime(args.startT)
-        except:
+        except Exception:
             parser.error(
                 "Cannot construct UTCDateTime from start time: " +
                 args.startT)
@@ -406,7 +406,7 @@ def get_calc_arguments(argv=None):
     if len(args.endT) > 0:
         try:
             args.endT = UTCDateTime(args.endT)
-        except:
+        except Exception:
             parser.error(
                 "Cannot construct UTCDateTime from end time: " +
                 args.endT)
