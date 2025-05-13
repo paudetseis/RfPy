@@ -2,6 +2,7 @@ import math
 from obspy import UTCDateTime
 from numpy import nan, isnan, abs
 import numpy as np
+import copy
 from obspy import Stream, Inventory
 from obspy import read, read_inventory
 
@@ -58,6 +59,10 @@ def download_data(client=None, sta=None, start=UTCDateTime(),
         Start time for request
     end : :class:`~obspy.core.utcdatetime.UTCDateTime`
         End time for request
+    new_st : float
+        New sampling rate (Hz)
+    verbose : bool
+        Whether or not to print messages to screen during run-time
     remove_response : bool
         Remove instrument response from seismogram and resitute to true ground
         velocity (m/s) using obspy.core.trace.Trace.remove_response()
@@ -94,6 +99,8 @@ def download_data(client=None, sta=None, start=UTCDateTime(),
         # Construct location name
         if len(loc) == 0:
             tloc = "--"
+        else:
+            tloc = copy.copy(loc)
 
         # Construct Channel List
         cha = sta.channel.upper() + '?'
