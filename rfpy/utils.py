@@ -97,15 +97,15 @@ def download_data(client=None, sta=None, start=UTCDateTime(),
     for loc in sta.location:
 
         # Construct location name
-        if len(loc) == 0:
-            tloc = "--"
+        if loc == "--":
+            tloc = ""
         else:
             tloc = copy.copy(loc)
 
         # Construct Channel List
         cha = sta.channel.upper() + '?'
         msg = "*     {0:s}.{1:2s}?.{2:2s} - Checking Network".format(
-            sta.station, sta.channel.upper(), tloc)
+            sta.station, sta.channel.upper(), loc)
         print(msg)
 
         # Get waveforms, with extra 1 second to avoid
@@ -114,7 +114,7 @@ def download_data(client=None, sta=None, start=UTCDateTime(),
             st = client.get_waveforms(
                 network=sta.network,
                 station=sta.station,
-                location=loc,
+                location=tloc,
                 channel=cha,
                 starttime=start,
                 endtime=end+1.)

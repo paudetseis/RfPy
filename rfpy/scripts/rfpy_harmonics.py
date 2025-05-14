@@ -27,6 +27,7 @@
 import numpy as np
 import pickle
 import stdb
+import copy
 from obspy.clients.fdsn import Client
 from obspy.core import Stream, UTCDateTime
 from rfpy import binning, plotting, Harmonics
@@ -391,13 +392,12 @@ def main():
             continue
 
         # Temporary print locations
-        tlocs = sta.location
+        tlocs = copy.copy(sta.location)
         if len(tlocs) == 0:
             tlocs = ['']
         for il in range(0, len(tlocs)):
             if len(tlocs[il]) == 0:
-                tlocs[il] = "--"
-        sta.location = tlocs
+                tlocs.append("--")
 
         # Update Display
         print(" ")

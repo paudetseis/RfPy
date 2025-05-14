@@ -29,6 +29,7 @@ from os.path import exists as exist
 import numpy as np
 import pickle
 import stdb
+import copy
 from rfpy import RFData
 from pathlib import Path
 
@@ -36,8 +37,6 @@ from pathlib import Path
 def get_recalc_arguments(argv=None):
     """
     Get Options from :class:`~optparse.OptionParser` objects.
-
-    This function is used for data processing on-the-fly (requires web connection)
 
     """
 
@@ -285,13 +284,12 @@ def main():
             continue
 
         # Temporary print locations
-        tlocs = sta.location
+        tlocs = copy.copy(sta.location)
         if len(tlocs) == 0:
             tlocs = ['']
         for il in range(0, len(tlocs)):
             if len(tlocs[il]) == 0:
-                tlocs[il] = "--"
-        sta.location = tlocs
+                tlocs.append("--")
 
         # Update Display
         print(" ")
