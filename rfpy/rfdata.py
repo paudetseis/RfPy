@@ -255,7 +255,7 @@ class RFData(object):
 
         Attributes
         ----------
-        zne_data : :class:`~obspy.core.Stream`
+        data : :class:`~obspy.core.Stream`
             Stream container for NEZ seismograms
 
         Returns
