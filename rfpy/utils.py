@@ -3,8 +3,7 @@ from obspy import UTCDateTime
 from numpy import nan, isnan, abs
 import numpy as np
 import copy
-from obspy import Stream, Inventory
-from obspy import read, read_inventory
+from obspy import Stream, read
 
 
 def floor_decimal(n, decimals=0):
@@ -59,7 +58,7 @@ def download_data(client=None, sta=None, start=UTCDateTime(),
         Start time for request
     end : :class:`~obspy.core.utcdatetime.UTCDateTime`
         End time for request
-    new_st : float
+    new_sr : float
         New sampling rate (Hz)
     verbose : bool
         Whether or not to print messages to screen during run-time
@@ -83,12 +82,6 @@ def download_data(client=None, sta=None, start=UTCDateTime(),
         Trace of Vertical component of motion
 
     """
-
-    from fnmatch import filter
-    from obspy import read, Stream
-    from os.path import dirname, join, exists
-    from numpy import any
-    from math import floor
 
     # # Output
     # print(("*     {0:s}.{1:2s} - ZNE:".format(sta.station,
