@@ -634,8 +634,10 @@ def main():
         # Get catalogue using deployment start and end
         try:
             cat = event_client.get_events(
-                starttime=tstart, endtime=tend,
-                minmagnitude=args.minmag, maxmagnitude=args.maxmag)
+                starttime=tstart,
+                endtime=tend,
+                minmagnitude=args.minmag,
+                maxmagnitude=args.maxmag)
 
         except IncompleteRead:
             # See http.client.IncompleteRead
@@ -653,8 +655,10 @@ def main():
                 print("| Start:   {0:19s}                  |".format(
                     tstart.strftime("%Y-%m-%d %H:%M:%S")))
                 cat += event_client.get_events(
-                    starttime=tstart, endtime=tstart + chunk,
-                    minmagnitude=args.minmag, maxmagnitude=args.maxmag)
+                    starttime=tstart,
+                    endtime=tstart + chunk,
+                    minmagnitude=args.minmag,
+                    maxmagnitude=args.maxmag)
 
                 # Make sure that we go all the way to tend
                 if tstart + chunk > tend:
