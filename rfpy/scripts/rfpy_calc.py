@@ -41,10 +41,6 @@ from numpy import nan
 
 
 def get_calc_arguments(argv=None):
-    """
-    Get Options from :class:`~optparse.OptionParser` objects.
-
-    """
 
     parser = ArgumentParser(
         usage="%(prog)s [arguments] <station database>",
@@ -74,7 +70,7 @@ def get_calc_arguments(argv=None):
         "instance, providing IU will match with all stations in " +
         "the IU network [Default processes all stations in the database]")
     parser.add_argument(
-        "-v", "-V", "--verbose",
+        "-V", "--verbose",
         action="store_true",
         dest="verb",
         default=False,
@@ -131,11 +127,11 @@ def get_calc_arguments(argv=None):
         "waveform server (--user-auth='username:authpassword') to access " +
         "and download restricted data. [Default no user and password]")
     ServerGroup.add_argument(
-        "--eida-token", 
-        action="store", 
+        "--eida-token",
+        action="store",
         type=str,
-        dest="tokenfile", 
-        default=None, 
+        dest="tokenfile",
+        default=None,
         help="Token for EIDA authentication mechanism, see " +
         "http://geofon.gfz-potsdam.de/waveform/archive/auth/index.php. "
         "If a token is provided, argument --user-auth will be ignored. "
@@ -429,12 +425,6 @@ def get_calc_arguments(argv=None):
         else:
             args.userauth = [None, None]
 
-    # # Parse Local Data directories
-    # if args.localdata is not None:
-    #     args.localdata = args.localdata.split(',')
-    # else:
-    #     args.localdata = []
-
     # Check Datatype specification
     if args.dtype.upper() not in ['MSEED', 'SAC']:
         parser.error(
@@ -678,28 +668,6 @@ def main():
             "|  Found {0:5d}".format(nevtT) +
             " possible events                  |")
         ievs = range(0, nevtT)
-
-        # # Get Local Data Availabilty
-        # if len(args.localdata) > 0:
-        #     print("|-----------------------------------------------|")
-        #     print("| Cataloging Local Data...                      |")
-        #     if args.useNet:
-        #         stalcllist = utils.list_local_data_stn(
-        #             lcldrs=args.localdata, sta=sta.station,
-        #             net=sta.network, dtype=args.dtype, altnet=sta.altnet)
-        #         print("|   {0:>2s}.{1:5s}: {2:6d}".format(
-        #             sta.network, sta.station, len(stalcllist)) +
-        #             " files                      |")
-        #         #print(stalcllist[0:10])
-        #     else:
-        #         stalcllist = utils.list_local_data_stn(
-        #             lcldrs=args.localdata, sta=sta.station, dtype=args.dtype)
-        #         print("|   {0:5s}: {1:6d} files                " +
-        #               "        |".format(
-        #                   sta.station, len(stalcllist)))
-        # else:
-        #     stalcllist = []
-        # print("|===============================================|")
 
         # Select order of processing
         if args.reverse:

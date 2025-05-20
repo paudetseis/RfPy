@@ -38,12 +38,6 @@ from numpy import nan
 
 
 def get_harmonics_arguments(argv=None):
-    """
-    Get Options from :class:`~optparse.OptionParser` objects.
-
-    This function is used for data processing on-the-fly (requires web connection)
-
-    """
 
     parser = ArgumentParser(
         usage="%(prog)s [arguments] <station database>",
@@ -68,7 +62,7 @@ def get_harmonics_arguments(argv=None):
         "instance, providing IU will match with all stations in " +
         "the IU network [Default processes all stations in the database]")
     parser.add_argument(
-        "-v", "-V", "--verbose",
+        "-V", "--verbose",
         action="store_true",
         dest="verb",
         default=False,
@@ -87,8 +81,7 @@ def get_harmonics_arguments(argv=None):
         default=False,
         help="Force folder names to use long-key form (NET.STN.CHN). " +
         "Default behaviour uses short key form (NET.STN) for the folder " +
-        "names, regardless of the key type of the database."
-    )
+        "names, regardless of the key type of the database.")
 
     # Event Selection Criteria
     TimeGroup = parser.add_argument_group(
@@ -273,7 +266,7 @@ def get_harmonics_arguments(argv=None):
     if len(args.startT) > 0:
         try:
             args.startT = UTCDateTime(args.startT)
-        except:
+        except Exception:
             parser.error(
                 "Cannot construct UTCDateTime from start time: " +
                 args.startT)
@@ -284,7 +277,7 @@ def get_harmonics_arguments(argv=None):
     if len(args.endT) > 0:
         try:
             args.endT = UTCDateTime(args.endT)
-        except:
+        except Exception:
             parser.error(
                 "Cannot construct UTCDateTime from end time: " +
                 args.endT)
@@ -338,8 +331,7 @@ def main():
     print("#        __                 _                                      _           #")
     print("#  _ __ / _|_ __  _   _    | |__   __ _ _ __ _ __ ___   ___  _ __ (_) ___ ___  #")
     print("# | '__| |_| '_ \| | | |   | '_ \ / _` | '__| '_ ` _ \ / _ \| '_ \| |/ __/ __| #")
-    print(
-        "# | |  |  _| |_) | |_| |   | | | | (_| | |  | | | | | | (_) | | | | | (__\__ \ #")
+    print("# | |  |  _| |_) | |_| |   | | | | (_| | |  | | | | | | (_) | | | | | (__\__ \ #")
     print("# |_|  |_| | .__/ \__, |___|_| |_|\__,_|_|  |_| |_| |_|\___/|_| |_|_|\___|___/ #")
     print("#          |_|    |___/_____|                                                  #")
     print("#                                                                              #")
@@ -510,7 +502,7 @@ def main():
             harmonics.dcomp_fix_azim(azim=args.azim)
 
         if args.save_plot and not Path('FIGURES').is_dir():
-             Path('FIGURES').mkdir(parents=True)
+            Path('FIGURES').mkdir(parents=True)
 
         if args.plot:
             harmonics.plot(args.ymax, args.scale,

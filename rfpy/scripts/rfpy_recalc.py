@@ -35,10 +35,6 @@ from pathlib import Path
 
 
 def get_recalc_arguments(argv=None):
-    """
-    Get Options from :class:`~optparse.OptionParser` objects.
-
-    """
 
     parser = ArgumentParser(
         usage="%(prog)s [arguments] <station database>",
@@ -67,7 +63,7 @@ def get_recalc_arguments(argv=None):
         "instance, providing IU will match with all stations in " +
         "the IU network [Default processes all stations in the database]")
     parser.add_argument(
-        "-v", "-V", "--verbose",
+        "-V", "--verbose",
         action="store_true",
         dest="verb",
         default=False,
@@ -342,8 +338,7 @@ def main():
                     # Remove rotated flag and snr flag
                     rfdata.meta.rotated = False
                     rfdata.rotate(align='ZNE')
-                except:
-
+                except Exception:
                     print("Z12_Data.pkl not available - using ZNE_Data.pkl")
                     # Load ZNE data
                     ZNEfile = folder / "ZNE_Data.pkl"

@@ -37,12 +37,6 @@ from numpy import nan
 
 
 def get_ccp_arguments(argv=None):
-    """
-    Get Options from :class:`~optparse.OptionParser` objects.
-
-    This function is used for data processing on-the-fly (requires web connection)
-
-    """
 
     parser = ArgumentParser(
         usage="%(prog)s [arguments] <station database>",
@@ -86,8 +80,7 @@ def get_ccp_arguments(argv=None):
         default=False,
         help="Force folder names to use long-key form (NET.STN.CHN). " +
         "Default behaviour uses short key form (NET.STN) for the folder " +
-        "names, regardless of the key type of the database."
-    )
+        "names, regardless of the key type of the database.")
 
     LineGroup = parser.add_argument_group(
         title='Line Geometry Settings',
@@ -469,9 +462,10 @@ def main():
             print()
 
             # Initialize CCPimage object
-            ccpimage = CCPimage(coord_start=args.coord_start,
-                                coord_end=args.coord_end,
-                                dz=args.dz, dx=args.dx)
+            ccpimage = CCPimage(
+                coord_start=args.coord_start,
+                coord_end=args.coord_end,
+                dz=args.dz, dx=args.dx)
 
             # Loop over station keys
             for stkey in list(stkeys):
@@ -616,9 +610,12 @@ def main():
                 ccpfile = open(load_file, "rb")
                 ccpimage = pickle.load(ccpfile)
                 ccpfile.close()
-                ccpimage.prep_data(f1=args.f1, f2ps=args.f2ps,
-                                   f2pps=args.f2pps, f2pss=args.f2pss,
-                                   nbaz=args.nbaz, nslow=args.nslow)
+                ccpimage.prep_data(
+                    f1=args.f1,
+                    f2ps=args.f2ps,
+                    f2pps=args.f2pps,
+                    f2pss=args.f2pss,
+                    nbaz=args.nbaz, nslow=args.nslow)
                 ccpimage.is_ready_for_prestack = True
                 ccpimage.save(prep_file)
                 print()
@@ -666,7 +663,7 @@ def main():
         else:
             prestack_file = Path("CCP_prestack.pkl")
             if not prestack_file.is_file():
-                raise(Exception("No CCP_prestack.pkl file available - aborting"))
+                raise Exception("No CCP_prestack.pkl file available - aborting")
             else:
                 if args.linear:
                     print()
@@ -698,8 +695,12 @@ def main():
                 print("CCPimage saved to {0}".format(str(ccp_file)))
 
         if args.ccp_figure:
-            ccpimage.plot_ccp(save=args.save_figure, fmt=args.fmt,
-                              vmin=-1.*args.cbound, vmax=args.cbound, title=args.title)
+            ccpimage.plot_ccp(
+                save=args.save_figure,
+                fmt=args.fmt,
+                vmin=-1.*args.cbound,
+                vmax=args.cbound,
+                title=args.title)
 
     else:
         pass
@@ -714,7 +715,7 @@ def main():
         else:
             prestack_file = Path("CCP_prestack.pkl")
             if not prestack_file.is_file():
-                raise(Exception("No CCP_prestack.pkl file available - aborting"))
+                raise Exception("No CCP_prestack.pkl file available - aborting")
             else:
                 if args.linear:
                     print()
@@ -746,8 +747,12 @@ def main():
                 print("CCPimage saved to {0}".format(str(gccp_file)))
 
         if args.ccp_figure:
-            ccpimage.plot_gccp(save=args.save_figure, fmt=args.fmt,
-                               vmin=-1.*args.cbound, vmax=args.cbound, title=args.title)
+            ccpimage.plot_gccp(
+                save=args.save_figure,
+                fmt=args.fmt,
+                vmin=-1.*args.cbound,
+                vmax=args.cbound,
+                title=args.title)
 
     else:
         pass

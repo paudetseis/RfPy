@@ -24,7 +24,8 @@
 Functions to calculate thickness (H) and Vp/Vs ratio (R) of the crust based on
 moveout times of direct Ps and reverberated Pps and Pss phases.
 
-The stacks are obtained from the median weighted by the phase of individual signals.
+The stacks are obtained from the median weighted by the phase of individual
+signals.
 
 """
 
@@ -39,13 +40,13 @@ from matplotlib import pyplot as plt
 class HkStack(object):
     """
     A HkStack object contains attributes and methods to stack radial
-    receiver functions along moveout curves for point measurements 
+    receiver functions along moveout curves for point measurements
     of the depth to Moho (H) and P-to-S velocity ratio (k) beneath
     a seismic stations. The object is initialized with at least one
     :class:`~obspy.core.Stream` containing observed (or synthetised)
     radial receiver functions. The methods available can produce linear
     weighted stacks or product stacks, and can be used in the presence
-    of flat or dipping Moho (with known strike and dip). 
+    of flat or dipping Moho (with known strike and dip).
 
     Note
     ----
@@ -59,7 +60,7 @@ class HkStack(object):
     ----------
     rfV1 : :class:`~obspy.core.Stream`
         Stream object containing the radial-component receiver function
-        seismograms 
+        seismograms
     rfV2 : :class:`~obspy.core.Stream`
         Stream object containing the radial-component receiver function
         seismograms (typically filtered at lower frequencies)
@@ -77,13 +78,15 @@ class HkStack(object):
     dk : float
         Spacing between adjacent Vp/Vs search values
     hbound : list
-        List of 2 floats that determine the range of Moho depth values to search
+        List of 2 floats that determine the range of Moho depth values
+        to search
     dh : float
         Spacing between adjacent Moho depth search values
     weights : list
         List of 3 floats that determine the relative weights of the individual
-        phase stacks to be used in the final stack. The third weight is negative
-        since Pss amplitudes are opposite to those of the Ps and Pps phases.
+        phase stacks to be used in the final stack. The third weight is
+        negative since Pss amplitudes are opposite to those of the Ps and
+        Pps phases.
     phases : list
         List of 3 strings ('ps', 'pps', 'pss') corresponding to the thre phases
         of interest (`do not modify this attribute`)
@@ -113,7 +116,7 @@ class HkStack(object):
                 for tr in rfV2:
                     tr.data = np.fft.fftshift(tr.data)[0:int(nn/2)]
                     tr.stats.taxis = np.fft.fftshift(tr.data)[0:int(nn/2)]
-            except:
+            except Exception:
                 pass
 
         self.rfV1 = rfV1
@@ -132,7 +135,7 @@ class HkStack(object):
         """
         Method to calculate Hk stacks from radial receiver functions.
         The stacks are calculated using phase-weighted stacking for
-        individual phases and take the median of the weighted stack 
+        individual phases and take the median of the weighted stack
         to avoid bias by outliers.
 
         Note
@@ -140,14 +143,14 @@ class HkStack(object):
         If two streams are available as attributes, the method will assume
         that the second stream should be used for stacking along the Pps
         and Pss move out curves (e.g., if the second stream contains
-        lower frequency signals). Furthermore, If the ``vp`` argument is 
-        not specified, the method will use the 
-        value set during initialization (``vp=6.0`` km/s)
+        lower frequency signals). Furthermore, If the ``vp`` argument is
+        not specified, the method will use the value set during
+        initialization (``vp=6.0`` km/s)
 
         Parameters
         ----------
         vp : float
-            Mean crust P-wave velocity (km/s). 
+            Mean crust P-wave velocity (km/s).
 
         Attributes
         ----------
@@ -164,7 +167,7 @@ class HkStack(object):
         if not vp:
             try:
                 vp = self.rfV1[0].stats.vp
-            except:
+            except Exception:
                 vp = self.vp
 
         # Station name
@@ -199,14 +202,6 @@ class HkStack(object):
                         weight += np.exp(1j*tphase[0])
                         amp[i] = trace[0]
 
-                        # ### Attempt at speeding things up
-                        # ind = (np.abs(rfV.stats.taxis - tt)).argmin()
-                        # trace = rfV.copy()
-                        # thilb = hilbert(trace.data)
-                        # tphase = np.arctan2(thilb.imag, thilb.real)
-                        # weight += np.exp(1j*tphase[ind])
-                        # amp[i] = trace.data[ind]
-
                     weight = abs(weight/len(self.rfV1))**4
                     sig[ih, ik, ip] = np.var(amp)*np.real(weight)
                     pws[ih, ik, ip] = np.median(amp)*np.real(weight)
@@ -219,7 +214,7 @@ class HkStack(object):
         Method to calculate Hk stacks from radial receiver functions
         using known stike and dip angles of the Moho.
         The stacks are calculated using phase-weighted stacking for
-        individual phases and take the median of the weighted stack 
+        individual phases and take the median of the weighted stack
         to avoid bias by outliers.
 
         Note
@@ -227,17 +222,18 @@ class HkStack(object):
         If two streams are available as attributes, the method will assume
         that the second stream should be used for stacking along the Pps
         and Pss move out curves (e.g., if the second stream contains
-        lower frequency signals). Furthermore, 
-        If the arguments are not specified, the method will use the 
-        values set during initialization (``vp=6.0`` km/s, 
+        lower frequency signals). Furthermore,
+        If the arguments are not specified, the method will use the
+        values set during initialization (``vp=6.0`` km/s,
         ``strike=0.``, ``dip=0.``)
 
         Parameters
         ----------
         vp : float
-            Mean crust P-wave velocity (km/s). 
+            Mean crust P-wave velocity (km/s).
         strike : float
-            Strike angle of dipping Moho (has to be known or estimated a priori)
+            Strike angle of dipping Moho (has to be known or estimated
+            a priori)
         dip : float
             Dip angle of Moho (has to be known or estimated a priori)
 
@@ -265,7 +261,7 @@ class HkStack(object):
         if not vp:
             try:
                 vp = self.rfV1[0].stats.vp
-            except:
+            except Exception:
                 vp = 6.0
 
         sta = self.rfV1[0].stats.station
@@ -310,20 +306,20 @@ class HkStack(object):
     def average(self, typ='sum', q=0.05, err_method='amp'):
         """
         Method to combine the phase-weighted stacks to produce a final
-        stack, from which to estimate the H and k parameters and their 
+        stack, from which to estimate the H and k parameters and their
         associated errors.
 
         Parameters
         ----------
         typ : str
             How the phase-weigthed stacks should be combined to produce
-            a final stack. Available options are: weighted sum (``typ=sum``) 
+            a final stack. Available options are: weighted sum (``typ=sum``)
             or product (``typ=product``).
         q : float
             Confidence level for the error estimate
         err_method : str
             How errors should be estimated. Options are ``err_method='amp'``
-            to estimate errors from amplitude, or ``err_method='stats'`` to 
+            to estimate errors from amplitude, or ``err_method='stats'`` to
             use a statistical F test from the residuals.
 
         """
@@ -336,11 +332,11 @@ class HkStack(object):
         ps = self.pws[:, :, 0]*self.weights[0]
         try:
             pps = self.pws[:, :, 1]*self.weights[1]
-        except:
+        except Exception:
             pps = None
         try:
             pss = self.pws[:, :, 2]*self.weights[2]
-        except:
+        except Exception:
             pss = None
 
         # Get stacks
@@ -359,7 +355,7 @@ class HkStack(object):
                 pss = 1.
             stack = ps*pps*pss
         else:
-            raise(Exception("'typ' must be either 'sum' or 'product'"))
+            raise Exception("'typ' must be either 'sum' or 'product'")
 
         self.typ = typ
 
@@ -372,7 +368,7 @@ class HkStack(object):
 
         try:
             self.error()
-        except:
+        except Exception:
             self.err_k0 = 0.
             self.err_h0 = 0.
 
@@ -388,7 +384,7 @@ class HkStack(object):
             Confidence level for the error estimate
         err_method : str
             How errors should be estimated. Options are ``err_method='amp'``
-            to estimate errors from amplitude, or ``err_method='stats'`` to 
+            to estimate errors from amplitude, or ``err_method='stats'`` to
             use a statistical F test from the residuals.
 
         """
@@ -431,7 +427,7 @@ class HkStack(object):
             err = np.where(msf > self.err_contour)
 
         else:
-            raise(Exception("'err_method' must be either 'stats' or 'amp'"))
+            raise Exception("'err_method' must be either 'stats' or 'amp'")
         self.err_method = err_method
 
         # Estimate uncertainty (q confidence interval)
@@ -470,11 +466,11 @@ class HkStack(object):
             ps[ps < 0] = 0.
             try:
                 pps[pps < 0] = 0.
-            except:
+            except Exception:
                 pass
             try:
                 pss[pss < 0] = 0.
-            except:
+            except Exception:
                 pass
 
         # Set up figure
@@ -514,8 +510,8 @@ class HkStack(object):
         ax4.set_title('Stack')
         ax4.set_xlabel('Thickness (km)')
 
-        #cbar = fig.colorbar(im, ticks=[-vmax, 0, vmax])
-        #cbar.ax.set_yticklabels(['min', '0', 'max'])
+        # cbar = fig.colorbar(im, ticks=[-vmax, 0, vmax])
+        # cbar.ax.set_yticklabels(['min', '0', 'max'])
 
         # Get confidence intervals
         if hasattr(self, 'err_contour'):
@@ -536,7 +532,7 @@ class HkStack(object):
         # Add star showing best fit
         try:
             ax4.scatter(self.h0, self.k0, 60, marker='*', color='white')
-        except:
+        except Exception:
             print("'h0' and 'k0' are not available")
 
         if title:
@@ -552,9 +548,7 @@ class HkStack(object):
 
         plt.close()
 
-## JMG ##
     def save(self, file):
-        ## JMG ##
         """
         Saves HkStack object to file
 
@@ -571,7 +565,7 @@ class HkStack(object):
         output.close()
 
     def _residuals(self):
-        """ 
+        """
         Internal method to obtain residuals between observed and predicted
         receiver functions given the Moho depth and Vp/Vs obtained from
         the Hk stack.

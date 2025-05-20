@@ -53,7 +53,7 @@ Usage
                             instance, providing IU will match with all stations in
                             the IU network [Default processes all stations in the
                             database]
-      -v, -V, --verbose     Specify to increase verbosity.
+      -V, --verbose         Specify to increase verbosity.
       -O, --overwrite       Force the overwriting of pre-existing data. [Default
                             False]
       --zcomp ZCOMP         Specify the Vertical Component Channel Identifier.
@@ -228,7 +228,7 @@ Usage
                            providing IU will match with all stations in the IU
                            network [Default processes all stations in the
                            database]
-      -v, -V, --verbose    Specify to increase verbosity.
+      -V, --verbose        Specify to increase verbosity.
       -L, --long-name      Force folder names to use long-key form (NET.STN.CHN).
                            Default behaviour uses short key form (NET.STN) for the
                            folder names, regardless of the key type of the
@@ -315,7 +315,7 @@ Usage
                             instance, providing IU will match with all stations in
                             the IU network [Default processes all stations in the
                             database]
-      -v, -V, --verbose     Specify to increase verbosity.
+      -V, --verbose         Specify to increase verbosity.
       -O, --overwrite       Force the overwriting of pre-existing figures.
                             [Default False]
       -L, --long-name       Force folder names to use long-key form (NET.STN.CHN).
@@ -426,7 +426,7 @@ Usage
                             instance, providing IU will match with all stations in
                             the IU network [Default processes all stations in the
                             database]
-      -v, -V, --verbose     Specify to increase verbosity.
+      -V, --verbose         Specify to increase verbosity.
       -O, --overwrite       Force the overwriting of pre-existing data. [Default
                             False]
       -L, --long-name       Force folder names to use long-key form (NET.STN.CHN).
@@ -565,7 +565,7 @@ Usage
                          against those in the dictionary. For instance, providing
                          IU will match with all stations in the IU network
                          [Default processes all stations in the database]
-      -v, -V, --verbose  Specify to increase verbosity.
+      -V, --verbose      Specify to increase verbosity.
       -O, --overwrite    Force the overwriting of pre-existing data. [Default
                          False]
       -L, --long-name    Force folder names to use long-key form (NET.STN.CHN).
@@ -689,7 +689,7 @@ Usage
                            providing IU will match with all stations in the IU
                            network [Default processes all stations in the
                            database]
-      -v, -V, --verbose    Specify to increase verbosity.
+      -V, --verbose        Specify to increase verbosity.
       -O, --overwrite      Force the overwriting of pre-existing data. [Default
                            False]
       -L, --long-name      Force folder names to use long-key form (NET.STN.CHN).

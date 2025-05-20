@@ -232,7 +232,7 @@ class RFData(object):
             print(event.short_str())
 
         if not isinstance(event, Event):
-            raise(Exception("Event has incorrect type"))
+            raise Exception("Event has incorrect type")
 
         # Store as object attributes
         self.meta = Meta(sta=self.sta, event=event,
@@ -266,7 +266,7 @@ class RFData(object):
         """
 
         if not self.meta:
-            raise(Exception("No meta data available - aborting"))
+            raise Exception("No meta data available - aborting")
 
         if not self.meta.accept:
             return
@@ -287,7 +287,8 @@ class RFData(object):
             self.data = stream
 
             if not np.allclose(
-                    [tr.stats.npts for tr in stream[1:]], stream[0].stats.npts):
+                    [tr.stats.npts for tr in stream[1:]],
+                    stream[0].stats.npts):
                 self.meta.accept = False
 
             # Filter Traces
@@ -320,8 +321,8 @@ class RFData(object):
         dts : float
             Time duration (sec)
         remove_response : bool
-            Remove instrument response from seismogram and resitute to true ground
-            velocity (m/s) using obspy.core.trace.Trace.remove_response()
+            Remove instrument response from seismogram and resitute to true
+            ground velocity (m/s)
         returned : bool
             Whether or not to return the ``accept`` attribute
         verbose : bool
@@ -356,8 +357,13 @@ class RFData(object):
 
         # Download data
         err, stream = utils.download_data(
-            client=client, sta=self.sta, start=tstart, end=tend,
-            new_sr=new_sr, verbose=verbose, remove_response=remove_response,
+            client=client,
+            sta=self.sta,
+            start=tstart,
+            end=tend,
+            new_sr=new_sr,
+            verbose=verbose,
+            remove_response=remove_response,
             zcomp=self.zcomp)
 
         # Store as attributes with traces in dictionary
@@ -458,8 +464,6 @@ class RFData(object):
             Z, N, E = rotate2zne(trZ.data, 0., -90., trN.data,
                                  azim, 0., trE.data, azim+90., 0.)
 
-            # Z, N, E = rotate2zne(trZ.data, 0., -90., trN.data,
-            #                      azim, 0., trE.data, azim+90., 0.)
             trN.data = N
             trE.data = E
 
@@ -632,9 +636,9 @@ class RFData(object):
                    envelope_threshold=0.05, time=5, pre_filt=None,
                    gfilt=None, wlevel=0.01, writeto=None):
         """
-        Deconvolves three-component data using one component as the source wavelet.
-        The source component is always taken as the dominant compressional 
-        component, which can be either 'Z', 'L', or 'P'. 
+        Deconvolves three-component data using one component as the source
+        wavelet. The source component is always taken as the dominant
+        compressional component, which can be either 'Z', 'L', or 'P'.
 
         Parameters
         ----------
@@ -646,11 +650,11 @@ class RFData(object):
             Alignment of coordinate system for rotation
             ('ZRT', 'LQT', or 'PVH')
         method : str
-            Method for deconvolution. Options are 'wiener', 'water' or 
+            Method for deconvolution. Options are 'wiener', 'water' or
             'multitaper'
         wavelet : str
-            Type of wavelet for deconvolution. Options are 'complete', 'time' or 
-            'envelope'
+            Type of wavelet for deconvolution. Options are 'complete', 'time'
+            or 'envelope'
         envelope_threshold : float
             Threshold [0-1] used in ``wavelet='envelope'``.
         time : float
@@ -660,7 +664,7 @@ class RFData(object):
             Low and High frequency corners of bandpass filter applied
             before deconvolution
         gfilt : float
-            Center frequency of Gaussian filter (Hz). 
+            Center frequency of Gaussian filter (Hz).
         wlevel : float
             Water level used in ``method='water'``.
         writeto : str or None
@@ -695,33 +699,39 @@ class RFData(object):
             return gauss
 
         def _Pwavelet(parent, method='complete', overhang=5,
-                envelope_threshold=0.05, time=5):
+                      envelope_threshold=0.05, time=5):
 
             """
-            Select wavelet from the parent function for deconvolution using method.
-            parent: obspy.Trace
-                wavefrom to extract the wavelet from
-            method: str
-                'complete' use complete parent signal after P arrival  (current
-                    implementation)
-                'envelope' use only the part of the parent signal after the
+            Select wavelet from the parent function for deconvolution using
+            method.
+
+            Parameters
+            ----------
+            parent : obspy.Trace
+                Wavefrom to extract the wavelet from
+            method : str
+                'complete' uses complete parent signal after P arrival
+                    (current implementation)
+                'envelope' uses only the part of the parent signal after the
                     P arrival where
                     envelope > envelope_threshold*max(envelope)
                     fall back to 'complete' if condition not reached
                 'time' use only this many seonds after P arrival`
                     fall back to 'complete' if longer than parent
-            overhang: float
-                seconds before start and after end of wavelet to be used for
+            overhang : float
+                Seconds before start and after end of wavelet to be used for
                 tapering
-            envelope_threshold: float
-                fraction of the envelope that defines wavelet (for
+            envelope_threshold : float
+                Fraction of the envelope that defines wavelet (for
                 method='envelope')
-            time: float
-                window (seconds) that defines the wavelet (for method='time')
+            time : float
+                Window (seconds) that defines the wavelet (for method='time')
                 minimum time (seconds) of the wavelet (for method='envelope')
 
             Return:
-            left, right: (obspy.UTCDateTime) start and end time of wavelet
+            -------
+            left, right : (obspy.UTCDateTime)
+                Start and end time of wavelet
             """
 
             import obspy.signal.filter as osf
@@ -734,8 +744,8 @@ class RFData(object):
 
             if method == 'envelope':
                 split = int((self.meta.time + self.meta.ttime +
-                    time - parent.stats.starttime ) *
-                    parent.stats.sampling_rate)
+                            time - parent.stats.starttime) *
+                            parent.stats.sampling_rate)
                 env = osf.envelope(parent.data)
                 env /= max(env)  # normalize
                 env = env[split:]  # only look after P + time
@@ -743,7 +753,8 @@ class RFData(object):
                     i = np.nonzero(
                             np.diff(
                                 np.array(
-                                    env > envelope_threshold, dtype=int))==-1)[0][0]
+                                    env > envelope_threshold,
+                                    dtype=int)) == -1)[0][0]
                 except IndexError:
                     i = len(parent.data)-1
                 dts = i * parent.stats.delta + time
@@ -766,14 +777,14 @@ class RFData(object):
                 dts = len(parent.data)*parent.stats.delta/2.
                 left = self.meta.time + self.meta.ttime - overhang
                 right = self.meta.time + self.meta.ttime + dts - 2*overhang
-            
+
             if method == 'noise':
                 dts = len(parent.data)*parent.stats.delta/2.
                 left = self.meta.time + self.meta.ttime - dts
                 right = self.meta.time + self.meta.ttime - overhang
 
             return left, right
-            
+
         def _decon(parent, daughter1, daughter2, noise, nn, method):
 
             # Get length, zero padding parameters and frequencies
@@ -861,9 +872,9 @@ class RFData(object):
                 gnorm = 1.
 
             # Is this correct?
-            #parent de-noised = np.fft.ifftshift(np.real(np.fft.ifft(gauss*Sdenom))/gnorm)
-            #daughter1 de-noised = np.fft.ifftshift(np.real(np.fft.ifft( gauss*Sd1p))/gnorm)
-            #daughter2 de-noised = np.fft.ifftshift(np.real(np.fft.ifft( gauss*Sd2p))/gnorm)
+            # parent de-noised = np.fft.ifftshift(np.real(np.fft.ifft(gauss*Sdenom))/gnorm)
+            # daughter1 de-noised = np.fft.ifftshift(np.real(np.fft.ifft( gauss*Sd1p))/gnorm)
+            # daughter2 de-noised = np.fft.ifftshift(np.real(np.fft.ifft( gauss*Sd2p))/gnorm)
 
             # Copy traces
             rfp = parent.copy()
@@ -885,7 +896,7 @@ class RFData(object):
             self.rotate(vp=vp, vs=vs, align=align)
 
         #  v--True if None      v--True if nan, error if None
-        if not self.meta.snr or not np.isfinite(self.meta.snr):
+        if self.meta.snr is None or not np.isfinite(self.meta.snr):
             print("Warning: SNR has not been calculated - " +
                   "calculating now using default")
             self.calc_snr()
@@ -914,37 +925,53 @@ class RFData(object):
 
         if phase == 'P' or 'PP':
 
-            # Get signal length (i.e., seismogram to deconvolve) from trace length
+            # Get signal length (i.e., seismogram to deconvolve) from
+            # trace length
             over = 5
             dtsqt = len(trL.data)*trL.stats.delta/2.
 
             # Traces will be zero-paded to this length (samples)
             nn = int(round((dtsqt+over)*trL.stats.sampling_rate)) + 1
 
-            sig_left, sig_right  = _Pwavelet(trL, method=wavelet,
-                envelope_threshold=envelope_threshold, time=time, overhang=over)
+            sig_left, sig_right = _Pwavelet(
+                trL,
+                method=wavelet,
+                envelope_threshold=envelope_threshold,
+                time=time,
+                overhang=over)
 
             # Trim wavelet
-            trL.trim(sig_left, sig_right, nearest_sample=False, pad=True,
+            trL.trim(
+                sig_left,
+                sig_right,
+                nearest_sample=False,
+                pad=True,
                 fill_value=0.)
 
             # Signal window (-5. to dtsqt-10 sec)
-            sig_left, sig_right  = _Pwavelet(trQ, method='complete', overhang=over)
+            sig_left, sig_right = _Pwavelet(
+                trQ,
+                method='complete',
+                overhang=over)
 
             # Trim signal traces
-            [tr.trim(sig_left, sig_right, nearest_sample=False, 
-                pad=True, fill_value=0.) for tr in [trQ, trT]]
+            [tr.trim(sig_left, sig_right, nearest_sample=False,
+                     pad=True, fill_value=0.) for tr in [trQ, trT]]
 
             # Noise window (-dtsqt to -5. sec)
-            noise_left, noise_right  = _Pwavelet(trQ, method='noise', overhang=over)
+            noise_left, noise_right = _Pwavelet(
+                trQ,
+                method='noise',
+                overhang=over)
 
             # Trim noise traces
-            [tr.trim(noise_left, noise_right, nearest_sample=False, 
-                pad=True, fill_value=0.) for tr in [trNl, trNq]]
+            [tr.trim(noise_left, noise_right, nearest_sample=False,
+                     pad=True, fill_value=0.) for tr in [trNl, trNq]]
 
         elif phase == 'S' or 'SKS':
 
-            # Get signal length (i.e., seismogram to deconvolve) from trace length
+            # Get signal length (i.e., seismogram to deconvolve) from
+            # trace length
             dts = len(trL.data)*trL.stats.delta/2.
 
             # Trim signal traces (-5. to dts-10 sec)
@@ -954,7 +981,7 @@ class RFData(object):
                      self.meta.time+self.meta.ttime+25.)
             trT.trim(self.meta.time+self.meta.ttime+25.-dts/2.,
                      self.meta.time+self.meta.ttime+25.)
-            
+
             # Trim noise traces (-dts to -5 sec)
             trNl.trim(self.meta.time+self.meta.ttime-dts,
                       self.meta.time+self.meta.ttime-dts/2.)
@@ -963,13 +990,13 @@ class RFData(object):
 
         # Taper traces - only necessary processing after trimming
         # TODO: What does this to the multitaper method
-        [tr.taper(max_percentage=0.05, max_length=2.) 
+        [tr.taper(max_percentage=0.05, max_length=2.)
          for tr in [trL, trQ, trT, trNl, trNq]]
 
         # Pre-filter waveforms before deconvolution
         if pre_filt:
             [tr.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1],
-                       corners=2, zerophase=True) 
+                       corners=2, zerophase=True)
              for tr in [trL, trQ, trT, trNl, trNq]]
 
         if writeto:
@@ -990,14 +1017,13 @@ class RFData(object):
 
         self.rf = Stream(traces=[rfL, rfQ, rfT])
 
-
     def calc_cc(self):
 
         if not self.meta.accept:
             return
 
         if not hasattr(self, 'rf'):
-            raise(Exception("Warning: Receiver functions are not available"))
+            raise Exception("Warning: Receiver functions are not available")
 
         obs_L = self.data[0].copy()
         obs_Q = self.data[1].copy()
@@ -1005,11 +1031,30 @@ class RFData(object):
         sr = obs_L.stats.sampling_rate
 
         # Filter using SNR bandpass
-        obs_L.detrend().taper(max_percentage=0.05, max_length=2.)
-        obs_Q.detrend().taper(max_percentage=0.05, max_length=2.)
-        obs_L.filter('bandpass', freqmin=0.05, freqmax=1., corners=2, zerophase=True)
-        obs_Q.filter('bandpass', freqmin=0.05, freqmax=1., corners=2, zerophase=True)
-        obs_rfQ.filter('bandpass', freqmin=0.05, freqmax=1., corners=2, zerophase=True)
+        obs_L.detrend().taper(
+            max_percentage=0.05,
+            max_length=2.)
+        obs_Q.detrend().taper(
+            max_percentage=0.05,
+            max_length=2.)
+        obs_L.filter(
+            'bandpass',
+            freqmin=0.05,
+            freqmax=1.,
+            corners=2,
+            zerophase=True)
+        obs_Q.filter(
+            'bandpass',
+            freqmin=0.05,
+            freqmax=1.,
+            corners=2,
+            zerophase=True)
+        obs_rfQ.filter(
+            'bandpass',
+            freqmin=0.05,
+            freqmax=1.,
+            corners=2,
+            zerophase=True)
 
         # Convolve L with rfQ to obtain predicted Q
         pred_Q = obs_Q.copy()
@@ -1026,7 +1071,6 @@ class RFData(object):
 
         # Get cross correlation coefficient between observed and predicted Q
         self.meta.cc = np.corrcoef(obs_Q.data, pred_Q.data)[0][1]
-
 
     def to_stream(self):
         """
@@ -1060,7 +1104,7 @@ class RFData(object):
             return trace
 
         if not hasattr(self, 'rf'):
-            raise(Exception("Warning: Receiver functions are not available"))
+            raise Exception("Warning: Receiver functions are not available")
 
         stream = self.rf
         for tr in stream:

@@ -38,12 +38,6 @@ from numpy import nan
 
 
 def get_hk_arguments(argv=None):
-    """
-    Get Options from :class:`~optparse.OptionParser` objects.
-
-    This function is used for data processing on-the-fly (requires web connection)
-
-    """
 
     parser = ArgumentParser(
         usage="%(prog)s [arguments] <station database>",
@@ -360,7 +354,7 @@ def get_hk_arguments(argv=None):
     if len(args.startT) > 0:
         try:
             args.startT = UTCDateTime(args.startT)
-        except:
+        except Exception:
             parser.error(
                 "Cannot construct UTCDateTime from start time: " +
                 args.startT)
@@ -371,7 +365,7 @@ def get_hk_arguments(argv=None):
     if len(args.endT) > 0:
         try:
             args.endT = UTCDateTime(args.endT)
-        except:
+        except Exception:
             parser.error(
                 "Cannot construct UTCDateTime from end time: " +
                 args.endT)
@@ -397,7 +391,7 @@ def get_hk_arguments(argv=None):
                 "Error: --bp should contain 2 " +
                 "comma-separated floats")
 
-## JMG ##
+    # JMG #
     if args.slowbound is None:
         args.slowbound = [0.04, 0.08]
     else:
@@ -417,7 +411,7 @@ def get_hk_arguments(argv=None):
             parser.error(
                 "Error: --bazbound should contain 2 " +
                 "comma-separated floats")
-## JMG ##
+    # JMG #
 
     if args.phase not in ['P', 'PP', 'allP', 'S', 'SKS', 'allS']:
         parser.error(
@@ -700,7 +694,7 @@ def main():
         try:
             hkstack = HkStack(rfRstream, rfV2=rfRstream_copy,
                               strike=args.strike, dip=args.dip, vp=args.vp)
-        except:
+        except Exception:
             hkstack = HkStack(rfRstream,
                               strike=args.strike, dip=args.dip, vp=args.vp)
 
