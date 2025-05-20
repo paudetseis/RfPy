@@ -27,6 +27,7 @@
 import numpy as np
 import pickle
 import stdb
+import copy
 from obspy.clients.fdsn import Client
 from obspy.core import Stream, UTCDateTime
 from rfpy import binning, plotting, HkStack
@@ -37,12 +38,6 @@ from numpy import nan
 
 
 def get_hk_arguments(argv=None):
-    """
-    Get Options from :class:`~optparse.OptionParser` objects.
-
-    This function is used for data processing on-the-fly (requires web connection)
-
-    """
 
     parser = ArgumentParser(
         usage="%(prog)s [arguments] <station database>",
@@ -359,7 +354,7 @@ def get_hk_arguments(argv=None):
     if len(args.startT) > 0:
         try:
             args.startT = UTCDateTime(args.startT)
-        except:
+        except Exception:
             parser.error(
                 "Cannot construct UTCDateTime from start time: " +
                 args.startT)
@@ -370,7 +365,7 @@ def get_hk_arguments(argv=None):
     if len(args.endT) > 0:
         try:
             args.endT = UTCDateTime(args.endT)
-        except:
+        except Exception:
             parser.error(
                 "Cannot construct UTCDateTime from end time: " +
                 args.endT)
@@ -396,7 +391,7 @@ def get_hk_arguments(argv=None):
                 "Error: --bp should contain 2 " +
                 "comma-separated floats")
 
-## JMG ##
+    # JMG #
     if args.slowbound is None:
         args.slowbound = [0.04, 0.08]
     else:
@@ -416,7 +411,7 @@ def get_hk_arguments(argv=None):
             parser.error(
                 "Error: --bazbound should contain 2 " +
                 "comma-separated floats")
-## JMG ##
+    # JMG #
 
     if args.phase not in ['P', 'PP', 'allP', 'S', 'SKS', 'allS']:
         parser.error(
@@ -542,13 +537,12 @@ def main():
             continue
 
         # Temporary print locations
-        tlocs = sta.location
+        tlocs = copy.copy(sta.location)
         if len(tlocs) == 0:
             tlocs = ['']
         for il in range(0, len(tlocs)):
             if len(tlocs[il]) == 0:
-                tlocs[il] = "--"
-        sta.location = tlocs
+                tlocs.append("--")
 
         # Update Display
         print(" ")
@@ -700,7 +694,7 @@ def main():
         try:
             hkstack = HkStack(rfRstream, rfV2=rfRstream_copy,
                               strike=args.strike, dip=args.dip, vp=args.vp)
-        except:
+        except Exception:
             hkstack = HkStack(rfRstream,
                               strike=args.strike, dip=args.dip, vp=args.vp)
 

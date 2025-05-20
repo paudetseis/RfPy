@@ -71,7 +71,7 @@ def wiggle(stream1, stream2=None, sort=None, tmin=0., tmax=30, normalize=True,
     if sort is not None:
         try:
             stream1.traces.sort(key=lambda x: x.stats[sort], reverse=False)
-        except:
+        except Exception:
             print("Warning: stats attribute " + sort +
                   " is not available in stats")
             pass
@@ -188,11 +188,11 @@ def wiggle_bins(stream1, stream2=None, tr1=None, tr2=None,
         st2 = stream2.copy()
 
     if not (btyp == 'baz' or btyp == 'slow' or btyp == 'dist'):
-        raise(Exception("Type has to be 'baz' or 'slow' or 'dist'"))
+        raise Exception("Type has to be 'baz' or 'slow' or 'dist'")
     if not (xtyp == 'time' or xtyp == 'depth'):
-        raise(Exception("Type has to be 'time' or 'depth'"))
+        raise Exception("Type has to be 'time' or 'depth'")
     if btyp == 'slow' and xtyp == 'depth':
-        raise(Exception("Cannot plot by slowness if data is migrated"))
+        raise Exception("Cannot plot by slowness if data is migrated")
 
     # Figure out scaling here
     if norm is not None:
@@ -456,60 +456,3 @@ def wiggle_single_event(rfdata, filt=None, pre_filt=None, trange=None):
             rfdata.meta.snr, rfdata.meta.cc))
 
     plt.show()
-
-
-def event_dist(stream, phase='P', save=False, title=None, form='png'):
-
-    import cartopy.crs as ccrs
-
-    # Specify azimuthal equidistant projection
-    aeqd = ccrs.AzimuthalEquidistant(central_longitude=stream[0].stats.stlo,
-                                     central_latitude=stream[0].stats.stla,
-                                     globe=ccrs.Globe())
-
-    # Extract latitude and longitude
-    evlat = []
-    evlon = []
-    phlist = []
-    for tr in stream:
-        evlat.append(tr.stats.evla)
-        evlon.append(tr.stats.evlo)
-        phlist.append(tr.stats.phase)
-
-    # Turn into arrays
-    evlat = np.array(evlat)
-    evlon = np.array(evlon)
-    phlist = np.array(phlist)
-
-    # Select phase to plot
-    phP = phlist == 'P'
-    phPP = phlist == 'PP'
-
-    # Now plot
-    fig = plt.figure(figsize=(3, 3))
-    ax = fig.add_subplot(1, 1, 1, projection=aeqd)
-    if np.sum(phP) > 0:
-        # ax.scatter(evlon[phP], evlat[phP], c='royalblue', label='P')
-        ax.scatter(evlon[phP], evlat[phP], c='royalblue', label='P',
-                   transform=ccrs.Geodetic())
-    if np.sum(phPP) > 0:
-        ind = phase == 'P'
-        ax.scatter(evlon[phPP], evlat[phPP], c='coral', label='PP',
-                   transform=ccrs.Geodetic())
-
-    ax.scatter(stream[0].stats.stlo, stream[0].stats.stla, c='grey',
-               marker='v', transform=ccrs.Geodetic())
-    ax.coastlines()
-
-    if title:
-        plt.suptitle(title)
-
-    if save:
-        plt.savefig('RF_PLOTS/' + stream[0].stats.station +
-                    '.' + title + '.event_dist.' + form, format=form)
-    else:
-        plt.show()
-
-    plt.close()
-
-    # ax.gridlines()

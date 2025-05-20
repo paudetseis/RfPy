@@ -29,17 +29,12 @@ from os.path import exists as exist
 import numpy as np
 import pickle
 import stdb
+import copy
 from rfpy import RFData
 from pathlib import Path
 
 
 def get_recalc_arguments(argv=None):
-    """
-    Get Options from :class:`~optparse.OptionParser` objects.
-
-    This function is used for data processing on-the-fly (requires web connection)
-
-    """
 
     parser = ArgumentParser(
         usage="%(prog)s [arguments] <station database>",
@@ -68,7 +63,7 @@ def get_recalc_arguments(argv=None):
         "instance, providing IU will match with all stations in " +
         "the IU network [Default processes all stations in the database]")
     parser.add_argument(
-        "-v", "-V", "--verbose",
+        "-V", "--verbose",
         action="store_true",
         dest="verb",
         default=False,
@@ -285,13 +280,12 @@ def main():
             continue
 
         # Temporary print locations
-        tlocs = sta.location
+        tlocs = copy.copy(sta.location)
         if len(tlocs) == 0:
             tlocs = ['']
         for il in range(0, len(tlocs)):
             if len(tlocs[il]) == 0:
-                tlocs[il] = "--"
-        sta.location = tlocs
+                tlocs.append("--")
 
         # Update Display
         print(" ")
@@ -344,8 +338,7 @@ def main():
                     # Remove rotated flag and snr flag
                     rfdata.meta.rotated = False
                     rfdata.rotate(align='ZNE')
-                except:
-
+                except Exception:
                     print("Z12_Data.pkl not available - using ZNE_Data.pkl")
                     # Load ZNE data
                     ZNEfile = folder / "ZNE_Data.pkl"
