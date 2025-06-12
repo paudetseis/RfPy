@@ -70,12 +70,16 @@ def inv2stdb(inventory, keys=[]):
         inv = inventory.select(network=net, station=sta, channel=cha)
         seed_id = inv.get_contents()['channels'][0]
         coords = inv.get_coordinates(seed_id)
+        channel = seed_id.split('.')[3][0:2]
+        location = list(seed_id.split('.')[2])
+        if len(location) == 0:
+            location.append('--')
 
         stdb_element = StDbElement(
             station=sta,
             network=net,
-            channel=seed_id.split('.')[3][0:2],
-            location=seed_id.split('.')[2],
+            channel=channel,
+            location=list(set(location)),
             latitude=coords['latitude'],
             longitude=coords['longitude'],
             elevation=coords['elevation'],
@@ -164,6 +168,7 @@ def download_data(client=None, sta=None, start=UTCDateTime(),
 
     """
 
+    print(sta)
     for loc in sta.location:
 
         # Construct location name
@@ -197,10 +202,13 @@ def download_data(client=None, sta=None, start=UTCDateTime(),
             if len(st) == 3:
                 # It's possible if len(st)==1 that data is Z12
                 print("*                  - Data Downloaded")
-                # break
+            elif len(st) < 3:
+                print("* Error retrieving waveforms")
+                print("**************************************************")
+                return True, None
 
     # Check the correct 3 components exist
-    if st is None or len(st) < 3:
+    if st is None:
         print("* Error retrieving waveforms")
         print("**************************************************")
         return True, None
