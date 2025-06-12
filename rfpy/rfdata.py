@@ -94,6 +94,9 @@ class Meta(object):
         if self.dep is not None:
             if self.dep > 1000.:
                 self.dep = self.dep/1000.
+            if self.dep < 0.:
+                # Some events have negative depths in km
+                self.dep = np.abs(self.dep)
         else:
             self.dep = 10.
 
@@ -676,7 +679,6 @@ class RFData(object):
             Stream containing the receiver function traces
 
         """
-
         if not self.meta.accept:
             return
 
@@ -785,13 +787,13 @@ class RFData(object):
 
             return left, right
 
-        def _decon(parent, daughter1, daughter2, noise, nn, method):
+        def _decon(parent, daughter1, daughter2, noise_parent, noise_daughter1, nn, method):
 
             # Get length, zero padding parameters and frequencies
             dt = parent.stats.delta
 
             # Wiener or Water level deconvolution
-            if method == 'wiener' or method == 'water':
+            if method == 'wiener' or method == 'water' or method == "wiener-mod":
 
                 # npad = _npow2(nn*2)
                 npad = nn
@@ -801,17 +803,23 @@ class RFData(object):
                 Fp = np.fft.fft(parent.data, n=npad)
                 Fd1 = np.fft.fft(daughter1.data, n=npad)
                 Fd2 = np.fft.fft(daughter2.data, n=npad)
-                Fn = np.fft.fft(noise.data, n=npad)
+                Fpn = np.fft.fft(noise_parent.data, n=npad)
+                Fd1n = np.fft.fft(noise_daughter1.data, n=npad)
 
                 # Auto and cross spectra
                 Spp = np.real(Fp*np.conjugate(Fp))
                 Sd1p = Fd1*np.conjugate(Fp)
                 Sd2p = Fd2*np.conjugate(Fp)
-                Snn = np.real(Fn*np.conjugate(Fn))
+                Snpp = np.real(Fpn*np.conjugate(Fpn))
+                Snd1d1 = np.real(Fd1n*np.conjugate(Fd1n))
+                Snpd1 = np.abs(Fd1n*np.conjugate(Fpn))
 
                 # Final processing depends on method
                 if method == 'wiener':
-                    Sdenom = Spp + Snn
+                    Sdenom = Spp + Snpp
+                # Wiener ad-hoc deconvolution in Audet 2010 - BSSA
+                elif method == "wiener-mod":         
+                    Sdenom = Spp + 0.25*Snpp + 0.25*Snd1d1 + 0.5*Snpd1
                 elif method == 'water':
                     phi = np.amax(Spp)*wlevel
                     Sdenom = Spp
@@ -828,11 +836,11 @@ class RFData(object):
                         [tr.stats.npts for tr in [parent,
                                                   daughter1,
                                                   daughter2,
-                                                  noise]], npad):
+                                                  noise_parent]], npad):
                     parent.data = _pad(parent.data, npad)
                     daughter1.data = _pad(daughter1.data, npad)
                     daughter2.data = _pad(daughter2.data, npad)
-                    noise.data = _pad(noise.data, npad)
+                    noise_parent.data = _pad(noise_parent.data, npad)
 
                 freqs = np.fft.fftfreq(npad, d=dt)
 
@@ -848,7 +856,7 @@ class RFData(object):
                 Fd2 = np.fft.fft(np.multiply(tapers.transpose(),
                                              daughter2.data))
                 Fn = np.fft.fft(np.multiply(tapers.transpose(),
-                                            noise.data))
+                                            noise_parent.data))
 
                 # Auto and cross spectra
                 Spp = np.sum(np.real(Fp*np.conjugate(Fp)), axis=0)
@@ -1005,10 +1013,10 @@ class RFData(object):
 
         # Deconvolve
         if phase == 'P' or 'PP':
-            rfL, rfQ, rfT = _decon(trL, trQ, trT, trNl, nn, method)
+            rfL, rfQ, rfT = _decon(trL, trQ, trT, trNl, trNq, nn, method)
 
         elif phase == 'S' or 'SKS':
-            rfQ, rfL, rfT = _decon(trQ, trL, trT, trNq, nn, method)
+            rfQ, rfL, rfT = _decon(trQ, trL, trT, trNq, trNl, nn, method)
 
         # Update stats of streams
         rfL.stats.channel = 'RF' + self.meta.align[0]

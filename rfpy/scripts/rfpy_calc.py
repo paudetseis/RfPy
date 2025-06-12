@@ -169,23 +169,6 @@ def get_calc_arguments(argv=None):
         "'.SAC'  or '.MSEED'. These are case dependent, so specify " +
         "the correct case here.")
     DataGroup.add_argument(
-        "--no-data-zero",
-        action="store_true",
-        dest="ndval",
-        default=False,
-        help="Specify to force missing data to be set as zero, rather " +
-        "than default behaviour which sets to nan. Note this is applied " +
-        "only to the SAC data")
-    DataGroup.add_argument(
-        "--no-local-net",
-        action="store_false",
-        dest="useNet",
-        default=True,
-        help="Specify to prevent using the Network code in the " +
-        "search for local data (sometimes for CN stations " +
-        "the dictionary name for a station may disagree with that " +
-        "in the filename. [Default Network used]")
-    DataGroup.add_argument(
         "--save-Z12",
         action="store_true",
         dest="saveZ12",
@@ -217,7 +200,7 @@ def get_calc_arguments(argv=None):
         "the end time for the event search. This will override any " +
         "station end times [Default end date of station]")
     EventGroup.add_argument(
-        "--reverse", "-R",
+        "--reverse",
         action="store_true",
         dest="reverse",
         default=False,
@@ -359,7 +342,8 @@ def get_calc_arguments(argv=None):
         type=str,
         default="wiener",
         help="Specify the deconvolution method. Available methods " +
-        "include 'wiener', 'water' and 'multitaper'. [Default 'wiener']")
+        "include 'wiener', 'wiener-mod', 'water' and 'multitaper'. " +
+        "[Default 'wiener']")
     DeconGroup.add_argument(
         "--gfilt",
         action="store",
@@ -432,12 +416,6 @@ def get_calc_arguments(argv=None):
             "or MSEED. These must match the file extensions for " +
             " the archived data.")
 
-    # Check NoData Value
-    if args.ndval:
-        args.ndval = 0.0
-    else:
-        args.ndval = nan
-
     # Check distances for selected phase
     if args.phase not in ['P', 'PP', 'S', 'SKS']:
         parser.error(
@@ -500,10 +478,10 @@ def get_calc_arguments(argv=None):
         print("SNR window > data window. Defaulting to data " +
               "window minus 10 sec.")
 
-    if args.method not in ['wiener', 'water', 'multitaper']:
+    if args.method not in ['wiener', 'wiener-mod', 'water', 'multitaper']:
         parser.error(
-            "Error: 'method' should be either 'wiener', 'water' or " +
-            "'multitaper'")
+            "Error: 'method' should be either 'wiener', 'wiener-mod', " +
+            "'water' or 'multitaper'")
 
     return args
 
