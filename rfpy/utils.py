@@ -168,7 +168,6 @@ def download_data(client=None, sta=None, start=UTCDateTime(),
 
     """
 
-    print(sta)
     for loc in sta.location:
 
         # Construct location name
@@ -201,7 +200,7 @@ def download_data(client=None, sta=None, start=UTCDateTime(),
         else:
             if len(st) == 3:
                 # It's possible if len(st)==1 that data is Z12
-                print("*                  - Data Downloaded")
+                print("*                 - Data Downloaded")
             elif len(st) < 3:
                 print("* Error retrieving waveforms")
                 print("**************************************************")
