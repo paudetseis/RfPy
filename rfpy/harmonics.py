@@ -91,10 +91,11 @@ class Harmonics(object):
             file.close()
 
         if not transvRF:
-            raise TypeError("__init__() missing 1 required positional argument: 'transvRF'")
+            raise TypeError("__init__() missing 1 required positional " +
+                            "argument: 'transvRF'")
 
         # fftshift if the time axis starts at negative lags
-        if radialRF[0].stats.taxis[0]<0.:
+        if radialRF[0].stats.taxis[0] < 0.:
             for tr in radialRF:
                 tr.data = np.fft.fftshift(tr.data)
             for tr in transvRF:
@@ -257,8 +258,8 @@ class Harmonics(object):
         else:
             self.azim = azim
 
-        print('Decomposing receiver functions into baz harmonics for azimuth = ',
-              azim)
+        print("Decomposing receiver functions into baz harmonics for " +
+              "azimuth = ", azim)
 
         # Some integers
         nbin = len(self.radialRF)
@@ -355,7 +356,7 @@ class Harmonics(object):
         """
 
         if not hasattr(self, 'hstream'):
-            raise(Exception("Decomposition has not been performed yet"))
+            raise Exception("Decomposition has not been performed yet")
 
         if not baz_list:
             print("Warning: no BAZ specified - using all baz from " +
@@ -414,7 +415,6 @@ class Harmonics(object):
 
             self.radial_forward.append(trR)
             self.transv_forward.append(trT)
-
 
     def plot(self, ymax=30., scale=10., save=False, title=None, form='png'):
         """
@@ -475,8 +475,11 @@ class Harmonics(object):
         ax1.grid()
 
         if save:
-            plt.savefig('FIGURES/'+sta+'.'+title+'.'+form, dpi=300,
-                        bbox_inches='tight', format=form)
+            plt.savefig(
+                'FIGURES/'+sta+'.'+title+'.'+form,
+                dpi=300,
+                bbox_inches='tight',
+                format=form)
         plt.show()
 
     def save(self, file):

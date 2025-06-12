@@ -27,9 +27,10 @@
 import numpy as np
 import pickle
 import stdb
+import copy
 from obspy.clients.fdsn import Client
-from obspy.core import Stream, UTCDateTime
-from rfpy import binning, plotting, Harmonics
+from obspy import Stream, UTCDateTime, read_inventory
+from rfpy import binning, plotting, Harmonics, utils
 from pathlib import Path
 from argparse import ArgumentParser
 from os.path import exists as exist
@@ -37,12 +38,6 @@ from numpy import nan
 
 
 def get_harmonics_arguments(argv=None):
-    """
-    Get Options from :class:`~optparse.OptionParser` objects.
-
-    This function is used for data processing on-the-fly (requires web connection)
-
-    """
 
     parser = ArgumentParser(
         usage="%(prog)s [arguments] <station database>",
@@ -67,7 +62,7 @@ def get_harmonics_arguments(argv=None):
         "instance, providing IU will match with all stations in " +
         "the IU network [Default processes all stations in the database]")
     parser.add_argument(
-        "-v", "-V", "--verbose",
+        "-V", "--verbose",
         action="store_true",
         dest="verb",
         default=False,
@@ -86,8 +81,7 @@ def get_harmonics_arguments(argv=None):
         default=False,
         help="Force folder names to use long-key form (NET.STN.CHN). " +
         "Default behaviour uses short key form (NET.STN) for the folder " +
-        "names, regardless of the key type of the database."
-    )
+        "names, regardless of the key type of the database.")
 
     # Event Selection Criteria
     TimeGroup = parser.add_argument_group(
@@ -272,7 +266,7 @@ def get_harmonics_arguments(argv=None):
     if len(args.startT) > 0:
         try:
             args.startT = UTCDateTime(args.startT)
-        except:
+        except Exception:
             parser.error(
                 "Cannot construct UTCDateTime from start time: " +
                 args.startT)
@@ -283,7 +277,7 @@ def get_harmonics_arguments(argv=None):
     if len(args.endT) > 0:
         try:
             args.endT = UTCDateTime(args.endT)
-        except:
+        except Exception:
             parser.error(
                 "Cannot construct UTCDateTime from end time: " +
                 args.endT)
@@ -337,8 +331,7 @@ def main():
     print("#        __                 _                                      _           #")
     print("#  _ __ / _|_ __  _   _    | |__   __ _ _ __ _ __ ___   ___  _ __ (_) ___ ___  #")
     print("# | '__| |_| '_ \| | | |   | '_ \ / _` | '__| '_ ` _ \ / _ \| '_ \| |/ __/ __| #")
-    print(
-        "# | |  |  _| |_) | |_| |   | | | | (_| | |  | | | | | | (_) | | | | | (__\__ \ #")
+    print("# | |  |  _| |_) | |_| |   | | | | (_| | |  | | | | | | (_) | | | | | (__\__ \ #")
     print("# |_|  |_| | .__/ \__, |___|_| |_|\__,_|_|  |_| |_| |_|\___/|_| |_|_|\___|___/ #")
     print("#          |_|    |___/_____|                                                  #")
     print("#                                                                              #")
@@ -348,8 +341,20 @@ def main():
     # Run Input Parser
     args = get_harmonics_arguments()
 
-    # Load Database
-    db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
+    # Check Extension
+    ext = args.indb.split('.')[-1]
+
+    if ext not in ['pkl', 'xml']:
+        print(
+            "Error: Must supply a station list in .pkl or .xml format ")
+        exit()
+
+    if ext == 'pkl':
+        db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
+
+    elif ext == 'xml':
+        inv = read_inventory(args.indb)
+        db, stkeys = utils.inv2stdb(inv, keys=args.stkeys)
 
     # Track processed folders
     procfold = []
@@ -391,13 +396,12 @@ def main():
             continue
 
         # Temporary print locations
-        tlocs = sta.location
+        tlocs = copy.copy(sta.location)
         if len(tlocs) == 0:
             tlocs = ['']
         for il in range(0, len(tlocs)):
             if len(tlocs[il]) == 0:
-                tlocs[il] = "--"
-        sta.location = tlocs
+                tlocs.append("--")
 
         # Update Display
         print(" ")
@@ -510,7 +514,7 @@ def main():
             harmonics.dcomp_fix_azim(azim=args.azim)
 
         if args.save_plot and not Path('FIGURES').is_dir():
-             Path('FIGURES').mkdir(parents=True)
+            Path('FIGURES').mkdir(parents=True)
 
         if args.plot:
             harmonics.plot(args.ymax, args.scale,

@@ -29,17 +29,13 @@ from os.path import exists as exist
 import numpy as np
 import pickle
 import stdb
-from rfpy import RFData
+import copy
+from rfpy import RFData, utils
 from pathlib import Path
+from obspy import read_inventory
 
 
 def get_recalc_arguments(argv=None):
-    """
-    Get Options from :class:`~optparse.OptionParser` objects.
-
-    This function is used for data processing on-the-fly (requires web connection)
-
-    """
 
     parser = ArgumentParser(
         usage="%(prog)s [arguments] <station database>",
@@ -68,7 +64,7 @@ def get_recalc_arguments(argv=None):
         "instance, providing IU will match with all stations in " +
         "the IU network [Default processes all stations in the database]")
     parser.add_argument(
-        "-v", "-V", "--verbose",
+        "-V", "--verbose",
         action="store_true",
         dest="verb",
         default=False,
@@ -179,7 +175,8 @@ def get_recalc_arguments(argv=None):
         type=str,
         default="wiener",
         help="Specify the deconvolution method. Available methods " +
-        "include 'wiener', 'water' and 'multitaper'. [Default 'wiener']")
+        "include 'wiener', 'wiener-mod', 'water' and 'multitaper'. " +
+        "[Default 'wiener']")
     DeconGroup.add_argument(
         "--gfilt",
         action="store",
@@ -224,10 +221,10 @@ def get_recalc_arguments(argv=None):
             "Error: Incorrect alignment specifier. Should be " +
             "either 'ZRT', 'LQT', or 'PVH'.")
 
-    if args.method not in ['wiener', 'water', 'multitaper']:
+    if args.method not in ['wiener', 'wiener-mod', 'water', 'multitaper']:
         parser.error(
-            "Error: 'method' should be either 'wiener', 'water' or " +
-            "'multitaper'")
+            "Error: 'method' should be either 'wiener', 'wiener-mod', " +
+            "'water',  or 'multitaper'")
 
     if args.pre_filt is not None:
         args.pre_filt = [float(val) for val in args.pre_filt.split(',')]
@@ -258,8 +255,20 @@ def main():
     # Run Input Parser
     args = get_recalc_arguments()
 
-    # Load Database
-    db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
+    # Check Extension
+    ext = args.indb.split('.')[-1]
+
+    if ext not in ['pkl', 'xml']:
+        print(
+            "Error: Must supply a station list in .pkl or .xml format ")
+        exit()
+
+    if ext == 'pkl':
+        db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
+
+    elif ext == 'xml':
+        inv = read_inventory(args.indb)
+        db, stkeys = utils.inv2stdb(inv, keys=args.stkeys)
 
     # Track processed folders
     procfold = []
@@ -285,13 +294,12 @@ def main():
             continue
 
         # Temporary print locations
-        tlocs = sta.location
+        tlocs = copy.copy(sta.location)
         if len(tlocs) == 0:
             tlocs = ['']
         for il in range(0, len(tlocs)):
             if len(tlocs[il]) == 0:
-                tlocs[il] = "--"
-        sta.location = tlocs
+                tlocs.append("--")
 
         # Update Display
         print(" ")
@@ -344,8 +352,7 @@ def main():
                     # Remove rotated flag and snr flag
                     rfdata.meta.rotated = False
                     rfdata.rotate(align='ZNE')
-                except:
-
+                except Exception:
                     print("Z12_Data.pkl not available - using ZNE_Data.pkl")
                     # Load ZNE data
                     ZNEfile = folder / "ZNE_Data.pkl"

@@ -34,7 +34,7 @@ from scipy.signal import hilbert
 
 def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False,
         include_empty=False):
-    """ 
+    """
     Function to stack receiver functions into (baz or slow) bins
     This can be done using a linear stack (i.e., simple
     mean), or using phase-weighted stacking.
@@ -66,8 +66,8 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False,
 
     """
 
-    if not typ in ['baz', 'slow', 'dist']:
-        raise(Exception("Type has to be 'baz' or 'slow' or 'dist'"))
+    if typ not in ['baz', 'slow', 'dist']:
+        raise Exception("Type has to be 'baz' or 'slow' or 'dist'")
 
     if typ == 'baz':
         stat = [stream1[i].stats.baz for i in range(len(stream1))]
@@ -116,7 +116,7 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False,
                         hilb = hilbert(tr.data)
                         phase = np.arctan2(hilb.imag, hilb.real)
                         pweight += np.exp(1j*phase)
-                        
+
                         continue
 
                 if nb > 0 or include_empty:
@@ -131,7 +131,7 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False,
                         trace.stats.baz = bins[i]
                         trace.stats.slow = alt
                         trace.stats.nbin = nb
-                    elif typ == 'slow': 
+                    elif typ == 'slow':
                         trace.stats.slow = bins[i]
                         trace.stats.baz = alt
                         trace.stats.nbin = nb
@@ -148,7 +148,7 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False,
 
             final_stream.append(binned_stream)
 
-        except:
+        except Exception:
             continue
 
     return final_stream
@@ -156,7 +156,7 @@ def bin(stream1, stream2=None, typ='baz', nbin=36+1, pws=False,
 
 def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=False,
                  include_empty=False):
-    """ 
+    """
     Function to stack receiver functions into back-azimuth and slowness bins.
     This can be done using a linear stack (i.e., simple
     mean), or using phase-weighted stacking.
@@ -223,7 +223,7 @@ def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=False,
                             hilb = hilbert(tr.data)
                             phase = np.arctan2(hilb.imag, hilb.real)
                             pweight += np.exp(1j*phase)
-                            
+
                             continue
 
                     if nbin > 0 or include_empty:
@@ -244,14 +244,14 @@ def bin_baz_slow(stream1, stream2=None, nbaz=36+1, nslow=20+1, pws=False,
 
             final_stream.append(binned_stream)
 
-        except:
+        except Exception:
             continue
 
     return final_stream
 
 
 def bin_all(stream1, stream2=None, pws=False):
-    """ 
+    """
     Function to bin all streams into a single trace.
     This can be done using a linear stack (i.e., simple
     mean), or using phase-weighted stacking.
@@ -302,8 +302,7 @@ def bin_all(stream1, stream2=None, pws=False):
             # Put back into traces
             stack.append(Trace(data=weight*array, header=stats))
 
-        except:
+        except Exception:
             continue
 
     return stack
-

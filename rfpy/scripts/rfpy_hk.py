@@ -27,9 +27,10 @@
 import numpy as np
 import pickle
 import stdb
+import copy
 from obspy.clients.fdsn import Client
-from obspy.core import Stream, UTCDateTime
-from rfpy import binning, plotting, HkStack
+from obspy import Stream, UTCDateTime, read_inventory
+from rfpy import binning, plotting, HkStack, utils
 from pathlib import Path
 from argparse import ArgumentParser
 from os.path import exists as exist
@@ -37,12 +38,6 @@ from numpy import nan
 
 
 def get_hk_arguments(argv=None):
-    """
-    Get Options from :class:`~optparse.OptionParser` objects.
-
-    This function is used for data processing on-the-fly (requires web connection)
-
-    """
 
     parser = ArgumentParser(
         usage="%(prog)s [arguments] <station database>",
@@ -67,7 +62,7 @@ def get_hk_arguments(argv=None):
         "instance, providing IU will match with all stations in " +
         "the IU network [Default processes all stations in the database]")
     parser.add_argument(
-        "-v", "-V", "--verbose",
+        "-V", "--verbose",
         action="store_true",
         dest="verb",
         default=False,
@@ -359,7 +354,7 @@ def get_hk_arguments(argv=None):
     if len(args.startT) > 0:
         try:
             args.startT = UTCDateTime(args.startT)
-        except:
+        except Exception:
             parser.error(
                 "Cannot construct UTCDateTime from start time: " +
                 args.startT)
@@ -370,7 +365,7 @@ def get_hk_arguments(argv=None):
     if len(args.endT) > 0:
         try:
             args.endT = UTCDateTime(args.endT)
-        except:
+        except Exception:
             parser.error(
                 "Cannot construct UTCDateTime from end time: " +
                 args.endT)
@@ -396,7 +391,7 @@ def get_hk_arguments(argv=None):
                 "Error: --bp should contain 2 " +
                 "comma-separated floats")
 
-## JMG ##
+    # JMG #
     if args.slowbound is None:
         args.slowbound = [0.04, 0.08]
     else:
@@ -416,7 +411,7 @@ def get_hk_arguments(argv=None):
             parser.error(
                 "Error: --bazbound should contain 2 " +
                 "comma-separated floats")
-## JMG ##
+    # JMG #
 
     if args.phase not in ['P', 'PP', 'allP', 'S', 'SKS', 'allS']:
         parser.error(
@@ -493,8 +488,20 @@ def main():
     # Run Input Parser
     args = get_hk_arguments()
 
-    # Load Database
-    db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
+    # Check Extension
+    ext = args.indb.split('.')[-1]
+
+    if ext not in ['pkl', 'xml']:
+        print(
+            "Error: Must supply a station list in .pkl or .xml format ")
+        exit()
+
+    if ext == 'pkl':
+        db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
+
+    elif ext == 'xml':
+        inv = read_inventory(args.indb)
+        db, stkeys = utils.inv2stdb(inv, keys=args.stkeys)
 
     # Track processed folders
     procfold = []
@@ -542,13 +549,12 @@ def main():
             continue
 
         # Temporary print locations
-        tlocs = sta.location
+        tlocs = copy.copy(sta.location)
         if len(tlocs) == 0:
             tlocs = ['']
         for il in range(0, len(tlocs)):
             if len(tlocs[il]) == 0:
-                tlocs[il] = "--"
-        sta.location = tlocs
+                tlocs.append("--")
 
         # Update Display
         print(" ")
@@ -700,7 +706,7 @@ def main():
         try:
             hkstack = HkStack(rfRstream, rfV2=rfRstream_copy,
                               strike=args.strike, dip=args.dip, vp=args.vp)
-        except:
+        except Exception:
             hkstack = HkStack(rfRstream,
                               strike=args.strike, dip=args.dip, vp=args.vp)
 
