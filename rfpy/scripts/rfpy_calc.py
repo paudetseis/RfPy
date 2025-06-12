@@ -30,7 +30,7 @@ import stdb
 import copy
 from obspy.clients.fdsn import Client as FDSN_Client
 from obspy.clients.filesystem.sds import Client as SDS_Client
-from obspy import Catalog, UTCDateTime
+from obspy import Catalog, UTCDateTime, read_inventory
 from http.client import IncompleteRead
 from rfpy import utils, RFData
 from pathlib import Path
@@ -146,14 +146,14 @@ def get_calc_arguments(argv=None):
         "and using a local data base of pre-downloaded " +
         "day-long SAC or MSEED files.")
     DataGroup.add_argument(
-        "--local-data",
+        "--SDS-path",
         action="store",
         type=str,
-        dest="localdata",
+        dest="sds_path",
         default=None,
         help="Specify absolute path to a SeisComP Data Structure (SDS) " +
         "archive containing day-long SAC or MSEED files" +
-        "(e.g., --local-data=/Home/username/Data/SDS). " +
+        "(e.g., --SDS-path=/Home/username/Data/SDS). " +
         "See https://www.seiscomp.de/seiscomp3/doc/applications/slarchive/SDS.html " +
         "for details on the SDS format. If this option is used, it takes " +
         "precedence over the --server settings.")
@@ -503,8 +503,20 @@ def main():
     # Run Input Parser
     args = get_calc_arguments()
 
-    # Load Database
-    db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
+    # Check Extension
+    ext = args.indb.split('.')[-1]
+
+    if ext not in ['pkl', 'xml']:
+        print(
+            "Error: Must supply a station list in .pkl or .xml format ")
+        exit()
+
+    if ext == 'pkl':
+        db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
+
+    elif ext == 'xml':
+        inv = read_inventory(args.indb)
+        db, stkeys = utils.inv2stdb(inv, keys=args.stkeys)
 
     # Loop over station keys
     for stkey in list(stkeys):
@@ -527,7 +539,7 @@ def main():
             datapath.mkdir(parents=True)
 
         # Establish client
-        if args.localdata is None:
+        if args.sds_path is None:
             data_client = FDSN_Client(
                 base_url=args.server,
                 user=args.userauth[0],
@@ -535,7 +547,7 @@ def main():
                 eida_token=args.tokenfile)
         else:
             data_client = SDS_Client(
-                args.localdata,
+                args.sds_path,
                 format=args.dtype)
 
         # Establish client for events

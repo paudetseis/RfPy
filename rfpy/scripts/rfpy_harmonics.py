@@ -29,8 +29,8 @@ import pickle
 import stdb
 import copy
 from obspy.clients.fdsn import Client
-from obspy.core import Stream, UTCDateTime
-from rfpy import binning, plotting, Harmonics
+from obspy import Stream, UTCDateTime, read_inventory
+from rfpy import binning, plotting, Harmonics, utils
 from pathlib import Path
 from argparse import ArgumentParser
 from os.path import exists as exist
@@ -341,8 +341,20 @@ def main():
     # Run Input Parser
     args = get_harmonics_arguments()
 
-    # Load Database
-    db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
+    # Check Extension
+    ext = args.indb.split('.')[-1]
+
+    if ext not in ['pkl', 'xml']:
+        print(
+            "Error: Must supply a station list in .pkl or .xml format ")
+        exit()
+
+    if ext == 'pkl':
+        db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
+
+    elif ext == 'xml':
+        inv = read_inventory(args.indb)
+        db, stkeys = utils.inv2stdb(inv, keys=args.stkeys)
 
     # Track processed folders
     procfold = []

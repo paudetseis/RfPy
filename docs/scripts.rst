@@ -85,10 +85,9 @@ Usage
       Settings associated with defining and using a local data base of pre-downloaded day-long
       SAC or MSEED files.
 
-      --local-data LOCALDATA
+      --SDS-path LOCALDATA
                             Specify absolute path to a SeisComP Data Structure (SDS) archive
-                            containing day-long SAC or MSEED files(e.g., --local-
-                            data=/Home/username/Data/SDS). See
+                            containing day-long SAC or MSEED files(e.g., --SDS-path=/Home/username/Data/SDS). See
                             https://www.seiscomp.de/seiscomp3/doc/applications/slarchive/SDS.html
                             for details on the SDS format. If this option is used, it takes
                             precedence over the --server settings.

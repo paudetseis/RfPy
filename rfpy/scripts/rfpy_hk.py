@@ -29,8 +29,8 @@ import pickle
 import stdb
 import copy
 from obspy.clients.fdsn import Client
-from obspy.core import Stream, UTCDateTime
-from rfpy import binning, plotting, HkStack
+from obspy import Stream, UTCDateTime, read_inventory
+from rfpy import binning, plotting, HkStack, utils
 from pathlib import Path
 from argparse import ArgumentParser
 from os.path import exists as exist
@@ -62,7 +62,7 @@ def get_hk_arguments(argv=None):
         "instance, providing IU will match with all stations in " +
         "the IU network [Default processes all stations in the database]")
     parser.add_argument(
-        "-v", "-V", "--verbose",
+        "-V", "--verbose",
         action="store_true",
         dest="verb",
         default=False,
@@ -488,8 +488,20 @@ def main():
     # Run Input Parser
     args = get_hk_arguments()
 
-    # Load Database
-    db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
+    # Check Extension
+    ext = args.indb.split('.')[-1]
+
+    if ext not in ['pkl', 'xml']:
+        print(
+            "Error: Must supply a station list in .pkl or .xml format ")
+        exit()
+
+    if ext == 'pkl':
+        db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
+
+    elif ext == 'xml':
+        inv = read_inventory(args.indb)
+        db, stkeys = utils.inv2stdb(inv, keys=args.stkeys)
 
     # Track processed folders
     procfold = []

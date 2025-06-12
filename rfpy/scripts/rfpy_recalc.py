@@ -30,8 +30,9 @@ import numpy as np
 import pickle
 import stdb
 import copy
-from rfpy import RFData
+from rfpy import RFData, utils
 from pathlib import Path
+from obspy import read_inventory
 
 
 def get_recalc_arguments(argv=None):
@@ -220,11 +221,10 @@ def get_recalc_arguments(argv=None):
             "Error: Incorrect alignment specifier. Should be " +
             "either 'ZRT', 'LQT', or 'PVH'.")
 
-    if args.method not in ['wiener', 'water', 'multitaper',\
-                           'wiener_audet_bssa2010']:
+    if args.method not in ['wiener', 'wiener-mod', 'water', 'multitaper']:
         parser.error(
-            "Error: 'method' should be either 'wiener', 'water',  " +
-            "'multitaper', or 'wiener_audet_bssa2010'")
+            "Error: 'method' should be either 'wiener', 'wiener-mod', " +
+            "'water',  or 'multitaper'")
 
     if args.pre_filt is not None:
         args.pre_filt = [float(val) for val in args.pre_filt.split(',')]
@@ -255,8 +255,20 @@ def main():
     # Run Input Parser
     args = get_recalc_arguments()
 
-    # Load Database
-    db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
+    # Check Extension
+    ext = args.indb.split('.')[-1]
+
+    if ext not in ['pkl', 'xml']:
+        print(
+            "Error: Must supply a station list in .pkl or .xml format ")
+        exit()
+
+    if ext == 'pkl':
+        db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
+
+    elif ext == 'xml':
+        inv = read_inventory(args.indb)
+        db, stkeys = utils.inv2stdb(inv, keys=args.stkeys)
 
     # Track processed folders
     procfold = []

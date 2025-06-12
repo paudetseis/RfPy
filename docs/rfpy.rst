@@ -58,7 +58,7 @@ Install the `StDb` dependency using ``pip`` inside the ``rfpy`` environment:
 
 .. sourcecode:: bash
 
-   pip install stdb
+   pip install stdb@git+https://github.com/schaefferaj/stdb
 
 Installing from GitHub development branch
 -----------------------------------------
@@ -86,7 +86,7 @@ Installing from source
 Using local data
 ================
 
-The main script packaged with ``RfPy`` uses FDSN web services through and ``ObsPy`` `Client` to load waveform data. For waveform data locally stored on your hard drive, the scripts can use a `Client` that reads a `SeisComP Data Structure <https://docs.obspy.org/packages/autogen/obspy.clients.filesystem.sds.html>`_ archive containing SAC or miniSEED waveform data. Check out the scripts ``rfpy_calc`` below and the argument ``--local-data`` and ``--dtype`` for more details.
+The main script packaged with ``RfPy`` uses FDSN web services through and ``ObsPy`` `Client` to load waveform data. For waveform data locally stored on your hard drive, the scripts can use a `Client` that reads a `SeisComP Data Structure <https://docs.obspy.org/packages/autogen/obspy.clients.filesystem.sds.html>`_ archive containing SAC or miniSEED waveform data. Check out the scripts ``rfpy_calc`` below and the argument ``--SDS-path`` and ``--dtype`` for more details.
 
 Station Metadata
 ----------------
