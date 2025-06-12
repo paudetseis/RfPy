@@ -256,11 +256,6 @@ class RFData(object):
         returned : bool
             Whether or not to return the ``accept`` attribute
 
-        Attributes
-        ----------
-        data : :class:`~obspy.core.Stream`
-            Stream container for NEZ seismograms
-
         Returns
         -------
         accept : bool
@@ -335,11 +330,6 @@ class RFData(object):
         -------
         accept : bool
             Whether or not the object is accepted for further analysis
-
-        Attributes
-        ----------
-        data : :class:`~obspy.core.Stream`
-            Stream containing :class:`~obspy.core.Trace` objects
 
         """
 
@@ -653,8 +643,8 @@ class RFData(object):
             Alignment of coordinate system for rotation
             ('ZRT', 'LQT', or 'PVH')
         method : str
-            Method for deconvolution. Options are 'wiener', 'water' or
-            'multitaper'
+            Method for deconvolution. Options are 'wiener', 'wiener-mod', 
+            'water', or 'multitaper'
         wavelet : str
             Type of wavelet for deconvolution. Options are 'complete', 'time'
             or 'envelope'
