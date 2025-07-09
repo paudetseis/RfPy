@@ -1,9 +1,31 @@
+# Copyright 2019 Pascal Audet
+#
+# This file is part of RfPy.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+# -*- coding: utf-8 -*-
 import math
-from obspy import UTCDateTime
-from numpy import nan, isnan, abs
+from obspy import UTCDateTime, Stream, read
 import numpy as np
-from obspy import Stream, Inventory
-from obspy import read, read_inventory
+import copy
+from stdb import StDbElement
 
 
 def floor_decimal(n, decimals=0):
@@ -39,377 +61,14 @@ def traceshift(trace, tt):
     return rtrace
 
 
-def list_local_data_stn(lcldrs=list, sta=None, net=None, dtype='SAC', altnet=[]):
+def download_data(client=None, sta=None, start=UTCDateTime(),
+                  end=UTCDateTime(), new_sr=0., verbose=False,
+                  remove_response=False, zcomp='Z'):
     """
-    Function to take the list of local directories and recursively
-    find all data that matches the station name
-
-    Parameters
-    ----------
-    lcldrs : List
-        List of local directories
-    sta : Dict
-        Station metadata from :mod:`~StDb`
-    net : str
-        Network name
-    altnet : List
-        List of alternative networks
-
-    Returns
-    -------
-    fpathmatch : List
-        Sorted list of matched directories
-
-    """
-    from fnmatch import filter
-    from os import walk
-    from os.path import join
-
-    if sta is None:
-        return []
-    else:
-        if net is None:
-            sstrings = ['*.{0:s}.*.{1:s}'.format(sta, dtype)]
-        else:
-            sstrings = ['*.{0:s}.{1:s}.*.{2:s}'.format(net, sta, dtype)]
-            if len(altnet) > 0:
-                for anet in altnet:
-                    sstrings.append(
-                        '*.{0:s}.{1:s}.*.{2:s}'.format(anet, sta, dtype))
-
-    fpathmatch = []
-    # Loop over all local data directories
-    for lcldr in lcldrs:
-        # Recursiely walk through directory
-        for root, dirnames, filenames in walk(lcldr):
-            # Keep paths only for those matching the station
-            for sstring in sstrings:
-                for filename in filter(filenames, sstring):
-                    # No hidden directories
-                    if not '/.' in root:
-                        fpathmatch.append(join(root, filename))
-
-    fpathmatch.sort()
-
-    return fpathmatch
-
-
-def parse_localdata_for_comp(comp='Z', stdata=[], dtype='SAC', sta=None,
-                             start=UTCDateTime, end=UTCDateTime, ndval=nan):
-    """
-    Function to determine the path to data for a given component and alternate network
-
-    Parameters
-    ----------
-    comp : str
-        Channel for seismogram (one letter only)
-    stdata : List
-        Station list
-    sta : Dict
-        Station metadata from :mod:`~StDb` data base
-    start : :class:`~obspy.core.utcdatetime.UTCDateTime`
-        Start time for request
-    end : :class:`~obspy.core.utcdatetime.UTCDateTime`
-        End time for request
-    ndval : float or nan
-        Default value for missing data
-
-    Returns
-    -------
-    err : bool
-        Boolean for error handling (`False` is associated with success)
-    st : :class:`~obspy.core.Stream`
-        Stream containing North, East and Vertical components of motion
-
-    """
-
-    from fnmatch import filter
-
-    # Get start and end parameters
-    styr = start.strftime("%Y")
-    stjd = start.strftime("%j")
-    edyr = end.strftime("%Y")
-    edjd = end.strftime("%j")
-
-    # Intialize to default positive error
-    erd = True
-
-    print(
-        ("*          {0:2s}{1:1s} - Checking Disk".format(sta.channel.upper(),
-                                                          comp.upper())))
-
-    # Possible naming conventions
-    f1 = '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.{4:2s}{5:1s}.{6:s}'
-    f2 = '*/{0:4s}.{1:3s}.{2:s}.{3:s}.*.*{4:1s}.{5:s}'
-    f3 = '*/{0:4s}.{1:3s}.*.{2:s}.{3:s}.*.{4:2s}{5:1s}*.{6:s}'
-
-    # Time Window Spans Single Day
-    if stjd == edjd:
-
-        lclfiles = []
-        nets = [sta.network] + sta.altnet
-        for net in nets:
-            # Start day
-            s1 = f1.format(styr, stjd, net.upper(), sta.station.upper(),
-                           sta.channel.upper()[0:2], comp.upper(), dtype)
-            s2 = f2.format(styr, stjd, net.upper(), sta.station.upper(),
-                           comp.upper(), dtype)
-            s3 = f3.format(styr, stjd, net.upper(), sta.station.upper(),
-                           sta.channel.upper()[0:2], comp.upper(), dtype)
-
-            print("*          Trying formats:")
-            print("*          " + s1)
-            print("*          " + s2)
-            print("*          " + s3)
-            print("*          ")
-
-            lclfiles.extend(list(filter(stdata, s1)))
-            lclfiles.extend(list(filter(stdata, s2)))
-            lclfiles.extend(list(filter(stdata, s3)))
-
-        # If still no Local files stop
-        if len(lclfiles) == 0:
-            print("*              - Data Unavailable")
-            return erd, None
-
-        # Process the local Files
-        for sacfile in lclfiles:
-            # Read File
-            st = read(sacfile)
-            # st = read(sacfile, format="SAC")
-
-            if dtype.upper() == 'MSEED':
-                if len(st) > 1:
-                    st.merge(method=1, interpolation_samples=-
-                             1, fill_value=-123456789)
-
-            # Should only be one component, otherwise keep reading If more
-            # than 1 component, error
-            if len(st) != 1:
-                pass
-
-            else:
-                # Check start/end times in range
-                if (st[0].stats.starttime <= start and
-                        st[0].stats.endtime >= end):
-                    st.trim(starttime=start, endtime=end)
-
-                    eddt = False
-                    # Check for NoData and convert to NaN if a SAC file
-                    if dtype.upper() == 'SAC':
-                        try:
-                            stnd = st[0].stats.sac['user9']
-                        except KeyError:
-                            stnd = 0.0
-                        if (not stnd == 0.0) and (not stnd == -12345.0):
-                            st[0].data[st[0].data == stnd] = ndval
-                            eddt = True
-
-                    # Check for Nan in stream for SAC
-                    if True in isnan(st[0].data):
-                        print(
-                            "*          !!! Missing Data Present !!! " +
-                            "Skipping (NaNs)")
-                    # Check for ND Val in stream for MSEED
-                    elif -123456789 in st[0].data:
-                        print(
-                            "*          !!! Missing Data Present !!! " +
-                            "Skipping (MSEED fill)")
-                    else:
-                        if eddt and (ndval == 0.0):
-                            if any(st[0].data == 0.0):
-                                print(
-                                    "*          !!! Missing Data Present " +
-                                    "!!! (Set to Zero)")
-
-                        st[0].stats.update()
-                        tloc = st[0].stats.location
-                        if len(tloc) == 0:
-                            tloc = "--"
-
-                        # Processed succesfully...Finish
-                        print(("*          {1:3s}.{2:2s}  - From Disk".format(
-                            st[0].stats.station, st[0].stats.channel.upper(),
-                            tloc)))
-                        return False, st
-
-    # Time Window spans Multiple days
-    else:
-        lclfiles1 = []
-        lclfiles2 = []
-        nets = [sta.network] + sta.altnet
-        for net in nets:
-            # Start day
-            s1 = f1.format(styr, stjd, net.upper(), sta.station.upper(),
-                           sta.channel.upper()[0:2], comp.upper(), dtype)
-            s2 = f2.format(styr, stjd, net.upper(), sta.station.upper(),
-                           comp.upper(), dtype)
-            s3 = f3.format(styr, stjd, net.upper(), sta.station.upper(),
-                           sta.channel.upper()[0:2], comp.upper(), dtype)
-
-            lclfiles1.extend(list(filter(stdata, s1)))
-            lclfiles1.extend(list(filter(stdata, s2)))
-            lclfiles1.extend(list(filter(stdata, s3)))
-
-            # End day
-            s1 = f1.format(edyr, edjd, net.upper(), sta.station.upper(),
-                           sta.channel.upper()[0:2], comp.upper(), dtype)
-            s2 = f2.format(edyr, edjd, net.upper(), sta.station.upper(),
-                           comp.upper(), dtype)
-            s3 = f3.format(edyr, edjd, net.upper(), sta.station.upper(),
-                           sta.channel.upper()[0:2], comp.upper(), dtype)
-
-            lclfiles2.extend(list(filter(stdata, s1)))
-            lclfiles2.extend(list(filter(stdata, s2)))
-            lclfiles2.extend(list(filter(stdata, s3)))
-
-        # If still no Local files stop
-        if len(lclfiles1) == 0 and len(lclfiles2) == 0:
-            print("*              - Data Unavailable")
-            return erd, None
-
-        # Now try to merge the two separate day files
-        if len(lclfiles1) > 0 and len(lclfiles2) > 0:
-            # Loop over first day file options
-            for sacf1 in lclfiles1:
-                st1 = read(sacf1)
-                if dtype.upper() == 'MSEED':
-                    if len(st1) > 1:
-                        st1.merge(method=1, interpolation_samples=-1,
-                                  fill_value=-123456789)
-
-                # Loop over second day file options
-                for sacf2 in lclfiles2:
-                    st2 = read(sacf2)
-                    if dtype.upper() == 'MSEED':
-                        if len(st2) > 1:
-                            st2.merge(
-                                method=1, interpolation_samples=-1,
-                                fill_value=-123456789)
-
-                    # Check time overlap of the two files.
-                    if st1[0].stats.endtime >= \
-                            st2[0].stats.starttime-st2[0].stats.delta:
-                        # eddt1 = False
-                        # eddt2 = False
-                        # if dtype.upper() == 'SAC':
-                        #     # Check for NoData and convert to NaN
-                        #     st1nd = st1[0].stats.sac['user9']
-                        #     st2nd = st2[0].stats.sac['user9']
-                        #     if (not st1nd == 0.0) and (not st1nd == -12345.0):
-                        #         st1[0].data[st1[0].data == st1nd] = ndval
-                        #         eddt1 = True
-                        #     if (not st2nd == 0.0) and (not st2nd == -12345.0):
-                        #         st2[0].data[st2[0].data == st2nd] = ndval
-                        #         eddt2 = True
-
-                        st = st1 + st2
-                        # Need to work on this HERE (AJS OCT 2015).
-                        # If Calibration factors are different,
-                        # then the traces cannot be merged.
-                        try:
-                            st.merge(method=1, interpolation_samples=-
-                                     1, fill_value=-123456789)
-
-                            # Should only be one component, otherwise keep
-                            # reading If more than 1 component, error
-                            if len(st) != 1:
-                                print(st)
-                                print("merge failed?")
-
-                            else:
-                                if (st[0].stats.starttime <= start and
-                                        st[0].stats.endtime >= end):
-                                    st.trim(starttime=start, endtime=end)
-
-                                    eddt = False
-                                    # Check for NoData and convert to NaN if a SAC file
-                                    if dtype.upper() == 'SAC':
-                                        try:
-                                            stnd = st[0].stats.sac['user9']
-                                        except KeyError:
-                                            stnd = 0.0
-                                        if (not stnd == 0.0) and (not stnd == -12345.0):
-                                            st[0].data[st[0].data == stnd] = ndval
-                                            eddt = True
-
-                                    # Check for Nan in stream for SAC
-                                    if True in isnan(st[0].data):
-                                        print(
-                                            "*          !!! Missing Data " +
-                                            "Present !!! Skipping (NaNs)")
-                                    # Check for ND Val in stream for MSEED
-                                    elif -123456789 in st[0].data:
-                                        print(
-                                            "*          !!! Missing Data Present !!! " +
-                                            "Skipping (MSEED fill)")
-                                    else:
-                                        if (eddt1 or eddt2) and (ndval == 0.0):
-                                            if any(st[0].data == 0.0):
-                                                print(
-                                                    "*          !!! Missing " +
-                                                    "Data Present !!! (Set " +
-                                                    "to Zero)")
-
-                                        st[0].stats.update()
-                                        tloc = st[0].stats.location
-                                        if len(tloc) == 0:
-                                            tloc = "--"
-
-                                        # Processed succesfully...Finish
-                                        print(("*          {1:3s}.{2:2s}  - " +
-                                               "From Disk".format(
-                                                   st[0].stats.station,
-                                                   st[0].stats.channel.upper(),
-                                                   tloc)))
-                                        return False, st
-
-                        except:
-                            pass
-                    else:
-                        st2ot = st2[0].stats.endtime-st2[0].stats.delta
-                        print("*                 - Merge Failed: No " +
-                              "Overlap {0:s} - {1:s}".format(
-                                  st1[0].stats.endtime.strftime(
-                                      "%Y-%m-%d %H:%M:%S"),
-                                  st2ot.strftime("%Y-%m-%d %H:%M:%S")))
-
-    # If we got here, we did not get the data.
-    print("*              - Data Unavailable")
-    return erd, None
-
-
-def attach_local_response_data(stream, local_response_dir):
-    """
-    Function to restrieve response data from locally stored dataless seed
-
-    Parameters
-    ----------
-    stream : obspy.Stream
-        Event seismogram
-    local_response_dir: str
-        Directory holding response information. All files containing the station
-        name are read.
-    """
-    stations = [t.stats.station for t in stream.traces]
-    inventory = Inventory()
-    for station in stations:
-        inventory += read_inventory(
-            '{:}/*{:}*'.format(local_response_dir, station))
-    stream.attach_response(inventories=inventory)
-
-
-def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
-                  stdata=[], dtype='SAC', ndval=nan, new_sr=0., verbose=False,
-                  remove_response=False, local_response_dir='', zcomp='Z'):
-    """
-    Function to build a stream object for a seismogram in a given time window either
-    by downloading data from the client object or alternatively first checking if the
-    given data is already available locally.
-
-    Note
-    ----
-    Currently only supports NEZ Components!
+    Function to build a stream object for a seismogram in a given time window
+    by getting data from a client object, either from a local SDS archive or
+    from an FDSN web-service. The function performs sanity checks for
+    the start times, sampling rates and window lengths.
 
     Parameters
     ----------
@@ -421,20 +80,16 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
         Start time for request
     end : :class:`~obspy.core.utcdatetime.UTCDateTime`
         End time for request
-    stdata : List
-        List of directories holding local waveform data
-    ndval : float or nan
-        Default value for missing data
+    new_sr : float
+        New sampling rate (Hz)
+    verbose : bool
+        Whether or not to print messages to screen during run-time
     remove_response : bool
         Remove instrument response from seismogram and resitute to true ground
         velocity (m/s) using obspy.core.trace.Trace.remove_response()
-    local_response_dir: str
-        Directory holding response files to be read by obspy.read_inventory().
-        Required when ``remove_response`` and using locally stored waveform data
-        via ``stdata``.
     zcomp: str
-        Vertical Component Identifier. Should be a single character. 
-        This is different then 'Z' only for fully unknown component 
+        Vertical Component Identifier. Should be a single character.
+        This is different then 'Z' only for fully unknown component
         orientation (i.e., components are 1, 2, 3)
 
     Returns
@@ -450,99 +105,43 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
 
     """
 
-    from fnmatch import filter
-    from obspy import read, Stream
-    from os.path import dirname, join, exists
-    from numpy import any
-    from math import floor
+    for loc in sta.location:
 
-    # Output
-    print(("*     {0:s}.{1:2s} - ZNE:".format(sta.station,
-                                              sta.channel.upper())))
+        # Construct location name
+        if loc == "--":
+            tloc = ""
+        else:
+            tloc = copy.copy(loc)
 
-    # Set Error Default to True
-    erd = True
+        # Construct Channel List
+        cha = sta.channel.upper() + '?'
+        msg = "*     {0:s}.{1:2s}?.{2:2s} - Checking Network".format(
+            sta.station, sta.channel.upper(), loc)
+        print(msg)
 
-    # Check if there is local data
-    if len(stdata) > 0:
-        # Only a single day: Search for local data
-        # Get Z localdata
-        errZ, stZ = parse_localdata_for_comp(
-            comp='Z', stdata=stdata, dtype=dtype, sta=sta, start=start, end=end,
-            ndval=ndval)
-        # Get N localdata
-        errN, stN = parse_localdata_for_comp(
-            comp='N', stdata=stdata, dtype=dtype, sta=sta, start=start, end=end,
-            ndval=ndval)
-        # Get E localdata
-        errE, stE = parse_localdata_for_comp(
-            comp='E', stdata=stdata, dtype=dtype, sta=sta, start=start, end=end,
-            ndval=ndval)
-        # Retreived Succesfully?
-        erd = errZ or errN or errE
-        if not erd:
-            # Combine Data
-            st = stZ + stN + stE
-            if remove_response:
-                if local_response_dir:
-                    attach_local_response_data(st, local_response_dir)
-                else:
-                    print('*')
-                    print('* Warning: No local_response_dir given.')
-                    print('* Warning: Continuing without.')
-                    print('*')
-
-
-    # No local data? Request using client
-    if erd:
-        erd = False
-
-        for loc in sta.location:
-            tloc = loc
-            # Construct location name
-            if len(tloc) == 0:
-                tloc = "--"
-
-            # Construct Channel List
-            chaZNE = (sta.channel.upper() + 'Z,' +
-                      sta.channel.upper() + 'N,' +
-                      sta.channel.upper() + 'E')
-            msgZNE = "*          {1:2s}[ZNE].{2:2s} - Checking Network".format(
-                sta.station, sta.channel.upper(), tloc)
-
-            # Use 'zcomp' only for 1, 2, 3 components, where 3 is likely Z
-            chaZ12 = (sta.channel.upper() + zcomp + ',' +
-                      sta.channel.upper() + '1,' +
-                      sta.channel.upper() + '2')
-            msgZ12 = "*          {1:2s}[Z12].{2:2s} - Checking Network".format(
-                sta.station, sta.channel.upper(), tloc)
-
-            # Loop over possible channels
-            for channel, msg in zip([chaZNE, chaZ12], [msgZNE, msgZ12]):
-                print(msg)
-
-                # Get waveforms, with extra 1 second to avoid
-                # traces cropped too short - traces are trimmed later
-                try:
-                    st = client.get_waveforms(
-                        network=sta.network,
-                        station=sta.station, location=loc,
-                        channel=channel, starttime=start,
-                        endtime=end+1., attach_response=remove_response)
-                except Exception as e:
-                    if verbose:
-                        print("* Met exception:")
-                        print("* " + e.__repr__())
-                    st = None
-                else:
-                    if len(st) == 3:
-                        # It's possible if len(st)==1 that data is Z12
-                        print("*                     - Data Downloaded")
-                        break
-
-            # Break if we successfully obtained 3 components in st
-            if not erd:
-                break
+        # Get waveforms, with extra 1 second to avoid
+        # traces cropped too short - traces are trimmed later
+        try:
+            st = client.get_waveforms(
+                network=sta.network,
+                station=sta.station,
+                location=tloc,
+                channel=cha,
+                starttime=start,
+                endtime=end+1.)
+        except Exception as e:
+            if verbose:
+                print("* Met exception:")
+                print("* " + e.__repr__())
+            st = None
+        else:
+            if len(st) == 3:
+                # It's possible if len(st)==1 that data is Z12
+                print("*                 - Data Downloaded")
+            elif len(st) < 3:
+                print("* Error retrieving waveforms")
+                print("**************************************************")
+                return True, None
 
     # Check the correct 3 components exist
     if st is None:
@@ -552,10 +151,16 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
 
     # Three components successfully retrieved
     if remove_response:
-        st.remove_response()
-        print("*")
-        print("* Restituted stream to true ground velocity.")
-        print("*")
+        try:
+            st.remove_response()
+            if verbose:
+                print("*")
+                print("* Restituted stream to true ground velocity.")
+                print("*")
+        except Exception as e:
+            print("*")
+            print('* Cannot remove response, moving on.')
+            print("*")
 
     # Detrend and apply taper
     st.detrend('demean').detrend('linear').taper(
@@ -563,12 +168,13 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
 
     # Check start times
     if not np.all([tr.stats.starttime == start for tr in st]):
-        print("* Start times are not all close to true start: ")
-        [print("*   "+tr.stats.channel+" " +
-               str(tr.stats.starttime)+" " +
-               str(tr.stats.endtime)) for tr in st]
-        print("*   True start: "+str(start))
-        print("*   -> Shifting traces to true start")
+        if verbose:
+            print("* Start times are not all close to true start: ")
+            [print("*   "+tr.stats.channel+" " +
+                   str(tr.stats.starttime)+" " +
+                   str(tr.stats.endtime)) for tr in st]
+            print("*   True start: "+str(start))
+            print("*   -> Shifting traces to true start")
         delay = [tr.stats.starttime - start for tr in st]
         st_shifted = Stream(
             traces=[traceshift(tr, dt) for tr, dt in zip(st, delay)])
@@ -578,17 +184,19 @@ def download_data(client=None, sta=None, start=UTCDateTime, end=UTCDateTime,
     sr = st[0].stats.sampling_rate
     sr_round = float(floor_decimal(sr, 0))
     if not sr == sr_round:
-        print("* Sampling rate is not an integer value: ", sr)
-        print("* -> Resampling")
+        if verbose:
+            print("* Sampling rate is not an integer value: ", sr)
+            print("* -> Resampling")
         st.resample(sr_round, no_filter=False)
 
     # Try trimming
     try:
         st.trim(start, end)
-    except:
+    except Exception as e:
         print("* Unable to trim")
         print("* -> Skipping")
         print("**************************************************")
+
         return True, None
 
     # Check final lengths - they should all be equal if start times

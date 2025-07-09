@@ -27,8 +27,9 @@
 import numpy as np
 import pickle
 import stdb
-from obspy import Stream, UTCDateTime
-from rfpy import binning, plotting
+import copy
+from obspy import Stream, UTCDateTime, read_inventory
+from rfpy import binning, plotting, utils
 from pathlib import Path
 from argparse import ArgumentParser
 from os.path import exists as exist
@@ -63,7 +64,7 @@ def get_plot_arguments(argv=None):
         "instance, providing IU will match with all stations in " +
         "the IU network [Default processes all stations in the database]")
     parser.add_argument(
-        "-v", "-V", "--verbose",
+        "-V", "--verbose",
         action="store_true",
         dest="verb",
         default=False,
@@ -341,8 +342,20 @@ def main():
     # Run Input Parser
     args = get_plot_arguments()
 
-    # Load Database
-    db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
+    # Check Extension
+    ext = args.indb.split('.')[-1]
+
+    if ext not in ['pkl', 'xml']:
+        print(
+            "Error: Must supply a station list in .pkl or .xml format ")
+        exit()
+
+    if ext == 'pkl':
+        db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
+
+    elif ext == 'xml':
+        inv = read_inventory(args.indb)
+        db, stkeys = utils.inv2stdb(inv, keys=args.stkeys)
 
     # Track processed folders
     procfold = []
@@ -368,13 +381,12 @@ def main():
             continue
 
         # Temporary print locations
-        tlocs = sta.location
+        tlocs = copy.copy(sta.location)
         if len(tlocs) == 0:
             tlocs = ['']
         for il in range(0, len(tlocs)):
             if len(tlocs[il]) == 0:
-                tlocs[il] = "--"
-        sta.location = tlocs
+                tlocs.append("--")
 
         # Update Display
         print(" ")

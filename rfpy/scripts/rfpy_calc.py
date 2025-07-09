@@ -27,8 +27,10 @@
 import numpy as np
 import pickle
 import stdb
-from obspy.clients.fdsn import Client
-from obspy import Catalog, UTCDateTime
+import copy
+from obspy.clients.fdsn import Client as FDSN_Client
+from obspy.clients.filesystem.sds import Client as SDS_Client
+from obspy import Catalog, UTCDateTime, read_inventory
 from http.client import IncompleteRead
 from rfpy import utils, RFData
 from pathlib import Path
@@ -39,12 +41,6 @@ from numpy import nan
 
 
 def get_calc_arguments(argv=None):
-    """
-    Get Options from :class:`~optparse.OptionParser` objects.
-
-    This function is used for data processing on-the-fly (requires web connection)
-
-    """
 
     parser = ArgumentParser(
         usage="%(prog)s [arguments] <station database>",
@@ -59,7 +55,8 @@ def get_calc_arguments(argv=None):
     # General Settings
     parser.add_argument(
         "indb",
-        help="Station Database to process from.",
+        help="Station Database to process from. Available formats are: " +
+             "StDb (.pkl or .csv) or stationXML (.xml)",
         type=str)
     parser.add_argument(
         "--keys",
@@ -74,7 +71,7 @@ def get_calc_arguments(argv=None):
         "instance, providing IU will match with all stations in " +
         "the IU network [Default processes all stations in the database]")
     parser.add_argument(
-        "-v", "-V", "--verbose",
+        "-V", "--verbose",
         action="store_true",
         dest="verb",
         default=False,
@@ -106,8 +103,7 @@ def get_calc_arguments(argv=None):
     # Server Settings
     ServerGroup = parser.add_argument_group(
         title="Server Settings",
-        description="Settings associated with which "
-        "datacenter to log into.")
+        description="Settings associated with FDSN datacenters for archived data.")
     ServerGroup.add_argument(
         "--server",
         action="store",
@@ -131,11 +127,11 @@ def get_calc_arguments(argv=None):
         "waveform server (--user-auth='username:authpassword') to access " +
         "and download restricted data. [Default no user and password]")
     ServerGroup.add_argument(
-        "--eida-token", 
-        action="store", 
+        "--eida-token",
+        action="store",
         type=str,
-        dest="tokenfile", 
-        default=None, 
+        dest="tokenfile",
+        default=None,
         help="Token for EIDA authentication mechanism, see " +
         "http://geofon.gfz-potsdam.de/waveform/archive/auth/index.php. "
         "If a token is provided, argument --user-auth will be ignored. "
@@ -146,48 +142,31 @@ def get_calc_arguments(argv=None):
     # Database Settings
     DataGroup = parser.add_argument_group(
         title="Local Data Settings",
-        description="Settings associated with defining " +
-        "and using a local data base of pre-downloaded " +
-        "day-long SAC or MSEED files.")
+        description="Settings associated with a SeisComP database " +
+        "for locally archived data.")
     DataGroup.add_argument(
-        "--local-data",
+        "--SDS-path",
         action="store",
         type=str,
-        dest="localdata",
+        dest="sds_path",
         default=None,
-        help="Specify a comma separated list of paths containing " +
-        "day-long sac or mseed files of data already downloaded. " +
-        "If data exists for a seismogram is already present on disk, " +
-        "it is selected preferentially over downloading " +
-        "the data using the Client interface")
+        help="Specify absolute path to a SeisComP Data Structure (SDS) " +
+        "archive containing day-long SAC or MSEED files" +
+        "(e.g., --SDS-path=/Home/username/Data/SDS). " +
+        "See https://www.seiscomp.de/seiscomp3/doc/applications/slarchive/SDS.html " +
+        "for details on the SDS format. If this option is used, it takes " +
+        "precedence over the --server settings.")
     DataGroup.add_argument(
-    	"--dtype",
-    	action="store",
-    	type=str,
-    	dest="dtype",
-    	default='SAC',
-    	help="Specify the data archive file type, either SAC " +
-    	" or MSEED. Note the default behaviour is to search for " +
-    	"SAC files. Local archive files must have extensions of '.SAC' "+
-    	" or '.MSEED. These are case dependent, so specify the correct case"+
-        "here.")
-    DataGroup.add_argument(
-        "--no-data-zero",
-        action="store_true",
-        dest="ndval",
-        default=False,
-        help="Specify to force missing data to be set as zero, rather " +
-        "than default behaviour which sets to nan. Note this is applied " +
-        "only to the SAC data")
-    DataGroup.add_argument(
-        "--no-local-net",
-        action="store_false",
-        dest="useNet",
-        default=True,
-        help="Specify to prevent using the Network code in the " +
-        "search for local data (sometimes for CN stations " +
-        "the dictionary name for a station may disagree with that " +
-        "in the filename. [Default Network used]")
+        "--dtype",
+        action="store",
+        type=str,
+        dest="dtype",
+        default='MSEED',
+        help="Specify the data archive file type, either SAC " +
+        " or MSEED. Note the default behaviour is to search for " +
+        "SAC files. Local archive files must have extensions of " +
+        "'.SAC'  or '.MSEED'. These are case dependent, so specify " +
+        "the correct case here.")
     DataGroup.add_argument(
         "--save-Z12",
         action="store_true",
@@ -220,7 +199,7 @@ def get_calc_arguments(argv=None):
         "the end time for the event search. This will override any " +
         "station end times [Default end date of station]")
     EventGroup.add_argument(
-        "--reverse", "-R",
+        "--reverse",
         action="store_true",
         dest="reverse",
         default=False,
@@ -362,7 +341,8 @@ def get_calc_arguments(argv=None):
         type=str,
         default="wiener",
         help="Specify the deconvolution method. Available methods " +
-        "include 'wiener', 'water' and 'multitaper'. [Default 'wiener']")
+        "include 'wiener', 'wiener-mod', 'water' and 'multitaper'. " +
+        "[Default 'wiener']")
     DeconGroup.add_argument(
         "--gfilt",
         action="store",
@@ -386,6 +366,12 @@ def get_calc_arguments(argv=None):
     if not exist(args.indb):
         parser.error("Input file " + args.indb + " does not exist")
 
+    # Check Extension
+    ext = args.indb.split('.')[-1]
+
+    if ext not in ['pkl', 'xml', 'csv']:
+        parser.error("Must supply a station list in .pkl, .csv or .xml format ")
+
     # create station key list
     if len(args.stkeys) > 0:
         args.stkeys = args.stkeys.split(',')
@@ -394,7 +380,7 @@ def get_calc_arguments(argv=None):
     if len(args.startT) > 0:
         try:
             args.startT = UTCDateTime(args.startT)
-        except:
+        except Exception:
             parser.error(
                 "Cannot construct UTCDateTime from start time: " +
                 args.startT)
@@ -405,7 +391,7 @@ def get_calc_arguments(argv=None):
     if len(args.endT) > 0:
         try:
             args.endT = UTCDateTime(args.endT)
-        except:
+        except Exception:
             parser.error(
                 "Cannot construct UTCDateTime from end time: " +
                 args.endT)
@@ -419,32 +405,21 @@ def get_calc_arguments(argv=None):
         if args.userauth is not None:
             tt = args.userauth.split(':')
             if not len(tt) == 2:
-                msg = ("Error: Incorrect Username and Password Strings for User "
-                       "Authentification")
+                msg = (
+                    "Error: Incorrect Username and Password Strings " +
+                    "for User Authentification")
                 parser.error(msg)
             else:
                 args.userauth = tt
         else:
             args.userauth = [None, None]
 
-    # Parse Local Data directories
-    if args.localdata is not None:
-        args.localdata = args.localdata.split(',')
-    else:
-        args.localdata = []
-
     # Check Datatype specification
-    if (not args.dtype.upper() == 'MSEED') and  (not args.dtype.upper() == 'SAC'):
-    	parser.error(
-    		"Error: Local Data Archive must be of types 'SAC'" +
-    		"or MSEED. These must match the file extensions for " +
-    		" the archived data.")
-
-    # Check NoData Value
-    if args.ndval:
-        args.ndval = 0.0
-    else:
-        args.ndval = nan
+    if args.dtype.upper() not in ['MSEED', 'SAC']:
+        parser.error(
+            "Error: Local Data Archive must be of types 'SAC'" +
+            "or MSEED. These must match the file extensions for " +
+            " the archived data.")
 
     # Check distances for selected phase
     if args.phase not in ['P', 'PP', 'S', 'SKS']:
@@ -508,10 +483,10 @@ def get_calc_arguments(argv=None):
         print("SNR window > data window. Defaulting to data " +
               "window minus 10 sec.")
 
-    if args.method not in ['wiener', 'water', 'multitaper']:
+    if args.method not in ['wiener', 'wiener-mod', 'water', 'multitaper']:
         parser.error(
-            "Error: 'method' should be either 'wiener', 'water' or " +
-            "'multitaper'")
+            "Error: 'method' should be either 'wiener', 'wiener-mod', " +
+            "'water' or 'multitaper'")
 
     return args
 
@@ -533,7 +508,7 @@ def main():
     # Run Input Parser
     args = get_calc_arguments()
 
-    # Load Database
+    # Get station StDb and keys
     db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
 
     # Loop over station keys
@@ -557,14 +532,19 @@ def main():
             datapath.mkdir(parents=True)
 
         # Establish client
-        data_client = Client(
-            base_url=args.server,
-            user=args.userauth[0],
-            password=args.userauth[1],
-            eida_token=args.tokenfile)
+        if args.sds_path is None:
+            data_client = FDSN_Client(
+                base_url=args.server,
+                user=args.userauth[0],
+                password=args.userauth[1],
+                eida_token=args.tokenfile)
+        else:
+            data_client = SDS_Client(
+                args.sds_path,
+                format=args.dtype)
 
         # Establish client for events
-        event_client = Client()
+        event_client = FDSN_Client()
 
         # Get catalogue search start time
         if args.startT is None:
@@ -581,13 +561,12 @@ def main():
             continue
 
         # Temporary print locations
-        tlocs = sta.location
+        tlocs = copy.copy(sta.location)
         if len(tlocs) == 0:
             tlocs = ['']
         for il in range(0, len(tlocs)):
             if len(tlocs[il]) == 0:
-                tlocs[il] = "--"
-        sta.location = tlocs
+                tlocs.append("--")
 
         # Update Display
         print(" ")
@@ -628,17 +607,20 @@ def main():
         # Get catalogue using deployment start and end
         try:
             cat = event_client.get_events(
-                starttime=tstart, endtime=tend,
-                minmagnitude=args.minmag, maxmagnitude=args.maxmag)
+                starttime=tstart,
+                endtime=tend,
+                minmagnitude=args.minmag,
+                maxmagnitude=args.maxmag)
+
         except IncompleteRead:
             # See http.client.IncompleteRead
             # https://github.com/obspy/obspy/issues/3028#issue-1179808237
-            
+
             # Read yearly chunks
             print('| Warning: Unable to get entire catalog at once |')
             print('| Trying to get one year at a time              |')
             print('|                                               |')
-            
+
             chunk = 365 * 86400  # Query length in seconds
             cat = Catalog()
             tend = min(tend, UTCDateTime.now())
@@ -646,8 +628,10 @@ def main():
                 print("| Start:   {0:19s}                  |".format(
                     tstart.strftime("%Y-%m-%d %H:%M:%S")))
                 cat += event_client.get_events(
-                    starttime=tstart, endtime=tstart + chunk,
-                    minmagnitude=args.minmag, maxmagnitude=args.maxmag)
+                    starttime=tstart,
+                    endtime=tstart + chunk,
+                    minmagnitude=args.minmag,
+                    maxmagnitude=args.maxmag)
 
                 # Make sure that we go all the way to tend
                 if tstart + chunk > tend:
@@ -667,28 +651,6 @@ def main():
             "|  Found {0:5d}".format(nevtT) +
             " possible events                  |")
         ievs = range(0, nevtT)
-
-        # Get Local Data Availabilty
-        if len(args.localdata) > 0:
-            print("|-----------------------------------------------|")
-            print("| Cataloging Local Data...                      |")
-            if args.useNet:
-                stalcllist = utils.list_local_data_stn(
-                    lcldrs=args.localdata, sta=sta.station,
-                    net=sta.network, dtype=args.dtype, altnet=sta.altnet)
-                print("|   {0:>2s}.{1:5s}: {2:6d}".format(
-                    sta.network, sta.station, len(stalcllist)) +
-                    " files                      |")
-                #print(stalcllist[0:10])
-            else:
-                stalcllist = utils.list_local_data_stn(
-                    lcldrs=args.localdata, sta=sta.station, dtype=args.dtype)
-                print("|   {0:5s}: {1:6d} files                " +
-                      "        |".format(
-                          sta.station, len(stalcllist)))
-        else:
-            stalcllist = []
-        print("|===============================================|")
 
         # Select order of processing
         if args.reverse:
@@ -761,9 +723,11 @@ def main():
 
                 # Get data
                 has_data = rfdata.download_data(
-                    client=data_client, dts=args.dts, stdata=stalcllist,
-                    ndval=args.ndval, dtype=args.dtype, new_sr=args.new_sampling_rate,
-                    returned=True, verbose=args.verb)
+                    client=data_client,
+                    dts=args.dts,
+                    new_sr=args.new_sampling_rate,
+                    returned=True,
+                    verbose=args.verb)
 
                 if not has_data:
                     continue

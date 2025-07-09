@@ -17,8 +17,6 @@ used in command-line scripts.
    :target: https://doi.org/10.5281/zenodo.3905414
 .. image:: https://travis-ci.com/paudetseis/RfPy.svg?branch=master
     :target: https://travis-ci.com/paudetseis/RfPy
-.. image:: https://codecov.io/gh/paudetseis/RfPy/branch/master/graph/badge.svg
-    :target: https://codecov.io/gh/paudetseis/RfPy
 
 .. note::
 
@@ -32,9 +30,6 @@ used in command-line scripts.
      spectral deconvolution or a time-domain deconvolution.
    * ``RfData`` objects are used to calculate single-station and single-event receiver 
      functions, whereas ``rf`` can handle multiple stations at once. 
-
-.. warning::
-   ``RfPy`` was recently updated to fix a problem when running the scripts under Windows OS. The consequence is that version ``0.1.1`` will throw an error if the extension .py is specified when calling the scripts. The accompanying documentation also uses version ``0.2.1`` of ``StDb`` in the Tutorials section.
 
 .. toctree::
    :maxdepth: 1

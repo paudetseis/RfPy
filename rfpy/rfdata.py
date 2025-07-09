@@ -54,13 +54,13 @@ class Meta(object):
     az : float
         Azimuth - pointing to station from earthquake (degrees)
     ttime : float
-        Predicted arrival time (sec) 
+        Predicted arrival time (sec)
     ph : str
-        Phase name 
+        Phase name
     slow : float
-        Horizontal slowness of phase 
+        Horizontal slowness of phase
     inc : float
-        Incidence angle of phase at surface 
+        Incidence angle of phase at surface
     vp : float
         P-wave velocity at surface (km/s)
     vs : float
@@ -72,8 +72,8 @@ class Meta(object):
         Whether or not data have been rotated to ``align``
         coordinate system
     zcomp : str
-        Vertical Component Identifier. Should be a single character. 
-        This is different then 'Z' only for fully unknown component 
+        Vertical Component Identifier. Should be a single character.
+        This is different then 'Z' only for fully unknown component
         orientation (i.e., components are 1, 2, 3)
 
     """
@@ -94,6 +94,9 @@ class Meta(object):
         if self.dep is not None:
             if self.dep > 1000.:
                 self.dep = self.dep/1000.
+            if self.dep < 0.:
+                # Some events have negative depths in km
+                self.dep = np.abs(self.dep)
         else:
             self.dep = 10.
 
@@ -155,8 +158,8 @@ class Meta(object):
 class RFData(object):
     """
     A RFData object contains Class attributes that associate
-    station information with a single event (i.e., earthquake) 
-    metadata, corresponding raw and rotated seismograms and 
+    station information with a single event (i.e., earthquake)
+    metadata, corresponding raw and rotated seismograms and
     receiver functions.
 
     Note
@@ -198,8 +201,8 @@ class RFData(object):
     def add_event(self, event, gacmin=30., gacmax=90., phase='P',
                   returned=False):
         """
-        Adds event metadata to RFData object, including travel time info 
-        of P wave. 
+        Adds event metadata to RFData object, including travel time info
+        of P wave.
 
         Parameters
         ----------
@@ -232,7 +235,7 @@ class RFData(object):
             print(event.short_str())
 
         if not isinstance(event, Event):
-            raise(Exception("Event has incorrect type"))
+            raise Exception("Event has incorrect type")
 
         # Store as object attributes
         self.meta = Meta(sta=self.sta, event=event,
@@ -253,11 +256,6 @@ class RFData(object):
         returned : bool
             Whether or not to return the ``accept`` attribute
 
-        Attributes
-        ----------
-        zne_data : :class:`~obspy.core.Stream`
-            Stream container for NEZ seismograms
-
         Returns
         -------
         accept : bool
@@ -266,7 +264,7 @@ class RFData(object):
         """
 
         if not self.meta:
-            raise(Exception("No meta data available - aborting"))
+            raise Exception("No meta data available - aborting")
 
         if not self.meta.accept:
             return
@@ -281,13 +279,14 @@ class RFData(object):
             print(stream)
 
         if not isinstance(stream, Stream):
-            raise(Exception("Event has incorrect type"))
+            raise Exception("Event has incorrect type")
 
         try:
             self.data = stream
 
             if not np.allclose(
-                    [tr.stats.npts for tr in stream[1:]], stream[0].stats.npts):
+                    [tr.stats.npts for tr in stream[1:]],
+                    stream[0].stats.npts):
                 self.meta.accept = False
 
             # Filter Traces
@@ -296,36 +295,32 @@ class RFData(object):
                                  corners=2, zerophase=True)
                 self.data.resample(new_sr, no_filter=True)
 
-        except:
+        except Exception as e:
             print("Error: Not all channels are available")
             self.meta.accept = False
 
         if returned:
             return self.meta.accept
 
-    def download_data(self, client, stdata=[], dtype='SAC', ndval=np.nan,
-                       new_sr=5.,dts=120., remove_response=False,
-                       local_response_dir='',
-                       returned=False, verbose=False):
+    def download_data(self, client, new_sr=5., dts=120.,
+                      remove_response=False, returned=False,
+                      verbose=False):
+
         """
         Downloads seismograms based on event origin time and
-        P phase arrival.
+        P phase arrival and resamples the waveforms.
 
         Parameters
         ----------
         client : :class:`~obspy.client.fdsn.Client`
             Client object
-        ndval : float
-            Fill in value for missing data
         new_sr : float
             New sampling rate (Hz)
         dts : float
             Time duration (sec)
-        stdata : List
-            Station list
         remove_response : bool
-            Remove instrument response from seismogram and resitute to true ground
-            velocity (m/s) using obspy.core.trace.Trace.remove_response()
+            Remove instrument response from seismogram and resitute to true
+            ground velocity (m/s)
         returned : bool
             Whether or not to return the ``accept`` attribute
         verbose : bool
@@ -336,15 +331,10 @@ class RFData(object):
         accept : bool
             Whether or not the object is accepted for further analysis
 
-        Attributes
-        ----------
-        data : :class:`~obspy.core.Stream`
-            Stream containing :class:`~obspy.core.Trace` objects
-
         """
 
         if self.meta is None:
-            raise(Exception("Requires event data as attribute - aborting"))
+            raise Exception("Requires event data as attribute - aborting")
 
         if not self.meta.accept:
             return
@@ -353,18 +343,21 @@ class RFData(object):
         tstart = self.meta.time + self.meta.ttime - dts
         tend = self.meta.time + self.meta.ttime + dts
 
-        # Get waveforms
-        print("* Requesting Waveforms: ")
-        print("*    Startime: " + tstart.strftime("%Y-%m-%d %H:%M:%S"))
-        print("*    Endtime:  " + tend.strftime("%Y-%m-%d %H:%M:%S"))
+        if verbose:
+            print("* Requesting Waveforms: ")
+            print("*    Startime: " + tstart.strftime("%Y-%m-%d %H:%M:%S"))
+            print("*    Endtime:  " + tend.strftime("%Y-%m-%d %H:%M:%S"))
 
         # Download data
         err, stream = utils.download_data(
-            client=client, sta=self.sta, start=tstart, end=tend,
-            stdata=stdata, dtype=dtype, ndval=ndval, new_sr=new_sr,
+            client=client,
+            sta=self.sta,
+            start=tstart,
+            end=tend,
+            new_sr=new_sr,
+            verbose=verbose,
             remove_response=remove_response,
-            local_response_dir=local_response_dir,
-            verbose=verbose, zcomp=self.zcomp)
+            zcomp=self.zcomp)
 
         # Store as attributes with traces in dictionary
         try:
@@ -380,7 +373,7 @@ class RFData(object):
             self.data.resample(new_sr, no_filter=True)
 
         # If there is no ZNE, perhaps there is Z12 (or zcomp12)?
-        except:
+        except Exception as e:
 
             try:
                 tr1 = stream.select(component='1')[0]
@@ -404,7 +397,7 @@ class RFData(object):
                 # Rotate from Z12 to ZNE using StDb azcorr attribute
                 self.rotate(align='ZNE')
 
-            except:
+            except Exception as e:
                 self.meta.accept = False
 
         if returned:
@@ -413,11 +406,11 @@ class RFData(object):
     def rotate(self, vp=None, vs=None, align=None):
         """
         Rotates 3-component seismograms from vertical (Z),
-        east (E) and north (N) to longitudinal (L), 
+        east (E) and north (N) to longitudinal (L),
         radial (Q) and tangential (T) components of motion.
         Note that the method 'rotate' from ``obspy.core.stream.Stream``
         is used for the rotation ``'ZNE->ZRT'`` and ``'ZNE->LQT'``.
-        Rotation ``'ZNE->PVH'`` is implemented separately here 
+        Rotation ``'ZNE->PVH'`` is implemented separately here
         due to different conventions.
 
         Can also rotate Z12 to ZNE.
@@ -464,8 +457,6 @@ class RFData(object):
             Z, N, E = rotate2zne(trZ.data, 0., -90., trN.data,
                                  azim, 0., trE.data, azim+90., 0.)
 
-            # Z, N, E = rotate2zne(trZ.data, 0., -90., trN.data,
-            #                      azim, 0., trE.data, azim+90., 0.)
             trN.data = N
             trE.data = E
 
@@ -545,8 +536,7 @@ class RFData(object):
             self.meta.rotated = True
 
         else:
-            raise(Exception("incorrect 'align' argument"))
-
+            raise Exception("incorrect 'align' argument")
 
     def calc_snr(self, dt=30., fmin=0.05, fmax=1.):
         """
@@ -634,15 +624,14 @@ class RFData(object):
         # Calculate signal/noise ratio in dB
         self.meta.snrh = 10*np.log10(srms*srms/nrms/nrms)
 
-
     def deconvolve(self, phase='P', vp=None, vs=None,
-                   align=None, method='wiener', wavelet='complete',
-                   envelope_threshold=0.05, time=5, pre_filt=None,
+                   align=None, method='wiener', wavelet='envelope',
+                   envelope_threshold=0.05, time=30, pre_filt=None,
                    gfilt=None, wlevel=0.01, writeto=None):
         """
-        Deconvolves three-component data using one component as the source wavelet.
-        The source component is always taken as the dominant compressional 
-        component, which can be either 'Z', 'L', or 'P'. 
+        Deconvolves three-component data using one component as the source
+        wavelet. The source component is always taken as the dominant
+        compressional component, which can be either 'Z', 'L', or 'P'.
 
         Parameters
         ----------
@@ -654,11 +643,11 @@ class RFData(object):
             Alignment of coordinate system for rotation
             ('ZRT', 'LQT', or 'PVH')
         method : str
-            Method for deconvolution. Options are 'wiener', 'water' or 
-            'multitaper'
+            Method for deconvolution. Options are 'wiener', 'wiener-mod', 
+            'water', or 'multitaper'
         wavelet : str
-            Type of wavelet for deconvolution. Options are 'complete', 'time' or 
-            'envelope'
+            Type of wavelet for deconvolution. Options are 'complete', 'time'
+            or 'envelope'
         envelope_threshold : float
             Threshold [0-1] used in ``wavelet='envelope'``.
         time : float
@@ -668,7 +657,7 @@ class RFData(object):
             Low and High frequency corners of bandpass filter applied
             before deconvolution
         gfilt : float
-            Center frequency of Gaussian filter (Hz). 
+            Center frequency of Gaussian filter (Hz).
         wlevel : float
             Water level used in ``method='water'``.
         writeto : str or None
@@ -680,7 +669,6 @@ class RFData(object):
             Stream containing the receiver function traces
 
         """
-
         if not self.meta.accept:
             return
 
@@ -703,33 +691,39 @@ class RFData(object):
             return gauss
 
         def _Pwavelet(parent, method='complete', overhang=5,
-                envelope_threshold=0.05, time=5):
+                      envelope_threshold=0.05, time=5):
 
             """
-            Select wavelet from the parent function for deconvolution using method.
-            parent: obspy.Trace
-                wavefrom to extract the wavelet from
-            method: str
-                'complete' use complete parent signal after P arrival  (current
-                    implementation)
-                'envelope' use only the part of the parent signal after the
+            Select wavelet from the parent function for deconvolution using
+            method.
+
+            Parameters
+            ----------
+            parent : obspy.Trace
+                Wavefrom to extract the wavelet from
+            method : str
+                'complete' uses complete parent signal after P arrival
+                    (current implementation)
+                'envelope' uses only the part of the parent signal after the
                     P arrival where
                     envelope > envelope_threshold*max(envelope)
                     fall back to 'complete' if condition not reached
                 'time' use only this many seonds after P arrival`
                     fall back to 'complete' if longer than parent
-            overhang: float
-                seconds before start and after end of wavelet to be used for
+            overhang : float
+                Seconds before start and after end of wavelet to be used for
                 tapering
-            envelope_threshold: float
-                fraction of the envelope that defines wavelet (for
+            envelope_threshold : float
+                Fraction of the envelope that defines wavelet (for
                 method='envelope')
-            time: float
-                window (seconds) that defines the wavelet (for method='time')
+            time : float
+                Window (seconds) that defines the wavelet (for method='time')
                 minimum time (seconds) of the wavelet (for method='envelope')
 
             Return:
-            left, right: (obspy.UTCDateTime) start and end time of wavelet
+            -------
+            left, right : (obspy.UTCDateTime)
+                Start and end time of wavelet
             """
 
             import obspy.signal.filter as osf
@@ -742,8 +736,8 @@ class RFData(object):
 
             if method == 'envelope':
                 split = int((self.meta.time + self.meta.ttime +
-                    time - parent.stats.starttime ) *
-                    parent.stats.sampling_rate)
+                            time - parent.stats.starttime) *
+                            parent.stats.sampling_rate)
                 env = osf.envelope(parent.data)
                 env /= max(env)  # normalize
                 env = env[split:]  # only look after P + time
@@ -751,7 +745,8 @@ class RFData(object):
                     i = np.nonzero(
                             np.diff(
                                 np.array(
-                                    env > envelope_threshold, dtype=int))==-1)[0][0]
+                                    env > envelope_threshold,
+                                    dtype=int)) == -1)[0][0]
                 except IndexError:
                     i = len(parent.data)-1
                 dts = i * parent.stats.delta + time
@@ -774,21 +769,21 @@ class RFData(object):
                 dts = len(parent.data)*parent.stats.delta/2.
                 left = self.meta.time + self.meta.ttime - overhang
                 right = self.meta.time + self.meta.ttime + dts - 2*overhang
-            
+
             if method == 'noise':
                 dts = len(parent.data)*parent.stats.delta/2.
                 left = self.meta.time + self.meta.ttime - dts
                 right = self.meta.time + self.meta.ttime - overhang
 
             return left, right
-            
-        def _decon(parent, daughter1, daughter2, noise, nn, method):
+
+        def _decon(parent, daughter1, daughter2, noise_parent, noise_daughter1, nn, method):
 
             # Get length, zero padding parameters and frequencies
             dt = parent.stats.delta
 
             # Wiener or Water level deconvolution
-            if method == 'wiener' or method == 'water':
+            if method == 'wiener' or method == 'water' or method == "wiener-mod":
 
                 # npad = _npow2(nn*2)
                 npad = nn
@@ -798,17 +793,23 @@ class RFData(object):
                 Fp = np.fft.fft(parent.data, n=npad)
                 Fd1 = np.fft.fft(daughter1.data, n=npad)
                 Fd2 = np.fft.fft(daughter2.data, n=npad)
-                Fn = np.fft.fft(noise.data, n=npad)
+                Fpn = np.fft.fft(noise_parent.data, n=npad)
+                Fd1n = np.fft.fft(noise_daughter1.data, n=npad)
 
                 # Auto and cross spectra
                 Spp = np.real(Fp*np.conjugate(Fp))
                 Sd1p = Fd1*np.conjugate(Fp)
                 Sd2p = Fd2*np.conjugate(Fp)
-                Snn = np.real(Fn*np.conjugate(Fn))
+                Snpp = np.real(Fpn*np.conjugate(Fpn))
+                Snd1d1 = np.real(Fd1n*np.conjugate(Fd1n))
+                Snpd1 = np.abs(Fd1n*np.conjugate(Fpn))
 
                 # Final processing depends on method
                 if method == 'wiener':
-                    Sdenom = Spp + Snn
+                    Sdenom = Spp + Snpp
+                # Wiener ad-hoc deconvolution in Audet 2010 - BSSA
+                elif method == "wiener-mod":         
+                    Sdenom = Spp + 0.25*Snpp + 0.25*Snd1d1 + 0.5*Snpd1
                 elif method == 'water':
                     phi = np.amax(Spp)*wlevel
                     Sdenom = Spp
@@ -825,11 +826,11 @@ class RFData(object):
                         [tr.stats.npts for tr in [parent,
                                                   daughter1,
                                                   daughter2,
-                                                  noise]], npad):
+                                                  noise_parent]], npad):
                     parent.data = _pad(parent.data, npad)
                     daughter1.data = _pad(daughter1.data, npad)
                     daughter2.data = _pad(daughter2.data, npad)
-                    noise.data = _pad(noise.data, npad)
+                    noise_parent.data = _pad(noise_parent.data, npad)
 
                 freqs = np.fft.fftfreq(npad, d=dt)
 
@@ -845,7 +846,7 @@ class RFData(object):
                 Fd2 = np.fft.fft(np.multiply(tapers.transpose(),
                                              daughter2.data))
                 Fn = np.fft.fft(np.multiply(tapers.transpose(),
-                                            noise.data))
+                                            noise_parent.data))
 
                 # Auto and cross spectra
                 Spp = np.sum(np.real(Fp*np.conjugate(Fp)), axis=0)
@@ -869,9 +870,9 @@ class RFData(object):
                 gnorm = 1.
 
             # Is this correct?
-            #parent de-noised = np.fft.ifftshift(np.real(np.fft.ifft(gauss*Sdenom))/gnorm)
-            #daughter1 de-noised = np.fft.ifftshift(np.real(np.fft.ifft( gauss*Sd1p))/gnorm)
-            #daughter2 de-noised = np.fft.ifftshift(np.real(np.fft.ifft( gauss*Sd2p))/gnorm)
+            # parent de-noised = np.fft.ifftshift(np.real(np.fft.ifft(gauss*Sdenom))/gnorm)
+            # daughter1 de-noised = np.fft.ifftshift(np.real(np.fft.ifft( gauss*Sd1p))/gnorm)
+            # daughter2 de-noised = np.fft.ifftshift(np.real(np.fft.ifft( gauss*Sd2p))/gnorm)
 
             # Copy traces
             rfp = parent.copy()
@@ -893,7 +894,7 @@ class RFData(object):
             self.rotate(vp=vp, vs=vs, align=align)
 
         #  v--True if None      v--True if nan, error if None
-        if not self.meta.snr or not np.isfinite(self.meta.snr):
+        if self.meta.snr is None or not np.isfinite(self.meta.snr):
             print("Warning: SNR has not been calculated - " +
                   "calculating now using default")
             self.calc_snr()
@@ -922,37 +923,70 @@ class RFData(object):
 
         if phase == 'P' or 'PP':
 
-            # Get signal length (i.e., seismogram to deconvolve) from trace length
-            over = 5
-            dtsqt = len(trL.data)*trL.stats.delta/2.
+            # Get signal length (i.e., seismogram to deconvolve) from
+            # trace length
+            # over = 5
+            dts = len(trL.data)*trL.stats.delta/2.
 
             # Traces will be zero-paded to this length (samples)
-            nn = int(round((dtsqt+over)*trL.stats.sampling_rate)) + 1
+            nn = int(round((dts - 5.)*trL.stats.sampling_rate)) + 1
 
-            sig_left, sig_right  = _Pwavelet(trL, method=wavelet,
-                envelope_threshold=envelope_threshold, time=time, overhang=over)
-
-            # Trim wavelet
-            trL.trim(sig_left, sig_right, nearest_sample=False, pad=True,
-                fill_value=0.)
-
-            # Signal window (-5. to dtsqt-10 sec)
-            sig_left, sig_right  = _Pwavelet(trQ, method='complete', overhang=over)
+            sig_left = self.meta.time + self.meta.ttime - 5.
+            sig_right = self.meta.time + self.meta.ttime + dts - 10.
 
             # Trim signal traces
             [tr.trim(sig_left, sig_right, nearest_sample=False, 
-                pad=True, fill_value=0.) for tr in [trQ, trT]]
+                pad=nn, fill_value=0.) for tr in [trL, trQ, trT]]
 
-            # Noise window (-dtsqt to -5. sec)
-            noise_left, noise_right  = _Pwavelet(trQ, method='noise', overhang=over)
+            # Noise window (-dts to -5. sec)
+            noise_left = self.meta.time + self.meta.ttime - dts
+            noise_right = self.meta.time + self.meta.ttime - 5.
 
             # Trim noise traces
             [tr.trim(noise_left, noise_right, nearest_sample=False, 
-                pad=True, fill_value=0.) for tr in [trNl, trNq]]
+                pad=nn, fill_value=0.) for tr in [trNl, trNq]]
+
+            # dtsqt = len(trL.data)*trL.stats.delta/2.
+            # nn = int(round((dtsqt-5.)*trL.stats.sampling_rate)) + 1
+            # sig_left, sig_right = _Pwavelet(
+            #     trL,
+            #     method=wavelet,
+            #     envelope_threshold=envelope_threshold,
+            #     time=time,
+            #     overhang=over)
+
+            # # Trim wavelet
+            # trL.trim(
+            #     sig_left,
+            #     sig_right,
+            #     nearest_sample=False,
+            #     pad=True,
+            #     fill_value=0.)
+
+            # # Signal window (-5. to dtsqt-10 sec)
+            # sig_left, sig_right = _Pwavelet(
+            #     trQ,
+            #     method='complete',
+            #     overhang=over)
+
+            # # Trim signal traces
+            # [tr.trim(sig_left, sig_right, nearest_sample=False,
+            #          pad=True, fill_value=0.) for tr in [trQ, trT]]
+
+            # # Noise window (-dtsqt to -5. sec)
+            # noise_left, noise_right = _Pwavelet(
+            #     trQ,
+            #     method='noise',
+            #     overhang=over)
+
+            # # Trim noise traces
+            # [tr.trim(noise_left, noise_right, nearest_sample=False,
+            #          pad=True, fill_value=0.) for tr in [trNl, trNq]]
 
         elif phase == 'S' or 'SKS':
 
-            # Get signal length (i.e., seismogram to deconvolve) from trace length
+            # Get signal length (i.e., seismogram to deconvolve) from
+            # trace length
             dts = len(trL.data)*trL.stats.delta/2.
 
             # Trim signal traces (-5. to dts-10 sec)
@@ -962,7 +996,7 @@ class RFData(object):
                      self.meta.time+self.meta.ttime+25.)
             trT.trim(self.meta.time+self.meta.ttime+25.-dts/2.,
                      self.meta.time+self.meta.ttime+25.)
-            
+
             # Trim noise traces (-dts to -5 sec)
             trNl.trim(self.meta.time+self.meta.ttime-dts,
                       self.meta.time+self.meta.ttime-dts/2.)
@@ -971,25 +1005,25 @@ class RFData(object):
 
         # Taper traces - only necessary processing after trimming
         # TODO: What does this to the multitaper method
-        [tr.taper(max_percentage=0.05, max_length=2.) 
+        [tr.taper(max_percentage=0.05, max_length=2.)
          for tr in [trL, trQ, trT, trNl, trNq]]
 
         # Pre-filter waveforms before deconvolution
         if pre_filt:
             [tr.filter('bandpass', freqmin=pre_filt[0], freqmax=pre_filt[1],
-                       corners=2, zerophase=True) 
+                       corners=2, zerophase=True)
              for tr in [trL, trQ, trT, trNl, trNq]]
 
-        if writeto:
-            with open(writeto, 'wb') as f:
-                pickle.dump(Stream(traces=[trL, trQ, trT]), f)
+        # if writeto:
+        #     with open(writeto, 'wb') as f:
+        #         pickle.dump(Stream(traces=[trL, trQ, trT]), f)
 
         # Deconvolve
         if phase == 'P' or 'PP':
-            rfL, rfQ, rfT = _decon(trL, trQ, trT, trNl, nn, method)
+            rfL, rfQ, rfT = _decon(trL, trQ, trT, trNl, trNq, nn, method)
 
         elif phase == 'S' or 'SKS':
-            rfQ, rfL, rfT = _decon(trQ, trL, trT, trNq, nn, method)
+            rfQ, rfL, rfT = _decon(trQ, trL, trT, trNq, trNl, nn, method)
 
         # Update stats of streams
         rfL.stats.channel = 'RF' + self.meta.align[0]
@@ -998,14 +1032,13 @@ class RFData(object):
 
         self.rf = Stream(traces=[rfL, rfQ, rfT])
 
-
     def calc_cc(self):
 
         if not self.meta.accept:
             return
 
         if not hasattr(self, 'rf'):
-            raise(Exception("Warning: Receiver functions are not available"))
+            raise Exception("Warning: Receiver functions are not available")
 
         obs_L = self.data[0].copy()
         obs_Q = self.data[1].copy()
@@ -1013,11 +1046,30 @@ class RFData(object):
         sr = obs_L.stats.sampling_rate
 
         # Filter using SNR bandpass
-        obs_L.detrend().taper(max_percentage=0.05, max_length=2.)
-        obs_Q.detrend().taper(max_percentage=0.05, max_length=2.)
-        obs_L.filter('bandpass', freqmin=0.05, freqmax=1., corners=2, zerophase=True)
-        obs_Q.filter('bandpass', freqmin=0.05, freqmax=1., corners=2, zerophase=True)
-        obs_rfQ.filter('bandpass', freqmin=0.05, freqmax=1., corners=2, zerophase=True)
+        obs_L.detrend().taper(
+            max_percentage=0.05,
+            max_length=2.)
+        obs_Q.detrend().taper(
+            max_percentage=0.05,
+            max_length=2.)
+        obs_L.filter(
+            'bandpass',
+            freqmin=0.05,
+            freqmax=1.,
+            corners=2,
+            zerophase=True)
+        obs_Q.filter(
+            'bandpass',
+            freqmin=0.05,
+            freqmax=1.,
+            corners=2,
+            zerophase=True)
+        obs_rfQ.filter(
+            'bandpass',
+            freqmin=0.05,
+            freqmax=1.,
+            corners=2,
+            zerophase=True)
 
         # Convolve L with rfQ to obtain predicted Q
         pred_Q = obs_Q.copy()
@@ -1034,7 +1086,6 @@ class RFData(object):
 
         # Get cross correlation coefficient between observed and predicted Q
         self.meta.cc = np.corrcoef(obs_Q.data, pred_Q.data)[0][1]
-
 
     def to_stream(self):
         """
@@ -1068,7 +1119,7 @@ class RFData(object):
             return trace
 
         if not hasattr(self, 'rf'):
-            raise(Exception("Warning: Receiver functions are not available"))
+            raise Exception("Warning: Receiver functions are not available")
 
         stream = self.rf
         for tr in stream:

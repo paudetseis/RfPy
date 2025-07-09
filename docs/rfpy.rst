@@ -58,7 +58,7 @@ Install the `StDb` dependency using ``pip`` inside the ``rfpy`` environment:
 
 .. sourcecode:: bash
 
-   pip install stdb
+   pip install stdb@git+https://github.com/schaefferaj/stdb
 
 Installing from GitHub development branch
 -----------------------------------------
@@ -82,6 +82,59 @@ Installing from source
 .. sourcecode:: bash
 
    pip install .
+
+Using local data
+================
+
+The main script packaged with ``RfPy`` uses FDSN web services through and ``ObsPy`` `Client` to load waveform data. For waveform data locally stored on your hard drive, the scripts can use a `Client` that reads a `SeisComP Data Structure <https://docs.obspy.org/packages/autogen/obspy.clients.filesystem.sds.html>`_ archive containing SAC or miniSEED waveform data. Check out the scripts ``rfpy_calc`` below and the argument ``--SDS-path`` and ``--dtype`` for more details.
+
+Station Metadata
+----------------
+
+If you have data stored locally on your drive, it is likely you also
+have a station `XML <https://www.fdsn.org/xml/station/>`_ file
+containing the metadata. The corresponding ObsPy documentation is
+`here <https://docs.obspy.org/packages/obspy.core.inventory.html>`_. 
+
+You can now use a stationXML (`.xml`) file instead of the StDb `.pkl` format. 
+Alternatively, you can convert the stationXML file to an StDb `.pkl` file
+by running the command ``gen_stdb station.xml`` (these options are only
+available on StDb version 0.2.7. If you don't have a station `XML` file but you have
+a dataless SEED file, you can convert it first to XML using `this tools <https://seiscode.iris.washington.edu/projects/stationxml-converter>`_.
+
+.. note::
+   Please note that using the stationXML directly as input means you cannot
+   correct the orientation of H1 and H2 components using the azimuth correction term stored as ``azcorr`` in the StDb file, as this information is not stored in the stationXML file. 
+
+Waveform Data
+-------------
+
+The SDS folder containing the waveform data has the structure:
+
+.. code-block:: python
+
+   archive
+     + year
+       + network code
+         + station code
+           + channel code + type
+             + one file per day and location, e.g. NET.STA.LOC.CHAN.TYPE.YEAR.DOY
+
+
+For example:
+
+.. code-block:: python
+
+   SDS/
+     2014/
+       YH/
+         LOBS3/
+           HH1.D/ 
+             YH.LOBS3..CH1.D.2014.332
+             ...
+
+
+Note, the filename does not include the extension (`.MSEED` or `.SAC`), and the characters `.D` (for type Data) that appear in both the channel code and the filename. Note also the two dots (`..`). If there is a location code, it should appear between those dots (e.g., for a location code `10`, the corresponding filename should be `YH.LOBS3.10.HH1.D.2014.332`). There is no location code for the YH.LOBS3 data, and this field is simply absent from the filenames. Finally, the day-of-year (DOY) field must be zero-padded to be exactly 3 characters.
 
 Basic Usage
 ===========
