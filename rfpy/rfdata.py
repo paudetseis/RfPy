@@ -625,8 +625,8 @@ class RFData(object):
         self.meta.snrh = 10*np.log10(srms*srms/nrms/nrms)
 
     def deconvolve(self, phase='P', vp=None, vs=None,
-                   align=None, method='wiener', wavelet='complete',
-                   envelope_threshold=0.05, time=5, pre_filt=None,
+                   align=None, method='wiener', wavelet='envelope',
+                   envelope_threshold=0.05, time=30, pre_filt=None,
                    gfilt=None, wlevel=0.01, writeto=None):
         """
         Deconvolves three-component data using one component as the source
@@ -925,46 +925,63 @@ class RFData(object):
 
             # Get signal length (i.e., seismogram to deconvolve) from
             # trace length
-            over = 5
-            dtsqt = len(trL.data)*trL.stats.delta/2.
+            # over = 5
+            dts = len(trL.data)*trL.stats.delta/2.
 
             # Traces will be zero-paded to this length (samples)
-            nn = int(round((dtsqt+over)*trL.stats.sampling_rate)) + 1
+            nn = int(round((dts - 5.)*trL.stats.sampling_rate)) + 1
 
-            sig_left, sig_right = _Pwavelet(
-                trL,
-                method=wavelet,
-                envelope_threshold=envelope_threshold,
-                time=time,
-                overhang=over)
-
-            # Trim wavelet
-            trL.trim(
-                sig_left,
-                sig_right,
-                nearest_sample=False,
-                pad=True,
-                fill_value=0.)
-
-            # Signal window (-5. to dtsqt-10 sec)
-            sig_left, sig_right = _Pwavelet(
-                trQ,
-                method='complete',
-                overhang=over)
+            sig_left = self.meta.time + self.meta.ttime - 5.
+            sig_right = self.meta.time + self.meta.ttime + dts - 10.
 
             # Trim signal traces
-            [tr.trim(sig_left, sig_right, nearest_sample=False,
-                     pad=True, fill_value=0.) for tr in [trQ, trT]]
+            [tr.trim(sig_left, sig_right, nearest_sample=False, 
+                pad=nn, fill_value=0.) for tr in [trL, trQ, trT]]
 
-            # Noise window (-dtsqt to -5. sec)
-            noise_left, noise_right = _Pwavelet(
-                trQ,
-                method='noise',
-                overhang=over)
+            # Noise window (-dts to -5. sec)
+            noise_left = self.meta.time + self.meta.ttime - dts
+            noise_right = self.meta.time + self.meta.ttime - 5.
 
             # Trim noise traces
-            [tr.trim(noise_left, noise_right, nearest_sample=False,
-                     pad=True, fill_value=0.) for tr in [trNl, trNq]]
+            [tr.trim(noise_left, noise_right, nearest_sample=False, 
+                pad=nn, fill_value=0.) for tr in [trNl, trNq]]
+
+            # dtsqt = len(trL.data)*trL.stats.delta/2.
+            # nn = int(round((dtsqt-5.)*trL.stats.sampling_rate)) + 1
+            # sig_left, sig_right = _Pwavelet(
+            #     trL,
+            #     method=wavelet,
+            #     envelope_threshold=envelope_threshold,
+            #     time=time,
+            #     overhang=over)
+
+            # # Trim wavelet
+            # trL.trim(
+            #     sig_left,
+            #     sig_right,
+            #     nearest_sample=False,
+            #     pad=True,
+            #     fill_value=0.)
+
+            # # Signal window (-5. to dtsqt-10 sec)
+            # sig_left, sig_right = _Pwavelet(
+            #     trQ,
+            #     method='complete',
+            #     overhang=over)
+
+            # # Trim signal traces
+            # [tr.trim(sig_left, sig_right, nearest_sample=False,
+            #          pad=True, fill_value=0.) for tr in [trQ, trT]]
+
+            # # Noise window (-dtsqt to -5. sec)
+            # noise_left, noise_right = _Pwavelet(
+            #     trQ,
+            #     method='noise',
+            #     overhang=over)
+
+            # # Trim noise traces
+            # [tr.trim(noise_left, noise_right, nearest_sample=False,
+            #          pad=True, fill_value=0.) for tr in [trNl, trNq]]
 
         elif phase == 'S' or 'SKS':
 
@@ -997,9 +1014,9 @@ class RFData(object):
                        corners=2, zerophase=True)
              for tr in [trL, trQ, trT, trNl, trNq]]
 
-        if writeto:
-            with open(writeto, 'wb') as f:
-                pickle.dump(Stream(traces=[trL, trQ, trT]), f)
+        # if writeto:
+        #     with open(writeto, 'wb') as f:
+        #         pickle.dump(Stream(traces=[trL, trQ, trT]), f)
 
         # Deconvolve
         if phase == 'P' or 'PP':

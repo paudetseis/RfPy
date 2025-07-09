@@ -44,7 +44,9 @@ Usage
     services framework. The stations are processed one by one and the data are stored to disk.
 
     positional arguments:
-      indb                  Station Database to process from.
+      indb                  Station Database to process from. Available
+                            formats are: StDb (.pkl or .csv) or stationXML
+                            (.xml)
 
     options:
       -h, --help            show this help message and exit
@@ -61,7 +63,7 @@ Usage
                             regardless of the key type of the database.
 
     Server Settings:
-      Settings associated with which datacenter to log into.
+      Settings associated with FDSN datacenters for archived data.
 
       --server SERVER       Base URL of FDSN web service compatible server (e.g.
                             “http://service.iris.edu”) or key string for recognized server (one
@@ -82,10 +84,10 @@ Usage
                             PGP message in it. [Default None]
 
     Local Data Settings:
-      Settings associated with defining and using a local data base of pre-downloaded day-long
-      SAC or MSEED files.
+      Settings associated with a SeisComP database for locally archived
+      data.
 
-      --SDS-path LOCALDATA
+      --SDS-path SDS_PATH
                             Specify absolute path to a SeisComP Data Structure (SDS) archive
                             containing day-long SAC or MSEED files(e.g., --SDS-path=/Home/username/Data/SDS). See
                             https://www.seiscomp.de/seiscomp3/doc/applications/slarchive/SDS.html

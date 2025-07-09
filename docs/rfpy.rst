@@ -91,9 +91,20 @@ The main script packaged with ``RfPy`` uses FDSN web services through and ``ObsP
 Station Metadata
 ----------------
 
-If you have data stored locally on your drive, it is likely you also have a station `XML <https://www.fdsn.org/xml/station/>`_ file containing the metadata. The corresponding ObsPy documentation is `here <https://docs.obspy.org/packages/obspy.core.inventory.html>`_. 
+If you have data stored locally on your drive, it is likely you also
+have a station `XML <https://www.fdsn.org/xml/station/>`_ file
+containing the metadata. The corresponding ObsPy documentation is
+`here <https://docs.obspy.org/packages/obspy.core.inventory.html>`_. 
 
-To convert the station `XML` file to an input that can be read by ``OrientPy``, you run the command ``gen_stdb station.xml`` (only available on StDb version 0.2.7), which will create the file ``station.pkl``. If you don't have a station `XML` file but you have a dataless SEED file, you can convert it first to `XML` using `this tools <https://seiscode.iris.washington.edu/projects/stationxml-converter>`_.
+You can now use a stationXML (`.xml`) file instead of the StDb `.pkl` format. 
+Alternatively, you can convert the stationXML file to an StDb `.pkl` file
+by running the command ``gen_stdb station.xml`` (these options are only
+available on StDb version 0.2.7. If you don't have a station `XML` file but you have
+a dataless SEED file, you can convert it first to XML using `this tools <https://seiscode.iris.washington.edu/projects/stationxml-converter>`_.
+
+.. note::
+   Please note that using the stationXML directly as input means you cannot
+   correct the orientation of H1 and H2 components using the azimuth correction term stored as ``azcorr`` in the StDb file, as this information is not stored in the stationXML file. 
 
 Waveform Data
 -------------

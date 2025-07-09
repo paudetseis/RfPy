@@ -55,7 +55,8 @@ def get_calc_arguments(argv=None):
     # General Settings
     parser.add_argument(
         "indb",
-        help="Station Database to process from.",
+        help="Station Database to process from. Available formats are: " +
+             "StDb (.pkl or .csv) or stationXML (.xml)",
         type=str)
     parser.add_argument(
         "--keys",
@@ -102,8 +103,7 @@ def get_calc_arguments(argv=None):
     # Server Settings
     ServerGroup = parser.add_argument_group(
         title="Server Settings",
-        description="Settings associated with which "
-        "datacenter to log into.")
+        description="Settings associated with FDSN datacenters for archived data.")
     ServerGroup.add_argument(
         "--server",
         action="store",
@@ -142,9 +142,8 @@ def get_calc_arguments(argv=None):
     # Database Settings
     DataGroup = parser.add_argument_group(
         title="Local Data Settings",
-        description="Settings associated with defining " +
-        "and using a local data base of pre-downloaded " +
-        "day-long SAC or MSEED files.")
+        description="Settings associated with a SeisComP database " +
+        "for locally archived data.")
     DataGroup.add_argument(
         "--SDS-path",
         action="store",
@@ -367,6 +366,12 @@ def get_calc_arguments(argv=None):
     if not exist(args.indb):
         parser.error("Input file " + args.indb + " does not exist")
 
+    # Check Extension
+    ext = args.indb.split('.')[-1]
+
+    if ext not in ['pkl', 'xml', 'csv']:
+        parser.error("Must supply a station list in .pkl, .csv or .xml format ")
+
     # create station key list
     if len(args.stkeys) > 0:
         args.stkeys = args.stkeys.split(',')
@@ -503,20 +508,8 @@ def main():
     # Run Input Parser
     args = get_calc_arguments()
 
-    # Check Extension
-    ext = args.indb.split('.')[-1]
-
-    if ext not in ['pkl', 'xml']:
-        print(
-            "Error: Must supply a station list in .pkl or .xml format ")
-        exit()
-
-    if ext == 'pkl':
-        db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
-
-    elif ext == 'xml':
-        inv = read_inventory(args.indb)
-        db, stkeys = utils.inv2stdb(inv, keys=args.stkeys)
+    # Get station StDb and keys
+    db, stkeys = stdb.io.load_db(fname=args.indb, keys=args.stkeys)
 
     # Loop over station keys
     for stkey in list(stkeys):
